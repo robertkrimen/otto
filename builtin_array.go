@@ -537,3 +537,14 @@ func builtinArray_every(call FunctionCall) Value {
 	}
 	panic(newTypeError())
 }
+
+func builtinArray_some(call FunctionCall) Value {
+	if fn, this := call.Argument(0), call.Argument(1); fn.isCallable() {
+		fn := call.runtime.newNativeFunction(func(call FunctionCall) Value {
+			return toValue(!toBoolean(fn.call(this, call.ArgumentList)))
+		}, 0, "native" + call.thisObject().class + "_")
+		call.ArgumentList = []Value{toValue(fn), this}
+		return toValue(!toBoolean(builtinArray_every(call)))
+	}
+	panic(newTypeError())
+}

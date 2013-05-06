@@ -317,3 +317,13 @@ func TestArray_every(t *testing.T) {
 	test(`[1,2,3].every(function(v,k,o) { return false })`, "false")
 	test(`[1,2,3].every(function(v,k,o) { return true })`, "true")
 }
+
+func TestArray_some(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].some("abc")`, "TypeError")
+	test(`[].some(function(v,k,o) { return true })`, "false")
+	test(`[1,2,3].some(function(v,k,o) { return false })`, "false")
+	test(`[1,2,3].some(function(v,k,o) { return true })`, "true")
+}
