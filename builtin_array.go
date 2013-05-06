@@ -620,3 +620,35 @@ func builtinArray_reduce(call FunctionCall) Value {
 	}
 	panic(newTypeError())
 }
+
+func builtinArray_reduceR(call FunctionCall) Value {
+	if thisObject, fn, initValue := call.thisObject(),
+			call.Argument(0), call.Argument(1); fn.isCallable() {
+		if length := int(toUint32(thisObject.get("length")));
+				length > 0 || initValue.IsDefined() {
+			var accumulator Value
+			index := length
+			if !initValue.IsDefined() {
+				for ; index >= 0; index-- {
+					if k := arrayIndexToString(uint(index)); thisObject.hasProperty(k) {
+						accumulator = thisObject.get(k)
+						index--
+						break
+					}
+				}
+			} else {
+				accumulator = initValue
+			}
+			if accumulator.IsDefined() {
+				for ; index >= 0; index-- {
+					if k := arrayIndexToString(uint(index)); thisObject.hasProperty(k) {
+						accumulator = fn.call(UndefinedValue(), accumulator,
+							thisObject.get(k), k, thisObject)
+					}
+				}
+				return accumulator
+			}
+		}
+	}
+	panic(newTypeError())
+}

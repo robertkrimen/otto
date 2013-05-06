@@ -235,6 +235,7 @@ func newContext() *_runtime {
 		"map", 1, builtinArray_map,
 		"filter", 1, builtinArray_filter,
 		"reduce", 1, builtinArray_reduce,
+		"reduceRight", 1, builtinArray_reduceR,
 	)
 
 	self.Global.Array.write(

@@ -369,3 +369,15 @@ func TestArray_reduce(t *testing.T) {
 	test(`[1,2,3].reduce(function(a,v,k,o) { return a + v }, 4)`, "10")
 	test(`[1,2,3].reduce(function(a,v,k,o) { return a + v })`, "6")
 }
+
+func TestArray_reduceRight(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].reduceRight("abc")`, "TypeError")
+	test(`raise: [].reduceRight(function(a,v,k,o) {})`, "TypeError")
+	test(`[].reduceRight(function(a,v,k,o) {}, 0)`, "0")
+	test(`['a','b','c'].reduceRight(function(a,v,k,o) { return a+', '+v })`, "c, b, a")
+	test(`[1,2,3].reduceRight(function(a,v,k,o) { return a + v }, 4)`, "10")
+	test(`[1,2,3].reduceRight(function(a,v,k,o) { return a + v })`, "6")
+}
