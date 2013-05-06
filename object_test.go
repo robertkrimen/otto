@@ -95,6 +95,20 @@ func TestObject_keys(t *testing.T) {
 	`, "x")
 }
 
+func TestObject_getOwnPropertyNames(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`Object.getOwnPropertyNames({a:1})`, "a")
+	test(`
+		var obj = Object.create({a: 10, b: 20}, {
+			x: { value: 30, enumerable: true },
+			y: { value: 40, enumerable: false}
+		})
+		Object.getOwnPropertyNames(obj)
+	`, "x,y")
+}
+
 func TestObject_toLocaleString(t *testing.T) {
 	Terst(t)
 

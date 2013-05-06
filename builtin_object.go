@@ -78,6 +78,38 @@ func builtinObject_getOwnPropertyDescriptor(call FunctionCall) Value {
 	return toValue(call.runtime.fromPropertyDescriptor(*descriptor))
 }
 
+func builtinObject_getOwnPropertyNames(call FunctionCall) Value {
+	if object := call.Argument(0)._object(); nil != object {
+		var walk func(_stash, func(string))
+		var names []Value
+
+		walk = func(stash _stash, each func(string)) {
+			switch stash := stash.(type) {
+			case *_objectStash:
+				for _, name := range stash._order {
+					each(name)
+				}
+			case *_arrayStash:
+				for index, _ := range stash.valueArray {
+					if stash.valueArray[index]._valueType == valueEmpty {
+						continue // A sparse array
+					}
+					each(arrayIndexToString(uint(index)))
+				}
+				walk(stash._stash, each)
+			}
+		}
+
+		walk(object.stash, func(name string) {
+			if p := object.getOwnProperty(name); nil != p {
+				names = append(names, toValue(name))
+			}
+		})
+		return toValue(call.runtime.newArray(names))
+	}
+	panic(newTypeError())
+}
+
 func builtinObject_defineProperty(call FunctionCall) Value {
 	objectValue := call.Argument(0)
 	object := objectValue._object()
