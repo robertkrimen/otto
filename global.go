@@ -232,6 +232,7 @@ func newContext() *_runtime {
 		"every", 1,builtinArray_every,
 		"some", 1, builtinArray_some,
 		"forEach", 1, builtinArray_forEach,
+		"map", 1, builtinArray_map,
 	)
 
 	self.Global.Array.write(

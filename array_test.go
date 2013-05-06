@@ -336,3 +336,13 @@ func TestArray_forEach(t *testing.T) {
 	test(`var a = 0;[].forEach(function(v,k,o) { a += v });a`, "0")
 	test(`[1,2,3].forEach(function(v,k,o) { a += v });a`, "6")
 }
+
+func TestArray_map(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].map("abc")`, "TypeError")
+	test(`[].map(function(v,k,o) { return 1 }).length`, "0")
+	test(`[1,2,3].map(function(v,k,o) { return v * v })`, "1,4,9")
+	test(`[1,2,3].map(function(v,k,o) { return 1 })`, "1,1,1")
+}
