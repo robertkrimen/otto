@@ -685,7 +685,6 @@ func newContext() *_runtime {
 		self.Global.ErrorPrototype,
 		"name", toValue("Error"),
 		"toString", 0, builtinError_toString,
-		"toString", 0, builtinError_toString,
 	)
 
 	self.GlobalObject.write(
