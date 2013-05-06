@@ -260,6 +260,9 @@ func newContext() *_runtime {
 		"toUpperCase", 0, builtinString_toUpperCase,
 		"substr", 2, builtinString_substr,
 		"toJSON", 1, builtinJSON_toJSON,
+		"trim", 0, builtinString_trim,
+		"trimLeft", 0, builtinString_trimL,
+		"trimRight", 0, builtinString_trimR,
 	)
 	// TODO Maybe streamline this redundancy?
 	self.Global.String.write(
