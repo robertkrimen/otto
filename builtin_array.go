@@ -491,3 +491,35 @@ func builtinArray_indexOf(call FunctionCall) Value {
 	}
 	return toValue(-1)
 }
+
+func builtinArray_lastIndexOf(call FunctionCall) Value {
+	thisObject, argValue := call.thisObject(), call.Argument(0)
+	index := func(length int) (index int) {
+		length--
+		index = length
+		if v := call.Argument(1); v.IsNumber() {
+			index = int(toInteger(v))
+		}
+		if index < 0 {
+			index += length
+		}
+		if index > length || index < 0 {
+			index = length
+		}
+		return
+	}
+	if stash, isArray := thisObject.stash.(*_arrayStash); isArray {
+		for index := index(len(stash.valueArray)); index >= 0; index-- {
+			if sameValue(argValue, stash.valueArray[index]) {
+				return toValue(index)
+			}
+		}
+	} else {
+		for index := index(int(toUint32(thisObject.get("length")))); index >= 0; index-- {
+			if sameValue(argValue, thisObject.get(arrayIndexToString(uint(index)))) {
+				return toValue(index)
+			}
+		}
+	}
+	return toValue(-1)
+}

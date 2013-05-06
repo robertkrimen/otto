@@ -292,3 +292,18 @@ func TestArray_indexOf(t *testing.T) {
 		obj.indexOf('c')
 	`, "2")
 }
+
+func TestArray_lastIndexOf(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`['a', 'b', 'c', 'b'].lastIndexOf('b')`, "3")
+	test(`['a', 'b', 'c', 'b'].lastIndexOf('b', 2)`, "1")
+	test(`['a', 'b', 'c', 'b'].lastIndexOf('b', -2)`, "1")
+	test(`
+		Object.prototype.lastIndexOf = Array.prototype.lastIndexOf
+		var obj = {0: 'a', 1: 'b', 2: 'c', 3: 'b', length: 4}
+		// [typeof obj.lastIndexOf === 'function', obj.lastIndexOf('b')]
+		obj.lastIndexOf('b')
+	`, "3")
+}

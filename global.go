@@ -228,6 +228,7 @@ func newContext() *_runtime {
 		"reverse", 0, builtinArray_reverse,
 		"sort", 0, builtinArray_sort,
 		"indexOf", 1, builtinArray_indexOf,
+		"lastIndexOf", 1, builtinArray_lastIndexOf,
 	)
 
 	self.Global.Array.write(
