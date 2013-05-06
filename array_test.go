@@ -357,3 +357,15 @@ func TestArray_filter(t *testing.T) {
 	test(`[1,2,3].filter(function(v,k,o) { return false }).length`, "0")
 	test(`[1,2,3].filter(function(v,k,o) { return true })`, "1,2,3")
 }
+
+func TestArray_reduce(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].reduce("abc")`, "TypeError")
+	test(`raise: [].reduce(function(a,v,k,o) {})`, "TypeError")
+	test(`[].reduce(function(a,v,k,o) {}, 0)`, "0")
+	test(`['a','b','c'].reduce(function(a,v,k,o) { return a+', '+v })`, "a, b, c")
+	test(`[1,2,3].reduce(function(a,v,k,o) { return a + v }, 4)`, "10")
+	test(`[1,2,3].reduce(function(a,v,k,o) { return a + v })`, "6")
+}

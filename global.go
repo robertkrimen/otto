@@ -234,6 +234,7 @@ func newContext() *_runtime {
 		"forEach", 1, builtinArray_forEach,
 		"map", 1, builtinArray_map,
 		"filter", 1, builtinArray_filter,
+		"reduce", 1, builtinArray_reduce,
 	)
 
 	self.Global.Array.write(
