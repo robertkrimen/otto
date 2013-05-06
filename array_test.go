@@ -277,3 +277,18 @@ func TestArray_isArray(t *testing.T) {
         [ Array.isArray(), Array.isArray([]), Array.isArray({}) ];
     `, "false,true,false")
 }
+
+func TestArray_indexOf(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`['a', 'b', 'c', 'b'].indexOf('b')`, "1")
+	test(`['a', 'b', 'c', 'b'].indexOf('b', 2)`, "3")
+	test(`['a', 'b', 'c', 'b'].indexOf('b', -2)`, "3")
+	test(`
+		Object.prototype.indexOf = Array.prototype.indexOf
+		var obj = {0: 'a', 1: 'b', 2: 'c', length: 3}
+		// [typeof obj.indexOf === 'function', obj.indexOf('c')]
+		obj.indexOf('c')
+	`, "2")
+}

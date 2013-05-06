@@ -227,6 +227,7 @@ func newContext() *_runtime {
 		"unshift", 1, builtinArray_unshift,
 		"reverse", 0, builtinArray_reverse,
 		"sort", 0, builtinArray_sort,
+		"indexOf", 1, builtinArray_indexOf,
 	)
 
 	self.Global.Array.write(

@@ -456,3 +456,38 @@ func builtinArray_isArray(call FunctionCall) Value {
 	object := call.Argument(0)._object()
 	return toValue(object != nil && object.class == "Array")
 }
+
+func builtinArray_indexOf(call FunctionCall) Value {
+	thisObject, argValue := call.thisObject(), call.Argument(0)
+	index := func(length int) (index int) {
+		if v := call.Argument(1); v.IsNumber() {
+			index = int(toInteger(v))
+		}
+		if index < 0 {
+			if index += length; index < 0 {
+				index = 0
+			}
+		} else if index >= length {
+			index = -1
+		}
+		return
+	}
+	if stash, isArray := thisObject.stash.(*_arrayStash); isArray {
+		if index := index(len(stash.valueArray)); index >= 0 {
+			for k, v := range stash.valueArray[index:] {
+				if sameValue(argValue, v) {
+					return toValue(k+index)
+				}
+			}
+		}
+	} else {
+		if length := uint(toUint32(thisObject.get("length"))); length > 0 {
+			for index := uint(index(int(length))); (index >= 0) && index < length; index++ {
+				if sameValue(argValue, thisObject.get(arrayIndexToString(index))) {
+					return toValue(index)
+				}
+			}
+		}
+	}
+	return toValue(-1)
+}
