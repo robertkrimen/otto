@@ -42,8 +42,25 @@ func TestJSON_stringify(t *testing.T) {
 	test(`JSON.stringify({a:{x:100,y:110},b:[10,20,30],c:"zazazaza"})`, `{"a":{"x":100,"y":110},"b":[10,20,30],"c":"zazazaza"}`)
 
 	test(`JSON.stringify(['e', {pluribus: 'unum'}], null, '\t')`, "[\n\t\"e\",\n\t{\n\t\t\"pluribus\": \"unum\"\n\t}\n]")
+	test(`JSON.stringify([new Boolean(true), new Date(0), new Number(1).toJSON(), new String('abc').toJSON()])`,
+		`[true,"1970-01-01T00:00:00Z",1,"abc"]`)
 	test(`JSON.stringify([new Date(0)], function(k,v){
 		return this[k] instanceof Date ? 'Date(' + this[k] + ')' : v
 	})`, `["Date(Thu, 01 Jan 1970 01:00:00 CET)"]`)
 	test(`JSON.stringify({a:1,b:2,c:3}, ['a','b'])`, `{"a":1,"b":2}`)
+}
+
+func TestJSON_toJSON(t *testing.T) {
+	Terst(t)
+	test := runTest()
+
+	test(`typeof Boolean.prototype.toJSON === 'function'`, "true")
+	test(`typeof Date.prototype.toJSON === 'function'`, "true")
+	test(`typeof Number.prototype.toJSON === 'function'`, "true")
+	test(`typeof String.prototype.toJSON === 'function'`, "true")
+
+	test(`new Boolean(true).toJSON()`, "true")
+	test(`new Date(0).toJSON()`, "1970-01-01T00:00:00Z")
+	test(`new Number(1).toJSON()`, "1")
+	test(`new String('abc').toJSON()`, "abc")
 }

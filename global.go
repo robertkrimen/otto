@@ -255,6 +255,7 @@ func newContext() *_runtime {
 		"toLowerCase", 0, builtinString_toLowerCase,
 		"toUpperCase", 0, builtinString_toUpperCase,
 		"substr", 2, builtinString_substr,
+		"toJSON", 1, builtinJSON_toJSON,
 	)
 	// TODO Maybe streamline this redundancy?
 	self.Global.String.write(
@@ -281,6 +282,7 @@ func newContext() *_runtime {
 			}
 			return value
 		},
+		"toJSON", 1, builtinJSON_toJSON,
 	)
 
 	self.Global.Number = self.newGlobalFunction(
@@ -310,6 +312,7 @@ func newContext() *_runtime {
 		"toFixed", 1, builtinNumber_toFixed,
 		"toExponential", 1, builtinNumber_toExponential,
 		"toPrecision", 1, builtinNumber_toPrecision,
+		"toJSON", 1, builtinJSON_toJSON,
 	)
 
 	self.Global.Number.write(
@@ -659,7 +662,7 @@ func newContext() *_runtime {
 		// toUTCString
 		// toISOString
 		// toJSONString
-		// toJSON
+		"toJSON", 1, builtinJSON_toJSON,
 	)
 
 	self.Global.Date.write(
