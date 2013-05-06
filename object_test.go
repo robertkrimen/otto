@@ -72,6 +72,29 @@ func TestObject_create(t *testing.T) {
 	`, ",10,20,[object Object],10,20,30")
 }
 
+func TestObject_keys(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`Object.keys({x:1,y:2})`, "x,y")
+	test(`
+		function o() { this.a = 1; this.b = 2 }
+		Object.keys(new o())
+	`, "a,b")
+	test(`
+		function p() { this.c = 2 }
+		p.prototype = new o()
+		Object.keys(new p())
+	`, "c")
+	test(`
+		var obj = Object.create({a: 10, b: 20}, {
+			x: { value: 30, enumerable: true },
+			y: { value: 40, enumerable: false }
+		})
+		Object.keys(obj)
+	`, "x")
+}
+
 func TestObject_toLocaleString(t *testing.T) {
 	Terst(t)
 

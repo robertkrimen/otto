@@ -127,6 +127,16 @@ func builtinObject_create(call FunctionCall) Value {
 	return toValue(object)
 }
 
+func builtinObject_keys(call FunctionCall) Value {
+	if object, elements := call.Argument(0)._object(), []Value{}; nil != object {
+		object.enumerate(func(name string) {
+			elements = append(elements, toValue(name))
+		})
+		return toValue(call.runtime.newArray(elements))
+	}
+	panic(newTypeError())
+}
+
 func builtinObject_isExtensible(call FunctionCall) Value {
 	object := call.Argument(0)
 	if object := object._object(); object != nil {

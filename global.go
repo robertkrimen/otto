@@ -175,6 +175,7 @@ func newContext() *_runtime {
 		"defineProperty", 3, builtinObject_defineProperty,
 		"defineProperties", 2, builtinObject_defineProperties,
 		"create", 2, builtinObject_create,
+		"keys", 1, builtinObject_keys,
 		"isExtensible", -1, builtinObject_isExtensible,
 		"preventExtensions", -1, builtinObject_preventExtensions,
 		"isSealed", -1, builtinObject_isSealed,
