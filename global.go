@@ -687,6 +687,12 @@ func newContext() *_runtime {
 		"toString", 0, builtinError_toString,
 	)
 
+	self.Global.JSON = self.newGlobalObject(
+		"JSON",
+		"parse", -1, builtinJSON_parse,
+		"stringify", -1, builtinJSON_stringify,
+	)
+
 	self.GlobalObject.write(
 		_propertyMode(101),
 		"Object", toValue(self.Global.Object),
@@ -699,7 +705,7 @@ func newContext() *_runtime {
 		"RegExp", toValue(self.Global.RegExp),
 		"Date", toValue(self.Global.Date),
 		"Error", toValue(self.Global.Error),
-		// TODO JSON
+		"JSON", toValue(self.Global.JSON),
 
 		// TODO Is _propertyMode(0) compatible with 3?
 		// _propertyMode(0),
