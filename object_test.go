@@ -177,8 +177,41 @@ func TestObject_isSealed(t *testing.T) {
 	Terst(t)
 
 	test := runTest()
+	test(`raise: Object.isSealed()`, "TypeError")
+	test(`Object.isSealed(Object.preventExtensions({a:1}))`, "false")
+	test(`Object.isSealed({})`, "false")
+
 	test(`Object.isSealed.length`, "1")
 	test(`Object.isSealed.prototype`, "undefined")
+}
+
+func TestObject_seal(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: Object.seal()`, "TypeError")
+	test(`
+		var abc = {a:1,b:1,c:3};
+		var sealed = Object.isSealed(abc);
+		Object.seal(abc);
+		[sealed, Object.isSealed(abc)];
+	`, "false,true")
+	test(`
+		var abc = {a:1,b:1,c:3};
+		var sealed = Object.isSealed(abc);
+		var caught = false;
+		Object.seal(abc);
+		abc.b = 5;
+		try {
+			Object.defineProperty(abc, "a", {value:4});
+		} catch (e) {
+			caught = e instanceof TypeError;
+		}
+		[sealed, Object.isSealed(abc), caught, abc.a, abc.b];
+	`, "false,true,true,1,5")
+
+	test(`Object.seal.length`, "1")
+	test(`Object.seal.prototype`, "undefined")
 }
 
 func TestObject_isFrozen(t *testing.T) {
