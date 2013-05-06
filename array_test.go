@@ -346,3 +346,14 @@ func TestArray_map(t *testing.T) {
 	test(`[1,2,3].map(function(v,k,o) { return v * v })`, "1,4,9")
 	test(`[1,2,3].map(function(v,k,o) { return 1 })`, "1,1,1")
 }
+
+
+func TestArray_filter(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].filter("abc")`, "TypeError")
+	test(`[].filter(function(v,k,o) { return 1 }).length`, "0")
+	test(`[1,2,3].filter(function(v,k,o) { return false }).length`, "0")
+	test(`[1,2,3].filter(function(v,k,o) { return true })`, "1,2,3")
+}

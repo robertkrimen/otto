@@ -574,3 +574,18 @@ func builtinArray_map(call FunctionCall) Value {
 	}
 	panic(newTypeError())
 }
+
+func builtinArray_filter(call FunctionCall) Value {
+	if thisObject, fn := call.thisObject(), call.Argument(0); fn.isCallable() {
+		length := int(toUint32(thisObject.get("length")))
+		values := []Value{}
+		for index := 0; index < length; index++ {
+			if value := thisObject.get(arrayIndexToString(uint(index))); toBoolean(
+					fn.call(call.Argument(1), value, index, toValue(thisObject))) {
+				values = append(values, value)
+			}
+		}
+		return toValue(call.runtime.newArray(values))
+	}
+	panic(newTypeError())
+}
