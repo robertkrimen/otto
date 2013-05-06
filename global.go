@@ -182,6 +182,7 @@ func newContext() *_runtime {
 		"isSealed", -1, builtinObject_isSealed,
 		"seal", -1, builtinObject_seal,
 		"isFrozen", -1, builtinObject_isFrozen,
+		"freeze", -1, builtinObject_freeze,
 	)
 
 	self.Global.Function = self.newGlobalFunction(
