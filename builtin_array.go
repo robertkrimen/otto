@@ -528,9 +528,11 @@ func builtinArray_every(call FunctionCall) Value {
 	if thisObject, fn := call.thisObject(), call.Argument(0); fn.isCallable() {
 		length := int(toUint32(thisObject.get("length")))
 		for index := 0; index < length; index++ {
-			if v := thisObject.get(arrayIndexToString(uint(index)));
-					!toBoolean(fn.call(call.Argument(1), v, index, toValue(thisObject))) {
-				return FalseValue()
+			if key := arrayIndexToString(uint(index)); thisObject.hasProperty(key) {
+				if value := thisObject.get(key); !toBoolean(fn.call(
+						call.Argument(1), value, index, toValue(thisObject))) {
+					return FalseValue()
+				}
 			}
 		}
 		return TrueValue()
@@ -553,8 +555,9 @@ func builtinArray_forEach(call FunctionCall) Value {
 	if thisObject, fn := call.thisObject(), call.Argument(0); fn.isCallable() {
 		length := int(toUint32(thisObject.get("length")))
 		for index := 0; index < length; index++ {
-			value := thisObject.get(arrayIndexToString(uint(index)))
-			fn.call(call.Argument(1), value, index, toValue(thisObject))
+			if key := arrayIndexToString(uint(index)); thisObject.hasProperty(key) {
+				fn.call(call.Argument(1), thisObject.get(key), index, toValue(thisObject))
+			}
 		}
 		return UndefinedValue()
 	}
@@ -566,9 +569,9 @@ func builtinArray_map(call FunctionCall) Value {
 		length := int(toUint32(thisObject.get("length")))
 		values := make([]Value, length)
 		for index := 0; index < length; index++ {
-			value := thisObject.get(arrayIndexToString(uint(index)))
-			mapped := fn.call(call.Argument(1), value, index, toValue(thisObject))
-			values[index] = mapped
+			if key := arrayIndexToString(uint(index)); thisObject.hasProperty(key) {
+				values[index] = fn.call(call.Argument(1), thisObject.get(key), index, toValue(thisObject))
+			}
 		}
 		return toValue(call.runtime.newArray(values))
 	}
@@ -580,9 +583,11 @@ func builtinArray_filter(call FunctionCall) Value {
 		length := int(toUint32(thisObject.get("length")))
 		values := []Value{}
 		for index := 0; index < length; index++ {
-			if value := thisObject.get(arrayIndexToString(uint(index))); toBoolean(
-					fn.call(call.Argument(1), value, index, toValue(thisObject))) {
-				values = append(values, value)
+			if key := arrayIndexToString(uint(index)); thisObject.hasProperty(key) {
+				if value := thisObject.get(key); toBoolean(fn.call(
+						call.Argument(1), value, index, toValue(thisObject))) {
+					values = append(values, value)
+				}
 			}
 		}
 		return toValue(call.runtime.newArray(values))
