@@ -327,3 +327,12 @@ func TestArray_some(t *testing.T) {
 	test(`[1,2,3].some(function(v,k,o) { return false })`, "false")
 	test(`[1,2,3].some(function(v,k,o) { return true })`, "true")
 }
+
+func TestArray_forEach(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].forEach("abc")`, "TypeError")
+	test(`var a = 0;[].forEach(function(v,k,o) { a += v });a`, "0")
+	test(`[1,2,3].forEach(function(v,k,o) { a += v });a`, "6")
+}

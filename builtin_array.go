@@ -548,3 +548,15 @@ func builtinArray_some(call FunctionCall) Value {
 	}
 	panic(newTypeError())
 }
+
+func builtinArray_forEach(call FunctionCall) Value {
+	if thisObject, fn := call.thisObject(), call.Argument(0); fn.isCallable() {
+		length := int(toUint32(thisObject.get("length")))
+		for index := 0; index < length; index++ {
+			value := thisObject.get(arrayIndexToString(uint(index)))
+			fn.call(call.Argument(1), value, index, toValue(thisObject))
+		}
+		return UndefinedValue()
+	}
+	panic(newTypeError())
+}

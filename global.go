@@ -231,6 +231,7 @@ func newContext() *_runtime {
 		"lastIndexOf", 1, builtinArray_lastIndexOf,
 		"every", 1,builtinArray_every,
 		"some", 1, builtinArray_some,
+		"forEach", 1, builtinArray_forEach,
 	)
 
 	self.Global.Array.write(
