@@ -193,7 +193,7 @@ func TestArray_slice(t *testing.T) {
 		mno = Array.prototype.slice.call(abc,2,-1)
 		pqr = Array.prototype.slice.call(abc,-1,-10)
 	`)
-	// Array.protoype.slice is generic
+	// Array.prototype.slice is generic
 	test("def", "0,1,2,3")
 	test("ghi", "1,2,3")
 	test("jkl", "")
