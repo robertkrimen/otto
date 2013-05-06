@@ -523,3 +523,17 @@ func builtinArray_lastIndexOf(call FunctionCall) Value {
 	}
 	return toValue(-1)
 }
+
+func builtinArray_every(call FunctionCall) Value {
+	if thisObject, fn := call.thisObject(), call.Argument(0); fn.isCallable() {
+		length := int(toUint32(thisObject.get("length")))
+		for index := 0; index < length; index++ {
+			if v := thisObject.get(arrayIndexToString(uint(index)));
+					!toBoolean(fn.call(call.Argument(1), v, index, toValue(thisObject))) {
+				return FalseValue()
+			}
+		}
+		return TrueValue()
+	}
+	panic(newTypeError())
+}

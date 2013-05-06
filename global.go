@@ -229,6 +229,7 @@ func newContext() *_runtime {
 		"sort", 0, builtinArray_sort,
 		"indexOf", 1, builtinArray_indexOf,
 		"lastIndexOf", 1, builtinArray_lastIndexOf,
+		"every", 1,builtinArray_every,
 	)
 
 	self.Global.Array.write(
