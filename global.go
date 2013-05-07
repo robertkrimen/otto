@@ -676,8 +676,6 @@ func newContext() *_runtime {
 			date.SetTime(ecmaTime.goTime())
 			return date.Value()
 		},
-		// toUTCString
-		// toJSONString
 		"toJSON", 1, builtinJSON_toJSON,
 	)
 
