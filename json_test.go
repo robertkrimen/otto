@@ -43,7 +43,7 @@ func TestJSON_stringify(t *testing.T) {
 
 	test(`JSON.stringify(['e', {pluribus: 'unum'}], null, '\t')`, "[\n\t\"e\",\n\t{\n\t\t\"pluribus\": \"unum\"\n\t}\n]")
 	test(`JSON.stringify([new Boolean(true), new Date(0), new Number(1).toJSON(), new String('abc').toJSON()])`,
-		`[true,"1970-01-01T00:00:00Z",1,"abc"]`)
+		`[true,"1970-01-01T00:00:00.000Z",1,"abc"]`)
 	test(`JSON.stringify([new Date(0)], function(k,v){
 		return this[k] instanceof Date ? 'Date(' + this[k] + ')' : v
 	})`, `["Date(Thu, 01 Jan 1970 01:00:00 CET)"]`)
@@ -60,7 +60,14 @@ func TestJSON_toJSON(t *testing.T) {
 	test(`typeof String.prototype.toJSON === 'function'`, "true")
 
 	test(`new Boolean(true).toJSON()`, "true")
-	test(`new Date(0).toJSON()`, "1970-01-01T00:00:00Z")
+	test(`new Date(0).toJSON()`, "1970-01-01T00:00:00.000Z")
 	test(`new Number(1).toJSON()`, "1")
 	test(`new String('abc').toJSON()`, "abc")
+
+	test(`
+		var object = {}
+		object.toISOString = function() { return 1 }
+		object.toJSON = Date.prototype.toJSON
+		object.toJSON()
+	`, "1")
 }

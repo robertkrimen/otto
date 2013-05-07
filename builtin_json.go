@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math"
 	"regexp"
-	"strconv"
 	"strings"
 	"unicode/utf16"
 )
@@ -239,26 +238,9 @@ func builtinJSON_hasOwnProperty(call FunctionCall, obj Value, name string) bool 
 }
 
 func builtinJSON_toJSON(call FunctionCall) Value {
-	value := call.thisObject()
-	if value.class == "Date" {
-		if d := dateObjectOf(value); !d.isNaN {
-			f := func(n int) string {
-				s := strconv.FormatInt(int64(n), 10)
-				if len(s) < 2 {
-					s = "0" + s
-				}
-				return s
-			}
-			return toValue(
-				f(d.Time().Year())       + "-" +
-				f(int(d.Time().Month())) + "-" +
-				f(d.Time().Day())        + "T" +
-				f(d.Time().Hour())       + ":" +
-				f(d.Time().Minute())     + ":" +
-				f(d.Time().Second())     + "Z")
-		}
-		return NullValue()
+	this := call.thisObject()
+	if fn := this.get("toISOString"); fn.isCallable() {
+		return fn.call(toValue(this), []Value{})
 	}
-	return value.DefaultValue(
-		defaultValueNoHint)
+	return this.DefaultValue(defaultValueHintNumber)
 }
