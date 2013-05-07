@@ -379,6 +379,7 @@ func newContext() *_runtime {
 		"toString", 0, builtinDate_toString,
 		"toUTCString", 0, builtinDate_toUTCString,
 		"toGMTString", 0, builtinDate_toGMTString,
+		"toISOString", 0, builtinDate_toISOString,
 		"toLocaleString", 0, builtinDate_toLocaleString,
 		"toLocaleDateString", 0, builtinDate_toLocaleDateString,
 		"toLocaleTimeString", 0, builtinDate_toLocaleTimeString,
@@ -676,7 +677,6 @@ func newContext() *_runtime {
 			return date.Value()
 		},
 		// toUTCString
-		// toISOString
 		// toJSONString
 		"toJSON", 1, builtinJSON_toJSON,
 	)
