@@ -44,9 +44,39 @@ func (self *_runtime) evaluateArray(node *_arrayNode) Value {
 func (self *_runtime) evaluateObject(node *_objectNode) Value {
 
 	result := self.newObject()
+	descriptors := map[string]_property{}
+	descrOrder := []string{}
 
 	for _, property := range node.propertyList {
-		result.set(property.Key, self.GetValue(self.evaluate(property.Value)), false)
+		value := self.GetValue(self.evaluate(property.Value))
+		if property.isdescriptor {
+			key, value := property.Key, toPropertyDescriptor(value)
+			if descriptor, exists := descriptors[key]; exists {
+				if current, isgetset := descriptor.value.(_propertyGetSet); isgetset {
+					if next, isgetset := value.value.(_propertyGetSet); isgetset {
+						if nil != next[0] {
+							current[0] = next[0]
+						}
+						if nil != next[1] {
+							current[1] = next[1]
+						}
+						descriptor.value = current
+						descriptors[key] = descriptor
+					}
+				}
+			} else {
+				descrOrder = append(descrOrder, key)
+				descriptors[key] = value
+			}
+		} else {
+			result.set(property.Key, value, false)
+		}
+	}
+
+	for _, key := range descrOrder {
+		if descriptor, exists := descriptors[key]; exists {
+			result.defineOwnProperty(key, descriptor, false)
+		}
 	}
 
 	return toValue(result)

@@ -270,6 +270,7 @@ func (self *_objectNode) String() string {
 type _objectPropertyNode struct {
 	_nodeType
 	_node_
+	isdescriptor bool
 	Key   string
 	Value _node
 }

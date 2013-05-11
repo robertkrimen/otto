@@ -59,12 +59,60 @@ func (self *_parser) ParseObjectPropertyKey() string {
 func (self *_parser) ParseObjectProperty() *_objectPropertyNode {
 
 	key := self.ParseObjectPropertyKey()
-	self.Expect(":")
-	value := self.ParseAssignmentExpression()
+	var isdescriptor bool
+	var value _node
+
+	if !self.Match(":") && ("get" == key || "set" == key) {
+		key, value = self.ParseObjectGetterSetter(key)
+		isdescriptor = true
+	} else {
+		self.Expect(":")
+		value = self.ParseAssignmentExpression()
+	}
 
 	node := newObjectPropertyNode(key, value)
+	node.isdescriptor = isdescriptor
 	self.markNode(node)
 	return node
+}
+
+func (self *_parser) ParseObjectGetterSetter(name string) (string, _node) {
+	identifier := self.ConsumeIdentifier().Value
+	functionNode := newFunctionNode()
+
+	self.Expect("(")
+	for !self.Accept(")") {
+		identifier := self.ConsumeIdentifier().Value
+		functionNode.AddParameter(identifier)
+		if identifier == "arguments" {
+			functionNode.ArgumentsIsParameter = true
+		}
+		if !self.Match(")") {
+			self.Expect(",")
+		}
+	}
+
+	{
+		self.EnterScope()
+		defer self.LeaveScope()
+		self.parseInFunction(func() _node {
+			functionNode.Body = self.ParseBlock().Body
+			return nil
+		})
+		functionNode.VariableList = self.Scope().VariableList
+		functionNode.FunctionList = self.Scope().FunctionList
+	}
+
+	descriptorNode := newObjectNode()
+	descriptorNode.propertyList = []*_objectPropertyNode{
+		newObjectPropertyNode(name, functionNode),
+		newObjectPropertyNode("configurable", newBooleanNode("true")),
+		newObjectPropertyNode("enumerable", newBooleanNode("true")),
+		newObjectPropertyNode("writable", newBooleanNode("false")),
+	}
+	self.markNode(descriptorNode)
+
+	return identifier, descriptorNode
 }
 
 func (self *_parser) ParseRegExpLiteral(token _token) *_regExpNode {

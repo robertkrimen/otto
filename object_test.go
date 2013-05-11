@@ -277,4 +277,15 @@ func TestObject_GetterSetter(t *testing.T) {
 	o.val = true
 	_val
 	`, "true")
+
+	test(`
+		var object = {
+			_x: 10, _y: 20,
+			get x() { return this._x },
+			set x(v) { this._x = v },
+			get y() { return this._y },
+			set y(v) { this._y = v }
+		};
+		[object.x, object.y, (object.x = 20)+(object.y = 10), object.x, object.y]
+	`, "10,20,30,20,10")
 }
