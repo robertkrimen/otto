@@ -265,3 +265,43 @@ func builtinObject_freeze(call FunctionCall) Value {
 	return object
 }
 
+func builtinObject_defineGetterSetter(index int) func(FunctionCall) Value {
+	if index == 0 || index == 1 {
+		return func(call FunctionCall) Value {
+			if fn := call.Argument(1); fn.isCallable() {
+				this, key := call.thisObject(), call.Argument(0).String()
+				getset := _propertyGetSet{nil, nil}
+				getset[index] = fn._object()
+				if p := this.getProperty(key); nil != p {
+					if current, test := p.value.(_propertyGetSet); test {
+						if index == 0 {
+							index = 1
+						} else {
+							index = 0
+						}
+						getset[index] = current[index]
+					}
+				}
+				descriptor := _property{getset, _propertyMode(0011)}
+				this.defineOwnProperty(key, descriptor, false)
+				return UndefinedValue()
+			}
+			panic(newTypeError())
+		}
+	}
+	panic(hereBeDragons())
+}
+
+func builtinObject_lookupGetterSetter(index int) func(FunctionCall) Value {
+	if index == 0 || index == 1 {
+		return func(call FunctionCall) Value {
+			if p := call.thisObject().getProperty(call.Argument(0).String()); nil != p {
+				if getset, test := p.value.(_propertyGetSet); test {
+					return toValue(getset[index])
+				}
+			}
+			return UndefinedValue()
+		}
+	}
+	panic(hereBeDragons())
+}

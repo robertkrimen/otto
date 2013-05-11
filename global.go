@@ -168,6 +168,11 @@ func newContext() *_runtime {
 			}
 			return FalseValue()
 		},
+		// Deprecated but still widely used, non-standard, Mozilla extensions
+		"__defineGetter__", builtinObject_defineGetterSetter(0),
+		"__lookupGetter__", builtinObject_lookupGetterSetter(0),
+		"__defineSetter__", builtinObject_defineGetterSetter(1),
+		"__lookupSetter__", builtinObject_lookupGetterSetter(1),
 	)
 	self.Global.Object.write(
 		"getPrototypeOf", 1, builtinObject_getPrototypeOf,
