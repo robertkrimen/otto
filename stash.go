@@ -23,6 +23,7 @@ type _objectStash struct {
 	_extensible bool
 	_property   map[string]_property
 	_order      []string
+	_this       Value
 }
 
 func newObjectStash(extensible bool) *_objectStash {
@@ -51,7 +52,7 @@ func (self *_objectStash) get(name string) Value {
 		if value[0] == nil {
 			return UndefinedValue()
 		}
-		return value[0].CallGet()
+		return value[0].CallGet(self._this)
 	}
 
 	panic(hereBeDragons())
@@ -106,7 +107,7 @@ func (self *_objectStash) put(name string, value Value) {
 			}
 		case _propertyGetSet:
 			if propertyValue[1] != nil {
-				propertyValue[1].CallSet(value)
+				propertyValue[1].CallSet(self._this, value)
 			}
 		}
 	} else if self.extensible() {

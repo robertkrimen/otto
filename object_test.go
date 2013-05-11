@@ -60,16 +60,17 @@ func TestObject_create(t *testing.T) {
 				value: 30,
 				writable: true
 			},
-			// sum: {
-			// 	get: function() {
-			// 		return this.x + this.y + this.z
-			// 	}
-			// }
+			sum: {
+				get: function() {
+					return this.x + this.y + this.z
+				},
+				writable: false,
+			}
 		})
 
-		var xyz = [ abc.prototype, def.x, def.y, ghi, jkl.x, jkl.y, jkl.z ]
+		var xyz = [ abc.prototype, def.x, def.y, ghi, jkl.x, jkl.y, jkl.z, jkl.sum ]
 		xyz
-	`, ",10,20,[object Object],10,20,30")
+	`, ",10,20,[object Object],10,20,30,60")
 }
 
 func TestObject_keys(t *testing.T) {
@@ -262,8 +263,7 @@ func TestObject_GetterSetter(t *testing.T) {
 	test := runTest()
 	// TODO Default writable value should be false?
 	test(`Object.create({},{a:{get:function(){return "true"},writable:false}}).a`, "true")
-	// TODO this.x === undefined, somehow a's getter cannot access this(.x) ..
-	// test(`Object.create({x:true},{a:{get:function(){return this.x},writable:false}}).a`, "true")
+	test(`Object.create({x:true},{a:{get:function(){return this.x},writable:false}}).a`, "true")
 	test(`
 		var _val = false
 		var o = Object.create({}, {

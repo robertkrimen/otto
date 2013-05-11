@@ -72,12 +72,12 @@ func defaultConstructFunction(self *_object, this Value, argumentList []Value) V
 	return newObjectValue
 }
 
-func (self *_object) CallGet() Value {
-	return self.runtime.Call(self, toValue(self), []Value{}, false)
+func (self *_object) CallGet(this Value) Value {
+	return self.runtime.Call(self, this, []Value{}, false)
 }
 
-func (self *_object) CallSet(value Value) {
-	self.runtime.Call(self, toValue(self), []Value{value}, false)
+func (self *_object) CallSet(this Value, value Value) {
+	self.runtime.Call(self, this, []Value{value}, false)
 }
 
 // 15.3.5.3

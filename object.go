@@ -23,13 +23,15 @@ func (self _object) primitiveValue() Value {
 }
 
 func newObject(runtime *_runtime, class string) *_object {
-	return &_object{
+	object := &_object{
 		runtime: runtime,
 
 		class: class,
 
 		stash: newObjectStash(true),
 	}
+	object.stash.(*_objectStash)._this = toValue(object)
+	return object
 }
 
 // Delete
