@@ -255,3 +255,26 @@ func TestObject_freeze(t *testing.T) {
 	test(`Object.freeze.length`, "1")
 	test(`Object.freeze.prototype`, "undefined")
 }
+
+func TestObject_GetterSetter(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	// TODO Default writable value should be false?
+	test(`Object.create({},{a:{get:function(){return "true"},writable:false}}).a`, "true")
+	// TODO this.x === undefined, somehow a's getter cannot access this(.x) ..
+	// test(`Object.create({x:true},{a:{get:function(){return this.x},writable:false}}).a`, "true")
+	test(`
+		var _val = false
+		var o = Object.create({}, {
+			val: {
+				set: function(v) {
+					_val = v
+				},
+				writable: false,
+			}
+		})
+	o.val = true
+	_val
+	`, "true")
+}

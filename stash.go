@@ -51,7 +51,7 @@ func (self *_objectStash) get(name string) Value {
 		if value[0] == nil {
 			return UndefinedValue()
 		}
-		return value[0].CallGet(name)
+		return value[0].CallGet()
 	}
 
 	panic(hereBeDragons())
@@ -106,7 +106,7 @@ func (self *_objectStash) put(name string, value Value) {
 			}
 		case _propertyGetSet:
 			if propertyValue[1] != nil {
-				propertyValue[1].CallSet(name, value)
+				propertyValue[1].CallSet(value)
 			}
 		}
 	} else if self.extensible() {
