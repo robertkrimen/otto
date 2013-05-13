@@ -80,32 +80,15 @@ func builtinObject_getOwnPropertyDescriptor(call FunctionCall) Value {
 
 func builtinObject_getOwnPropertyNames(call FunctionCall) Value {
 	if object := call.Argument(0)._object(); nil != object {
-		var walk func(_stash, func(string))
 		var names []Value
 
-		walk = func(stash _stash, each func(string)) {
-			switch stash := stash.(type) {
-			case *_objectStash:
-				for _, name := range stash._order {
-					each(name)
-				}
-			case *_arrayStash:
-				for index, _ := range stash.valueArray {
-					if stash.valueArray[index]._valueType == valueEmpty {
-						continue // A sparse array
-					}
-					each(arrayIndexToString(uint(index)))
-				}
-				walk(stash._stash, each)
-			}
-		}
-
-		walk(object.stash, func(name string) {
+		for _, name := range object.propertyOrder {
 			if p := object.getOwnProperty(name); nil != p {
 				names = append(names, toValue(name))
 			}
-		})
-		return toValue(call.runtime.newArray(names))
+		}
+
+		return toValue(call.runtime.newArrayOf(names))
 	}
 	panic(newTypeError())
 }
@@ -164,7 +147,7 @@ func builtinObject_keys(call FunctionCall) Value {
 		object.enumerate(func(name string) {
 			elements = append(elements, toValue(name))
 		})
-		return toValue(call.runtime.newArray(elements))
+		return toValue(call.runtime.newArrayOf(elements))
 	}
 	panic(newTypeError())
 }
@@ -215,7 +198,7 @@ func builtinObject_seal(call FunctionCall) Value {
 				object.defineOwnProperty(name, *p, true)
 			}
 		})
-		object.stash.lock()
+		object.extensible = false
 	} else {
 		panic(newTypeError())
 	}
