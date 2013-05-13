@@ -172,7 +172,7 @@ func builtinObject_keys(call FunctionCall) Value {
 func builtinObject_isExtensible(call FunctionCall) Value {
 	object := call.Argument(0)
 	if object := object._object(); object != nil {
-		return toValue(object.stash.extensible())
+		return toValue(object.extensible)
 	}
 	panic(newTypeError())
 }
@@ -180,7 +180,7 @@ func builtinObject_isExtensible(call FunctionCall) Value {
 func builtinObject_preventExtensions(call FunctionCall) Value {
 	object := call.Argument(0)
 	if object := object._object(); object != nil {
-		object.stash.lock()
+		object.extensible = false
 	} else {
 		panic(newTypeError())
 	}
@@ -190,7 +190,7 @@ func builtinObject_preventExtensions(call FunctionCall) Value {
 func builtinObject_isSealed(call FunctionCall) Value {
 	object := call.Argument(0)
 	if object := object._object(); object != nil {
-		if object.stash.extensible() {
+		if object.extensible {
 			return toValue(false)
 		}
 		result := true
@@ -225,7 +225,7 @@ func builtinObject_seal(call FunctionCall) Value {
 func builtinObject_isFrozen(call FunctionCall) Value {
 	object := call.Argument(0)
 	if object := object._object(); object != nil {
-		if object.stash.extensible() {
+		if object.extensible {
 			return toValue(false)
 		}
 		result := true
@@ -244,21 +244,21 @@ func builtinObject_freeze(call FunctionCall) Value {
 	object := call.Argument(0)
 	if object := object._object(); object != nil {
 		object.enumerate(func(name string) {
-			if p, u := object.getOwnProperty(name), false; nil != p {
-				if p.isDataDescriptor() && p.writable() {
-					p.mode &= ^propertyMode_write
-					u = true
+			if property, update := object.getOwnProperty(name), false; nil != property {
+				if property.isDataDescriptor() && property.writable() {
+					property.mode &= ^propertyMode_write
+					update = true
 				}
-				if p.configurable() {
-					p.mode &= ^propertyMode_configure
-					u = true
+				if property.configurable() {
+					property.mode &= ^propertyMode_configure
+					update = true
 				}
-				if u {
-					object.defineOwnProperty(name, *p, true)
+				if update {
+					object.defineOwnProperty(name, *property, true)
 				}
 			}
 		})
-		object.stash.lock()
+		object.extensible = false
 	} else {
 		panic(newTypeError())
 	}

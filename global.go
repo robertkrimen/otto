@@ -2,6 +2,7 @@ package otto
 
 import (
 	"math"
+	"strconv"
 	time_ "time"
 )
 
@@ -18,8 +19,8 @@ func (self *_runtime) newGlobalFunction(
 	// TODO We're overwriting the prototype of newNativeFunction with this one,
 	// what is going on?
 	functionObject := self.newNativeFunction(_nativeFunction(callFunction), length, "native"+name)
-	functionObject._Function.Construct = _constructFunction(constructFunction)
-	functionObject.stash.set("prototype", toValue(prototype), _propertyMode(0))
+	functionObject.functionValue().construct = _constructFunction(constructFunction)
+	functionObject.defineProperty("prototype", toValue(prototype), _propertyMode(0), false)
 
 	prototype.write(append([]interface{}{
 		_functionSignature("builtin"),
@@ -88,7 +89,7 @@ func newContext() *_runtime {
 	}
 
 	{
-		ArrayPrototype := self.newArray([]Value{})
+		ArrayPrototype := self.newArray(0)
 		ArrayPrototype.prototype = self.Global.ObjectPrototype
 		self.Global.ArrayPrototype = ArrayPrototype
 	}
@@ -213,11 +214,6 @@ func newContext() *_runtime {
 			join := thisObject.get("join")
 			if join.isCallable() {
 				join := join._object()
-				if join._Function.Call.name() == "nativeArray_join" {
-					if stash, isArray := thisObject.stash.(*_arrayStash); isArray {
-						return toValue(builtinArray_joinNative(stash.valueArray, ","))
-					}
-				}
 				return join.Call(call.This, call.ArgumentList)
 			}
 			return builtinObject_toString(call)
@@ -254,10 +250,10 @@ func newContext() *_runtime {
 		builtinNewString,
 		self.Global.StringPrototype,
 		"toString", func(call FunctionCall) Value {
-			return *call.thisClassObject("String").primitive
+			return call.thisClassObject("String").primitiveValue()
 		},
 		"valueOf", func(call FunctionCall) Value {
-			return *call.thisClassObject("String").primitive
+			return call.thisClassObject("String").primitiveValue()
 		},
 		"charAt", 1, builtinString_charAt,
 		"charCodeAt", 1, builtinString_charCodeAt,
@@ -328,7 +324,7 @@ func newContext() *_runtime {
 			return toValue(numberToStringRadix(value, radix))
 		},
 		"valueOf", func(call FunctionCall) Value {
-			return *call.thisClassObject("Number").primitive
+			return call.thisClassObject("Number").primitiveValue()
 		},
 		"toFixed", 1, builtinNumber_toFixed,
 		"toExponential", 1, builtinNumber_toExponential,
@@ -774,8 +770,26 @@ func (runtime *_runtime) newClassObject(class string) *_object {
 
 func (runtime *_runtime) newPrimitiveObject(class string, value Value) *_object {
 	self := runtime.newClassObject(class)
-	self.primitive = &value
+	self.value = value
 	return self
+}
+
+func (self *_object) primitiveValue() Value {
+	switch value := self.value.(type) {
+	case Value:
+		return value
+	case *_stringObject:
+		return value.value
+	}
+	return Value{}
+}
+
+func (self *_object) hasPrimitive() bool {
+	switch self.value.(type) {
+	case Value, *_stringObject:
+		return true
+	}
+	return false
 }
 
 func (runtime *_runtime) newObject() *_object {
@@ -784,9 +798,17 @@ func (runtime *_runtime) newObject() *_object {
 	return self
 }
 
-func (runtime *_runtime) newArray(valueArray []Value) *_object {
-	self := runtime.newArrayObject(valueArray)
+func (runtime *_runtime) newArray(length uint32) *_object {
+	self := runtime.newArrayObject(length)
 	self.prototype = runtime.Global.ArrayPrototype
+	return self
+}
+
+func (runtime *_runtime) newArrayOf(valueArray []Value) *_object {
+	self := runtime.newArray(uint32(len(valueArray)))
+	for index, value := range valueArray {
+		self.put(strconv.FormatInt(int64(index), 10), value, false)
+	}
 	return self
 }
 
@@ -816,8 +838,9 @@ func (runtime *_runtime) newRegExp(patternValue Value, flagsValue Value) *_objec
 		if flagsValue.IsDefined() {
 			panic(newTypeError("Cannot supply flags when constructing one RegExp from another"))
 		}
-		pattern = object._RegExp.Source
-		flags = object._RegExp.Flags
+		regExp := object.regExpValue()
+		pattern = regExp.source
+		flags = regExp.flags
 	} else {
 		if patternValue.IsDefined() {
 			pattern = toString(patternValue)
@@ -852,7 +875,7 @@ func (runtime *_runtime) newError(name string, message Value) *_object {
 		self = runtime.newErrorObject(message)
 		self.prototype = runtime.Global.ErrorPrototype
 		if name != "" {
-			self.set("name", toValue(name), false)
+			self.defineProperty("name", toValue(name), 0111, false)
 		}
 	}
 	return self
@@ -873,10 +896,10 @@ func (runtime *_runtime) newNativeFunction(_nativeFunction _nativeFunction, leng
 	self.prototype = runtime.Global.FunctionPrototype
 	if prototype {
 		prototype := runtime.newObject()
-		self.stash.set("prototype", toValue(prototype), _propertyMode(0100))
-		prototype.stash.set("constructor", toValue(self), _propertyMode(0101))
+		self.defineProperty("prototype", toValue(prototype), 0100, false)
+		prototype.defineProperty("constructor", toValue(self), 0100, false)
 	} else {
-		self._Function.Construct = nil
+		self.functionValue().construct = nil
 	}
 	return self
 }
@@ -886,14 +909,14 @@ func (runtime *_runtime) newNodeFunction(node *_functionNode, scopeEnvironment _
 	self := runtime.newNodeFunctionObject(node, scopeEnvironment)
 	self.prototype = runtime.Global.FunctionPrototype
 	prototype := runtime.newObject()
-	self.stash.set("prototype", toValue(prototype), _propertyMode(0100))
-	prototype.stash.set("constructor", toValue(self), _propertyMode(0101))
+	self.defineProperty("prototype", toValue(prototype), 0100, false)
+	prototype.defineProperty("constructor", toValue(self), 0101, false)
 	return self
 }
 
 func (runtime *_runtime) newErrorPrototype(name string) *_object {
 	prototype := runtime.newClassObject("Error")
-	prototype.set("name", toValue(name), false)
+	prototype.defineProperty("name", toValue(name), 0111, false)
 	prototype.prototype = runtime.Global.ErrorPrototype
 	return prototype
 }
@@ -907,7 +930,7 @@ func (runtime *_runtime) defineError(name string) func(Value) *_object {
 		return error
 	}
 
-	runtime.GlobalObject.stash.set(name, toValue(runtime.newGlobalFunction(
+	runtime.GlobalObject.defineProperty(name, toValue(runtime.newGlobalFunction(
 		1,
 		// e.g. TypeError( ... )
 		name,
@@ -919,7 +942,7 @@ func (runtime *_runtime) defineError(name string) func(Value) *_object {
 			return toValue(errorFunction(valueOfArrayIndex(argumentList, 0)))
 		},
 		prototype,
-	)), 0101)
+	)), 0101, false)
 
 	return errorFunction
 }

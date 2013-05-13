@@ -36,7 +36,7 @@ func (self *_runtime) evaluateArray(node *_arrayNode) Value {
 		valueArray = append(valueArray, self.GetValue(self.evaluate(node)))
 	}
 
-	result := self.newArray(valueArray)
+	result := self.newArrayOf(valueArray)
 
 	return toValue(result)
 }
@@ -69,7 +69,7 @@ func (self *_runtime) evaluateObject(node *_objectNode) Value {
 				descriptors[key] = value
 			}
 		} else {
-			result.set(property.Key, value, false)
+			result.defineProperty(property.Key, self.GetValue(self.evaluate(property.Value)), 0111, false)
 		}
 	}
 
@@ -159,7 +159,7 @@ func (self *_runtime) evaluateUnaryOperation(node *_unaryOperationNode) Value {
 		case valueString:
 			return toValue("string")
 		case valueObject:
-			if targetValue._object()._Function != nil {
+			if targetValue._object().functionValue() != nil {
 				return toValue("function")
 			}
 			return toValue("object")
