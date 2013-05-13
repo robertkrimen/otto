@@ -439,20 +439,10 @@ func builtinArray_indexOf(call FunctionCall) Value {
 		}
 		return
 	}
-	if stash, isArray := thisObject.stash.(*_arrayStash); isArray {
-		if index := index(len(stash.valueArray)); index >= 0 {
-			for k, v := range stash.valueArray[index:] {
-				if sameValue(argValue, v) {
-					return toValue(k+index)
-				}
-			}
-		}
-	} else {
-		if length := uint(toUint32(thisObject.get("length"))); length > 0 {
-			for index := uint(index(int(length))); (index >= 0) && index < length; index++ {
-				if sameValue(argValue, thisObject.get(arrayIndexToString(index))) {
-					return toValue(index)
-				}
+	if length := uint(toUint32(thisObject.get("length"))); length > 0 {
+		for index := uint(index(int(length))); (index >= 0) && index < length; index++ {
+			if sameValue(argValue, thisObject.get(arrayIndexToString(index))) {
+				return toValue(index)
 			}
 		}
 	}
@@ -475,17 +465,9 @@ func builtinArray_lastIndexOf(call FunctionCall) Value {
 		}
 		return
 	}
-	if stash, isArray := thisObject.stash.(*_arrayStash); isArray {
-		for index := index(len(stash.valueArray)); index >= 0; index-- {
-			if sameValue(argValue, stash.valueArray[index]) {
-				return toValue(index)
-			}
-		}
-	} else {
-		for index := index(int(toUint32(thisObject.get("length")))); index >= 0; index-- {
-			if sameValue(argValue, thisObject.get(arrayIndexToString(uint(index)))) {
-				return toValue(index)
-			}
+	for index := index(int(toUint32(thisObject.get("length")))); index >= 0; index-- {
+		if sameValue(argValue, thisObject.get(arrayIndexToString(uint(index)))) {
+			return toValue(index)
 		}
 	}
 	return toValue(-1)
@@ -540,7 +522,7 @@ func builtinArray_map(call FunctionCall) Value {
 				values[index] = fn.call(call.Argument(1), thisObject.get(key), index, toValue(thisObject))
 			}
 		}
-		return toValue(call.runtime.newArray(values))
+		return toValue(call.runtime.newArrayOf(values))
 	}
 	panic(newTypeError())
 }
@@ -557,7 +539,7 @@ func builtinArray_filter(call FunctionCall) Value {
 				}
 			}
 		}
-		return toValue(call.runtime.newArray(values))
+		return toValue(call.runtime.newArrayOf(values))
 	}
 	panic(newTypeError())
 }
