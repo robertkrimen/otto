@@ -203,13 +203,14 @@ func TestObject_seal(t *testing.T) {
 		var caught = false;
 		Object.seal(abc);
 		abc.b = 5;
+		Object.defineProperty(abc, "a", {value:4});
 		try {
-			Object.defineProperty(abc, "a", {value:4});
+			Object.defineProperty(abc, "a", {value:42,enumerable:false});
 		} catch (e) {
 			caught = e instanceof TypeError;
 		}
 		[sealed, Object.isSealed(abc), caught, abc.a, abc.b];
-	`, "false,true,true,1,5")
+	`, "false,true,true,4,5")
 
 	test(`Object.seal.length`, "1")
 	test(`Object.seal.prototype`, "undefined")
