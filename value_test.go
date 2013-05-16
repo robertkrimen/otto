@@ -3,7 +3,6 @@ package otto
 import (
 	. "./terst"
 	"encoding/json"
-	"fmt"
 	"math"
 	"testing"
 )
@@ -159,62 +158,73 @@ func Test_sameValue(t *testing.T) {
 	IsFalse(sameValue(NaNValue(), toValue("Nothing happens.")))
 }
 
-func TestExport(t *testing.T) {
+func Testexport(t *testing.T) {
 	Terst(t)
 
 	test := runTest()
 
-	// test exporting a variety of objects
-	testObjects := []interface{}{
+	Is(test(`null;`).export(), nil)
+	Is(test(`undefined;`).export(), UndefinedValue())
+	Is(test(`true;`).export(), true)
+	Is(test(`false;`).export(), false)
+	Is(test(`0;`).export(), 0)
+	Is(test(`3.1459`).export(), 3.1459)
+	Is(test(`"Nothing happens";`).export(), "Nothing happens")
+	Is(test(`String.fromCharCode(97,98,99,100,101,102)`).export(), "abcdef")
+	{
+		value := test(`({ abc: 1, def: true });`).export().(map[string]interface{})
+		Is(value["abc"], 1)
+		Is(value["def"], true)
+	}
+	{
+		value := test(`[ "abc", 1, "def", true, undefined, null ];`).export().([]interface{})
+		Is(value[0], "abc")
+		Is(value[1], 1)
+		Is(value[2], "def")
+		Is(value[3], true)
+		Is(value[4], UndefinedValue())
+		Is(value[5], nil)
+		Is(value[5], interface{}(nil))
+	}
+
+	roundtrip := []interface{}{
 		true,
 		false,
 		0,
-		7,
-		"string",
-		[]interface{}{true, false, 0, 7, "string"},
+		3.1459,
+		[]interface{}{true, false, 0, 3.1459, "abc"},
 		map[string]interface{}{
-			"bool":   true,
-			"number": 7.5,
-			"string": "string",
-			"array": []interface{}{
-				true,
-				false,
-				0,
-				7,
-				"string"},
-			"object": map[string]interface{}{
-				"inside": 7}}}
-
-	for _, obj := range testObjects {
-		// convert test object to JSON
-		bytes, err := json.Marshal(obj)
-		Is(err, nil)
-
-		// store that evaluated JSON as variable x
-		test("x = " + string(bytes))
-
-		// export x
-		exported, err := test(`x`).Export()
-		Is(err, nil)
-
-		// convert the exported object to json
-		exported_bytes, err := json.Marshal(exported)
-		Is(err, nil)
-
-		// compare json from exported value should match origina json
-		Is(string(bytes), string(exported_bytes))
-
+			"Boolean": true,
+			"Number":  3.1459,
+			"String":  "abc",
+			"Array":   []interface{}{false, 0, "", nil},
+			"Object": map[string]interface{}{
+				"Boolean": false,
+				"Number":  0,
+				"String":  "def",
+			},
+		},
 	}
 
-	// test exporting undefined
-	exported_undefined, err := test(`y`).Export()
-	Is(exported_undefined, nil)
-	Is(err, fmt.Errorf("undefined"))
+	for _, value := range roundtrip {
+		input, err := json.Marshal(value)
+		Is(err, nil)
 
-	// test object containing undefined, value is omitted from map
-	test(`x = { "an_undefined_value": undefined }`)
-	exported, err := test(`x`).Export()
-	exported_bytes, err := json.Marshal(exported)
-	Is(err, nil)
-	Is(string(exported_bytes), "{}")
+		output, err := json.Marshal(test("(" + string(input) + ");").export())
+		Is(err, nil)
+
+		Is(string(input), string(output))
+	}
+
+	{
+		abc := struct {
+			def int
+			ghi interface{}
+			xyz float32
+		}{}
+		abc.def = 3
+		abc.xyz = 3.1459
+		failSet("abc", abc)
+		Is(test(`abc;`).export(), abc)
+	}
 }
