@@ -263,9 +263,10 @@ func TestObject_GetterSetter(t *testing.T) {
 	Terst(t)
 
 	test := runTest()
-	// TODO Default writable value should be false?
+	test(`raise: Object.create({},{a:{get:function(){return "true"},writable:true}}).a`, "TypeError")
 	test(`Object.create({},{a:{get:function(){return "true"},writable:false}}).a`, "true")
-	test(`Object.create({x:true},{a:{get:function(){return this.x},writable:false}}).a`, "true")
+	test(`Object.create({},{a:{get:function(){return "true"}}}).a`, "true")
+	test(`Object.create({x:true},{a:{get:function(){return this.x}}}).a`, "true")
 	test(`
 		var _val = false
 		var o = Object.create({}, {

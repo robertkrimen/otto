@@ -117,8 +117,7 @@ func toPropertyDescriptor(value Value) (descriptor _property) {
 	}
 
 	if getterSetter {
-		// If writable is set on the descriptor, ...
-		if descriptor.mode&0200 != 0 {
+		if descriptor.writable() {
 			panic(newTypeError())
 		}
 		descriptor.value = _propertyGetSet{getter, setter}
