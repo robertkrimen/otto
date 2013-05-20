@@ -108,7 +108,6 @@ func (self *_parser) ParseObjectGetterSetter(name string) (string, _node) {
 		newObjectPropertyNode(name, functionNode),
 		newObjectPropertyNode("configurable", newBooleanNode("true")),
 		newObjectPropertyNode("enumerable", newBooleanNode("true")),
-		newObjectPropertyNode("writable", newBooleanNode("false")),
 	}
 	self.markNode(descriptorNode)
 

@@ -64,7 +64,6 @@ func TestObject_create(t *testing.T) {
 				get: function() {
 					return this.x + this.y + this.z
 				},
-				writable: false,
 			}
 		})
 
@@ -264,7 +263,7 @@ func TestObject_GetterSetter(t *testing.T) {
 
 	test := runTest()
 	test(`raise: Object.create({},{a:{get:function(){return "true"},writable:true}}).a`, "TypeError")
-	test(`Object.create({},{a:{get:function(){return "true"},writable:false}}).a`, "true")
+	test(`raise: Object.create({},{a:{get:function(){return "true"},writable:false}}).a`, "TypeError")
 	test(`Object.create({},{a:{get:function(){return "true"}}}).a`, "true")
 	test(`Object.create({x:true},{a:{get:function(){return this.x}}}).a`, "true")
 	test(`
@@ -274,7 +273,6 @@ func TestObject_GetterSetter(t *testing.T) {
 				set: function(v) {
 					_val = v
 				},
-				writable: false,
 			}
 		})
 	o.val = true
