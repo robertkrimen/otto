@@ -6,7 +6,7 @@ import (
 )
 
 func BenchmarkJSON_parse(b *testing.B) {
-	o := New(); t := func(s string) { o.run(s) }
+	o := New(); t := func(s string) { o.Run(s) }
 	for i := 0; i < b.N; i++ {
 		t(`JSON.parse("1")`)
 		t(`JSON.parse("[1,2,3]")`)
