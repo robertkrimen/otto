@@ -33,7 +33,13 @@ func TestObject(t *testing.T) {
 
 func TestToValue(t *testing.T) {
 	Terst(t)
+
 	//Is(toValue(newObjectValue()), "[object]")
+
+	otto, _ := runTestWithOtto()
+
+	value, _ := otto.ToValue(nil)
+	Is(value, "undefined")
 }
 
 func TestToBoolean(t *testing.T) {
@@ -158,7 +164,7 @@ func Test_sameValue(t *testing.T) {
 	IsFalse(sameValue(NaNValue(), toValue("Nothing happens.")))
 }
 
-func Testexport(t *testing.T) {
+func TestExport(t *testing.T) {
 	Terst(t)
 
 	test := runTest()

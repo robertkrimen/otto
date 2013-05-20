@@ -37,6 +37,8 @@ type _runtime struct {
 
 	_newError map[string]func(Value) *_object
 	eval      *_object // The builtin eval, for determine indirect versus direct invocation
+
+	Otto *Otto
 }
 
 func (self *_runtime) EnterGlobalExecutionContext() {
@@ -200,23 +202,23 @@ func (self *_runtime) tryCatchEvaluate(inner func() Value) (resultValue Value, t
 				case resultThrow:
 					throw = true
 					throwValue = caught.Value
-					return
 				case resultReturn, resultBreak, resultContinue:
 					fallthrough
 				default:
 					other = &caught
-					return
 				}
 			case _error:
 				throw = true
 				throwValue = toValue(self.newError(caught.Name, caught.MessageValue()))
-				return
 			case *_syntaxError:
 				throw = true
 				throwValue = toValue(self.newError("SyntaxError", toValue(caught.Message)))
-				return
+			case Value:
+				throw = true
+				throwValue = caught
+			default:
+				panic(caught)
 			}
-			panic(caught)
 		}
 	}()
 
@@ -376,4 +378,20 @@ func (self *_runtime) toValue(value interface{}) Value {
 		}
 	}
 	return toValue(value)
+}
+
+func (self *_runtime) run(source string) Value {
+	return self.evaluate(mustParse(source))
+}
+
+func (self *_runtime) runSafe(source string) (Value, error) {
+	result := UndefinedValue()
+	err := catchPanic(func() {
+		result = self.run(source)
+	})
+	switch result._valueType {
+	case valueReference:
+		result = self.GetValue(result)
+	}
+	return result, err
 }

@@ -111,9 +111,9 @@ JavaScript considers a vertical tab (\000B <VT>) to be part of the whitespace cl
 
 ```go
 type FunctionCall struct {
-	This Value
-
+	This         Value
 	ArgumentList []Value
+	Otto         *Otto
 }
 ```
 
@@ -145,7 +145,8 @@ func (self Object) Call(name string, argumentList ...interface{}) (Value, error)
 Call the method specified by the given name, using self as the this value. It is
 essentially equivalent to:
 
-    return self.Get(name).Call(self, argumentList)
+    var method, _ := self.Get(name)
+    method.Call(self, argumentList...)
 
 An undefined value and an error will result if:
 
@@ -220,6 +221,31 @@ func Run(source string) (*Otto, Value, error)
 Run will allocate a new JavaScript runtime, run the given source on the
 allocated runtime, and return the runtime, resulting value, and error (if any).
 
+#### func (Otto) Call
+
+```go
+func (self Otto) Call(source string, this interface{}, argumentList ...interface{}) (Value, error)
+```
+Call the given JavaScript with a given this and arguments.
+
+WARNING: 2013-05-19: This function is rough, and is in beta.
+
+If this is nil, then some special handling takes place to determine the proper
+this value, falling back to a "standard" invocation if necessary (where this is
+undefined).
+
+If source begins with "new " (A lowercase new followed by a space), then Call
+will invoke the function constructor rather than performing a function call. In
+this case, the this argument has no effect.
+
+    // value is a String object
+    value, _ := Otto.Call("Object", nil, "Hello, World.")
+    // Likewise...
+    value, _ := Otto.Call("new Object", nil, "Hello, World.")
+    // This will perform a concat on the given array and return the result
+    // value is [ 1, 2, 3, undefined, 4, 5, 6, 7, "abc" ]
+    value, _ := Otto.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")
+
 #### func (Otto) Get
 
 ```go
@@ -227,7 +253,7 @@ func (self Otto) Get(name string) (Value, error)
 ```
 Get the value of the top-level binding of the given name.
 
-If there is an error (like the binding not existing), then the value will be
+If there is an error (like the binding does not exist), then the value will be
 undefined.
 
 #### func (Otto) Object
@@ -261,7 +287,7 @@ func (self Otto) Run(source string) (Value, error)
 Run will run the given source (parsing it first), returning the resulting value
 and error (if any)
 
-If the runtime is unable to parse the source, then this function will return
+If the runtime is unable to parse source, then this function will return
 undefined and the parse error (nothing will be evaluated in this case).
 
 #### func (Otto) Set
@@ -274,8 +300,8 @@ Set the top-level binding of the given name to the given value.
 Set will automatically apply ToValue to the given value in order to convert it
 to a JavaScript value (type Value).
 
-If there is an error (like the binding being read-only, or the ToValue
-conversion failing), then an error is returned.
+If there is an error (like the binding is read-only, or the ToValue conversion
+fails), then an error is returned.
 
 If the top-level binding does not exist, it will be created.
 

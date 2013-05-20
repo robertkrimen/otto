@@ -120,6 +120,22 @@ func (value Value) call(this Value, argumentList ...interface{}) Value {
 	panic(newTypeError())
 }
 
+func (value Value) constructSafe(this Value, argumentList ...interface{}) (Value, error) {
+	result := UndefinedValue()
+	err := catchPanic(func() {
+		result = value.construct(this, argumentList...)
+	})
+	return result, err
+}
+
+func (value Value) construct(this Value, argumentList ...interface{}) Value {
+	switch function := value.value.(type) {
+	case *_object:
+		return function.Construct(this, argumentList...)
+	}
+	panic(newTypeError())
+}
+
 // IsPrimitive will return true if value is a primitive (any kind of primitive).
 func (value Value) IsPrimitive() bool {
 	return !value.IsObject()
@@ -251,7 +267,6 @@ func toValue_reflectValuePanic(value interface{}, kind reflect.Kind) {
 	}
 }
 
-// TODO toValue(nil)?
 func toValue(value interface{}) Value {
 	switch value := value.(type) {
 	case Value:
@@ -295,6 +310,9 @@ func toValue(value interface{}) Value {
 		return Value{valueObject, value.object}
 	case _reference: // reference is an interface (already a pointer)
 		return Value{valueReference, value}
+	case nil:
+		// TODO Ugh.
+		return UndefinedValue()
 	case reflect.Value:
 		value = reflect.Indirect(value)
 		switch value.Kind() {

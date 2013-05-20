@@ -76,7 +76,7 @@ Optionally include the JavaScript utility-belt library, underscore, with this im
 		_ "github.com/robertkrimen/otto/underscore"
 	)
 
-	// Now every otto runtime will come loaded with underscore 
+	// Now every otto runtime will come loaded with underscore
 
 For more information: http://github.com/robertkrimen/otto/tree/master/underscore
 
@@ -108,6 +108,7 @@ package otto
 import (
 	"fmt"
 	"github.com/robertkrimen/otto/registry"
+	"strings"
 )
 
 // Otto is the representation of the JavaScript runtime. Each instance of Otto has a self-contained namespace.
@@ -120,6 +121,7 @@ func New() *Otto {
 	self := &Otto{
 		runtime: newContext(),
 	}
+	self.runtime.Otto = self
 	self.Set("console", self.runtime.newConsole())
 
 	registry.Apply(func(entry registry.Entry) {
@@ -134,56 +136,28 @@ func New() *Otto {
 // error (if any).
 func Run(source string) (*Otto, Value, error) {
 	otto := New()
-	result, err := otto.Run(source)
-	return otto, result, err
+	value, err := otto.Run(source)
+	return otto, value, err
 }
 
 // Run will run the given source (parsing it first), returning the resulting value and error (if any)
 //
-// If the runtime is unable to parse the source, then this function will return undefined and the parse error (nothing
+// If the runtime is unable to parse source, then this function will return undefined and the parse error (nothing
 // will be evaluated in this case).
 func (self Otto) Run(source string) (Value, error) {
-	result := UndefinedValue()
-	err := catchPanic(func() {
-		result = self.run(source)
-	})
-	switch result._valueType {
-	case valueReference:
-		result = self.runtime.GetValue(result)
-	}
-	return result, err
-}
-
-func (self Otto) run(run interface{}) Value {
-	switch value := run.(type) {
-	case []byte:
-		return self.runSource(string(value))
-	case string:
-		return self.runSource(value)
-	case _node:
-		return self.runNode(value)
-	}
-	panic(hereBeDragons("%v", run))
-}
-
-func (self Otto) runSource(run string) Value {
-	return self.runtime.evaluate(mustParse(run))
-}
-
-func (self Otto) runNode(run _node) Value {
-	return self.runtime.evaluate(run)
+	return self.runtime.runSafe(source)
 }
 
 // Get the value of the top-level binding of the given name.
 //
-// If there is an error (like the binding not existing), then the value
+// If there is an error (like the binding does not exist), then the value
 // will be undefined.
 func (self Otto) Get(name string) (Value, error) {
-	result := UndefinedValue()
+	value := UndefinedValue()
 	err := catchPanic(func() {
-		result = self.getValue(name)
+		value = self.getValue(name)
 	})
-	return result, err
+	return value, err
 }
 
 func (self Otto) getValue(name string) Value {
@@ -195,8 +169,8 @@ func (self Otto) getValue(name string) Value {
 // Set will automatically apply ToValue to the given value in order
 // to convert it to a JavaScript value (type Value).
 //
-// If there is an error (like the binding being read-only, or the ToValue conversion
-// failing), then an error is returned.
+// If there is an error (like the binding is read-only, or the ToValue conversion
+// fails), then an error is returned.
 //
 // If the top-level binding does not exist, it will be created.
 func (self Otto) Set(name string, value interface{}) error {
@@ -216,15 +190,91 @@ func (self Otto) setValue(name string, value Value) {
 	self.runtime.GlobalEnvironment.SetValue(name, value, false)
 }
 
+// Call the given JavaScript with a given this and arguments.
+//
+// WARNING: 2013-05-19: This function is rough, and is in beta.
+//
+// If this is nil, then some special handling takes place to determine the proper
+// this value, falling back to a "standard" invocation if necessary (where this is
+// undefined).
+//
+// If source begins with "new " (A lowercase new followed by a space), then
+// Call will invoke the function constructor rather than performing a function call.
+// In this case, the this argument has no effect.
+//
+//      // value is a String object                                                       
+//      value, _ := Otto.Call("Object", nil, "Hello, World.")                             
+//                                                                                        
+//      // Likewise...                                                                    
+//      value, _ := Otto.Call("new Object", nil, "Hello, World.")                         
+//                                                                                        
+//      // This will perform a concat on the given array and return the result            
+//      // value is [ 1, 2, 3, undefined, 4, 5, 6, 7, "abc" ]                             
+//      value, _ := Otto.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")    
+//
+func (self Otto) Call(source string, this interface{}, argumentList ...interface{}) (Value, error) {
+
+	thisValue := UndefinedValue()
+
+	new_ := false
+	switch {
+	case strings.HasPrefix(source, "new "):
+		source = source[4:]
+		new_ = true
+	}
+
+	if !new_ && this == nil {
+		value := UndefinedValue()
+		fallback := false
+		err := catchPanic(func() {
+			programNode := mustParse(source + "()")
+			if callNode, valid := programNode.Body[0].(*_callNode); valid {
+				value = self.runtime.evaluateCall(callNode, argumentList)
+			} else {
+				fallback = true
+			}
+		})
+		if !fallback && err == nil {
+			return value, nil
+		}
+	} else {
+		value, err := self.ToValue(this)
+		if err != nil {
+			return UndefinedValue(), err
+		}
+		thisValue = value
+	}
+
+	fnValue, err := self.Run(source)
+	if err != nil {
+		return UndefinedValue(), err
+	}
+
+	value := UndefinedValue()
+	if new_ {
+		value, err = fnValue.constructSafe(thisValue, argumentList...)
+		if err != nil {
+			return UndefinedValue(), err
+		}
+	} else {
+		value, err = fnValue.Call(thisValue, argumentList...)
+		if err != nil {
+			return UndefinedValue(), err
+		}
+	}
+
+	return value, nil
+}
+
 // Object will run the given source and return the result as an object.
 //
 // For example, accessing an existing object:
-// 
+//
 //		object, _ := Otto.Object(`Number`)
 //
 // Or, creating a new object:
 //
-//		object, _ := Otto.Object(`{ xyzzy: "Nothing happens." }`) 
+//		object, _ := Otto.Object(`{ xyzzy: "Nothing happens." }`)
 //
 // Or, creating and assigning an object:
 //
@@ -234,17 +284,14 @@ func (self Otto) setValue(name string, value Value) {
 // If there is an error (like the source does not result in an object), then
 // nil and an error is returned.
 func (self Otto) Object(source string) (*Object, error) {
-	var result Value
-	err := catchPanic(func() {
-		result = self.run(source)
-	})
+	value, err := self.runtime.runSafe(source)
 	if err != nil {
 		return nil, err
 	}
-	if result.IsObject() {
-		return result.Object(), nil
+	if value.IsObject() {
+		return value.Object(), nil
 	}
-	return nil, fmt.Errorf("Result was not an object")
+	return nil, fmt.Errorf("value is not an object")
 }
 
 // ToValue will convert an interface{} value to a value digestible by otto/JavaScript.
@@ -271,7 +318,8 @@ func _newObject(object *_object, value Value) *Object {
 // Call the method specified by the given name, using self as the this value.
 // It is essentially equivalent to:
 //
-//		return self.Get(name).Call(self, argumentList)
+//		var method, _ := self.Get(name)
+//		method.Call(self, argumentList...)
 //
 // An undefined value and an error will result if:
 //
@@ -294,11 +342,11 @@ func (self Object) Value() Value {
 
 // Get the value of the property with the given name.
 func (self Object) Get(name string) (Value, error) {
-	result := UndefinedValue()
+	value := UndefinedValue()
 	err := catchPanic(func() {
-		result = self.object.get(name)
+		value = self.object.get(name)
 	})
-	return result, err
+	return value, err
 }
 
 // Set the property of the given name to the given value.
