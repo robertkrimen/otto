@@ -3,6 +3,7 @@ package otto
 import (
 	. "./terst"
 	"testing"
+	"time"
 )
 
 func BenchmarkJSON_parse(b *testing.B) {
@@ -34,6 +35,8 @@ func TestJSON_stringify(t *testing.T) {
 	Terst(t)
 	test := runTest()
 
+	defer mockTimeLocal(time.UTC)()
+
 	test(`JSON.stringify(undefined)`, "undefined")
 	test(`JSON.stringify(1)`, "1")
 	test(`JSON.stringify([])`, "[]")
@@ -46,7 +49,7 @@ func TestJSON_stringify(t *testing.T) {
 		`[true,"1970-01-01T00:00:00.000Z",1,"abc"]`)
 	test(`JSON.stringify([new Date(0)], function(k,v){
 		return this[k] instanceof Date ? 'Date(' + this[k] + ')' : v
-	})`, `["Date(Thu, 01 Jan 1970 01:00:00 CET)"]`)
+	})`, `["Date(Thu, 01 Jan 1970 00:00:00 UTC)"]`)
 	test(`JSON.stringify({a:1,b:2,c:3}, ['a','b'])`, `{"a":1,"b":2}`)
 }
 
