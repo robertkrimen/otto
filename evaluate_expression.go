@@ -69,7 +69,7 @@ func (self *_runtime) evaluateObject(node *_objectNode) Value {
 				descriptors[key] = value
 			}
 		} else {
-			result.defineProperty(property.Key, self.GetValue(self.evaluate(property.Value)), 0111, false)
+			result.defineProperty(property.Key, value, 0111, false)
 		}
 	}
 
