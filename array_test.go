@@ -204,7 +204,7 @@ func TestArray_slice(t *testing.T) {
 		mno = Array.prototype.slice.call(abc,2,-1)
 		pqr = Array.prototype.slice.call(abc,-1,-10)
 	`)
-	// Array.protoype.slice is generic
+	// Array.prototype.slice is generic
 	test("def", "0,1,2,3")
 	test("ghi", "1,2,3")
 	test("jkl", "")
@@ -287,4 +287,108 @@ func TestArray_isArray(t *testing.T) {
 	test(`
         [ Array.isArray(), Array.isArray([]), Array.isArray({}) ];
     `, "false,true,false")
+}
+
+func TestArray_indexOf(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`['a', 'b', 'c', 'b'].indexOf('b')`, "1")
+	test(`['a', 'b', 'c', 'b'].indexOf('b', 2)`, "3")
+	test(`['a', 'b', 'c', 'b'].indexOf('b', -2)`, "3")
+	test(`
+		Object.prototype.indexOf = Array.prototype.indexOf
+		var obj = {0: 'a', 1: 'b', 2: 'c', length: 3}
+		// [typeof obj.indexOf === 'function', obj.indexOf('c')]
+		obj.indexOf('c')
+	`, "2")
+}
+
+func TestArray_lastIndexOf(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`['a', 'b', 'c', 'b'].lastIndexOf('b')`, "3")
+	test(`['a', 'b', 'c', 'b'].lastIndexOf('b', 2)`, "1")
+	test(`['a', 'b', 'c', 'b'].lastIndexOf('b', -2)`, "1")
+	test(`
+		Object.prototype.lastIndexOf = Array.prototype.lastIndexOf
+		var obj = {0: 'a', 1: 'b', 2: 'c', 3: 'b', length: 4}
+		// [typeof obj.lastIndexOf === 'function', obj.lastIndexOf('b')]
+		obj.lastIndexOf('b')
+	`, "3")
+}
+
+func TestArray_every(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].every("abc")`, "TypeError")
+	test(`[].every(function(v,k,o) { return false })`, "true")
+	test(`[1,2,3].every(function(v,k,o) { return false })`, "false")
+	test(`[1,2,3].every(function(v,k,o) { return true })`, "true")
+}
+
+func TestArray_some(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].some("abc")`, "TypeError")
+	test(`[].some(function(v,k,o) { return true })`, "false")
+	test(`[1,2,3].some(function(v,k,o) { return false })`, "false")
+	test(`[1,2,3].some(function(v,k,o) { return true })`, "true")
+}
+
+func TestArray_forEach(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].forEach("abc")`, "TypeError")
+	test(`var a = 0;[].forEach(function(v,k,o) { a += v });a`, "0")
+	test(`[1,2,3].forEach(function(v,k,o) { a += v });a`, "6")
+}
+
+func TestArray_map(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].map("abc")`, "TypeError")
+	test(`[].map(function(v,k,o) { return 1 }).length`, "0")
+	test(`[1,2,3].map(function(v,k,o) { return v * v })`, "1,4,9")
+	test(`[1,2,3].map(function(v,k,o) { return 1 })`, "1,1,1")
+}
+
+
+func TestArray_filter(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].filter("abc")`, "TypeError")
+	test(`[].filter(function(v,k,o) { return 1 }).length`, "0")
+	test(`[1,2,3].filter(function(v,k,o) { return false }).length`, "0")
+	test(`[1,2,3].filter(function(v,k,o) { return true })`, "1,2,3")
+}
+
+func TestArray_reduce(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].reduce("abc")`, "TypeError")
+	test(`raise: [].reduce(function(a,v,k,o) {})`, "TypeError")
+	test(`[].reduce(function(a,v,k,o) {}, 0)`, "0")
+	test(`['a','b','c'].reduce(function(a,v,k,o) { return a+', '+v })`, "a, b, c")
+	test(`[1,2,3].reduce(function(a,v,k,o) { return a + v }, 4)`, "10")
+	test(`[1,2,3].reduce(function(a,v,k,o) { return a + v })`, "6")
+}
+
+func TestArray_reduceRight(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: [].reduceRight("abc")`, "TypeError")
+	test(`raise: [].reduceRight(function(a,v,k,o) {})`, "TypeError")
+	test(`[].reduceRight(function(a,v,k,o) {}, 0)`, "0")
+	test(`['a','b','c'].reduceRight(function(a,v,k,o) { return a+', '+v })`, "c, b, a")
+	test(`[1,2,3].reduceRight(function(a,v,k,o) { return a + v }, 4)`, "10")
+	test(`[1,2,3].reduceRight(function(a,v,k,o) { return a + v })`, "6")
 }

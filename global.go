@@ -169,13 +169,20 @@ func newContext() *_runtime {
 			}
 			return FalseValue()
 		},
+		// Deprecated but still widely used, non-standard, Mozilla extensions
+		"__defineGetter__", builtinObject_defineGetterSetter(0),
+		"__lookupGetter__", builtinObject_lookupGetterSetter(0),
+		"__defineSetter__", builtinObject_defineGetterSetter(1),
+		"__lookupSetter__", builtinObject_lookupGetterSetter(1),
 	)
 	self.Global.Object.write(
 		"getPrototypeOf", 1, builtinObject_getPrototypeOf,
 		"getOwnPropertyDescriptor", 2, builtinObject_getOwnPropertyDescriptor,
+		"getOwnPropertyNames", -1, builtinObject_getOwnPropertyNames,
 		"defineProperty", 3, builtinObject_defineProperty,
 		"defineProperties", 2, builtinObject_defineProperties,
 		"create", 2, builtinObject_create,
+		"keys", 1, builtinObject_keys,
 		"isExtensible", -1, builtinObject_isExtensible,
 		"preventExtensions", -1, builtinObject_preventExtensions,
 		"isSealed", -1, builtinObject_isSealed,
@@ -221,6 +228,15 @@ func newContext() *_runtime {
 		"unshift", 1, builtinArray_unshift,
 		"reverse", 0, builtinArray_reverse,
 		"sort", 0, builtinArray_sort,
+		"indexOf", 1, builtinArray_indexOf,
+		"lastIndexOf", 1, builtinArray_lastIndexOf,
+		"every", 1,builtinArray_every,
+		"some", 1, builtinArray_some,
+		"forEach", 1, builtinArray_forEach,
+		"map", 1, builtinArray_map,
+		"filter", 1, builtinArray_filter,
+		"reduce", 1, builtinArray_reduce,
+		"reduceRight", 1, builtinArray_reduceR,
 	)
 
 	self.Global.Array.write(
@@ -253,6 +269,10 @@ func newContext() *_runtime {
 		"toLowerCase", 0, builtinString_toLowerCase,
 		"toUpperCase", 0, builtinString_toUpperCase,
 		"substr", 2, builtinString_substr,
+		"toJSON", 1, builtinJSON_toJSON,
+		"trim", 0, builtinString_trim,
+		"trimLeft", 0, builtinString_trimL,
+		"trimRight", 0, builtinString_trimR,
 	)
 	// TODO Maybe streamline this redundancy?
 	self.Global.String.write(
@@ -279,6 +299,7 @@ func newContext() *_runtime {
 			}
 			return value
 		},
+		"toJSON", 1, builtinJSON_toJSON,
 	)
 
 	self.Global.Number = self.newGlobalFunction(
@@ -308,6 +329,7 @@ func newContext() *_runtime {
 		"toFixed", 1, builtinNumber_toFixed,
 		"toExponential", 1, builtinNumber_toExponential,
 		"toPrecision", 1, builtinNumber_toPrecision,
+		"toJSON", 1, builtinJSON_toJSON,
 	)
 
 	self.Global.Number.write(
@@ -358,6 +380,7 @@ func newContext() *_runtime {
 		"toString", 0, builtinDate_toString,
 		"toUTCString", 0, builtinDate_toUTCString,
 		"toGMTString", 0, builtinDate_toGMTString,
+		"toISOString", 0, builtinDate_toISOString,
 		"toLocaleString", 0, builtinDate_toLocaleString,
 		"toLocaleDateString", 0, builtinDate_toLocaleDateString,
 		"toLocaleTimeString", 0, builtinDate_toLocaleTimeString,
@@ -654,16 +677,14 @@ func newContext() *_runtime {
 			date.SetTime(ecmaTime.goTime())
 			return date.Value()
 		},
-		// toUTCString
-		// toISOString
-		// toJSONString
-		// toJSON
+		"toJSON", 1, builtinJSON_toJSON,
 	)
 
 	self.Global.Date.write(
 		_propertyMode(0),
 		"parse", builtinDate_parse,
 		"UTC", builtinDate_UTC,
+		"now", builtinDate_now,
 	)
 
 	self.Global.RegExp = self.newGlobalFunction(
@@ -683,7 +704,12 @@ func newContext() *_runtime {
 		self.Global.ErrorPrototype,
 		"name", toValue("Error"),
 		"toString", 0, builtinError_toString,
-		"toString", 0, builtinError_toString,
+	)
+
+	self.Global.JSON = self.newGlobalObject(
+		"JSON",
+		"parse", -1, builtinJSON_parse,
+		"stringify", -1, builtinJSON_stringify,
 	)
 
 	self.GlobalObject.write(
@@ -698,7 +724,7 @@ func newContext() *_runtime {
 		"RegExp", toValue(self.Global.RegExp),
 		"Date", toValue(self.Global.Date),
 		"Error", toValue(self.Global.Error),
-		// TODO JSON
+		"JSON", toValue(self.Global.JSON),
 
 		// TODO Is _propertyMode(0) compatible with 3?
 		// _propertyMode(0),

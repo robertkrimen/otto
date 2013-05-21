@@ -240,3 +240,42 @@ func Test_floatToString(t *testing.T) {
 	test(`String(-1e-7)`, "-1e-7")
 	test(`String(-1E-7)`, "-1e-7")
 }
+
+func TestString_trim(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`"		abc\u000B".trim()`, "abc")
+	test(`"abc ".trim()`, "abc")
+	test(`
+		var a = "\u180Eabc \u000B "
+		var b = a.trim()
+		a.length + b.length
+	`, "10")
+}
+
+func TestString_trimLeft(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`"		abc\u000B".trimLeft()`, "abc\u000B")
+	test(`"abc ".trimLeft()`, "abc ")
+	test(`
+		var a = "\u180Eabc \u000B "
+		var b = a.trimLeft()
+		a.length + b.length
+	`, "13")
+}
+
+func TestString_trimRight(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`"		abc\u000B".trimRight()`, "		abc")
+	test(`" abc ".trimRight()`, " abc")
+	test(`
+		var a = "\u180Eabc \u000B "
+		var b = a.trimRight()
+		a.length + b.length
+	`, "11")
+}

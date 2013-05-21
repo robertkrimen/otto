@@ -423,3 +423,186 @@ func builtinArray_sort(call FunctionCall) Value {
 func builtinArray_isArray(call FunctionCall) Value {
 	return toValue(isArray(call.Argument(0)._object()))
 }
+
+func builtinArray_indexOf(call FunctionCall) Value {
+	thisObject, argValue := call.thisObject(), call.Argument(0)
+	index := func(length int) (index int) {
+		if v := call.Argument(1); v.IsNumber() {
+			index = int(toInteger(v))
+		}
+		if index < 0 {
+			if index += length; index < 0 {
+				index = 0
+			}
+		} else if index >= length {
+			index = -1
+		}
+		return
+	}
+	if length := uint(toUint32(thisObject.get("length"))); length > 0 {
+		for index := uint(index(int(length))); (index >= 0) && index < length; index++ {
+			if sameValue(argValue, thisObject.get(arrayIndexToString(index))) {
+				return toValue(index)
+			}
+		}
+	}
+	return toValue(-1)
+}
+
+func builtinArray_lastIndexOf(call FunctionCall) Value {
+	thisObject, argValue := call.thisObject(), call.Argument(0)
+	index := func(length int) (index int) {
+		length--
+		index = length
+		if v := call.Argument(1); v.IsNumber() {
+			index = int(toInteger(v))
+		}
+		if index < 0 {
+			index += length
+		}
+		if index > length || index < 0 {
+			index = length
+		}
+		return
+	}
+	for index := index(int(toUint32(thisObject.get("length")))); index >= 0; index-- {
+		if sameValue(argValue, thisObject.get(arrayIndexToString(uint(index)))) {
+			return toValue(index)
+		}
+	}
+	return toValue(-1)
+}
+
+func builtinArray_every(call FunctionCall) Value {
+	if thisObject, fn := call.thisObject(), call.Argument(0); fn.isCallable() {
+		length := int(toUint32(thisObject.get("length")))
+		for index := 0; index < length; index++ {
+			if key := arrayIndexToString(uint(index)); thisObject.hasProperty(key) {
+				if value := thisObject.get(key); !toBoolean(fn.call(
+						call.Argument(1), value, index, toValue(thisObject))) {
+					return FalseValue()
+				}
+			}
+		}
+		return TrueValue()
+	}
+	panic(newTypeError())
+}
+
+func builtinArray_some(call FunctionCall) Value {
+	if fn, this := call.Argument(0), call.Argument(1); fn.isCallable() {
+		fn := call.runtime.newNativeFunction(func(call FunctionCall) Value {
+			return toValue(!toBoolean(fn.call(this, call.ArgumentList)))
+		}, 0, "native" + call.thisObject().class + "_")
+		call.ArgumentList = []Value{toValue(fn), this}
+		return toValue(!toBoolean(builtinArray_every(call)))
+	}
+	panic(newTypeError())
+}
+
+func builtinArray_forEach(call FunctionCall) Value {
+	if thisObject, fn := call.thisObject(), call.Argument(0); fn.isCallable() {
+		length := int(toUint32(thisObject.get("length")))
+		for index := 0; index < length; index++ {
+			if key := arrayIndexToString(uint(index)); thisObject.hasProperty(key) {
+				fn.call(call.Argument(1), thisObject.get(key), index, toValue(thisObject))
+			}
+		}
+		return UndefinedValue()
+	}
+	panic(newTypeError())
+}
+
+func builtinArray_map(call FunctionCall) Value {
+	if thisObject, fn := call.thisObject(), call.Argument(0); fn.isCallable() {
+		length := int(toUint32(thisObject.get("length")))
+		values := make([]Value, length)
+		for index := 0; index < length; index++ {
+			if key := arrayIndexToString(uint(index)); thisObject.hasProperty(key) {
+				values[index] = fn.call(call.Argument(1), thisObject.get(key), index, toValue(thisObject))
+			}
+		}
+		return toValue(call.runtime.newArrayOf(values))
+	}
+	panic(newTypeError())
+}
+
+func builtinArray_filter(call FunctionCall) Value {
+	if thisObject, fn := call.thisObject(), call.Argument(0); fn.isCallable() {
+		length := int(toUint32(thisObject.get("length")))
+		values := []Value{}
+		for index := 0; index < length; index++ {
+			if key := arrayIndexToString(uint(index)); thisObject.hasProperty(key) {
+				if value := thisObject.get(key); toBoolean(fn.call(
+						call.Argument(1), value, index, toValue(thisObject))) {
+					values = append(values, value)
+				}
+			}
+		}
+		return toValue(call.runtime.newArrayOf(values))
+	}
+	panic(newTypeError())
+}
+
+func builtinArray_reduce(call FunctionCall) Value {
+	if thisObject, fn, initValue := call.thisObject(),
+			call.Argument(0), call.Argument(1); fn.isCallable() {
+		if length, index := int(toUint32(thisObject.get("length"))), 0;
+				length > 0 || initValue.IsDefined() {
+			var accumulator Value
+			if !initValue.IsDefined() {
+				for ; index < length; index++ {
+					if k := arrayIndexToString(uint(index)); thisObject.hasProperty(k) {
+						accumulator = thisObject.get(k)
+						index++
+						break
+					}
+				}
+			} else {
+				accumulator = initValue
+			}
+			if accumulator.IsDefined() {
+				for ; index < length; index++ {
+					if k := arrayIndexToString(uint(index)); thisObject.hasProperty(k) {
+						accumulator = fn.call(UndefinedValue(), accumulator,
+							thisObject.get(k), k, thisObject)
+					}
+				}
+				return accumulator
+			}
+		}
+	}
+	panic(newTypeError())
+}
+
+func builtinArray_reduceR(call FunctionCall) Value {
+	if thisObject, fn, initValue := call.thisObject(),
+			call.Argument(0), call.Argument(1); fn.isCallable() {
+		if length := int(toUint32(thisObject.get("length")));
+				length > 0 || initValue.IsDefined() {
+			var accumulator Value
+			index := length
+			if !initValue.IsDefined() {
+				for ; index >= 0; index-- {
+					if k := arrayIndexToString(uint(index)); thisObject.hasProperty(k) {
+						accumulator = thisObject.get(k)
+						index--
+						break
+					}
+				}
+			} else {
+				accumulator = initValue
+			}
+			if accumulator.IsDefined() {
+				for ; index >= 0; index-- {
+					if k := arrayIndexToString(uint(index)); thisObject.hasProperty(k) {
+						accumulator = fn.call(UndefinedValue(), accumulator,
+							thisObject.get(k), k, thisObject)
+					}
+				}
+				return accumulator
+			}
+		}
+	}
+	panic(newTypeError())
+}

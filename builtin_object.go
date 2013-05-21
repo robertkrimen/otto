@@ -78,6 +78,21 @@ func builtinObject_getOwnPropertyDescriptor(call FunctionCall) Value {
 	return toValue(call.runtime.fromPropertyDescriptor(*descriptor))
 }
 
+func builtinObject_getOwnPropertyNames(call FunctionCall) Value {
+	if object := call.Argument(0)._object(); nil != object {
+		var names []Value
+
+		for _, name := range object.propertyOrder {
+			if p := object.getOwnProperty(name); nil != p {
+				names = append(names, toValue(name))
+			}
+		}
+
+		return toValue(call.runtime.newArrayOf(names))
+	}
+	panic(newTypeError())
+}
+
 func builtinObject_defineProperty(call FunctionCall) Value {
 	objectValue := call.Argument(0)
 	object := objectValue._object()
@@ -108,12 +123,12 @@ func builtinObject_defineProperties(call FunctionCall) Value {
 
 func builtinObject_create(call FunctionCall) Value {
 	prototypeValue := call.Argument(0)
-	prototype := prototypeValue._object()
-	if prototype == nil {
+	if !prototypeValue.IsNull() && !prototypeValue.IsObject() {
 		panic(newTypeError())
 	}
 
 	object := call.runtime.newObject()
+	object.prototype = prototypeValue._object()
 
 	propertiesValue := call.Argument(1)
 	if propertiesValue.IsDefined() {
@@ -125,6 +140,16 @@ func builtinObject_create(call FunctionCall) Value {
 	}
 
 	return toValue(object)
+}
+
+func builtinObject_keys(call FunctionCall) Value {
+	if object, elements := call.Argument(0)._object(), []Value{}; nil != object {
+		object.enumerate(func(name string) {
+			elements = append(elements, toValue(name))
+		})
+		return toValue(call.runtime.newArrayOf(elements))
+	}
+	panic(newTypeError())
 }
 
 func builtinObject_isExtensible(call FunctionCall) Value {
@@ -220,4 +245,45 @@ func builtinObject_freeze(call FunctionCall) Value {
 		panic(newTypeError())
 	}
 	return object
+}
+
+func builtinObject_defineGetterSetter(index int) func(FunctionCall) Value {
+	if index == 0 || index == 1 {
+		return func(call FunctionCall) Value {
+			if fn := call.Argument(1); fn.isCallable() {
+				this, key := call.thisObject(), call.Argument(0).String()
+				getset := _propertyGetSet{nil, nil}
+				getset[index] = fn._object()
+				if p := this.getProperty(key); nil != p {
+					if current, test := p.value.(_propertyGetSet); test {
+						if index == 0 {
+							index = 1
+						} else {
+							index = 0
+						}
+						getset[index] = current[index]
+					}
+				}
+				descriptor := _property{getset, _propertyMode(0011)}
+				this.defineOwnProperty(key, descriptor, false)
+				return UndefinedValue()
+			}
+			panic(newTypeError())
+		}
+	}
+	panic(hereBeDragons())
+}
+
+func builtinObject_lookupGetterSetter(index int) func(FunctionCall) Value {
+	if index == 0 || index == 1 {
+		return func(call FunctionCall) Value {
+			if p := call.thisObject().getProperty(call.Argument(0).String()); nil != p {
+				if getset, test := p.value.(_propertyGetSet); test {
+					return toValue(getset[index])
+				}
+			}
+			return UndefinedValue()
+		}
+	}
+	panic(hereBeDragons())
 }

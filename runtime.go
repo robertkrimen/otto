@@ -22,7 +22,7 @@ type _runtime struct {
 		Date     *_object // Date( ... ), new Date( ... ) - 7
 		RegExp   *_object // RegExp( ... ), new RegExp( ... ) - 2
 		Error    *_object // Error( ... ), new Error( ... ) - 1
-		// JSON
+		JSON     *_object
 
 		ObjectPrototype   *_object // Object.prototype
 		FunctionPrototype *_object // Function.prototype

@@ -37,6 +37,14 @@ func builtinDate_toUTCString(call FunctionCall) Value {
 	return toValue(date.Time().Format(Time.RFC1123))
 }
 
+func builtinDate_toISOString(call FunctionCall) Value {
+	date := dateObjectOf(call.thisObject())
+	if date.isNaN {
+		return toValue("Invalid Date")
+	}
+	return toValue(date.Time().Format("2006-01-02T15:04:05.000Z"))
+}
+
 func builtinDate_toGMTString(call FunctionCall) Value {
 	date := dateObjectOf(call.thisObject())
 	if date.isNaN {
@@ -88,6 +96,11 @@ func builtinDate_parse(call FunctionCall) Value {
 
 func builtinDate_UTC(call FunctionCall) Value {
 	return toValue(newDateTime(call.ArgumentList, Time.UTC))
+}
+
+func builtinDate_now(call FunctionCall) Value {
+	call.ArgumentList = []Value{}
+	return builtinDate_UTC(call)
 }
 
 // This is a placeholder

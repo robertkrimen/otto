@@ -3,6 +3,7 @@ package otto
 import (
 	. "./terst"
 	"fmt"
+	"strconv"
 	"testing"
 	Time "time"
 )
@@ -113,6 +114,22 @@ func TestDate_UTC(t *testing.T) {
 
 	test := runTest()
 	test(`Date.UTC(2009, 9, 25)`, "1256428800000")
+}
+
+func TestDate_now(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	time := Time.Now()
+	test(`Date.now()`, strconv.FormatInt(epochToInteger(timeToEpoch(time)), 10))
+	test(`Date.now() === Date.now(1,2,3)`, "true")
+}
+
+func TestDate_toISOString(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`new Date(0).toISOString()`, "1970-01-01T00:00:00.000Z")
 }
 
 func TestDate_setYear(t *testing.T) {
