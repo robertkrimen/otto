@@ -741,6 +741,8 @@ func (value Value) toReflectValue(kind reflect.Kind) (reflect.Value, error) {
 		return reflect.ValueOf(float64(value)), nil
 	case reflect.String:
 		return reflect.ValueOf(value.toString()), nil
+	case reflect.Interface:
+		return reflect.ValueOf(value.value), nil
 	}
 
 	dbgf("%/panic//%@: Invalid: (%v) to reflect.Kind: %v", value, kind)
