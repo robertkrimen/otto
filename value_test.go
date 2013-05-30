@@ -234,3 +234,33 @@ func TestExport(t *testing.T) {
 		Is(test(`abc;`).export(), abc)
 	}
 }
+
+func TestIssue19(t *testing.T) {
+	Terst(t)
+
+	js := New()
+	var function Value
+
+	js.Set("setEnrichFunction", func(call FunctionCall) Value {
+		function = call.Argument(0)
+		if class := function.Class(); class != "Function" {
+			t.Errorf("setEnrichFunction: expected Function, got %s instead.", class)
+		}
+		return UndefinedValue()
+	})
+
+	js.Run(`setEnrichFunction(function(v) { v.ok = true })`)
+
+	data := map[string]interface{}{"foo": "bar", "theAnswer": 42}
+
+	arg, err := js.ToValue(data)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if _, err = function.Call(NullValue(), arg); err != nil {
+		t.Error(err)
+	}
+
+	Is(true, data["ok"].(bool))
+}
