@@ -69,7 +69,7 @@ func TestOperator(t *testing.T) {
 	test("result", "2")
 }
 
-func TestFunction(t *testing.T) {
+func TestFunction_(t *testing.T) {
 	Terst(t)
 
 	test := runTest()
@@ -593,7 +593,7 @@ func TestComparison(t *testing.T) {
 	test := runTest()
 
 	test("undefined = 1")
-	test("undefined", "1")
+	test("undefined", "undefined")
 
 	test("result = undefined == undefined")
 	test("result", "true")
