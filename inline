@@ -76,7 +76,7 @@ sub newContext {
                 $class,
                 "_classObject",
                 undef,
-                "prototypeValueFunction",
+                "prototypeValueObject",
             ),
         }),
 
@@ -126,7 +126,8 @@ sub newContext {
             ".${class}Prototype.property =",
             $self->propertyMap(
                 @got,
-                $self->property("constructor", undef, "0100"),
+                $self->property("constructor", undef, "0101"),
+                $self->property("length", $self->numberValue(0), "0"),
             ),
         }),
 
@@ -168,7 +169,7 @@ sub newContext {
             ),
             ".$class = Function",
             ".${class}Prototype.property[\"constructor\"] =",
-            $self->property(undef, $self->objectValue("Function"), "0100"),
+            $self->property(undef, $self->objectValue("Function"), "0"),
         }),
 
         # Array
@@ -177,6 +178,7 @@ sub newContext {
             my @got = $self->functionDeclare(
                 $class,
                 "toString", 0,
+                "toLocaleString", 0,
                 "concat", 1,
                 "join", 1,
                 "splice", 2,
@@ -369,6 +371,8 @@ sub newContext {
                 "toDateString", 0,
                 "toTimeString", 0,
                 "toUTCString", 0,
+                "toISOString", 0,
+                "toJSON", 1,
                 "toGMTString", 0,
                 "toLocaleString", 0,
                 "toLocaleDateString", 0,
@@ -439,6 +443,7 @@ sub newContext {
                 "toString", 0,
                 "exec", 1,
                 "test", 1,
+                "compile", 1,
             );
             return
             ".${class}Prototype =",
@@ -553,9 +558,9 @@ sub newContext {
                     "SyntaxError",
                     "URIError",
                 ),
-                $self->property("undefined", $self->undefinedValue(), "0101"),
-                $self->property("NaN", $self->numberValue("math.NaN()"), "0101"),
-                $self->property("Infinity", $self->numberValue("math.Inf(+1)"), "0100"),
+                $self->property("undefined", $self->undefinedValue(), "0"),
+                $self->property("NaN", $self->numberValue("math.NaN()"), "0"),
+                $self->property("Infinity", $self->numberValue("math.Inf(+1)"), "0"),
             ),
         }),
     ;
@@ -660,7 +665,7 @@ sub globalFunction {
     my $propertyMap = "";
     unshift @_,
         $self->property("length", $self->numberValue($length), "0"),
-        $self->property("prototype", $self->objectValue($prototype), "0100"),
+        $self->property("prototype", $self->objectValue($prototype), "0"),
     ;
 
     if (@_) {
@@ -670,7 +675,7 @@ sub globalFunction {
 
     push @postblock, $self->statement(
         "$prototype.property[\"constructor\"] =",
-        $self->property(undef, $self->objectValue("runtime.Global.${name}"), "0100"),
+        $self->property(undef, $self->objectValue("runtime.Global.${name}"), "0101"),
     );
 
     return trim <<_END_;
@@ -767,7 +772,7 @@ sub newFunction {
         push @preblock, $self->statement(
             "$prototype :=",
             $self->newObject(
-                $self->property("constructor", undef, "0100"),
+                $self->property("constructor", undef, "0101"),
             ),
         );
     }
@@ -790,7 +795,7 @@ _END_
     if ($prototype) {
         push @preblock, $self->statement(
             "$prototype.property[\"constructor\"] =",
-            $self->property(undef, $self->objectValue("$label"), "0100"),
+            $self->property(undef, $self->objectValue("$label"), "0101"),
         );
     }
 

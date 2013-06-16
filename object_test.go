@@ -13,6 +13,13 @@ func TestObject_(t *testing.T) {
 
 	object.put("xyzzy", toValue("Nothing happens."), true)
 	Is(object.get("xyzzy"), "Nothing happens.")
+
+	test := runTest()
+	test(`
+        var abc = Object.getOwnPropertyDescriptor(Object, "prototype");
+        [ [ typeof Object.prototype, abc.writable, abc.enumerable, abc.configurable ],
+        ];
+    `, "object,false,false,false")
 }
 
 func TestStringObject(t *testing.T) {

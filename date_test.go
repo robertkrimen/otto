@@ -104,6 +104,12 @@ func TestDate(t *testing.T) {
         abc = Object.getOwnPropertyDescriptor(Date.prototype, "toTimeString");
         [ abc.value === Date.prototype.toTimeString, abc.writable, abc.enumerable, abc.configurable ];
     `, "true,true,false,true")
+
+	test(`
+        var abc = Object.getOwnPropertyDescriptor(Date, "prototype");
+        [   [ typeof Date.prototype ],
+            [ abc.writable, abc.enumerable, abc.configurable ] ];
+    `, "object,false,false,false")
 }
 
 func TestDate_parse(t *testing.T) {
@@ -123,6 +129,20 @@ func TestDate_UTC(t *testing.T) {
 
 	test := runTest()
 	test(`Date.UTC(2009, 9, 25)`, "1256428800000")
+}
+
+func TestDate_toISOString(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`new Date(0).toISOString()`, "1970-01-01T00:00:00.000Z")
+}
+
+func TestDate_toJSON(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`new Date(0).toJSON()`, "1970-01-01T00:00:00.000Z")
 }
 
 func TestDate_setYear(t *testing.T) {
