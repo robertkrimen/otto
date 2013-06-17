@@ -300,3 +300,28 @@ func TestObject_getOwnPropertyNames(t *testing.T) {
         Object.getOwnPropertyNames(ghi)
     `, "ghi,jkl")
 }
+
+func TestObject_GetterSetter(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise: Object.create({},{a:{get:function(){return "true"},writable:true}}).a`, "TypeError")
+	test(`raise: Object.create({},{a:{get:function(){return "true"},writable:false}}).a`, "TypeError")
+	test(`Object.create({},{a:{get:function(){return "true"}}}).a`, "true")
+
+	// TODO Need fixed Object.create (bb39f39f4d)
+	// test(`Object.create({x:true},{a:{get:function(){return this.x}}}).a`, "true")
+
+	test(`
+		var _val = false
+		var o = Object.create({}, {
+			val: {
+				set: function(v) {
+					_val = v
+				},
+			}
+		})
+		o.val = true
+		_val
+	`, "true")
+}

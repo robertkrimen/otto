@@ -39,6 +39,11 @@ func (self *_object) getProperty(name string) *_property {
 
 // 8.12.3
 func (self *_object) get(name string) Value {
+	if property, exists := self.property[name]; exists {
+		if getset, ok := property.value.(_propertyGetSet); ok && nil != getset[0] {
+			return getset[0].CallGet(toValue(self))
+		}
+	}
 	return self.objectClass.get(self, name)
 }
 
@@ -49,6 +54,12 @@ func (self *_object) canPut(name string) bool {
 
 // 8.12.5
 func (self *_object) put(name string, value Value, throw bool) {
+	if property, exists := self.property[name]; exists {
+		if getset, ok := property.value.(_propertyGetSet); ok && nil != getset[1] {
+			getset[1].CallSet(toValue(self), value)
+			return
+		}
+	}
 	self.objectClass.put(self, name, value, throw)
 }
 
