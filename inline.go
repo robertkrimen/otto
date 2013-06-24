@@ -953,6 +953,177 @@ func _newContext(runtime *_runtime) {
 				call: _nativeCallFunction(builtinArray_sort),
 			},
 		}
+		indexOf_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.Global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						_valueType: valueNumber,
+						value:      1,
+					},
+				},
+			},
+			value: _functionObject{
+				call: _nativeCallFunction(builtinArray_indexOf),
+			},
+		}
+		lastIndexOf_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.Global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						_valueType: valueNumber,
+						value:      1,
+					},
+				},
+			},
+			value: _functionObject{
+				call: _nativeCallFunction(builtinArray_lastIndexOf),
+			},
+		}
+		every_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.Global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						_valueType: valueNumber,
+						value:      1,
+					},
+				},
+			},
+			value: _functionObject{
+				call: _nativeCallFunction(builtinArray_every),
+			},
+		}
+		some_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.Global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						_valueType: valueNumber,
+						value:      1,
+					},
+				},
+			},
+			value: _functionObject{
+				call: _nativeCallFunction(builtinArray_some),
+			},
+		}
+		forEach_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.Global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						_valueType: valueNumber,
+						value:      1,
+					},
+				},
+			},
+			value: _functionObject{
+				call: _nativeCallFunction(builtinArray_forEach),
+			},
+		}
+		map_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.Global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						_valueType: valueNumber,
+						value:      1,
+					},
+				},
+			},
+			value: _functionObject{
+				call: _nativeCallFunction(builtinArray_map),
+			},
+		}
+		filter_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.Global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						_valueType: valueNumber,
+						value:      1,
+					},
+				},
+			},
+			value: _functionObject{
+				call: _nativeCallFunction(builtinArray_filter),
+			},
+		}
+		reduce_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.Global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						_valueType: valueNumber,
+						value:      1,
+					},
+				},
+			},
+			value: _functionObject{
+				call: _nativeCallFunction(builtinArray_reduce),
+			},
+		}
+		reduceRight_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.Global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						_valueType: valueNumber,
+						value:      1,
+					},
+				},
+			},
+			value: _functionObject{
+				call: _nativeCallFunction(builtinArray_reduceRight),
+			},
+		}
 		isArray_function := &_object{
 			runtime:     runtime,
 			class:       "Function",
@@ -1069,6 +1240,69 @@ func _newContext(runtime *_runtime) {
 					value: Value{
 						_valueType: valueObject,
 						value:      sort_function,
+					},
+				},
+				"indexOf": _property{
+					mode: 0101,
+					value: Value{
+						_valueType: valueObject,
+						value:      indexOf_function,
+					},
+				},
+				"lastIndexOf": _property{
+					mode: 0101,
+					value: Value{
+						_valueType: valueObject,
+						value:      lastIndexOf_function,
+					},
+				},
+				"every": _property{
+					mode: 0101,
+					value: Value{
+						_valueType: valueObject,
+						value:      every_function,
+					},
+				},
+				"some": _property{
+					mode: 0101,
+					value: Value{
+						_valueType: valueObject,
+						value:      some_function,
+					},
+				},
+				"forEach": _property{
+					mode: 0101,
+					value: Value{
+						_valueType: valueObject,
+						value:      forEach_function,
+					},
+				},
+				"map": _property{
+					mode: 0101,
+					value: Value{
+						_valueType: valueObject,
+						value:      map_function,
+					},
+				},
+				"filter": _property{
+					mode: 0101,
+					value: Value{
+						_valueType: valueObject,
+						value:      filter_function,
+					},
+				},
+				"reduce": _property{
+					mode: 0101,
+					value: Value{
+						_valueType: valueObject,
+						value:      reduce_function,
+					},
+				},
+				"reduceRight": _property{
+					mode: 0101,
+					value: Value{
+						_valueType: valueObject,
+						value:      reduceRight_function,
 					},
 				},
 			},
@@ -5036,5 +5270,117 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 		}
+	}
+}
+
+func toValue_int(value int) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_int8(value int8) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_int16(value int16) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_int32(value int32) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_int64(value int64) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_uint(value uint) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_uint8(value uint8) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_uint16(value uint16) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_uint32(value uint32) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_uint64(value uint64) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_float32(value float32) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_float64(value float64) Value {
+	return Value{
+		_valueType: valueNumber,
+		value:      value,
+	}
+}
+
+func toValue_string(value string) Value {
+	return Value{
+		_valueType: valueString,
+		value:      value,
+	}
+}
+
+func toValue_string16(value []uint16) Value {
+	return Value{
+		_valueType: valueString,
+		value:      value,
+	}
+}
+
+func toValue_bool(value bool) Value {
+	return Value{
+		_valueType: valueBoolean,
+		value:      value,
+	}
+}
+
+func toValue_object(value *_object) Value {
+	return Value{
+		_valueType: valueObject,
+		value:      value,
 	}
 }
