@@ -37,6 +37,49 @@ func newConsoleObject(runtime *_runtime) *_object {
 }    
 _END_
 
+for (qw/int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 float32 float64/) {
+    $fmt->print(<<_END_);
+
+func toValue_$_(value $_) Value {
+    return Value{
+        _valueType: valueNumber,
+        value: value,
+    }
+}
+_END_
+}
+
+$fmt->print(<<_END_);
+
+func toValue_string(value string) Value {
+    return Value{
+        _valueType: valueString,
+        value: value,
+    }
+}
+
+func toValue_string16(value []uint16) Value {
+    return Value{
+        _valueType: valueString,
+        value: value,
+    }
+}
+
+func toValue_bool(value bool) Value {
+    return Value{
+        _valueType: valueBoolean,
+        value: value,
+    }
+}
+
+func toValue_object(value *_object) Value {
+    return Value{
+        _valueType: valueObject,
+        value: value,
+    }
+}
+_END_
+
 close $fmt;
 
 sub newConsoleObject {
@@ -189,6 +232,15 @@ sub newContext {
                 "unshift", 1,
                 "reverse", 0,
                 "sort", 0,
+                "indexOf", 1,
+                "lastIndexOf", 1,
+                "every", 1,
+                "some", 1,
+                "forEach", 1,
+                "map", 1,
+                "filter", 1,
+                "reduce", 1,
+                "reduceRight", 1,
             );
             return
             ".${class}Prototype =",

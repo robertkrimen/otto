@@ -97,7 +97,7 @@ func (self *_object) DefaultValue(hint _defaultValueHint) Value {
 	for _, methodName := range methodSequence {
 		method := self.get(methodName)
 		if method.isCallable() {
-			result := method._object().Call(toValue(self))
+			result := method._object().Call(toValue_object(self))
 			if result.IsPrimitive() {
 				return result
 			}
