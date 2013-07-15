@@ -333,9 +333,7 @@ func TestObject_GetterSetter(t *testing.T) {
 	test(`raise: Object.create({},{a:{get:function(){return "true"},writable:true}}).a`, "TypeError")
 	test(`raise: Object.create({},{a:{get:function(){return "true"},writable:false}}).a`, "TypeError")
 	test(`Object.create({},{a:{get:function(){return "true"}}}).a`, "true")
-
-	// TODO Need fixed Object.create (bb39f39f4d)
-	// test(`Object.create({x:true},{a:{get:function(){return this.x}}}).a`, "true")
+	test(`Object.create({x:true},{a:{get:function(){return this.x}}}).a`, "true")
 
 	test(`
 		var _val = false
