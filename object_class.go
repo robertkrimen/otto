@@ -276,7 +276,7 @@ func objectDefineOwnProperty(self *_object, name string, descriptor _property, t
 			// Test that, if enumerable is set on the property descriptor, then it should
 			// be the same as the existing property
 			if descriptor.enumerateSet() && descriptor.enumerable() != property.enumerable() {
-				return false
+				goto Reject
 			}
 		}
 		value, isDataDescriptor := property.value.(Value)
@@ -284,6 +284,8 @@ func objectDefineOwnProperty(self *_object, name string, descriptor _property, t
 		if descriptor.isGenericDescriptor() {
 			// GenericDescriptor
 		} else if isDataDescriptor != descriptor.isDataDescriptor() {
+			// FIXME This branch is non-functioning
+			panic("isDataDescriptor != descriptor.isDataDescriptor")
 			var interface_ interface{}
 			if isDataDescriptor {
 				property.writeOff()
@@ -298,7 +300,7 @@ func objectDefineOwnProperty(self *_object, name string, descriptor _property, t
 					goto Reject
 				}
 				if !property.writable() {
-					if !sameValue(value, descriptor.value.(Value)) {
+					if descriptor.value != nil && !sameValue(value, descriptor.value.(Value)) {
 						goto Reject
 					}
 				}
@@ -311,7 +313,31 @@ func objectDefineOwnProperty(self *_object, name string, descriptor _property, t
 				}
 			}
 		}
-		self._write(name, descriptor.value, descriptor.mode)
+		{
+			// This section will preserve attributes of
+			// the original property, if necessary
+			value1 := descriptor.value
+			if value1 == nil {
+				value1 = property.value
+			}
+			mode1 := descriptor.mode
+			if mode1&0222 != 0 {
+				// TODO Factor this out into somewhere testable
+				// (Maybe put into switch ...)
+				mode0 := property.mode
+				if mode1&0200 != 0 {
+					mode1 |= (mode0 & 0100)
+				}
+				if mode1&020 != 0 {
+					mode1 |= (mode0 & 010)
+				}
+				if mode1&02 != 0 {
+					mode1 |= (mode0 & 01)
+				}
+				mode1 &= 0111
+			}
+			self._write(name, value1, mode1)
+		}
 		return true
 	}
 Reject:
