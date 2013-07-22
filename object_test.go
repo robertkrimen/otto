@@ -80,6 +80,16 @@ func TestObject_create(t *testing.T) {
         });
 	      [ abc.prototype, def.x, def.y, ghi, jkl.x, jkl.y, jkl.z ]
     `, ",10,20,[object Object],10,20,30")
+
+	test(`
+        var properties = {};
+        Object.defineProperty(properties, "abc", {
+            value: {},
+            enumerable: false
+        });
+        var mno = Object.create({}, properties);
+        mno.hasOwnProperty("abc");
+    `, "false")
 }
 
 func TestObject_toLocaleString(t *testing.T) {
@@ -160,24 +170,24 @@ func TestObject_seal(t *testing.T) {
 	test := runTest()
 	test(`raise: Object.seal()`, "TypeError")
 	test(`
-		var abc = {a:1,b:1,c:3};
-		var sealed = Object.isSealed(abc);
-		Object.seal(abc);
-		[sealed, Object.isSealed(abc)];
-	`, "false,true")
+        var abc = {a:1,b:1,c:3};
+        var sealed = Object.isSealed(abc);
+        Object.seal(abc);
+        [sealed, Object.isSealed(abc)];
+    `, "false,true")
 	test(`
 		var abc = {a:1,b:1,c:3};
 		var sealed = Object.isSealed(abc);
 		var caught = false;
 		Object.seal(abc);
 		abc.b = 5;
-		Object.defineProperty(abc, "a", {value:4});
-		try {
-			Object.defineProperty(abc, "a", {value:42,enumerable:false});
-		} catch (e) {
-			caught = e instanceof TypeError;
-		}
-		[sealed, Object.isSealed(abc), caught, abc.a, abc.b];
+        Object.defineProperty(abc, "a", {value:4});
+        try {
+            Object.defineProperty(abc, "a", {value:42,enumerable:false});
+        } catch (e) {
+            caught = e instanceof TypeError;
+        }
+        [sealed, Object.isSealed(abc), caught, abc.a, abc.b];
 	`, "false,true,true,4,5")
 
 	test(`Object.seal.length`, "1")
@@ -252,6 +262,37 @@ func TestObject_defineProperty(t *testing.T) {
         `,
 		"true",
 	)
+
+	test(`
+        var abc = {};
+        abc.def = 3.14; // Default: writable: true, enumerable: true, configurable: true
+
+        Object.defineProperty(abc, "def", {
+            value: 42
+        });
+
+        var ghi = Object.getOwnPropertyDescriptor(abc, "def");
+        [ ghi.value, ghi.writable, ghi.enumerable, ghi.configurable ];
+    `, "42,true,true,true")
+
+	// Test that we handle the case of DefineOwnProperty
+	// where [[Writable]] is something but [[Value]] is not
+	test(`
+		var abc = [];
+        Object.defineProperty(abc, "0", { writable: false });
+        0 in abc;
+    `, "true")
+
+	// Test that we handle the case of DefineOwnProperty
+	// where [[Writable]] is something but [[Value]] is not
+	// (and the property originally had something for [[Value]]
+	test(`
+		abc = {
+            def: 42
+        };
+        Object.defineProperty(abc, "def", { writable: false });
+        abc.def;
+    `, "42")
 }
 
 func TestObject_keys(t *testing.T) {

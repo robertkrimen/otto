@@ -60,6 +60,44 @@ func TestGlobal(t *testing.T) {
         ];
     `, "false,,false,NaN,false,Infinity")
 
+	test(`
+        Object.getOwnPropertyNames(Function('return this')()).sort();
+    `, "Array,Boolean,Date,Error,EvalError,Function,Infinity,Math,NaN,Number,Object,RangeError,ReferenceError,RegExp,String,SyntaxError,TypeError,URIError,console,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,escape,eval,isFinite,isNaN,parseFloat,parseInt,undefined,unescape")
+
+	// __defineGetter__,__defineSetter__,__lookupGetter__,__lookupSetter__,constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf
+	test(`
+        Object.getOwnPropertyNames(Object.prototype).sort();
+    `, "constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf")
+
+	// arguments,caller,length,name,prototype
+	test(`
+        Object.getOwnPropertyNames(EvalError).sort();
+    `, "length,prototype")
+
+	test(`
+        var abc = [];
+        var def = [EvalError, RangeError, ReferenceError, SyntaxError, TypeError, URIError];
+        for (constructor in def) {
+            abc.push(def[constructor] === def[constructor].prototype.constructor);
+        }
+        def = [Array, Boolean, Date, Function, Number, Object, RegExp, String, SyntaxError];
+        for (constructor in def) {
+            abc.push(def[constructor] === def[constructor].prototype.constructor);
+        }
+        abc;
+    `, "true,true,true,true,true,true,true,true,true,true,true,true,true,true,true")
+
+	test(`
+        [ Array.prototype.constructor === Array, Array.constructor === Function ];
+    `, "true,true")
+
+	test(`
+        [ Number.prototype.constructor === Number, Number.constructor === Function ];
+    `, "true,true")
+
+	test(`
+        [ Function.prototype.constructor === Function, Function.constructor === Function ];
+    `, "true,true")
 }
 
 func TestGlobalLength(t *testing.T) {

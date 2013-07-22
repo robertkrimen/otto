@@ -149,11 +149,15 @@ sub newContext {
                 "isPrototypeOf", 1,
                 "propertyIsEnumerable", 1,
             );
-            return
-            ".${class}Prototype.property =",
-            $self->propertyMap(
+            my @propertyMap = $self->propertyMap(
                 @got,
-            ),
+                $self->property("constructor", undef),
+            );
+            my $propertyOrder = $self->propertyOrder(@propertyMap);
+            $propertyOrder =~ s/^propertyOrder: //;
+            return
+            ".${class}Prototype.property =", @propertyMap,
+            ".${class}Prototype.propertyOrder =", $propertyOrder,
         }),
 
         # FunctionPrototype
@@ -166,13 +170,16 @@ sub newContext {
                 "call", 2,
                 "bind", 1,
             );
-            return
-            ".${class}Prototype.property =",
-            $self->propertyMap(
+            my @propertyMap = $self->propertyMap(
                 @got,
-                $self->property("constructor", undef, "0101"),
+                $self->property("constructor", undef),
                 $self->property("length", $self->numberValue(0), "0"),
-            ),
+            );
+            my $propertyOrder = $self->propertyOrder(@propertyMap);
+            $propertyOrder =~ s/^propertyOrder: //;
+            return
+            ".${class}Prototype.property =", @propertyMap,
+            ".${class}Prototype.propertyOrder =", $propertyOrder,
         }),
 
         # Object
@@ -212,8 +219,6 @@ sub newContext {
                 1,
             ),
             ".$class = Function",
-            ".${class}Prototype.property[\"constructor\"] =",
-            $self->property(undef, $self->objectValue("Function"), "0"),
         }),
 
         # Array
@@ -289,6 +294,8 @@ sub newContext {
                 "trimLeft", 0,
                 "trimRight", 0,
                 "localeCompare", 1,
+                "toLocaleLowerCase", 0,
+                "toLocaleUpperCase", 0,
             );
             return
             ".${class}Prototype =",
@@ -348,6 +355,7 @@ sub newContext {
                 "toFixed", 1,
                 "toExponential", 1,
                 "toPrecision", 1,
+                "toLocaleString", 1,
             );
             return
             ".${class}Prototype =",
@@ -606,9 +614,7 @@ sub newContext {
                 "escape", 1,
                 "unescape", 1,
             );
-            return
-            "runtime.GlobalObject.property =",
-            $self->propertyMap(
+            my @propertyMap = $self->propertyMap(
                 @got,
                 $self->globalDeclare(
                     "Object",
@@ -618,8 +624,8 @@ sub newContext {
                     "Boolean",
                     "Number",
                     "Math",
-                    "RegExp",
                     "Date",
+                    "RegExp",
                     "Error",
                     "EvalError",
                     "TypeError",
@@ -632,7 +638,15 @@ sub newContext {
                 $self->property("undefined", $self->undefinedValue(), "0"),
                 $self->property("NaN", $self->numberValue("math.NaN()"), "0"),
                 $self->property("Infinity", $self->numberValue("math.Inf(+1)"), "0"),
-            ),
+            );
+            my $propertyOrder = $self->propertyOrder(@propertyMap);
+            $propertyOrder =~ s/^propertyOrder: //;
+            return
+            "runtime.GlobalObject.property =",
+            @propertyMap,
+            "runtime.GlobalObject.propertyOrder =",
+            $propertyOrder,
+            ;
         }),
     ;
 }
@@ -703,6 +717,16 @@ sub globalDeclare {
     return @got;
 }
 
+sub propertyOrder {
+    my $self = shift;
+    my $propertyMap = join "", @_;
+
+    my (@keys) = $propertyMap =~ m/("\w+"):/g;
+    my $propertyOrder =
+        join "\n", "propertyOrder: []string{", (join ",\n", @keys, ""), "}";
+    return $propertyOrder;
+}
+
 sub globalObject {
     my $self = shift;
     my $name = shift;
@@ -710,7 +734,8 @@ sub globalObject {
     my $propertyMap = "";
     if (@_) {
         $propertyMap = join "\n", $self->propertyMap(@_);
-        $propertyMap = "property: $propertyMap,";
+        my $propertyOrder = $self->propertyOrder($propertyMap);
+        $propertyMap = "property: $propertyMap,\n$propertyOrder,";
     }
 
     return trim <<_END_;
@@ -741,7 +766,8 @@ sub globalFunction {
 
     if (@_) {
         $propertyMap = join "\n", $self->propertyMap(@_);
-        $propertyMap = "property: $propertyMap,";
+        my $propertyOrder = $self->propertyOrder($propertyMap);
+        $propertyMap = "property: $propertyMap,\n$propertyOrder,";
     }
 
     push @postblock, $self->statement(
@@ -792,7 +818,8 @@ sub globalPrototype {
     my $propertyMap = "";
     if (@_) {
         $propertyMap = join "\n", $self->propertyMap(@_);
-        $propertyMap = "property: $propertyMap,";
+        my $propertyOrder = $self->propertyOrder($propertyMap);
+        $propertyMap = "property: $propertyMap,\n$propertyOrder,";
     }
 
     return trim <<_END_;
@@ -820,32 +847,18 @@ sub newFunction {
         $name = $name[0];
     }
 
-    my $prototype = "${name}_prototype";
-
-    if ($name =~ s/^-//) {
-        undef $prototype;
-    }
-
     if ($func =~ m/^builtin\w+_$/) {
-        undef $prototype;
         $func = "$func$name[1]";
     }
 
+    my $propertyOrder = "";
     my @propertyMap = (
         $self->property("length", $self->numberValue($length), "0"),
     );
 
-    if ($prototype) {
-        push @propertyMap, $self->property("prototype", $self->objectValue($prototype), "0100");
-    }
-
-    if ($prototype) {
-        push @preblock, $self->statement(
-            "$prototype :=",
-            $self->newObject(
-                $self->property("constructor", undef, "0101"),
-            ),
-        );
+    if (@propertyMap) {
+        $propertyOrder = $self->propertyOrder(@propertyMap);
+        $propertyOrder = "$propertyOrder,";
     }
 
     my $label = functionLabel($name);
@@ -858,17 +871,11 @@ sub newFunction {
     prototype: runtime.Global.FunctionPrototype,
     extensible: true,
     property: @{[ join "\n", $self->propertyMap(@propertyMap) ]},
+    $propertyOrder
     value: @{[ $self->functionOf($self->nativeCallFunction($func)) ]},
 } 
 _END_
     );
-
-    if ($prototype) {
-        push @preblock, $self->statement(
-            "$prototype.property[\"constructor\"] =",
-            $self->property(undef, $self->objectValue("$label"), "0101"),
-        );
-    }
 
     return $name;
 }
@@ -876,7 +883,8 @@ _END_
 sub newObject {
     my $self = shift;
 
-    my @propertyMap = @_;
+    my $propertyMap = join "\n", $self->propertyMap(@_);
+    my $propertyOrder = $self->propertyOrder($propertyMap);
 
     return trim <<_END_;
 &_object{
@@ -885,7 +893,8 @@ sub newObject {
     objectClass: _classObject,
     prototype: runtime.Global.ObjectPrototype,
     extensible: true,
-    property: @{[ join "\n", $self->propertyMap(@propertyMap) ]},
+    property: $propertyMap,
+    $propertyOrder,
 } 
 _END_
 }
@@ -899,7 +908,8 @@ sub newPrototypeObject {
         $value = "value: $value,";
     }
 
-    my @propertyMap = @_;
+    my $propertyMap = join "\n", $self->propertyMap(@_);
+    my $propertyOrder = $self->propertyOrder($propertyMap);
 
     return trim <<_END_;
 &_object{
@@ -908,7 +918,8 @@ sub newPrototypeObject {
     objectClass: $objectClass,
     prototype: runtime.Global.ObjectPrototype,
     extensible: true,
-    property: @{[ join "\n", $self->propertyMap(@propertyMap) ]},
+    property: $propertyMap,
+    $propertyOrder,
     $value
 } 
 _END_
