@@ -68,6 +68,7 @@ func builtinJSON_stringify(call FunctionCall) Value {
 	value := call.Argument(0)
 	replacer := call.Argument(1)
 	space := call.Argument(2)
+	stack := []*_object{nil}
 	indent, gap := "", ""
 
 	if !space.IsUndefined() {
@@ -106,6 +107,14 @@ func builtinJSON_stringify(call FunctionCall) Value {
 		case value.IsBoolean(), value.IsNull():
 			return toValue(value.String())
 		case value.IsObject():
+			if value := value._object(); nil != value {
+				for _, object := range stack {
+					if value == object {
+						panic(newTypeError("Converting circular structure to JSON"))
+					}
+				}
+				stack = append(stack, value)
+			}
 			partial := []string{}
 			obj := value._object()
 			gap += indent

@@ -51,4 +51,7 @@ func TestJSON_stringify(t *testing.T) {
 		return this[k] instanceof Date ? 'Date(' + this[k] + ')' : v
 	})`, `["Date(Thu, 01 Jan 1970 00:00:00 UTC)"]`)
 	test(`JSON.stringify({a:1,b:2,c:3}, ['a','b'])`, `{"a":1,"b":2}`)
+
+	test(`raise: o={p: null};o.p=o; JSON.stringify(o)`, "TypeError: Converting circular structure to JSON")
+	test(`raise: a=[null];a[0]=a; JSON.stringify(a)`, "TypeError: Converting circular structure to JSON")
 }
