@@ -2,7 +2,6 @@ package otto
 
 import (
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"math"
 	"regexp"
@@ -21,7 +20,7 @@ func builtinJSON_parse(call FunctionCall) Value {
 	}
 
 	{
-		p, err := parse(text)
+		p, err := builtinJSON_Parse(text)
 		if nil != err {
 			switch err := err.(type) {
 			case *_syntaxError, *_error, _error:
@@ -167,19 +166,6 @@ func builtinJSON_stringify(call FunctionCall) Value {
 	return str("", toValue(obj))
 }
 
-var builtinJSON_prepare_replace = []*regexp.Regexp{
-	// Replace the JSON backslash pairs with '@' (a non-JSON character)
-	regexp.MustCompile(`\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})`),
-	// Replace all simple value tokens with ']' characters
-	regexp.MustCompile(`"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?`),
-	// Delete all open brackets that follow a colon or comma or that begin the text
-	regexp.MustCompile(`(?:^|:|,)(?:\s*\[)+`),
-}
-
-// Look to see that the remaining characters are only whitespace or ']' or ',' or ':'
-//  or '{' or '}'. If that is so, then the text is safe for eval.
-var builtinJSON_prepare_validate = regexp.MustCompile(`^[\],:{}\s]*$`)
-
 var builtinJSON_prepare_cx = regexp.MustCompile(
 	`[\x{0000}\x{00ad}\x{0600}-\x{0604}\x{070f}\x{17b4}\x{17b5}\x{200c}-\x{200f}\x{2028}-\x{202f}\x{2060}-\x{206f}\x{feff}\x{fff0}-\x{ffff}]`)
 
@@ -191,13 +177,7 @@ func prepareJSON(v Value) (string, error) {
 		})
 		v = toValue(string(b))
 	}
-	b = builtinJSON_prepare_replace[0].ReplaceAll(b, []byte("@"))
-	b = builtinJSON_prepare_replace[1].ReplaceAll(b, []byte("]"))
-	b = builtinJSON_prepare_replace[2].ReplaceAll(b, []byte(""))
-	if builtinJSON_prepare_validate.Match(b) {
-		return "(" + v.String() + ")", nil
-	}
-	return "", errors.New("JSON.parse")
+	return v.String(), nil
 }
 
 var builtinJSON_quote_escapable = regexp.MustCompile(
@@ -241,10 +221,110 @@ func builtinJSON_hasOwnProperty(call FunctionCall, obj Value, name string) bool 
 	return (nil == err) && p.toBoolean()
 }
 
-// func builtinJSON_toJSON(call FunctionCall) Value {
-// 	this := call.thisObject()
-// 	if fn := this.get("toISOString"); fn.isCallable() {
-// 		return fn.call(toValue(this), []Value{})
-// 	}
-// 	return this.DefaultValue(defaultValueHintNumber)
-// }
+type builtinJSON_Parser struct {
+	_parser
+}
+
+func builtinJSON_NewParser() *builtinJSON_Parser {
+	parser := &builtinJSON_Parser{
+		_parser{
+			history: make([]_token, 0, 4),
+		},
+	}
+	parser.lexer.readIn = make([]rune, 0)
+	return parser
+}
+
+func builtinJSON_Parse(source string) (result _node, err interface{}) {
+	defer func() {
+		if caught := recover(); caught != nil {
+			switch caught := caught.(type) {
+			case *_syntaxError, _error, *_error:
+				err = caught
+				return
+			}
+			panic(caught)
+		}
+	}()
+	parser := builtinJSON_NewParser()
+	parser.lexer.Source = source
+	result = parser.ParsePrimaryExpression()
+	return
+}
+
+func (self *builtinJSON_Parser) ParsePrimaryExpression() _node {
+	token := self.Peek()
+	switch token.Kind {
+	case "string":
+		return self.ConsumeString()
+	case "boolean":
+		return self.ConsumeBoolean()
+	case "number":
+		return self.ConsumeNumber()
+	case "null":
+		return self.ConsumeNull()
+	case "{":
+		return self.ParseObjectLiteral()
+	case "[":
+		return self.ParseArrayLiteral()
+	case "(":
+		self.Expect("(")
+		result := self.ParsePrimaryExpression()
+		self.Expect(")")
+		return result
+	}
+	panic(self.Unexpected(token))
+}
+
+func (self *builtinJSON_Parser) ParseArrayLiteral() *_arrayNode {
+	self.Expect("[")
+	nodeList := []_node{}
+	for !self.Match("]") {
+		if self.Accept(",") {
+			nodeList = append(nodeList, newEmptyNode())
+			continue
+		}
+		nodeList = append(nodeList, self.ParsePrimaryExpression())
+		if self.Accept(",") {
+			continue
+		}
+	}
+	self.Expect("]")
+	node := newArrayNode(nodeList)
+	self.markNode(node)
+	return node
+}
+
+func (self *builtinJSON_Parser) ParseObjectLiteral() *_objectNode {
+	node := newObjectNode()
+	self.markNode(node)
+	self.Expect("{")
+	for !self.Match("}") {
+		if !self.Match("string") {
+			panic(self.Unexpected(self.Next()))
+		}
+		key := toString(self.ConsumeString().Value)
+		self.Expect(":")
+		property := newObjectPropertyNode(key, self.ParsePrimaryExpression())
+		node.AddProperty(property)
+		self.markNode(property)
+		if self.Accept(",") {
+			continue
+		}
+	}
+	self.Expect("}")
+	return node
+}
+
+func (self *builtinJSON_Parser) Unexpected(token _token) *_syntaxError {
+	switch token.Kind {
+	case "EOF":
+		if len(self.history) > 0 {
+			return self.History(-1).newSyntaxError("Unexpected end of input")
+		}
+		return token.newSyntaxError("Unexpected end of input")
+	case "illegal":
+		return token.newSyntaxError("Unexpected token ILLEGAL (%s)", token.Text)
+	}
+	return token.newSyntaxError("Unexpected token %s", token.Text)
+}

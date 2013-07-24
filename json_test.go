@@ -22,13 +22,14 @@ func TestJSON_parse(t *testing.T) {
 
 	test(`JSON.parse("1")`, "1")
 	test(`JSON.parse("[1,2,3]")`, "1,2,3")
+	test(`JSON.parse('{"a":1,"b":2}').a`, "1")
 	test(`JSON.parse('{"a":{"x":100,"y":110},"b":[10,20,30],"c":"zazazaza"}').b`, "10,20,30")
 	test(`JSON.parse("[1,2,3]", function(k, v) { return undefined })`, "undefined")
 
-	test(`var a;try{JSON.parse("")}catch(e){a=e instanceof SyntaxError};a`, "true")
-	test(`var a;try{JSON.parse("[1,2,3")}catch(e){a=e instanceof SyntaxError};a`, "true")
-	test(`var a;try{JSON.parse("[1,2];x=10")}catch(e){a=e instanceof SyntaxError};a`, "true")
-	test(`var a;try{JSON.parse("[1,2,function(){}]")}catch(e){a=e instanceof SyntaxError};a`, "true")
+	test(`raise: JSON.parse("")`, "SyntaxError: Unexpected end of input")
+	test(`raise: JSON.parse("[1,2,3")`, "SyntaxError: Unexpected end of input")
+	test(`raise: JSON.parse("[1,2,;x=10")`, "SyntaxError: Unexpected token ;")
+	test(`raise: JSON.parse("[1,2,function(){}]")`, "SyntaxError: Unexpected token function")
 }
 
 func TestJSON_stringify(t *testing.T) {
@@ -45,8 +46,6 @@ func TestJSON_stringify(t *testing.T) {
 	test(`JSON.stringify({a:{x:100,y:110},b:[10,20,30],c:"zazazaza"})`, `{"a":{"x":100,"y":110},"b":[10,20,30],"c":"zazazaza"}`)
 
 	test(`JSON.stringify(['e', {pluribus: 'unum'}], null, '\t')`, "[\n\t\"e\",\n\t{\n\t\t\"pluribus\": \"unum\"\n\t}\n]")
-	// test(`JSON.stringify([new Boolean(true), new Date(0), new Number(1).toJSON(), new String('abc').toJSON()])`,
-	// 	`[true,"1970-01-01T00:00:00.000Z",1,"abc"]`)
 	test(`JSON.stringify(new Date(0))`, `"1970-01-01T00:00:00.000Z"`)
 	test(`JSON.stringify([new Date(0)], function(k,v){
 		return this[k] instanceof Date ? 'Date(' + this[k] + ')' : v
