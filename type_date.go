@@ -130,7 +130,7 @@ func epochToTime(value float64) (time Time.Time, err error) {
 }
 
 func timeToEpoch(time Time.Time) float64 {
-	return float64(time.Unix()*1000 + int64(time.Nanosecond()/1000000))
+	return float64(time.UnixNano() / (1000 * 1000))
 }
 
 func (runtime *_runtime) newDateObject(epoch float64) *_object {
@@ -266,6 +266,8 @@ var (
 		"2006T15:04:05.000-0700",
 		"2006-01T15:04:05.000-0700",
 		"2006-01-02T15:04:05.000-0700",
+
+		Time.RFC1123,
 	}
 	matchDateTimeZone = regexp.MustCompile(`^(.*)(?:(Z)|([\+\-]\d{2}):(\d{2}))$`)
 )

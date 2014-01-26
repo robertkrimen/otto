@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"math"
 	"strconv"
 )
 
@@ -25,8 +26,9 @@ func builtinNumber_toString(call FunctionCall) Value {
 	// Will throw a TypeError if ThisObject is not a Number
 	value := call.thisClassObject("Number").primitiveValue()
 	radix := 10
-	if len(call.ArgumentList) > 0 {
-		integer := toIntegerFloat(call.Argument(0))
+	radixArgument := call.Argument(0)
+	if radixArgument.IsDefined() {
+		integer := toIntegerFloat(radixArgument)
 		if integer < 2 || integer > 36 {
 			panic(newRangeError("RangeError: toString() radix must be between 2 and 36"))
 		}
@@ -43,12 +45,16 @@ func builtinNumber_valueOf(call FunctionCall) Value {
 }
 
 func builtinNumber_toFixed(call FunctionCall) Value {
+	precision := toIntegerFloat(call.Argument(0))
+	if 20 < precision || 0 > precision {
+		panic(newRangeError("toFixed() precision must be between 0 and 20"))
+	}
 	if call.This.IsNaN() {
 		return toValue_string("NaN")
 	}
-	precision := toIntegerFloat(call.Argument(0))
-	if 0 > precision {
-		panic(newRangeError("RangeError: toFixed() precision must be greater than 0"))
+	value := toFloat(call.This)
+	if math.Abs(value) >= 1e21 {
+		return toValue_string(floatToString(value, 64))
 	}
 	return toValue_string(strconv.FormatFloat(toFloat(call.This), 'f', int(precision), 64))
 }

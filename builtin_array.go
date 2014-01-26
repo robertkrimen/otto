@@ -17,7 +17,10 @@ func builtinNewArray(self *_object, _ Value, argumentList []Value) Value {
 
 func builtinNewArrayNative(runtime *_runtime, argumentList []Value) *_object {
 	if len(argumentList) == 1 {
-		return runtime.newArray(arrayUint32(argumentList[0]))
+		firstArgument := argumentList[0]
+		if firstArgument.IsNumber() {
+			return runtime.newArray(arrayUint32(firstArgument))
+		}
 	}
 	return runtime.newArrayOf(argumentList)
 }
@@ -70,17 +73,17 @@ func builtinArray_concat(call FunctionCall) Value {
 				length := toInteger(object.get("length")).value
 				for index := int64(0); index < length; index += 1 {
 					name := strconv.FormatInt(index, 10)
-					if !object.hasProperty(name) {
-						continue
+					if object.hasProperty(name) {
+						valueArray = append(valueArray, object.get(name))
+					} else {
+						valueArray = append(valueArray, Value{})
 					}
-					value := object.get(name)
-					valueArray = append(valueArray, value)
 				}
 				continue
 			}
 			fallthrough
 		default:
-			valueArray = append(valueArray, toValue_string(toString(item)))
+			valueArray = append(valueArray, item)
 		}
 	}
 	return toValue_object(call.runtime.newArrayOf(valueArray))
@@ -475,7 +478,8 @@ func builtinArray_indexOf(call FunctionCall) Value {
 			if !thisObject.hasProperty(name) {
 				continue
 			}
-			if sameValue(matchValue, thisObject.get(name)) {
+			value := thisObject.get(name)
+			if strictEqualityComparison(matchValue, value) {
 				return toValue_uint32(uint32(index))
 			}
 		}
@@ -503,7 +507,8 @@ func builtinArray_lastIndexOf(call FunctionCall) Value {
 		if !thisObject.hasProperty(name) {
 			continue
 		}
-		if sameValue(matchValue, thisObject.get(name)) {
+		value := thisObject.get(name)
+		if strictEqualityComparison(matchValue, value) {
 			return toValue_uint32(uint32(index))
 		}
 	}

@@ -9,7 +9,6 @@ func TestFunction(t *testing.T) {
 	Terst(t)
 
 	test := runTest()
-	test(`String.prototype.substring.length`, "2")
 	test(`
         var abc = Object.getOwnPropertyDescriptor(Function, "prototype");
         [   [ typeof Function.prototype, typeof Function.prototype.length, Function.prototype.length ],
@@ -17,11 +16,58 @@ func TestFunction(t *testing.T) {
     `, "function,number,0,false,false,false")
 }
 
+func Test_argumentList2parameterList(t *testing.T) {
+	Terst(t)
+
+	Is(argumentList2parameterList([]Value{toValue("abc, def"), toValue("ghi")}), []string{"abc", "def", "ghi"})
+}
+
+func TestFunction_new(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise:
+        new Function({});
+    `, "SyntaxError: Unexpected token Object")
+
+	test(`
+        var abc = Function("def, ghi", "jkl", "return def+ghi+jkl");
+        [ typeof abc, abc instanceof Function, abc("ab", "ba", 1) ];
+    `, "function,true,abba1")
+
+	test(`raise:
+        var abc = {
+            toString: function() { throw 1; }
+        };
+        var def = {
+            toString: function() { throw 2; }
+        };
+        var ghi = new Function(abc, def);
+        ghi;
+    `, "1")
+
+	test(`raise:
+        var abc = {
+            toString: function() { return "z;x"; }
+        };
+        var def = "return this";
+        var ghi = new Function(abc, def);
+        ghi;
+    `, "SyntaxError: z;x")
+
+	test(`raise:
+        var abc;
+        var def = "return true";
+        var ghi = new Function(null, def);
+        ghi;
+    `, "SyntaxError: null")
+}
+
 func TestFunction_apply(t *testing.T) {
 	Terst(t)
 
 	test := runTest()
-	test(`String.prototype.substring.length`, "2")
+	test(`Function.prototype.apply.length`, "2")
 	test(`String.prototype.substring.apply("abc", [1, 11])`, "bc")
 }
 
@@ -29,7 +75,7 @@ func TestFunction_call(t *testing.T) {
 	Terst(t)
 
 	test := runTest()
-	test(`String.prototype.substring.length`, "2")
+	test(`Function.prototype.call.length`, "1")
 	test(`String.prototype.substring.call("abc", 1, 11)`, "bc")
 }
 
@@ -135,8 +181,8 @@ func TestFunction_bind(t *testing.T) {
             return "abc";
         };
         def = abc.bind();
-        def();
-    `, "abc")
+        [ typeof def.prototype, typeof def.hasOwnProperty, def.hasOwnProperty("caller"), def.hasOwnProperty("arguments"), def() ];
+    `, "object,function,true,true,abc")
 
 	test(`
         abc = function(){
@@ -146,4 +192,63 @@ func TestFunction_bind(t *testing.T) {
         ghi = abc.bind(undefined, "abc", "ghi");
         [ def(), def("def"), ghi("def") ];
     `, ",def,ghi")
+
+	test(`
+        var abc = function () {};
+        var ghi;
+        try {
+            Object.defineProperty(Function.prototype, "xyzzy", {
+                value: 1001,
+                writable: true,
+                enumerable: true,
+                configurable: true
+            });
+            var def = abc.bind({});
+            ghi = !def.hasOwnProperty("xyzzy") && ghi.xyzzy === 1001;
+        } finally {
+            delete Function.prototype.xyzzy;
+        }
+        [ ghi ];
+    `, "true")
+
+	test(`
+        var abc = function (def, ghi) {};
+        var jkl = abc.bind({});
+        var mno = abc.bind({}, 1, 2);
+        [ jkl.length, mno.length ];
+    `, "2,0")
+
+	test(`raise:
+        Math.bind();
+    `, "TypeError: undefined is not a function")
+
+	test(`
+        function construct(fn, arguments) {
+            var bound = Function.prototype.bind.apply(fn, [null].concat(arguments));
+            return new bound();
+        }
+        var abc = construct(Date, [1957, 4, 27]);
+        Object.prototype.toString.call(abc);
+    `, "[object Date]")
+
+	test(`
+        var fn = function (x, y, z) {
+            var result = {};
+            result.abc = x + y + z;
+            result.def = arguments[0] === "a" && arguments.length === 3;
+            return result;
+        };
+        var newFn = Function.prototype.bind.call(fn, {}, "a", "b", "c");
+        var result = new newFn();
+        [ result.hasOwnProperty("abc"), result.hasOwnProperty("def"), result.abc, result.def ];
+    `, "true,true,abc,true")
+}
+
+func TestFunction_toString(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+	test(`raise:
+        Function.prototype.toString.call(undefined);
+    `, "TypeError")
 }

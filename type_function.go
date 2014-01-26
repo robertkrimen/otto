@@ -36,10 +36,25 @@ func (runtime *_runtime) newBoundFunctionObject(target *_object, this Value, arg
 	self := runtime.newClassObject("Function")
 	self.value = _functionObject{
 		call:      newBoundCallFunction(target, this, argumentList),
-		construct: defaultConstructFunction,
+		construct: newBoundConstructFunction(target),
 	}
-	// FIXME
-	self.defineProperty("length", toValue_int(0), 0000, false)
+	length := int(toInt32(target.get("length")))
+	length -= len(argumentList)
+	if length < 0 {
+		length = 0
+	}
+	self.defineProperty("length", toValue_int(length), 0000, false)
+	self.defineProperty("caller", UndefinedValue(), 0000, false)    // TODO Should throw a TypeError
+	self.defineProperty("arguments", UndefinedValue(), 0000, false) // TODO Should throw a TypeError
+	return self
+}
+
+func (runtime *_runtime) newBoundFunction(target *_object, this Value, argumentList []Value) *_object {
+	self := runtime.newBoundFunctionObject(target, this, argumentList)
+	self.prototype = runtime.Global.FunctionPrototype
+	prototype := runtime.newObject()
+	self.defineProperty("prototype", toValue_object(prototype), 0100, false)
+	prototype.defineProperty("constructor", toValue_object(self), 0100, false)
 	return self
 }
 
@@ -226,6 +241,18 @@ func (self0 _boundCallFunction) clone(clone *_clone) _callFunction {
 		target:       clone.object(self0.target),
 		this:         clone.value(self0.this),
 		argumentList: clone.valueArray(self0.argumentList),
+	}
+}
+
+func newBoundConstructFunction(target *_object) _constructFunction {
+	// This is not exactly as described in 15.3.4.5.2, we let [[Call]] supply the
+	// bound arguments, etc.
+	return func(self *_object, this Value, argumentList []Value) Value {
+		switch value := target.value.(type) {
+		case _functionObject:
+			return value.construct(self, this, argumentList)
+		}
+		panic(newTypeError())
 	}
 }
 
