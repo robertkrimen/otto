@@ -93,6 +93,17 @@ func TestString_indexOf(t *testing.T) {
 	test(`"abc".indexOf("bc", 11)`, "-1")
 	test(`"$$abcdabcd".indexOf("ab", function(){return -Infinity;}())`, "2")
 	test(`"$$abcdabcd".indexOf("ab", function(){return NaN;}())`, "2")
+
+	test(`
+        var abc = {toString:function(){return "\u0041B";}}
+        var def = {valueOf:function(){return true;}}
+        var ghi = "ABB\u0041BABAB";
+        var jkl;
+        with(ghi) {
+            jkl = indexOf(abc, def);
+        }
+        [ jkl ];
+    `, "3")
 }
 
 func TestString_lastIndexOf(t *testing.T) {
@@ -107,6 +118,17 @@ func TestString_lastIndexOf(t *testing.T) {
 	test(`"abc".lastIndexOf("bc")`, "1")
 	test(`"abc".lastIndexOf("bc", 11)`, "1")
 	test(`"abc".lastIndexOf("bc", 0)`, "-1")
+	test(`"abc".lastIndexOf("abcabcabc", 2)`, "-1")
+	test(`"abc".lastIndexOf("abc", 0)`, "0")
+	test(`"abc".lastIndexOf("abc", 1)`, "0")
+	test(`"abc".lastIndexOf("abc", 2)`, "0")
+	test(`"abc".lastIndexOf("abc", 3)`, "0")
+
+	test(`
+        abc = new Object(true);
+        abc.lastIndexOf = String.prototype.lastIndexOf;
+        abc.lastIndexOf(true, false);
+    `, "0")
 }
 
 func TestString_match(t *testing.T) {
@@ -147,6 +169,12 @@ func TestString_replace(t *testing.T) {
 			return [a, b, c, d, e, f]
 		})
 	`, "b,,b,0,b,")
+
+	test(`
+        var abc = 'She sells seashells by the seashore.';
+        var def = /sh/;
+        [ abc.replace(def, "$'" + 'sch') ];
+    `, "She sells seaells by the seashore.schells by the seashore.")
 }
 
 func TestString_search(t *testing.T) {
@@ -183,6 +211,13 @@ func TestString_split(t *testing.T) {
 	test(`_.length`, "13")
 	test(`_[1] === undefined`, "true")
 	test(`_[12] === ""`, "true")
+
+	test(`
+        var abc = new String("one-1 two-2 three-3");
+        var def = abc.split(new RegExp);
+
+        [ def.constructor === Array, abc.length, def.length, def.join('') ];
+    `, "true,19,19,one-1 two-2 three-3")
 }
 
 func TestString_slice(t *testing.T) {

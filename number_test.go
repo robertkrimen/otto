@@ -51,6 +51,19 @@ func TestNumber_toString(t *testing.T) {
 	test(`
         new Number(Infinity).toString(16)
     `, "Infinity")
+
+	test(`
+        [
+            Number.prototype.toString(undefined),
+            new Number().toString(undefined),
+            new Number(0).toString(undefined),
+            new Number(-1).toString(undefined),
+            new Number(1).toString(undefined),
+            new Number(Number.NaN).toString(undefined),
+            new Number(Number.POSITIVE_INFINITY).toString(undefined),
+            new Number(Number.NEGATIVE_INFINITY).toString(undefined)
+        ]
+    `, "0,0,0,-1,1,NaN,Infinity,-Infinity")
 }
 
 func TestNumber_toFixed(t *testing.T) {
@@ -66,6 +79,29 @@ func TestNumber_toFixed(t *testing.T) {
 	test(`2.34.toFixed(1)`, "2.3")
 	test(`-2.34.toFixed(1)`, "-2.3")
 	test(`(-2.34).toFixed(1)`, "-2.3")
+
+	test(`raise:
+          new Number("a").toFixed(Number.POSITIVE_INFINITY);
+    `, "RangeError: toFixed() precision must be between 0 and 20")
+
+	test(`
+        [
+            new Number(1e21).toFixed(),
+            new Number(1e21).toFixed(0),
+            new Number(1e21).toFixed(1),
+            new Number(1e21).toFixed(1.1),
+            new Number(1e21).toFixed(0.9),
+            new Number(1e21).toFixed("1"),
+            new Number(1e21).toFixed("1.1"),
+            new Number(1e21).toFixed("0.9"),
+            new Number(1e21).toFixed(Number.NaN),
+            new Number(1e21).toFixed("some string")
+        ];
+  `, "1e+21,1e+21,1e+21,1e+21,1e+21,1e+21,1e+21,1e+21,1e+21,1e+21")
+
+	test(`raise:
+	      new Number(1e21).toFixed(Number.POSITIVE_INFINITY);
+    `, "RangeError: toFixed() precision must be between 0 and 20")
 }
 
 func TestNumber_toExponential(t *testing.T) {
@@ -117,4 +153,14 @@ func Test_toInteger(t *testing.T) {
 	integer = toInteger(toValue(3.14159))
 	Is(integer.valid(), true)
 	Is(integer.exact(), false)
+}
+
+func Test_NaN(t *testing.T) {
+	Terst(t)
+
+	test := runTest()
+
+	test(`
+        [ NaN === NaN, NaN == NaN ];
+    `, "false,false")
 }

@@ -2,7 +2,6 @@ package otto
 
 import (
 	"bytes"
-	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -89,7 +88,11 @@ func builtinString_indexOf(call FunctionCall) Value {
 		}
 		return toValue_int(-1)
 	}
-	return toValue_int(strings.Index(value[int(start):], target))
+	index := strings.Index(value[int(start):], target)
+	if index >= 0 {
+		index += int(start)
+	}
+	return toValue_int(index)
 }
 
 func builtinString_lastIndexOf(call FunctionCall) Value {
@@ -103,20 +106,19 @@ func builtinString_lastIndexOf(call FunctionCall) Value {
 	if length == 0 {
 		return toValue_int(strings.LastIndex(value, target))
 	}
-	startNumber := toFloat(call.ArgumentList[1])
-	start := int64(0)
-	if math.IsNaN(startNumber) || math.IsInf(startNumber, 0) {
+	start := toInteger(call.ArgumentList[1])
+	if !start.valid() {
 		// startNumber is infinity, so start is the end of string (start = length)
 		return toValue_int(strings.LastIndex(value, target))
-	} else {
-		start = toInteger(call.ArgumentList[1]).value
 	}
-	if 0 > start {
-		start = 0
-	} else if start >= int64(length) {
-		return toValue_int(strings.LastIndex(value, target))
+	if 0 > start.value {
+		start.value = 0
 	}
-	return toValue_int(strings.LastIndex(value[:start], target))
+	end := int(start.value) + len(target)
+	if end > length {
+		end = length
+	}
+	return toValue_int(strings.LastIndex(value[:end], target))
 }
 
 func builtinString_match(call FunctionCall) Value {
@@ -171,7 +173,7 @@ func builtinString_findAndReplaceString(input []byte, lastIndex int, match []int
 		case '`':
 			return target[:match[0]]
 		case '\'':
-			return target[match[1] : len(target)-1]
+			return target[match[1]:len(target)]
 		}
 		matchNumberParse, error := strconv.ParseInt(string(part[1:]), 10, 64)
 		matchNumber := int(matchNumberParse)
@@ -319,8 +321,10 @@ func builtinString_split(call FunctionCall) Value {
 
 		for _, match := range result {
 			if match[0] == match[1] {
-				// An "empty" match
-				continue
+				// FIXME Ugh, this is a hack
+				if match[0] == 0 || match[0] == targetLength {
+					continue
+				}
 			}
 
 			if lastIndex != match[0] {

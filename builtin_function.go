@@ -1,5 +1,11 @@
 package otto
 
+import (
+	"regexp"
+	"strings"
+	"unicode"
+)
+
 // Function
 
 func builtinFunction(call FunctionCall) Value {
@@ -10,16 +16,32 @@ func builtinNewFunction(self *_object, _ Value, argumentList []Value) Value {
 	return toValue_object(builtinNewFunctionNative(self.runtime, argumentList))
 }
 
+func argumentList2parameterList(argumentList []Value) []string {
+	parameterList := make([]string, 0, len(argumentList))
+	for _, value := range argumentList {
+		tmp := strings.FieldsFunc(toString(value), func(chr rune) bool {
+			return chr == ',' || unicode.IsSpace(chr)
+		})
+		parameterList = append(parameterList, tmp...)
+	}
+	return parameterList
+}
+
+var matchIdentifier = regexp.MustCompile(`^[$_\p{L}][$_\p{L}\d}]*$`)
+
 func builtinNewFunctionNative(runtime *_runtime, argumentList []Value) *_object {
-	parameterList := []string{}
+	parameterList := []string(nil)
 	bodySource := ""
 	argumentCount := len(argumentList)
 	if argumentCount > 0 {
-		bodySource = toString(argumentList[argumentCount-1])
-		argumentList = argumentList[0 : argumentCount-1]
-		for _, value := range argumentList {
-			parameterList = append(parameterList, toString(value))
+		parameterList = argumentList2parameterList(argumentList[0 : argumentCount-1])
+		for _, value := range parameterList {
+			// TODO: This is extremely hacky... maybe go through the parser directly?
+			if !matchIdentifier.MatchString(value) || keywordTable[value] {
+				panic(newSyntaxError(value))
+			}
 		}
+		bodySource = toString(argumentList[argumentCount-1])
 	}
 
 	parser := newParser()
@@ -29,6 +51,7 @@ func builtinNewFunctionNative(runtime *_runtime, argumentList []Value) *_object 
 }
 
 func builtinFunction_toString(call FunctionCall) Value {
+	call.thisClassObject("Function") // Should throw a TypeError unless Function
 	return toValue_string("[function]")
 }
 
@@ -90,5 +113,5 @@ func builtinFunction_bind(call FunctionCall) Value {
 		this = toValue_object(call.runtime.GlobalObject)
 	}
 
-	return toValue_object(call.runtime.newBoundFunctionObject(targetObject, this, argumentList))
+	return toValue_object(call.runtime.newBoundFunction(targetObject, this, argumentList))
 }
