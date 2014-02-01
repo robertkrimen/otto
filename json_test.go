@@ -55,4 +55,6 @@ func TestJSON_stringify(t *testing.T) {
 
 	test(`raise: o={p: null};o.p=o; JSON.stringify(o)`, "TypeError: Converting circular structure to JSON")
 	test(`raise: a=[null];a[0]=a; JSON.stringify(a)`, "TypeError: Converting circular structure to JSON")
+
+	test(`o = {x:1,y:1};JSON.stringify({a:o,b:o});`, `{"a":{"x":1,"y":1},"b":{"x":1,"y":1}}`)
 }

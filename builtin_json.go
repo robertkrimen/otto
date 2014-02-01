@@ -166,6 +166,7 @@ func builtinJSON_stringify(call FunctionCall) Value {
 					res = "{" + strings.Join(partial, ",") + "}"
 				}
 			}
+			stack = stack[:len(stack)-1]
 			return toValue(res)
 		}
 		return UndefinedValue()
