@@ -127,7 +127,7 @@ func builtinJSON_stringify(call FunctionCall) Value {
 				res = "[]"
 				if len(partial) > 0 {
 					if "" != gap {
-						res = "[\n" + gap + strings.Join(partial, ",\n" + gap) + "\n" + mind + "]"
+						res = "[\n" + gap + strings.Join(partial, ",\n"+gap) + "\n" + mind + "]"
 					} else {
 						res = "[" + strings.Join(partial, ",") + "]"
 					}
@@ -142,7 +142,7 @@ func builtinJSON_stringify(call FunctionCall) Value {
 						if "" != gap {
 							v += " "
 						}
-						partial = append(partial, v + str(k.String(), value).String())
+						partial = append(partial, v+str(k.String(), value).String())
 					}
 					return true
 				})
@@ -153,7 +153,7 @@ func builtinJSON_stringify(call FunctionCall) Value {
 						if "" != gap {
 							v += " "
 						}
-						partial = append(partial, v + str(k, value).String())
+						partial = append(partial, v+str(k, value).String())
 					}
 					return true
 				})
@@ -161,7 +161,7 @@ func builtinJSON_stringify(call FunctionCall) Value {
 			res = "{}"
 			if len(partial) > 0 {
 				if "" != gap {
-					res = "{\n" + gap + strings.Join(partial, ",\n" + gap) + "\n" + mind + "}"
+					res = "{\n" + gap + strings.Join(partial, ",\n"+gap) + "\n" + mind + "}"
 				} else {
 					res = "{" + strings.Join(partial, ",") + "}"
 				}
@@ -198,7 +198,7 @@ var builtinJSON_quote_chartable = map[string]string{
 	"\n": "\\n",
 	"\f": "\\f",
 	"\r": "\\r",
-	`"` : `\\"`,
+	`"`:  `\\"`,
 	"\\": "\\\\",
 }
 
