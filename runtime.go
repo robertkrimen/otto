@@ -54,6 +54,7 @@ type _runtime struct {
 
 	Otto *Otto
 
+	// Used to limit the speed with which this runtime evaluates nodes
 	burstCounter uint
 	lastEval     time.Time
 }
