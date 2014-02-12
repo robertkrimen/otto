@@ -3,6 +3,7 @@ package otto
 import (
 	"fmt"
 	"runtime"
+	"time"
 )
 
 func (self *_runtime) evaluateBody(body []_node) Value {
@@ -38,6 +39,33 @@ func (self *_runtime) evaluate(node _node) Value {
 			panic(caught)
 		}
 	}()
+
+	// If this runime is limited in regard to evaluations per second
+	if self.Otto.Limits.Evaluation.PerSecond > 0 {
+		now := time.Now()
+		// If we allow burst evaluations
+		if self.Otto.Limits.Evaluation.Burst > 0 {
+			// How much will our burst regain since last evaluation
+			recoup := uint(now.Sub(self.lastEval)/time.Second) * self.Otto.Limits.Evaluation.PerSecond
+			// If we have gained any burst
+			if recoup > 0 {
+				// Increase our burstCounter as much as we are allowed to
+				newBurstCounter := self.burstCounter + recoup
+				if newBurstCounter < self.Otto.Limits.Evaluation.Burst {
+					self.burstCounter = newBurstCounter
+				} else {
+					self.burstCounter = self.Otto.Limits.Evaluation.Burst
+				}
+			}
+		}
+		// Burn burstCounter if we have any, otherwise sleep a bit
+		if self.burstCounter > 0 {
+			self.burstCounter--
+		} else {
+			time.Sleep(time.Second / time.Duration(self.Otto.Limits.Evaluation.PerSecond))
+		}
+		self.lastEval = now
+	}
 
 	// Allow interpreter interruption
 	// If the Interrupt channel is nil, then

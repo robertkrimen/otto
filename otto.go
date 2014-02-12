@@ -171,15 +171,31 @@ package otto
 
 import (
 	"fmt"
-	"github.com/robertkrimen/otto/registry"
 	"strings"
+
+	"github.com/robertkrimen/otto/registry"
 )
+
+// EvaluationLimits define the limits for how fast an Otto instance can evaluate.
+type EvaluationLimits struct {
+	// Burst is the number of evaluations that can occur before the limitations set in.
+	Burst uint
+	// PerSecond is the maximum average evaluations per second for an Otto instnace. Zero is equivalent to no limitation.
+	PerSecond uint
+}
+
+// Limits define the resource limits for an Otto instance.
+type Limits struct {
+	// Evaluation is the limits for how fast an Otto instance can evaluate nodes.
+	Evaluation EvaluationLimits
+}
 
 // Otto is the representation of the JavaScript runtime. Each instance of Otto has a self-contained namespace.
 type Otto struct {
 	// Interrupt is a channel for interrupting the runtime. You can use this to halt a long running execution, for example.
 	// See "Halting Problem" for more information.
 	Interrupt chan func()
+	Limits    Limits
 	runtime   *_runtime
 }
 

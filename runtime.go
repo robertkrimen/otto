@@ -3,6 +3,7 @@ package otto
 import (
 	"reflect"
 	"strconv"
+	"time"
 )
 
 type _global struct {
@@ -52,6 +53,10 @@ type _runtime struct {
 	eval *_object // The builtin eval, for determine indirect versus direct invocation
 
 	Otto *Otto
+
+	// Used to limit the speed with which this runtime evaluates nodes
+	burstCounter uint
+	lastEval     time.Time
 }
 
 func (self *_runtime) EnterGlobalExecutionContext() {
