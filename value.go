@@ -352,17 +352,18 @@ func toValue(value interface{}) Value {
 		case reflect.String:
 			return Value{valueString, string(value.String())}
 		default:
+			if !value.IsValid() || value.IsNil() {
+				return UndefinedValue()
+			}
+
 			toValue_reflectValuePanic(value.Interface(), value.Kind())
 		}
 	default:
 		{
 			value := reflect.ValueOf(value)
-			if value.IsNil() {
-				return UndefinedValue()
-			}
 
 			value = reflect.Indirect(value)
-			toValue_reflectValuePanic(value.Interface(), value.Kind())
+			return toValue(value)
 		}
 	}
 	panic(newTypeError("Invalid value: Unsupported: %v (%T)", value, value))

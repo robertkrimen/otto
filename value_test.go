@@ -31,6 +31,8 @@ func TestObject(t *testing.T) {
 	//Is(newStringObject("Hello, World.").Value(), "Hello, World.")
 }
 
+type IntAlias int
+
 func TestToValue(t *testing.T) {
 	Terst(t)
 
@@ -43,6 +45,9 @@ func TestToValue(t *testing.T) {
 
 	value, _ = otto.ToValue((*byte)(nil))
 	Is(value, "undefined")
+
+	value, _ = otto.ToValue(IntAlias(5))
+	Is(value, "5")
 }
 
 func TestToBoolean(t *testing.T) {
