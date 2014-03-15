@@ -72,20 +72,17 @@ func goStructGetOwnProperty(self *_object, name string) *_property {
 
 func goStructEnumerate(self *_object, all bool, each func(string) bool) {
 	object := self.value.(*_goStructObject)
-	type_ := object.value.Type()
 
 	// Enumerate fields
-	fcount := object.value.NumField()
-	for index := 0; index < fcount; index++ {
-		if !each(type_.Field(index).Name) {
+	for index := 0; index < reflect.Indirect(object.value).NumField(); index++ {
+		if !each(reflect.Indirect(object.value).Type().Field(index).Name) {
 			return
 		}
 	}
 
 	// Enumerate methods
-	mcount := object.value.NumMethod()
-	for index := 0; index < mcount; index++ {
-		if !each(type_.Method(index).Name) {
+	for index := 0; index < object.value.NumMethod(); index++ {
+		if !each(object.value.Type().Method(index).Name) {
 			return
 		}
 	}
