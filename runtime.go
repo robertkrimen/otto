@@ -321,6 +321,19 @@ func (self *_runtime) toValue(value interface{}) Value {
 				case reflect.Array:
 					return toValue_object(self.newGoArray(value))
 				}
+			case reflect.Func:
+				return toValue_object(self.newNativeFunction(func(call FunctionCall) Value {
+					var retval interface{}
+
+					args := make([]reflect.Value, len(call.ArgumentList))
+					for i, a := range call.ArgumentList {
+						args[i] = reflect.ValueOf(a.export())
+					}
+
+					retval = value.Call(args)[0].Interface()
+
+					return toValue(retval)
+				}))
 			case reflect.Struct:
 				return toValue_object(self.newGoStructObject(value))
 			case reflect.Map:
