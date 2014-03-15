@@ -38,7 +38,7 @@ func (t testStruct) FuncMultArgs(a, b string) string {
 	return a + b
 }
 
-func (t testStruct) FuncVarArgsNoRet(as ...string) int {
+func (t testStruct) FuncVarArgs(as ...string) int {
 	return len(as)
 }
 
