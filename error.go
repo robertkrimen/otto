@@ -102,6 +102,10 @@ func newURIError(argumentList ...interface{}) _error {
 	return newError("URIError", argumentList...)
 }
 
+func newRetValError(argumentList ...interface{}) _error {
+	return newError("RetValError", argumentList...)
+}
+
 func typeErrorResult(throw bool) bool {
 	if throw {
 		panic(newTypeError())
