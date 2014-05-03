@@ -17,7 +17,6 @@ var (
 			_valueType: valueString,
 			value:      "",
 		},
-		value16: []uint16(nil),
 	}
 	prototypeValueBoolean = Value{
 		_valueType: valueBoolean,

@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"unicode/utf16"
 )
 
 // String
@@ -42,24 +41,24 @@ func builtinString_fromCharCode(call FunctionCall) Value {
 
 func builtinString_charAt(call FunctionCall) Value {
 	checkObjectCoercible(call.This)
-	value := toString(call.This)
-	value16 := utf16.Encode([]rune(value))
-	index := toInteger(call.Argument(0)).value
-	if 0 > index || index >= int64(len(value16)) {
+	_, so := call.This._object().stringValue()
+	idx := int(toInteger(call.Argument(0)).value)
+	if 0 > idx || idx >= so.RuneCount() {
 		return toValue_string("")
 	}
-	return toValue_string(string(value16[index]))
+	r := so.At(idx)
+	return toValue_string(string(r))
 }
 
 func builtinString_charCodeAt(call FunctionCall) Value {
 	checkObjectCoercible(call.This)
-	value := toString(call.This)
-	value16 := utf16.Encode([]rune(value))
-	index := toInteger(call.Argument(0)).value
-	if 0 > index || index >= int64(len(value16)) {
+	_, so := call.This._object().stringValue()
+	idx := int(toInteger(call.Argument(0)).value)
+	if 0 > idx || idx >= so.RuneCount() {
 		return NaNValue()
 	}
-	return toValue_uint16(value16[index])
+	r := so.At(idx)
+	return toValue_uint16(uint16(r))
 }
 
 func builtinString_concat(call FunctionCall) Value {
