@@ -2,48 +2,38 @@ package otto
 
 import (
 	"strconv"
-	"unicode/utf16"
+
+	"code.google.com/p/go.exp/utf8string"
 )
 
 type _stringObject struct {
-	value   Value
-	value16 []uint16
+	value Value
+	utf8string.String
 }
 
 func (runtime *_runtime) newStringObject(value Value) *_object {
-	value = toValue_string(toString(value))
-	value16 := utf16Of(value.value.(string))
+	s := toString(value)
+	obj := _stringObject{value: toValue_string(s)}
+	obj.Init(s)
 
 	self := runtime.newClassObject("String")
-	self.defineProperty("length", toValue_int(len(value16)), 0, false)
+	self.defineProperty("length", toValue_int(obj.RuneCount()), 0, false)
 	self.objectClass = _classString
-	self.value = _stringObject{
-		value:   value,
-		value16: value16,
-	}
+	self.value = obj
 	return self
 }
 
 func (self *_object) stringValue() (string, _stringObject) {
 	value, valid := self.value.(_stringObject)
 	if valid {
-		return value.value.value.(string), value
+		return value.String.String(), value
 	}
 	return "", _stringObject{}
 }
 
-func (self *_object) stringValue16() []uint16 {
-	_, value := self.stringValue()
-	return value.value16
-}
-
-func utf16Of(value string) []uint16 {
-	return utf16.Encode([]rune(value))
-}
-
 func stringEnumerate(self *_object, all bool, each func(string) bool) {
-	length := len(self.stringValue16())
-	for index := 0; index < length; index += 1 {
+	_, so := self.stringValue()
+	for index := 0; index < so.RuneCount(); index++ {
 		if !each(strconv.FormatInt(int64(index), 10)) {
 			return
 		}
@@ -56,10 +46,10 @@ func stringGetOwnProperty(self *_object, name string) *_property {
 		return property
 	}
 	index := stringToArrayIndex(name)
-	if index >= 0 {
-		value16 := self.stringValue16()
-		if index < int64(len(value16)) {
-			return &_property{toValue_string(string(value16[index])), 0}
+	if i := int(index); i >= 0 {
+		_, so := self.stringValue()
+		if i < so.RuneCount() {
+			return &_property{toValue_string(string(so.At(i))), 0}
 		}
 	}
 	return nil
