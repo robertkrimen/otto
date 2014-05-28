@@ -3,7 +3,14 @@ package otto
 import (
 	"encoding/json"
 	"reflect"
+	"unicode"
 )
+
+func upCase(str *string) {
+	a := []rune(*str)
+	a[0] = unicode.ToUpper(a[0])
+	*str = string(a)
+}
 
 func (runtime *_runtime) newGoStructObject(value reflect.Value) *_object {
 	self := runtime.newObject()
@@ -28,6 +35,8 @@ func _newGoStructObject(value reflect.Value) *_goStructObject {
 }
 
 func (self _goStructObject) getValue(name string) reflect.Value {
+	upCase(&name)
+
 	if validGoStructName(name) {
 		// Do not reveal hidden or unexported fields
 		if field := reflect.Indirect(self.value).FieldByName(name); (field != reflect.Value{}) {
@@ -43,10 +52,14 @@ func (self _goStructObject) getValue(name string) reflect.Value {
 }
 
 func (self _goStructObject) field(name string) (reflect.StructField, bool) {
+	upCase(&name)
+
 	return reflect.Indirect(self.value).Type().FieldByName(name)
 }
 
 func (self _goStructObject) method(name string) (reflect.Method, bool) {
+	upCase(&name)
+
 	return reflect.Indirect(self.value).Type().MethodByName(name)
 }
 
