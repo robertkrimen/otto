@@ -573,3 +573,23 @@ func Test_issue80(t *testing.T) {
         `, "[1401868959,14018689591,140186895901,1401868959001,14018689590001,140186895900001,1401868959000001,1.4018689590000015e+15,14018689590000001,140186895900000001,1401868959000000001,1.401868959e+19,1.401868959e+20,1.401868959e+20]")
 	})
 }
+
+func Test_issue86(t *testing.T) {
+	tt(t, func() {
+		test, tester := test()
+
+		test(`
+			var obj = Object.create({}, {
+				abc: {
+					get: function(){
+						return 1;
+					}
+				}
+			});
+			obj.abc;
+		`, 1)
+
+		v, err := tester.vm.Copy().Run(`obj.abc;`)
+		is(is(v, 1), is(nil, err))
+	})
+}
