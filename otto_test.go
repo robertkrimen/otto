@@ -143,6 +143,34 @@ func TestCall(t *testing.T) {
 	})
 }
 
+func TestRunFunctionWithSetArguments(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+		vm.Run(`var sillyFunction = function(record){record.silly = true; record.answer *= -1};`)
+		record := map[string]interface{}{"foo": "bar", "answer": 42}
+		// Set performs a conversion that allows the map to be addressed as a Javascript object
+		vm.Set("argument", record)
+		_, err := vm.Run("sillyFunction(argument)")
+
+		is(err, nil)
+		is(record["answer"].(float64), -42)
+		is(record["silly"].(bool), true)
+	})
+}
+
+func TestRunFunctionWithArgumentsPassedToCall(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+		vm.Run(`var sillyFunction = function(record){record.silly = true; record.answer *= -1};`)
+		record := map[string]interface{}{"foo": "bar", "answer": 42}
+		_, err := vm.Call("sillyFunction", nil, record)
+
+		is(err, nil)
+		is(record["answer"].(float64), -42)
+		is(record["silly"].(bool), true)
+	})
+}
+
 func TestMember(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
