@@ -11,6 +11,12 @@ import (
 var stringToNumberParseInteger = regexp.MustCompile(`^(?:0[xX])`)
 
 func parseNumber(value string) float64 {
+	if value == "" {
+		return 0
+	}
+
+	// Unicode 6.2.0 has U+180E in the Zs category, but 6.3.0 has it in the Cf category
+	// Technically, we're still following the specification, but V8 uses 6.2.0
 	value = strings.TrimSpace(value)
 
 	if value == "" {
