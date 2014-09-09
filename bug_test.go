@@ -657,3 +657,40 @@ func Test_S9_3_1_A2(t *testing.T) {
         `, "true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true")
 	})
 }
+
+func Test_S15_5_4_14_A2(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		// T29
+		test(`
+			var abc = new Number(100111122133144155);
+			Number.prototype.split = String.prototype.split;
+			abc.split(1);
+        `, ",00,,,,22,33,44,55")
+
+		// T33
+		test(`
+			var abc = new Number(100111122133144155);
+			Number.prototype.split = String.prototype.split;
+			abc.split(1,100);
+        `, ",00,,,,22,33,44,55")
+
+		// T34
+		test(`
+			var abc = new Number(100111122133144155);
+			Number.prototype.split = String.prototype.split;
+			abc.split(1,void 0);
+        `, ",00,,,,22,33,44,55")
+
+		if false {
+			// This takes too long with a ridiculous limit
+			// T35
+			test(`
+				var abc = new Number(100111122133144155);
+				Number.prototype.split = String.prototype.split;
+				abc.split(1,Math.pow(2,32)-1);
+			`, ",00,,,,22,33,44,55")
+		}
+	})
+}

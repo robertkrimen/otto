@@ -1,11 +1,12 @@
 package otto
 
 import (
-	"./terst"
 	"errors"
 	"strings"
 	"testing"
 	"time"
+
+	"./terst"
 )
 
 func tt(t *testing.T, arguments ...func()) {

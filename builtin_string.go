@@ -374,6 +374,7 @@ func builtinString_split(call FunctionCall) Value {
 			excess = true
 		}
 
+		// FIXME This takes too long with a ridiculous limit
 		split := strings.SplitN(target, separator, splitLimit)
 
 		if excess && len(split) > limit {
