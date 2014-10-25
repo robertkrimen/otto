@@ -225,10 +225,16 @@ package otto
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/robertkrimen/otto/registry"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 // Otto is the representation of the JavaScript runtime. Each instance of Otto has a self-contained namespace.
 type Otto struct {
