@@ -191,6 +191,67 @@ func (self *_runtime) safeToValue(value interface{}) (Value, error) {
 	return result, err
 }
 
+// safeNumericConvert converts numeric parameter val from js to the type that the function fn expects if its safe to do so.
+// This allows literals (int64) and the general js numeric form (float64) to be passed as parameters to go functions easily.
+func safeNumericConvert(fn reflect.Type, i int, val interface{}) reflect.Value {
+	switch val.(type) {
+	default:
+		// Not a supported conversion
+		return reflect.ValueOf(val)
+	case float64, int64:
+		// What type is the func expecting?
+		var ptype reflect.Type
+		switch {
+		case fn.IsVariadic() && fn.NumIn() <= i+1:
+			// This argument is variadic so use the variadics element type.
+			ptype = fn.In(fn.NumIn() - 1).Elem()
+		case fn.NumIn() > i:
+			ptype = fn.In(i)
+		}
+
+		if f64, ok := val.(float64); ok {
+			switch ptype.Kind() {
+			case reflect.Float64:
+				return reflect.ValueOf(val)
+			case reflect.Float32:
+				if reflect.Zero(ptype).OverflowFloat(f64) {
+					// Not safe to convert
+					return reflect.ValueOf(val)
+				}
+
+				return reflect.ValueOf(val).Convert(ptype)
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				i64 := int64(f64)
+				if float64(i64) != f64 {
+					// Not safe to convert
+					return reflect.ValueOf(val)
+				}
+
+				// The float represents an integer
+				val = i64
+			default:
+				// Not a supported conversion
+				return reflect.ValueOf(val)
+			}
+		}
+
+		i64 := val.(int64)
+		switch ptype.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32:
+			if !reflect.Zero(ptype).OverflowInt(i64) {
+				return reflect.ValueOf(val).Convert(ptype)
+			}
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			if i64 > 0 && !reflect.Zero(ptype).OverflowUint(uint64(i64)) {
+				return reflect.ValueOf(val).Convert(ptype)
+			}
+		}
+	}
+
+	// Not a supported conversion
+	return reflect.ValueOf(val)
+}
+
 func (self *_runtime) toValue(value interface{}) Value {
 	switch value := value.(type) {
 	case Value:
@@ -218,8 +279,9 @@ func (self *_runtime) toValue(value interface{}) Value {
 				// TODO Maybe cache this?
 				return toValue_object(self.newNativeFunction("", func(call FunctionCall) Value {
 					in := make([]reflect.Value, len(call.ArgumentList))
+					t := value.Type()
 					for i, value := range call.ArgumentList {
-						in[i] = reflect.ValueOf(value.export())
+						in[i] = safeNumericConvert(t, i, value.export())
 					}
 
 					out := value.Call(in)
