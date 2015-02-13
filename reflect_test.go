@@ -294,7 +294,7 @@ func Test_reflectMapIterateKeys(t *testing.T) {
             `, "123,456")
 		}
 
-		// map[rune]interface{}
+		// map[byte]interface{}
 		{
 			abc := map[byte]interface{}{
 				10: "Nothing happens.",
