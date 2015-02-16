@@ -213,9 +213,14 @@ func Test_reflectStruct(t *testing.T) {
                 abc.FuncEllipsis("abc", "def", "ghi");
             `, 3)
 
-			test(`raise:
-                abc.FuncReturn2();
-            `, "TypeError")
+			test(`
+                ret = abc.FuncReturn2();
+                if (ret && ret.length && ret.length == 2 && ret[0] == "def" && ret[1] === undefined) {
+                        true;
+                } else {
+                       false;
+                }
+            `, true)
 
 			test(`
                 abc.FuncReturnStruct();

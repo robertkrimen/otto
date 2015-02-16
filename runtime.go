@@ -285,13 +285,21 @@ func (self *_runtime) toValue(value interface{}) Value {
 					}
 
 					out := value.Call(in)
-					if len(out) == 1 {
-						return self.toValue(out[0].Interface())
-					} else if len(out) == 0 {
+					l := len(out)
+					switch l {
+					case 0:
 						return Value{}
+					case 1:
+						return self.toValue(out[0].Interface())
 					}
 
-					panic(call.runtime.panicTypeError())
+					// Return an array of the values to emulate multi value return.
+					// In the future this can be used along side destructuring assignment.
+					s := make([]interface{}, l)
+					for i, v := range out {
+						s[i] = self.toValue(v.Interface())
+					}
+					return self.toValue(s)
 				}))
 			case reflect.Struct:
 				return toValue_object(self.newGoStructObject(value))
