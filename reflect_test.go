@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"fmt"
 	"math"
 	"reflect"
 	"testing"
@@ -49,6 +50,70 @@ func (abc _abcStruct) FuncEllipsis(xyz ...string) int {
 
 func (abc _abcStruct) FuncReturnStruct() _mnoStruct {
 	return _mnoStruct{}
+}
+
+func (abs _abcStruct) Func1Int(i int) int {
+	return i + 1
+}
+
+func (abs _abcStruct) Func1Int8(i int8) int8 {
+	return i + 1
+}
+
+func (abs _abcStruct) Func1Int16(i int16) int16 {
+	return i + 1
+}
+
+func (abs _abcStruct) Func1Int32(i int32) int32 {
+	return i + 1
+}
+
+func (abs _abcStruct) Func1Int64(i int64) int64 {
+	return i + 1
+}
+
+func (abs _abcStruct) Func1Uint(i uint) uint {
+	return i + 1
+}
+
+func (abs _abcStruct) Func1Uint8(i uint8) uint8 {
+	return i + 1
+}
+
+func (abs _abcStruct) Func1Uint16(i uint16) uint16 {
+	return i + 1
+}
+
+func (abs _abcStruct) Func1Uint32(i uint32) uint32 {
+	return i + 1
+}
+
+func (abs _abcStruct) Func1Uint64(i uint64) uint64 {
+	return i + 1
+}
+
+func (abs _abcStruct) Func2Int(i, j int) int {
+	return i + j
+}
+
+func (abs _abcStruct) Func2StringInt(s string, i int) string {
+	return fmt.Sprintf("%v:%v", s, i)
+}
+
+func (abs _abcStruct) Func1IntVariadic(a ...int) int {
+	t := 0
+	for _, i := range a {
+		t += i
+	}
+	return t
+}
+
+func (abs _abcStruct) Func2IntVariadic(s string, a ...int) string {
+	t := 0
+	for _, i := range a {
+		t += i
+	}
+	return fmt.Sprintf("%v:%v", s, t)
 }
 
 type _mnoStruct struct {
@@ -159,6 +224,71 @@ func Test_reflectStruct(t *testing.T) {
 			test(`
                 abc.FuncReturnStruct().Func();
             `, "mno")
+
+			test(`
+                abc.Func1Int(1);
+            `, 2)
+
+			test(`raise:
+                abc.Func1Int(1.1);
+            `, "reflect: Call using float64 as type int")
+
+			test(`
+		var v = 1;
+                abc.Func1Int(v + 1);
+            `, 3)
+
+			test(`
+                abc.Func2Int(1, 2);
+            `, 3)
+
+			test(`
+                abc.Func1Int8(1);
+            `, 2)
+
+			test(`
+                abc.Func1Int16(1);
+            `, 2)
+
+			test(`
+                abc.Func1Int32(1);
+            `, 2)
+
+			test(`
+                abc.Func1Int64(1);
+            `, 2)
+
+			test(`
+                abc.Func1Uint(1);
+            `, 2)
+
+			test(`
+                abc.Func1Uint8(1);
+            `, 2)
+
+			test(`
+                abc.Func1Uint16(1);
+            `, 2)
+
+			test(`
+                abc.Func1Uint32(1);
+            `, 2)
+
+			test(`
+                abc.Func1Uint64(1);
+            `, 2)
+
+			test(`
+                abc.Func2StringInt("test", 1);
+            `, "test:1")
+
+			test(`
+                abc.Func1IntVariadic(1, 2);
+            `, 3)
+
+			test(`
+                abc.Func2IntVariadic("test", 1, 2);
+            `, "test:3")
 		}
 	})
 }
