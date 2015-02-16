@@ -391,6 +391,63 @@ func Test_reflectMap(t *testing.T) {
 	})
 }
 
+func Test_reflectMapIterateKeys(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		// map[string]interface{}
+		{
+			abc := map[string]interface{}{
+				"Xyzzy": "Nothing happens.",
+				"def":   1,
+			}
+			vm.Set("abc", abc)
+			test(`
+                var keys = [];
+                for (var key in abc) {
+                  keys.push(key);
+                }
+                keys.sort();
+                keys;
+            `, "Xyzzy,def")
+		}
+
+		// map[uint]interface{}
+		{
+			abc := map[uint]interface{}{
+				456: "Nothing happens.",
+				123: 1,
+			}
+			vm.Set("abc", abc)
+			test(`
+                var keys = [];
+                for (var key in abc) {
+                  keys.push(key);
+                }
+                keys.sort();
+                keys;
+            `, "123,456")
+		}
+
+		// map[byte]interface{}
+		{
+			abc := map[byte]interface{}{
+				10: "Nothing happens.",
+				20: 1,
+			}
+			vm.Set("abc", abc)
+			test(`
+                for (var key in abc) {
+                  abc[key] = "123";
+                }
+            `)
+			is(abc[10], "123");
+			is(abc[20], "123");
+		}
+
+	})
+}
+
 func Test_reflectSlice(t *testing.T) {
 	tt(t, func() {
 		test, vm := test()
