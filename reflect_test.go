@@ -116,6 +116,16 @@ func (abs _abcStruct) Func2IntVariadic(s string, a ...int) string {
 	return fmt.Sprintf("%v:%v", s, t)
 }
 
+func (abs _abcStruct) Func2IntArrayVariadic(s string, a ...[]int) string {
+	t := 0
+	for _, i := range a {
+		for _, j := range i {
+			t += j
+		}
+	}
+	return fmt.Sprintf("%v:%v", s, t)
+}
+
 type _mnoStruct struct {
 	Ghi string
 }
@@ -234,6 +244,10 @@ func Test_reflectStruct(t *testing.T) {
                 abc.Func1Int(1);
             `, 2)
 
+			test(`
+                abc.Func1Int(0x01 & 0x01);
+            `, 2)
+
 			test(`raise:
                 abc.Func1Int(1.1);
             `, "reflect: Call using float64 as type int")
@@ -294,6 +308,22 @@ func Test_reflectStruct(t *testing.T) {
 			test(`
                 abc.Func2IntVariadic("test", 1, 2);
             `, "test:3")
+
+			test(`
+                abc.Func2IntVariadic("test", [1, 2]);
+            `, "test:3")
+
+			test(`
+                abc.Func2IntArrayVariadic("test", [1, 2]);
+            `, "test:3")
+
+			test(`
+                abc.Func2IntArrayVariadic("test", [1, 2], [3, 4]);
+            `, "test:10")
+
+			test(`
+                abc.Func2IntArrayVariadic("test", [[1, 2], [3, 4]]);
+            `, "test:10")
 		}
 	})
 }
@@ -478,7 +508,6 @@ func Test_reflectArray(t *testing.T) {
 			is(abc[len(abc)-1], false)
 			// ...
 		}
-
 		// []int32
 		{
 			abc := make([]int32, 4)
