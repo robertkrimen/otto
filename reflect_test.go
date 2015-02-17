@@ -236,7 +236,7 @@ func Test_reflectStruct(t *testing.T) {
 
 			test(`raise:
                 abc.Func1Int(1.1);
-            `, "reflect: Call using float64 as type int")
+            `, "converting float64 to int would cause loss of precision")
 
 			test(`
 		var v = 1;
@@ -429,14 +429,14 @@ func Test_reflectSlice(t *testing.T) {
                 abc;
             `, "0,0,0,0")
 
-			test(`
-                abc[0] = 4.2;
-                abc[1] = "42";
+			test(`raise:
+                abc[0] = "42";
+                abc[1] = 4.2;
                 abc[2] = 3.14;
                 abc;
-            `, "4,42,3,0")
+            `, "RangeError: 4.2 to reflect.Kind: int32")
 
-			is(abc, []int32{4, 42, 3, 0})
+			is(abc, []int32{42, 0, 0, 0})
 
 			test(`
                 delete abc[1];
@@ -488,14 +488,14 @@ func Test_reflectArray(t *testing.T) {
                 abc;
             `, "0,0,0,0")
 
-			test(`
-                abc[0] = 4.2;
-                abc[1] = "42";
+			test(`raise:
+                abc[0] = "42";
+                abc[1] = 4.2;
                 abc[2] = 3.14;
                 abc;
-            `, "4,42,3,0")
+            `, "RangeError: 4.2 to reflect.Kind: int32")
 
-			is(abc, []int32{4, 42, 3, 0})
+			is(abc, []int32{42, 0, 0, 0})
 		}
 
 		// []bool
