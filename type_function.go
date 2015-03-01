@@ -260,3 +260,9 @@ func (self *FunctionCall) thisClassObject(class string) *_object {
 func (self FunctionCall) toObject(value Value) *_object {
 	return self.runtime.toObject(value)
 }
+
+// CallerLocation will return file location information (file:line:pos) where this function is being called.
+func (self FunctionCall) CallerLocation() string {
+	// see error.go for location()
+	return self.runtime.scope.frame.location()
+}
