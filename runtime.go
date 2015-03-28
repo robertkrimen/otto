@@ -191,9 +191,11 @@ func (self *_runtime) safeToValue(value interface{}) (Value, error) {
 	return result, err
 }
 
-// safeNumericConvert converts numeric parameter val from js to the type that the function fn expects if its safe to do so.
+// callParameterConvert converts numeric parameter val from js to the type that the function fn expects if its safe to do so.
 // This allows literals (int64) and the general js numeric form (float64) to be passed as parameters to go functions easily.
-func safeNumericConvert(fn reflect.Type, i int, val interface{}) reflect.Value {
+// For nil parameters it does reflect.New(expectedType).Elem()
+// For all other types it uses reflect Value.Convert(expectedType).
+func callParameterConvert(fn reflect.Type, i int, val interface{}) reflect.Value {
 	// What type is the func expecting?
 	var ptype reflect.Type
 	switch {
@@ -209,7 +211,8 @@ func safeNumericConvert(fn reflect.Type, i int, val interface{}) reflect.Value {
 		if val == nil { // Avoid "Call using zero Value argument"
 			return reflect.New(ptype).Elem()
 		} else {
-			return reflect.ValueOf(val)
+			v := reflect.ValueOf(val)
+			return v.Convert(ptype)
 		}
 	case float64, int64:
 
@@ -285,7 +288,7 @@ func (self *_runtime) toValue(value interface{}) Value {
 					in := make([]reflect.Value, len(call.ArgumentList))
 					t := value.Type()
 					for i, value := range call.ArgumentList {
-						in[i] = safeNumericConvert(t, i, value.export())
+						in[i] = callParameterConvert(t, i, value.export())
 					}
 
 					out := value.Call(in)

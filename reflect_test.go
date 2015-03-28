@@ -16,6 +16,8 @@ type _abcStruct struct {
 	Pqr map[string]int8
 }
 
+type customInt uint32
+
 func (abc _abcStruct) String() string {
 	return abc.Ghi
 }
@@ -689,3 +691,24 @@ func Test_reflectNil(t *testing.T) {
 		}
 	})
 }
+
+func Test_reflectCustomType(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+		{
+			vm.Set("func", func() customInt {
+				return customInt(123)
+			})
+
+			vm.Set("func1", func(v customInt) bool {
+				return v == customInt(123)
+			})
+
+			test(`
+			var arg = func();
+			func1(arg);
+            `, true)
+		}
+	})
+}
+
