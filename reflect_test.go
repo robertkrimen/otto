@@ -673,3 +673,19 @@ func TestPassthrough(t *testing.T) {
 		}
 	})
 }
+
+func Test_reflectNil(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+		{
+			vm.Set("func", func(s *_mnoStruct) bool {
+				return s == nil
+			})
+
+			test(`
+			var arg;
+			func(arg);
+            `, true)
+		}
+	})
+}

@@ -194,20 +194,24 @@ func (self *_runtime) safeToValue(value interface{}) (Value, error) {
 // safeNumericConvert converts numeric parameter val from js to the type that the function fn expects if its safe to do so.
 // This allows literals (int64) and the general js numeric form (float64) to be passed as parameters to go functions easily.
 func safeNumericConvert(fn reflect.Type, i int, val interface{}) reflect.Value {
+	// What type is the func expecting?
+	var ptype reflect.Type
+	switch {
+	case fn.IsVariadic() && fn.NumIn() <= i+1:
+		// This argument is variadic so use the variadics element type.
+		ptype = fn.In(fn.NumIn() - 1).Elem()
+	case fn.NumIn() > i:
+		ptype = fn.In(i)
+	}
 	switch val.(type) {
 	default:
 		// Not a supported conversion
-		return reflect.ValueOf(val)
-	case float64, int64:
-		// What type is the func expecting?
-		var ptype reflect.Type
-		switch {
-		case fn.IsVariadic() && fn.NumIn() <= i+1:
-			// This argument is variadic so use the variadics element type.
-			ptype = fn.In(fn.NumIn() - 1).Elem()
-		case fn.NumIn() > i:
-			ptype = fn.In(i)
+		if val == nil { // Avoid "Call using zero Value argument"
+			return reflect.New(ptype).Elem()
+		} else {
+			return reflect.ValueOf(val)
 		}
+	case float64, int64:
 
 		if f64, ok := val.(float64); ok {
 			switch ptype.Kind() {
