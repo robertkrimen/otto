@@ -188,5 +188,49 @@ func TestErrorContext(t *testing.T) {
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:2:23")
 		}
+
+		script1, err := vm.Compile("file1.js",
+			`function A() {
+				throw new Error("test");
+			}
+		`)
+		is(err, nil)
+
+		_, err = vm.Run(script1)
+		is(err, nil)
+
+		script2, err := vm.Compile("file2.js",
+			`function B() {
+				A()
+			}
+		`)
+		is(err, nil)
+
+		_, err = vm.Run(script2)
+		is(err, nil)
+
+		script3, err := vm.Compile("file3.js", "B()")
+		is(err, nil)
+
+		_, err = vm.Run(script3)
+		{
+			err := err.(*Error)
+			is(err.message, "test")
+			is(len(err.trace), 3)
+			is(err.trace[0].location(), "A (file1.js:2:15)")
+			is(err.trace[1].location(), "B (file2.js:2:5)")
+			is(err.trace[2].location(), "file3.js:1:1")
+		}
+
+		{
+			f, _ := vm.Get("B")
+			_, err := f.Call(UndefinedValue())
+			err1 := err.(*Error)
+			is(err1.message, "test")
+			is(len(err1.trace), 2)
+			is(err1.trace[0].location(), "A (file1.js:2:15)")
+			is(err1.trace[1].location(), "B (file2.js:2:5)")
+		}
+
 	})
 }
