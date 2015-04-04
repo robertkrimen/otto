@@ -193,6 +193,11 @@ func TestErrorContext(t *testing.T) {
 			`function A() {
 				throw new Error("test");
 			}
+
+			function C() {
+				var o = null;
+				o.prop = 1;
+			}
 		`)
 		is(err, nil)
 
@@ -231,6 +236,16 @@ func TestErrorContext(t *testing.T) {
 			is(err1.trace[0].location(), "A (file1.js:2:15)")
 			is(err1.trace[1].location(), "B (file2.js:2:5)")
 		}
+
+		{
+			f, _ := vm.Get("C")
+			_, err := f.Call(UndefinedValue())
+			err1 := err.(*Error)
+			is(err1.message, "Cannot access member 'prop' of null")
+			is(len(err1.trace), 1)
+			is(err1.trace[0].location(), "C (file1.js:7:5)")
+		}
+
 
 	})
 }

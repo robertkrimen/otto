@@ -255,7 +255,7 @@ func (self *_runtime) cmpl_evaluate_nodeDotExpression(node *_nodeDotExpression) 
 	// TODO Pass in base value as-is, and defer toObject till later?
 	object, err := self.objectCoerce(targetValue)
 	if err != nil {
-		panic(self.panicTypeError("Cannot access member '%s' of %s", node.identifier, err.Error()))
+		panic(self.panicTypeError("Cannot access member '%s' of %s", node.identifier, err.Error(), _at(node.idx)))
 	}
 	return toValue(newPropertyReference(self, object, node.identifier, false, _at(node.idx)))
 }
