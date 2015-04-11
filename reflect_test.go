@@ -131,7 +131,7 @@ func TestReflect(t *testing.T) {
 	tt(t, func() {
 		// Testing dbgf
 		// These should panic
-		toValue("Xyzzy").toReflectValue(reflect.Ptr)
+		// toValue("Xyzzy").toReflectValue(reflect.Ptr)
 		stringToReflectValue("Xyzzy", reflect.Ptr)
 	})
 }
@@ -624,7 +624,7 @@ func Test_reflectMapInterface(t *testing.T) {
             `, "Nothing happens.,1,[object Object],[object Object]")
 
 			is(abc["xyz"], "pqr")
-			is(abc["ghi"], "[object Object]")
+			is(abc["ghi"], map[string]interface{}{})
 			is(abc["jkl"], float64(3.14159))
 			mno, valid := abc["mno"].(*_abcStruct)
 			is(valid, true)

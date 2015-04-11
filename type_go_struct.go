@@ -64,7 +64,7 @@ func (self _goStructObject) setValue(name string, value Value) bool {
 		return false
 	}
 	fieldValue := self.getValue(name)
-	reflectValue, err := value.toReflectValue(field.Type.Kind())
+	reflectValue, err := value.toReflectValue(field.Type)
 	if err != nil {
 		panic(err)
 	}
