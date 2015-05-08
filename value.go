@@ -824,7 +824,7 @@ func (value Value) toReflectValue(typ reflect.Type) (reflect.Value, error) {
 		if 0 > tmp1 {
 			tmp1 = -tmp1
 		}
-		if tmp1 < math.SmallestNonzeroFloat32 || tmp1 > math.MaxFloat32 {
+		if tmp1 > 0 && (tmp1 < math.SmallestNonzeroFloat32 || tmp1 > math.MaxFloat32) {
 			return reflect.Value{}, fmt.Errorf("RangeError: %f (%v) to float32", tmp, value)
 		} else {
 			return reflect.ValueOf(float32(tmp)).Convert(typ), nil
