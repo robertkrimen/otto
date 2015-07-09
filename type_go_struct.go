@@ -2,8 +2,8 @@ package otto
 
 import (
 	"encoding/json"
-	"reflect"
 	"fmt"
+	"reflect"
 )
 
 // FIXME Make a note about not being able to modify a struct unless it was
@@ -71,13 +71,23 @@ func (self _goStructObject) setValue(name string, value Value) bool {
 			fmt.Printf("_goStructObject setValue failed,reason:fieldValue is nil\n")
 			return false
 		}
-		elem, _ := ToValue(fieldValue.Elem())
-		_elem, _ := elem.Export()
-		reflectValue, err := value.toReflectValue(reflect.TypeOf(_elem).Kind())
-		if err != nil {
-			panic(err)
+
+		_value, _ := value.Export()
+		if reflect.TypeOf(_value).Kind() == reflect.Ptr { //为go struct 指针
+			valueElem := reflect.ValueOf(_value).Elem()
+			fieldValue.Elem().Set(valueElem)
+
+		} else { //普通类型的指针
+
+			elem, _ := ToValue(fieldValue.Elem())
+			_elem, _ := elem.Export()
+			reflectValue, err := value.toReflectValue(reflect.TypeOf(_elem).Kind())
+			if err != nil {
+				panic(err)
+			}
+			fieldValue.Elem().Set(reflectValue)
+
 		}
-		fieldValue.Elem().Set(reflectValue)
 		return true
 	}
 
