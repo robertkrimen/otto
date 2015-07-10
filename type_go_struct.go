@@ -74,8 +74,9 @@ func (self _goStructObject) setValue(name string, value Value) bool {
 
 		_value, _ := value.Export()
 		if reflect.TypeOf(_value).Kind() == reflect.Ptr { //为go struct 指针
-			valueElem := reflect.ValueOf(_value).Elem()
-			fieldValue.Elem().Set(valueElem)
+			//valueElem := reflect.ValueOf(_value).Elem()
+			//fieldValue.Elem().Set(valueElem)
+			fieldValue.Set(reflect.ValueOf(_value))
 
 		} else { //普通类型的指针
 
