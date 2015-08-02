@@ -5,6 +5,18 @@ import (
 	"time"
 )
 
+func Test_issue116(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`
+			[1,-1].sort(function(a, b) {
+				return a - b;
+			});
+        `, "-1,1")
+	})
+}
+
 func Test_262(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()

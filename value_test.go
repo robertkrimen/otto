@@ -3,6 +3,7 @@ package otto
 import (
 	"encoding/json"
 	"math"
+	"reflect"
 	"testing"
 )
 
@@ -277,5 +278,14 @@ func TestExport(t *testing.T) {
 			vm.Set("abc", abc)
 			is(test(`abc;`).export(), abc)
 		}
+	})
+}
+
+func Test_toReflectValue(t *testing.T) {
+	tt(t, func() {
+		value := toValue(0.0)
+		tmp, err := value.toReflectValue(reflect.Float32)
+		is(tmp.Float(), 0.0)
+		is(err, nil)
 	})
 }
