@@ -43,7 +43,7 @@ var (
 
 // ToValue will convert an interface{} value to a value digestible by otto/JavaScript
 //
-// This function will not work for advanced types (struct, map, slice/array, etc.) and
+// This function will not work for advanced types (struct, map, slice/array, func, etc.) and
 // you should use Otto.ToValue instead.
 func ToValue(value interface{}) (Value, error) {
 	result := Value{}
