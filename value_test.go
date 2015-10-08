@@ -47,6 +47,16 @@ func TestToValue(t *testing.T) {
 		value, _ = vm.ToValue(intAlias(5))
 		is(value, 5)
 
+		value, _ = vm.ToValue(func(call FunctionCall) Value {
+			arg, _ := call.Argument(0).ToString()
+			is(arg, "hello")
+			return UndefinedValue()
+		})
+		is(value, "function () { [native code] }")
+		if _, err := value.Call(UndefinedValue(), "hello"); err != nil {
+			panic(err)
+		}
+
 		{
 			tmp := new(int)
 
