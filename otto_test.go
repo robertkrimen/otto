@@ -1007,6 +1007,17 @@ func TestOttoCall_new(t *testing.T) {
 	})
 }
 
+func TestOttoCall_newWithBrackets(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		_, err := vm.Run(`var a = {default: function B(x) { this.x = x; } }`)
+		is(err, nil)
+
+		test(`(new a['default'](1)).x`, 1)
+	})
+}
+
 func TestOttoCall_throw(t *testing.T) {
 	// FIXME? (Been broken for a while)
 	// Looks like this has been broken for a while... what
