@@ -383,7 +383,7 @@ func (self Otto) SetStackDepthLimit(limit int) {
 // MakeCustomError creates a new Error object with the given name and message,
 // returning it as a Value.
 func (self Otto) MakeCustomError(name, message string) Value {
-	return self.runtime.toValue(self.runtime.newError(name, self.runtime.toValue(message)))
+	return self.runtime.toValue(self.runtime.newError(name, self.runtime.toValue(message), 0))
 }
 
 // MakeRangeError creates a new RangeError object with the given message,
@@ -416,8 +416,23 @@ type Context struct {
 	Stacktrace []string
 }
 
-// Context returns the current execution context of the vm
-func (self Otto) Context() (ctx Context) {
+// Context returns the current execution context of the vm, traversing up to
+// ten stack frames, and skipping any innermost native function stack frames.
+func (self Otto) Context() Context {
+	return self.ContextSkip(10, true)
+}
+
+// ContextLimit returns the current execution context of the vm, with a
+// specific limit on the number of stack frames to traverse, skipping any
+// innermost native function stack frames.
+func (self Otto) ContextLimit(limit int) Context {
+	return self.ContextSkip(limit, true)
+}
+
+// ContextSkip returns the current execution context of the vm, with a
+// specific limit on the number of stack frames to traverse, optionally
+// skipping any innermost native function stack frames.
+func (self Otto) ContextSkip(limit int, skipNative bool) (ctx Context) {
 	// Ensure we are operating in a scope
 	if self.runtime.scope == nil {
 		self.runtime.enterGlobalScope()
@@ -427,14 +442,24 @@ func (self Otto) Context() (ctx Context) {
 	scope := self.runtime.scope
 	frame := scope.frame
 
+	for skipNative && frame.native && scope.outer != nil {
+		scope = scope.outer
+		frame = scope.frame
+	}
+
 	// Get location information
 	ctx.Filename = "<unknown>"
 	ctx.Callee = frame.callee
-	if frame.file != nil {
+
+	switch {
+	case frame.native:
+		ctx.Filename = frame.nativeFile
+		ctx.Line = frame.nativeLine
+		ctx.Column = 0
+	case frame.file != nil:
 		ctx.Filename = "<anonymous>"
 
-		p := frame.file.Position(file.Idx(frame.offset))
-		if p != nil {
+		if p := frame.file.Position(file.Idx(frame.offset)); p != nil {
 			ctx.Line = p.Line
 			ctx.Column = p.Column
 
@@ -448,10 +473,9 @@ func (self Otto) Context() (ctx Context) {
 	ctx.This = toValue_object(scope.this)
 
 	// Build stacktrace (up to 10 levels deep)
-	limit := 10
 	ctx.Symbols = make(map[string]Value)
 	ctx.Stacktrace = append(ctx.Stacktrace, frame.location())
-	for limit > 0 {
+	for limit != 0 {
 		// Get variables
 		stash := scope.lexical
 		for {

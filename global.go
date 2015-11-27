@@ -166,7 +166,7 @@ func (runtime *_runtime) newDate(epoch float64) *_object {
 	return self
 }
 
-func (runtime *_runtime) newError(name string, message Value) *_object {
+func (runtime *_runtime) newError(name string, message Value, stackFramesToPop int) *_object {
 	var self *_object
 	switch name {
 	case "EvalError":
@@ -183,7 +183,7 @@ func (runtime *_runtime) newError(name string, message Value) *_object {
 		return runtime.newURIError(message)
 	}
 
-	self = runtime.newErrorObject(name, message)
+	self = runtime.newErrorObject(name, message, stackFramesToPop)
 	self.prototype = runtime.global.ErrorPrototype
 	if name != "" {
 		self.defineProperty("name", toValue_string(name), 0111, false)
@@ -191,8 +191,8 @@ func (runtime *_runtime) newError(name string, message Value) *_object {
 	return self
 }
 
-func (runtime *_runtime) newNativeFunction(name string, _nativeFunction _nativeFunction) *_object {
-	self := runtime.newNativeFunctionObject(name, _nativeFunction, 0)
+func (runtime *_runtime) newNativeFunction(name, file string, line int, _nativeFunction _nativeFunction) *_object {
+	self := runtime.newNativeFunctionObject(name, file, line, _nativeFunction, 0)
 	self.prototype = runtime.global.FunctionPrototype
 	prototype := runtime.newObject()
 	self.defineProperty("prototype", toValue_object(prototype), 0100, false)
