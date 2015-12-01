@@ -680,15 +680,36 @@ func (self Value) export() interface{} {
 			result := make([]interface{}, 0)
 			lengthValue := object.get("length")
 			length := lengthValue.value.(uint32)
+			kind := reflect.Invalid
+			state := 0
+			var t reflect.Type
 			for index := uint32(0); index < length; index += 1 {
 				name := strconv.FormatInt(int64(index), 10)
 				if !object.hasProperty(name) {
 					continue
 				}
-				value := object.get(name)
-				result = append(result, value.export())
+				value := object.get(name).export()
+				t = reflect.TypeOf(value)
+				if state == 0 {
+					kind = t.Kind()
+					state = 1
+				} else if state == 1 && kind != t.Kind() {
+					state = 2
+				}
+				result = append(result, value)
 			}
-			return result
+
+			if state != 1 || kind == reflect.Interface {
+				// No common type
+				return result
+			}
+
+			// Convert to the common type
+			val := reflect.MakeSlice(reflect.SliceOf(t), len(result), len(result))
+			for i, v := range result {
+				val.Index(i).Set(reflect.ValueOf(v))
+			}
+			return val.Interface()
 		} else {
 			result := make(map[string]interface{})
 			// TODO Should we export everything? Or just what is enumerable?

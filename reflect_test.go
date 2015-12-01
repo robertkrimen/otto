@@ -580,6 +580,46 @@ func Test_reflectArray(t *testing.T) {
 			is(abc[len(abc)-1], true)
 		}
 
+		// no common type
+		{
+			test(`
+                 abc = [1, 2.2, "str"];
+                 abc;
+             `, "1,2.2,str")
+			val, err := vm.Get("abc")
+			is(err, nil)
+			abc, err := val.Export()
+			is(err, nil)
+			is(abc, []interface{}{int64(1), 2.2, "str"})
+		}
+
+		// common type int
+		{
+			test(`
+                 abc = [1, 2, 3];
+                 abc;
+             `, "1,2,3")
+			val, err := vm.Get("abc")
+			is(err, nil)
+			abc, err := val.Export()
+			is(err, nil)
+			is(abc, []int64{1, 2, 3})
+		}
+
+		// common type string
+		{
+
+			test(`
+                 abc = ["str1", "str2", "str3"];
+                 abc;
+             `, "str1,str2,str3")
+
+			val, err := vm.Get("abc")
+			is(err, nil)
+			abc, err := val.Export()
+			is(err, nil)
+			is(abc, []string{"str1", "str2", "str3"})
+		}
 	})
 }
 
