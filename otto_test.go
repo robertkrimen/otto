@@ -969,6 +969,9 @@ func TestOttoCall(t *testing.T) {
                     return "def: " + (def + 3.14159 + ghi);
                 }
             };
+            function structFunc(s) {
+                return s.Val;
+            }
         `)
 		is(err, nil)
 
@@ -988,6 +991,11 @@ func TestOttoCall(t *testing.T) {
 		value, err = vm.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")
 		is(err, nil)
 		is(value, "1,2,3,,4,5,6,7,abc")
+
+		s := struct{ Val int }{Val: 10}
+		value, err = vm.Call("structFunc", nil, s)
+		is(err, nil)
+		is(value, 10)
 	})
 }
 
