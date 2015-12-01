@@ -586,6 +586,26 @@ func Test_issue80(t *testing.T) {
 	})
 }
 
+func Test_issue86(t *testing.T) {
+	tt(t, func() {
+		test, tester := test()
+
+		test(`
+			var obj = Object.create({}, {
+				abc: {
+					get: function(){
+						return 1;
+					}
+				}
+			});
+			obj.abc;
+		`, 1)
+
+		v, err := tester.vm.Copy().Run(`obj.abc;`)
+		is(is(v, 1), is(nil, err))
+	})
+}
+
 func Test_issue87(t *testing.T) {
 	tt(t, func() {
 		test, vm := test()
