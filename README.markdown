@@ -221,7 +221,7 @@ the interrupt channel to do this:
 Where is setTimeout/setInterval?
 
 These timing functions are not actually part of the ECMA-262 specification.
-Typically, they belong to the `windows` object (in the browser). It would not be
+Typically, they belong to the `window` object (in the browser). It would not be
 difficult to provide something like these via Go, but you probably want to wrap
 otto in an event loop in that case.
 
