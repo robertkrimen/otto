@@ -52,10 +52,9 @@ const (
 )
 
 type _parser struct {
-	filename string
-	str      string
-	length   int
-	base     int
+	str    string
+	length int
+	base   int
 
 	chr       rune // The current character
 	chrOffset int  // The offset of current character
@@ -260,7 +259,7 @@ func (self *_parser) position(idx file.Idx) file.Position {
 	position := file.Position{}
 	offset := int(idx) - self.base
 	str := self.str[:offset]
-	position.Filename = self.filename
+	position.Filename = self.file.Name()
 	line, last := lineCount(str)
 	position.Line = 1 + line
 	if last >= 0 {
