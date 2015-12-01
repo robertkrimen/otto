@@ -36,7 +36,7 @@ func (self _goSliceObject) setValue(index int64, value Value) bool {
 	if !exists {
 		return false
 	}
-	reflectValue, err := value.toReflectValue(self.value.Type().Elem().Kind())
+	reflectValue, err := value.toReflectValue(self.value.Type().Elem())
 	if err != nil {
 		panic(err)
 	}

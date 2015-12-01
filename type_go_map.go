@@ -14,8 +14,8 @@ func (runtime *_runtime) newGoMapObject(value reflect.Value) *_object {
 
 type _goMapObject struct {
 	value     reflect.Value
-	keyKind   reflect.Kind
-	valueKind reflect.Kind
+	keyType   reflect.Type
+	valueType reflect.Type
 }
 
 func _newGoMapObject(value reflect.Value) *_goMapObject {
@@ -24,14 +24,14 @@ func _newGoMapObject(value reflect.Value) *_goMapObject {
 	}
 	self := &_goMapObject{
 		value:     value,
-		keyKind:   value.Type().Key().Kind(),
-		valueKind: value.Type().Elem().Kind(),
+		keyType:   value.Type().Key(),
+		valueType: value.Type().Elem(),
 	}
 	return self
 }
 
 func (self _goMapObject) toKey(name string) reflect.Value {
-	reflectValue, err := stringToReflectValue(name, self.keyKind)
+	reflectValue, err := stringToReflectValue(name, self.keyType.Kind())
 	if err != nil {
 		panic(err)
 	}
@@ -39,7 +39,7 @@ func (self _goMapObject) toKey(name string) reflect.Value {
 }
 
 func (self _goMapObject) toValue(value Value) reflect.Value {
-	reflectValue, err := value.toReflectValue(self.valueKind)
+	reflectValue, err := value.toReflectValue(self.valueType)
 	if err != nil {
 		panic(err)
 	}
