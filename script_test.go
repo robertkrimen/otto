@@ -76,3 +76,19 @@ func TestScript(t *testing.T) {
 		}
 	})
 }
+
+func TestFunctionCall_CallerLocation(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+		vm.Set("loc", func(call FunctionCall) Value {
+			return toValue(call.CallerLocation())
+		})
+		script, err := vm.Compile("somefile.js", `var where = loc();`)
+		is(err, nil)
+		_, err = vm.Run(script)
+		is(err, nil)
+		where, err := vm.Get("where")
+		is(err, nil)
+		is(where, "somefile.js:1:13")
+	})
+}
