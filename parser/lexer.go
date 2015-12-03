@@ -120,6 +120,7 @@ func isLineTerminator(chr rune) bool {
 func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
 
 	self.implicitSemicolon = false
+	self.skippedLineBreak = false
 
 	for {
 		self.skipWhiteSpace()
@@ -238,11 +239,14 @@ func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
 				tkn = self.switch2(token.MULTIPLY, token.MULTIPLY_ASSIGN)
 			case '/':
 				if self.chr == '/' {
-					self.skipSingleLineComment()
-					continue
+					runes := self.readSingleLineComment()
+					literal = string(runes)
+					tkn = token.COMMENT
+					return
 				} else if self.chr == '*' {
-					self.skipMultiLineComment()
-					continue
+					literal = string(self.readMultiLineComment())
+					tkn = token.COMMENT
+					return
 				} else {
 					// Could be division, could be RegExp literal
 					tkn = self.switch2(token.SLASH, token.QUOTIENT_ASSIGN)
@@ -411,6 +415,39 @@ func (self *_RegExp_parser) read() {
 	}
 }
 
+func (self *_parser) readSingleLineComment() (result []rune) {
+	for self.chr != -1 {
+		self.read()
+		if isLineTerminator(self.chr) {
+			return
+		}
+		result = append(result, self.chr)
+	}
+
+	// Get rid of the trailing -1
+	result = result[:len(result)-1]
+
+	return
+}
+
+func (self *_parser) readMultiLineComment() (result []rune) {
+	self.read()
+	for self.chr >= 0 {
+		chr := self.chr
+		self.read()
+		if chr == '*' && self.chr == '/' {
+			self.read()
+			return
+		}
+
+		result = append(result, chr)
+	}
+
+	self.errorUnexpected(0, self.chr)
+
+	return
+}
+
 func (self *_parser) skipSingleLineComment() {
 	for self.chr != -1 {
 		self.read()
@@ -442,6 +479,7 @@ func (self *_parser) skipWhiteSpace() {
 			continue
 		case '\r':
 			if self._peek() == '\n' {
+				self.skippedLineBreak = true
 				self.read()
 			}
 			fallthrough
@@ -449,6 +487,7 @@ func (self *_parser) skipWhiteSpace() {
 			if self.insertSemicolon {
 				return
 			}
+			self.skippedLineBreak = true
 			self.read()
 			continue
 		}
