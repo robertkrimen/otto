@@ -466,7 +466,7 @@ func (self *_runtime) parseSource(src interface{}) (*_nodeProgram, *ast.Program,
 	return nil, program, err
 }
 
-func (self *_runtime) cmpl_run(src interface{}) (Value, error) {
+func (self *_runtime) cmpl_runOrEval(src interface{}, eval bool) (Value, error) {
 	result := Value{}
 	cmpl_program, program, err := self.parseSource(src)
 	if err != nil {
@@ -476,7 +476,7 @@ func (self *_runtime) cmpl_run(src interface{}) (Value, error) {
 		cmpl_program = cmpl_parse(program)
 	}
 	err = catchPanic(func() {
-		result = self.cmpl_evaluate_nodeProgram(cmpl_program, false)
+		result = self.cmpl_evaluate_nodeProgram(cmpl_program, eval)
 	})
 	switch result.kind {
 	case valueEmpty:
@@ -485,6 +485,14 @@ func (self *_runtime) cmpl_run(src interface{}) (Value, error) {
 		result = result.resolve()
 	}
 	return result, err
+}
+
+func (self *_runtime) cmpl_run(src interface{}) (Value, error) {
+	return self.cmpl_runOrEval(src, false)
+}
+
+func (self *_runtime) cmpl_eval(src interface{}) (Value, error) {
+	return self.cmpl_runOrEval(src, true)
 }
 
 func (self *_runtime) parseThrow(err error) {

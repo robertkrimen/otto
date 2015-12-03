@@ -296,6 +296,19 @@ func (self Otto) Run(src interface{}) (Value, error) {
 	return value, err
 }
 
+// Eval will do the same thing as Run, except without leaving the current scope.
+//
+// By staying in the same scope, the code evaluated has access to everything
+// already defined in the current stack frame. This is most useful in, for
+// example, a debugger call.
+func (self Otto) Eval(src interface{}) (Value, error) {
+	value, err := self.runtime.cmpl_eval(src)
+	if !value.safe() {
+		value = Value{}
+	}
+	return value, err
+}
+
 // Get the value of the top-level binding of the given name.
 //
 // If there is an error (like the binding does not exist), then the value
