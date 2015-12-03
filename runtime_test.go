@@ -769,10 +769,16 @@ func TestClone(t *testing.T) {
 
 func Test_debugger(t *testing.T) {
 	tt(t, func() {
-		test, _ := test()
+		called := false
 
-		test(`
-            debugger;
-        `, "undefined")
+		vm := New()
+		vm.SetDebuggerHandler(func(o *Otto) {
+			is(o, vm)
+			called = true
+		})
+
+		_, err := vm.Run(`debugger;`)
+		is(err, nil)
+		is(called, true)
 	})
 }

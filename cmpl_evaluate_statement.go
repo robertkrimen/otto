@@ -47,6 +47,9 @@ func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
 		}
 
 	case *_nodeDebuggerStatement:
+		if self.debugger != nil {
+			self.debugger()
+		}
 		return emptyValue // Nothing happens.
 
 	case *_nodeDoWhileStatement:

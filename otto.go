@@ -341,6 +341,10 @@ func (self Otto) setValue(name string, value Value) {
 	self.runtime.globalStash.setValue(name, value, false)
 }
 
+func (self Otto) SetDebuggerHandler(fn func(vm *Otto)) {
+	self.runtime.debugger = fn
+}
+
 // Call the given JavaScript with a given this and arguments.
 //
 // If this is nil, then some special handling takes place to determine the proper
