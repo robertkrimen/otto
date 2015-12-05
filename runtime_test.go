@@ -777,8 +777,29 @@ func Test_debugger(t *testing.T) {
 			called = true
 		})
 
-		_, err := vm.Run(`debugger;`)
+		_, err := vm.Run(`debugger`)
 		is(err, nil)
 		is(called, true)
+	})
+
+	tt(t, func() {
+		called := false
+
+		vm := New()
+		vm.SetDebuggerHandler(func(o *Otto) {
+			is(o, vm)
+			called = true
+		})
+
+		_, err := vm.Run(`null`)
+		is(err, nil)
+		is(called, false)
+	})
+
+	tt(t, func() {
+		vm := New()
+
+		_, err := vm.Run(`debugger`)
+		is(err, nil)
 	})
 }
