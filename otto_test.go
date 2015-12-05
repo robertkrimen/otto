@@ -1393,6 +1393,56 @@ func TestOttoRun(t *testing.T) {
 	})
 }
 
+func makeTestOttoEvalFunction(src, expected interface{}) func(c FunctionCall) Value {
+	return func(c FunctionCall) Value {
+		v, err := c.Otto.Eval(src)
+		is(err, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		i, err := v.Export()
+		is(err, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		is(i, expected)
+
+		return v
+	}
+}
+
+func TestOttoEval(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("x1", makeTestOttoEvalFunction(`a`, 1))
+		vm.Set("y1", makeTestOttoEvalFunction(`b`, "hello"))
+		vm.Set("z1", makeTestOttoEvalFunction(`c`, true))
+		vm.Set("w", makeTestOttoEvalFunction(`a = 2; b = 'what'; c = false; null`, nil))
+		vm.Set("x2", makeTestOttoEvalFunction(`a`, 2))
+		vm.Set("y2", makeTestOttoEvalFunction(`b`, "what"))
+		vm.Set("z2", makeTestOttoEvalFunction(`c`, false))
+
+		_, err := vm.Run(`(function t() {
+            var a = 1;
+            var b = 'hello';
+            var c = true;
+
+            x1();
+            y1();
+            z1();
+            w();
+            x2();
+            y2();
+            z2();
+        }())`)
+
+		is(err, nil)
+	})
+}
+
 func Test_objectLength(t *testing.T) {
 	tt(t, func() {
 		_, vm := test()
