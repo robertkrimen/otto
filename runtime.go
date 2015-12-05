@@ -54,6 +54,7 @@ type _runtime struct {
 	scope        *_scope
 	otto         *Otto
 	eval         *_object // The builtin eval, for determine indirect versus direct invocation
+	debugger     func(*Otto)
 
 	labels []string // FIXME
 	lck    sync.Mutex
