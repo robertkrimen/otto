@@ -1441,6 +1441,22 @@ func TestOttoEval(t *testing.T) {
 
 		is(err, nil)
 	})
+
+	tt(t, func() {
+		vm := New()
+
+		_, err := vm.Eval("null")
+		is(err, nil)
+
+		vm.Set("a", 1)
+		vm.Set("b", 2)
+
+		v, err := vm.Eval("a + b")
+		is(err, nil)
+		r, err := v.Export()
+		is(err, nil)
+		is(r, 3)
+	})
 }
 
 func Test_objectLength(t *testing.T) {

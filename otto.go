@@ -302,6 +302,11 @@ func (self Otto) Run(src interface{}) (Value, error) {
 // already defined in the current stack frame. This is most useful in, for
 // example, a debugger call.
 func (self Otto) Eval(src interface{}) (Value, error) {
+	if self.runtime.scope == nil {
+		self.runtime.enterGlobalScope()
+		defer self.runtime.leaveScope()
+	}
+
 	value, err := self.runtime.cmpl_eval(src)
 	if !value.safe() {
 		value = Value{}
