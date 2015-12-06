@@ -363,6 +363,75 @@ func (self Otto) SetDebuggerHandler(fn func(vm *Otto)) {
 	self.runtime.debugger = fn
 }
 
+// Context is a structure that contains information about the current execution
+// context.
+type Context struct {
+	Filename   string
+	Line       int
+	Column     int
+	Callee     string
+	Symbols    map[string]Value
+	This       Value
+	Stacktrace []string
+}
+
+// Context returns the current execution context of the vm
+func (self Otto) Context() (ctx Context) {
+	// Ensure we are operating in a scope
+	if self.runtime.scope == nil {
+		self.runtime.enterGlobalScope()
+		defer self.runtime.leaveScope()
+	}
+
+	scope := self.runtime.scope
+	frame := scope.frame
+
+	// Get location information
+	ctx.Filename = "<unknown>"
+	ctx.Callee = frame.callee
+	if frame.file != nil {
+		ctx.Filename = frame.file.Name()
+		if ctx.Filename == "" {
+			ctx.Filename = "<anonymous>"
+		}
+		ctx.Line, ctx.Column = _position(frame.file, frame.offset)
+	}
+
+	// Get the current scope this Value
+	ctx.This = toValue_object(scope.this)
+
+	// Build stacktrace (up to 10 levels deep)
+	limit := 10
+	ctx.Symbols = make(map[string]Value)
+	ctx.Stacktrace = append(ctx.Stacktrace, frame.location())
+	for limit > 0 {
+		// Get variables
+		stash := scope.lexical
+		for {
+			for _, name := range getStashProperties(stash) {
+				if _, ok := ctx.Symbols[name]; !ok {
+					ctx.Symbols[name] = stash.getBinding(name, true)
+				}
+			}
+			stash = stash.outer()
+			if stash == nil || stash.outer() == nil {
+				break
+			}
+		}
+
+		scope = scope.outer
+		if scope == nil {
+			break
+		}
+		if scope.frame.offset >= 0 {
+			ctx.Stacktrace = append(ctx.Stacktrace, scope.frame.location())
+		}
+		limit--
+	}
+
+	return
+}
+
 // Call the given JavaScript with a given this and arguments.
 //
 // If this is nil, then some special handling takes place to determine the proper

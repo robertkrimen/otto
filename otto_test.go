@@ -360,7 +360,7 @@ func TestTryFinally(t *testing.T) {
                 finally {
                     def = 1;
                     continue;
-                }   
+                }
                 def -= 1;
             }
             while (abc < 2)
@@ -1470,6 +1470,133 @@ func TestOttoEval(t *testing.T) {
 		r, err := v.Export()
 		is(err, nil)
 		is(r, 3)
+	})
+}
+
+func TestOttoContext(t *testing.T) {
+	// These are all the builtin global scope symbols
+	builtins := []string{
+		"escape",
+		"URIError",
+		"RegExp",
+		"ReferenceError",
+		"parseFloat",
+		"parseInt",
+		"SyntaxError",
+		"decodeURIComponent",
+		"encodeURIComponent",
+		"Infinity",
+		"JSON",
+		"isNaN",
+		"unescape",
+		"decodeURI",
+		"Object",
+		"Function",
+		"RangeError",
+		"Error",
+		"get_context",
+		"eval",
+		"Number",
+		"Math",
+		"NaN",
+		"Date",
+		"Boolean",
+		"console",
+		"encodeURI",
+		"EvalError",
+		"Array",
+		"TypeError",
+		"String",
+		"isFinite",
+		"undefined",
+	}
+
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("get_context", func(c FunctionCall) Value {
+			ctx := c.Otto.Context()
+			is(ctx.Callee, "f1")
+			is(ctx.Filename, "<anonymous>")
+			is(ctx.Line, 8)
+			is(ctx.Column, 5)
+			is(ctx.Stacktrace, []string{
+				"f1 (<anonymous>:8:5)",
+				"f2 (<anonymous>:15:5)",
+				"f3 (<anonymous>:19:5)",
+				"t (<anonymous>:22:4)",
+			})
+			is(len(ctx.Symbols), 9+len(builtins))
+			is(ctx.Symbols["a"], 1)
+			is(ctx.Symbols["b"], "hello")
+			is(ctx.Symbols["c"], true)
+			is(ctx.Symbols["j"], 2)
+			is(ctx.Symbols["f1"].IsFunction(), true)
+			is(ctx.Symbols["f2"].IsFunction(), true)
+			is(ctx.Symbols["f3"].IsFunction(), true)
+			is(ctx.Symbols["t"].IsFunction(), true)
+			callee, _ := ctx.Symbols["arguments"].Object().Get("callee")
+			is(callee.IsDefined(), true)
+
+			return Value{}
+		})
+
+		_, err := vm.Run(`(function t() {
+			var a = 1;
+			var b = 'hello';
+			var c = true;
+
+			function f1() {
+				var j = 2;
+				get_context();
+				(function() {
+					var d = 4;
+				})()
+			}
+
+			function f2() {
+				f1();
+			}
+
+			function f3() {
+				f2();
+			}
+
+			f3();
+
+			a = 2;
+			b = 'goodbye';
+			c = false;
+		}())`)
+
+		is(err, nil)
+	})
+
+	// this test makes sure that `Context` works on global scope by default, if
+	// there is not a current scope.
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("get_context", func(c FunctionCall) Value {
+			ctx := c.Otto.Context()
+			is(ctx.Callee, "")
+			is(ctx.Filename, "<anonymous>")
+			is(ctx.Line, 3)
+			is(ctx.Column, 4)
+			is(ctx.Stacktrace, []string{"<anonymous>:3:4"})
+			is(len(ctx.Symbols), 2+len(builtins))
+			is(ctx.Symbols["a"], 1)
+			is(ctx.Symbols["b"], UndefinedValue())
+
+			return Value{}
+		})
+
+		_, err := vm.Run(`
+			var a = 1;
+			get_context()
+			var b = 2;
+		`)
+		is(err, nil)
 	})
 }
 
