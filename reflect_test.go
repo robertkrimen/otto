@@ -118,6 +118,16 @@ func (abs _abcStruct) Func2IntVariadic(s string, a ...int) string {
 	return fmt.Sprintf("%v:%v", s, t)
 }
 
+func (abs _abcStruct) Func2IntArrayVariadic(s string, a ...[]int) string {
+	t := 0
+	for _, i := range a {
+		for _, j := range i {
+			t += j
+		}
+	}
+	return fmt.Sprintf("%v:%v", s, t)
+}
+
 type _mnoStruct struct {
 	Ghi string
 }
@@ -236,9 +246,13 @@ func Test_reflectStruct(t *testing.T) {
                 abc.Func1Int(1);
             `, 2)
 
+			test(`
+                abc.Func1Int(0x01 & 0x01);
+            `, 2)
+
 			test(`raise:
                 abc.Func1Int(1.1);
-            `, "reflect: Call using float64 as type int")
+            `, "converting float64 to int would cause loss of precision")
 
 			test(`
 		var v = 1;
@@ -296,6 +310,22 @@ func Test_reflectStruct(t *testing.T) {
 			test(`
                 abc.Func2IntVariadic("test", 1, 2);
             `, "test:3")
+
+			test(`
+                abc.Func2IntVariadic("test", [1, 2]);
+            `, "test:3")
+
+			test(`
+                abc.Func2IntArrayVariadic("test", [1, 2]);
+            `, "test:3")
+
+			test(`
+                abc.Func2IntArrayVariadic("test", [1, 2], [3, 4]);
+            `, "test:10")
+
+			test(`
+                abc.Func2IntArrayVariadic("test", [[1, 2], [3, 4]]);
+            `, "test:10")
 		}
 	})
 }
@@ -488,14 +518,14 @@ func Test_reflectSlice(t *testing.T) {
                 abc;
             `, "0,0,0,0")
 
-			test(`
-                abc[0] = 4.2;
-                abc[1] = "42";
+			test(`raise:
+                abc[0] = "42";
+                abc[1] = 4.2;
                 abc[2] = 3.14;
                 abc;
-            `, "4,42,3,0")
+            `, "RangeError: 4.2 to reflect.Kind: int32")
 
-			is(abc, []int32{4, 42, 3, 0})
+			is(abc, []int32{42, 0, 0, 0})
 
 			test(`
                 delete abc[1];
@@ -537,7 +567,6 @@ func Test_reflectArray(t *testing.T) {
 			is(abc[len(abc)-1], false)
 			// ...
 		}
-
 		// []int32
 		{
 			abc := make([]int32, 4)
@@ -547,14 +576,14 @@ func Test_reflectArray(t *testing.T) {
                 abc;
             `, "0,0,0,0")
 
-			test(`
-                abc[0] = 4.2;
-                abc[1] = "42";
+			test(`raise:
+                abc[0] = "42";
+                abc[1] = 4.2;
                 abc[2] = 3.14;
                 abc;
-            `, "4,42,3,0")
+            `, "RangeError: 4.2 to reflect.Kind: int32")
 
-			is(abc, []int32{4, 42, 3, 0})
+			is(abc, []int32{42, 0, 0, 0})
 		}
 
 		// []bool
@@ -582,6 +611,46 @@ func Test_reflectArray(t *testing.T) {
 			is(abc[len(abc)-1], true)
 		}
 
+		// no common type
+		{
+			test(`
+                 abc = [1, 2.2, "str"];
+                 abc;
+             `, "1,2.2,str")
+			val, err := vm.Get("abc")
+			is(err, nil)
+			abc, err := val.Export()
+			is(err, nil)
+			is(abc, []interface{}{int64(1), 2.2, "str"})
+		}
+
+		// common type int
+		{
+			test(`
+                 abc = [1, 2, 3];
+                 abc;
+             `, "1,2,3")
+			val, err := vm.Get("abc")
+			is(err, nil)
+			abc, err := val.Export()
+			is(err, nil)
+			is(abc, []int64{1, 2, 3})
+		}
+
+		// common type string
+		{
+
+			test(`
+                 abc = ["str1", "str2", "str3"];
+                 abc;
+             `, "str1,str2,str3")
+
+			val, err := vm.Get("abc")
+			is(err, nil)
+			abc, err := val.Export()
+			is(err, nil)
+			is(abc, []string{"str1", "str2", "str3"})
+		}
 	})
 }
 
