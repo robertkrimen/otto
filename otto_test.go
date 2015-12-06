@@ -1598,6 +1598,38 @@ func TestOttoContext(t *testing.T) {
 		`)
 		is(err, nil)
 	})
+
+	// this test makes sure variables are shadowed correctly.
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("check_context", func(c FunctionCall) Value {
+			n, err := c.Argument(0).ToInteger()
+			is(err, nil)
+
+			ctx := c.Otto.Context()
+			is(ctx.Symbols["a"], n)
+
+			return Value{}
+		})
+
+		_, err := vm.Run(`
+            var a = 1;
+            check_context(1);
+            (function() {
+                var a = 2;
+                check_context(2);
+            }());
+            (function(a) {
+                check_context(3);
+            }(3));
+            (function(a) {
+                check_context(4);
+            }).call(null, 4);
+            check_context(1);
+        `)
+		is(err, nil)
+	})
 }
 
 func Test_objectLength(t *testing.T) {
