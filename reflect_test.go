@@ -754,9 +754,9 @@ func Test_reflectNil(t *testing.T) {
 			})
 
 			test(`
-			var arg;
-			func(arg);
-            `, true)
+				var arg;
+				func(arg);
+			`, true)
 		}
 	})
 }
@@ -774,9 +774,9 @@ func Test_reflectCustomType(t *testing.T) {
 			})
 
 			test(`
-			var arg = func();
-			func1(arg);
-            `, true)
+				var arg = func();
+				func1(arg);
+			`, true)
 		}
 	})
 }
