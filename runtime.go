@@ -291,13 +291,11 @@ func callParamConvert(val reflect.Value, t reflect.Type) reflect.Value {
 	if val.IsValid() { // Avoid "Call using zero Value argument"
 		if val.Type() != t {
 			return val.Convert(t)
-		} else {
-			return val
 		}
-	} else {
-		return reflect.New(t).Elem()
+		return val
 	}
 
+	return reflect.New(t).Elem()
 }
 
 func convertSlice(val reflect.Value, t reflect.Type) reflect.Value {
