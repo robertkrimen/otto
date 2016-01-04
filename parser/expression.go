@@ -336,7 +336,7 @@ func (self *_parser) parseObjectLiteral() ast.Expression {
 		Value:      value,
 	}
 
-	self.commentMap.AddComments(exp, comments2, ast.LEADING)
+	self.commentMap.AddComments(exp, comments2, ast.FINAL)
 	self.consumeComments(exp, ast.FINAL)
 
 	return exp
@@ -345,21 +345,29 @@ func (self *_parser) parseObjectLiteral() ast.Expression {
 func (self *_parser) parseArrayLiteral() ast.Expression {
 	idx0 := self.expect(token.LEFT_BRACKET)
 	var comments2 []*ast.Comment
+	var comments []*ast.Comment
 	var value []ast.Expression
 	for self.token != token.RIGHT_BRACKET && self.token != token.EOF {
+		// Find leading comments for both empty and non-empty expressions
+		comments = self.findComments(false)
+
 		if self.token == token.COMMA {
 			self.next()
 
-			// TODO This kind of comment requires a special empty expression node.
-			// TODO For now it is not saved.
-			self.findComments(false)
+			// This kind of comment requires a special empty expression node.
+			empty := &ast.EmptyExpression{self.idx, self.idx}
 
-			value = append(value, nil)
+			self.commentMap.AddComments(empty, comments, ast.LEADING)
+			self.commentMap.AddComments(empty, comments2, ast.LEADING)
+
+			value = append(value, empty)
+
+			// This comment belongs to the following expression, or trailing
+			comments2 = self.findComments(false)
+
 			continue
 		}
 
-		// This comment belongs to the expression before the comma
-		comments := self.findComments(false)
 		exp := self.parseAssignmentExpression()
 		self.commentMap.AddComments(exp, comments, ast.LEADING)
 		self.commentMap.AddComments(exp, comments2, ast.LEADING)
@@ -369,21 +377,21 @@ func (self *_parser) parseArrayLiteral() ast.Expression {
 			self.expect(token.COMMA)
 		}
 
-		// This comment belongs to the following expression
+		// This comment belongs to the following expression, or trailing
 		comments2 = self.findComments(false)
-		//self.commentMap.AddComments(exp, comments2)
-
 	}
 	idx1 := self.expect(token.RIGHT_BRACKET)
 
-	// TODO This is where comments after a possible trailing comma should be added
-
-	// TODO COMMENT
-	return &ast.ArrayLiteral{
+	array := &ast.ArrayLiteral{
 		LeftBracket:  idx0,
 		RightBracket: idx1,
 		Value:        value,
 	}
+
+	// This is where comments after a possible trailing comma are added
+	self.commentMap.AddComments(array, comments2, ast.FINAL)
+
+	return array
 }
 
 func (self *_parser) parseArgumentList() (argumentList []ast.Expression, idx0, idx1 file.Idx) {

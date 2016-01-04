@@ -15,7 +15,7 @@ const (
 	TRAILING                 // After the pertinent expression
 	KEY                      // After a key or keyword
 	COLON                    // After a colon in a field declaration
-	FINAL                    // Final comments in a block, not belonging to a specific expression
+	FINAL                    // Final comments in a block, not belonging to a specific expression or the comment after a trailing , in an array or object literal
 	TBD
 )
 
