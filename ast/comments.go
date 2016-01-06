@@ -3,7 +3,6 @@ package ast
 import (
 	"fmt"
 	"github.com/robertkrimen/otto/file"
-	"reflect"
 )
 
 // CommentPosition determines where the comment is in a given context
@@ -91,16 +90,4 @@ func (cm CommentMap) MoveComments(from, to Node, position CommentPosition) {
 			cm[from] = cm[from][:len(cm[from])-1]
 		}
 	}
-}
-
-// Display displays the map
-func (cm CommentMap) Display() {
-	fmt.Printf("-- Displaying Comment Map --\n")
-	for k, v := range cm {
-		fmt.Printf("Node(%v==%v):\n", k, reflect.TypeOf(k))
-		for i, c := range v {
-			fmt.Printf(" * [%v] \"%v\" (position:%v, begin:%v)\n", i, c.Text, c.Position, c.Begin)
-		}
-	}
-	fmt.Printf("----------------------------\n")
 }
