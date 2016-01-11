@@ -198,17 +198,13 @@ func (self *_parser) parseVariableDeclarationList(var_ file.Idx) []ast.Expressio
 
 	var declarationList []*ast.VariableExpression // Avoid bad expressions
 	var list []ast.Expression
-	var comments2 []*ast.Comment
 
 	for {
-
 		comments := self.findComments(false)
 
 		decl := self.parseVariableDeclaration(&declarationList)
 		self.commentMap.AddComments(decl, comments, ast.LEADING)
-
-		comments2 = self.findComments(false)
-		self.commentMap.AddComments(decl, comments2, ast.TRAILING)
+		self.commentMap.AddComments(decl, self.findComments(false), ast.TRAILING)
 
 		list = append(list, decl)
 		if self.token != token.COMMA {
@@ -421,8 +417,7 @@ func (self *_parser) parseCallExpression(left ast.Expression) ast.Expression {
 		RightParenthesis: idx1,
 	}
 
-	comments := self.findComments(false)
-	self.commentMap.AddComments(exp, comments, ast.TRAILING)
+	self.commentMap.AddComments(exp, self.findComments(false), ast.TRAILING)
 	return exp
 }
 
@@ -475,8 +470,7 @@ func (self *_parser) parseNewExpression() ast.Expression {
 		node.RightParenthesis = idx1
 	}
 
-	comments := self.findComments(false)
-	self.commentMap.AddComments(node, comments, ast.TRAILING)
+	self.commentMap.AddComments(node, self.findComments(false), ast.TRAILING)
 
 	return node
 }
@@ -490,8 +484,7 @@ func (self *_parser) parseLeftHandSideExpression() ast.Expression {
 		left = self.parsePrimaryExpression()
 	}
 
-	comments := self.findComments(false)
-	self.commentMap.AddComments(left, comments, ast.TRAILING)
+	self.commentMap.AddComments(left, self.findComments(false), ast.TRAILING)
 
 	for {
 		if self.token == token.PERIOD {
@@ -521,8 +514,7 @@ func (self *_parser) parseLeftHandSideExpressionAllowCall() ast.Expression {
 		left = self.parsePrimaryExpression()
 	}
 
-	comments := self.findComments(false)
-	self.commentMap.AddComments(left, comments, ast.TRAILING)
+	self.commentMap.AddComments(left, self.findComments(false), ast.TRAILING)
 
 	for {
 		if self.token == token.PERIOD {
@@ -565,8 +557,7 @@ func (self *_parser) parsePostfixExpression() ast.Expression {
 			Postfix:  true,
 		}
 
-		comments := self.findComments(false)
-		self.commentMap.AddComments(exp, comments, ast.TRAILING)
+		self.commentMap.AddComments(exp, self.findComments(false), ast.TRAILING)
 
 		return exp
 	}
