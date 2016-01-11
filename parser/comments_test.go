@@ -667,23 +667,23 @@ for(var i = 0 in  obj) {
 		is(parser.commentMap.Size(), 1)
 		is(checkComments((*parser.commentMap)[program], []string{" comment"}, ast.FINAL), nil)
 
-		//		// Block
-		//		parser, program = test(`
-		///*comment*/{
-		//	a
-		//}
-		//	`, nil)
-		//		is(parser.commentMap.Size(), 1)
-		//		is(checkComments((*parser.commentMap)[program.Body[0].(*ast.BlockStatement)], []string{"comment"}, ast.LEADING), nil)
-		//
-		//		// Block pt 2
-		//		parser, program = test(`
-		//{
-		//	a
-		//}/*comment*/
-		//	`, nil)
-		//		is(parser.commentMap.Size(), 1)
-		//		is(checkComments((*parser.commentMap)[program.Body[0].(*ast.BlockStatement)], []string{"comment"}, ast.TRAILING), nil)
+		// Block
+		parser, program = test(`
+		/*comment*/{
+			a
+		}
+	`, nil)
+		is(parser.commentMap.Size(), 1)
+		is(checkComments((*parser.commentMap)[program.Body[0].(*ast.BlockStatement)], []string{"comment"}, ast.LEADING), nil)
+
+		// Block pt 2
+		parser, program = test(`
+		{
+			a
+		}/*comment*/
+			`, nil)
+		is(parser.commentMap.Size(), 1)
+		is(checkComments((*parser.commentMap)[program.Body[0].(*ast.BlockStatement)], []string{"comment"}, ast.TRAILING), nil)
 
 		// If then else
 		parser, program = test(`
