@@ -38,7 +38,6 @@ func (cp CommentPosition) String() string {
 		return "Colon"
 	case FINAL:
 		return "Final"
-
 	default:
 		return "???"
 	}

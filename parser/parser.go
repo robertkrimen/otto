@@ -290,7 +290,6 @@ func (self *_parser) findComments(ignoreLineBreak bool) []*ast.Comment {
 	newline := false
 
 	for self.implicitSemicolon == false || ignoreLineBreak {
-
 		if self.token != token.COMMENT {
 			break
 		}
