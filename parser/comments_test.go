@@ -9,15 +9,15 @@ import (
 
 func checkComments(actual []*ast.Comment, expected []string, position ast.CommentPosition) error {
 	if len(actual) != len(expected) {
-		return fmt.Errorf("The number of comments is not correct. %v != %v", len(actual), len(expected))
+		return fmt.Errorf("the number of comments is not correct. %v != %v", len(actual), len(expected))
 	}
 
 	for i, v := range actual {
 		if v.Text != expected[i] {
-			return fmt.Errorf("Comments do not match. \"%v\" != \"%v\"\n", v.Text, expected[i])
+			return fmt.Errorf("comments do not match. \"%v\" != \"%v\"\n", v.Text, expected[i])
 		}
 		if v.Position != position {
-			return fmt.Errorf("The comment is not %v, was %v\n", position, v.Position)
+			return fmt.Errorf("the comment is not %v, was %v\n", position, v.Position)
 		}
 	}
 
