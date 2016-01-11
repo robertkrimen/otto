@@ -8,6 +8,7 @@ import (
 
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"
+	"github.com/robertkrimen/otto/underscore"
 )
 
 func firstErr(err error) error {
@@ -1004,4 +1005,14 @@ func TestPosition(t *testing.T) {
 		node = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral)
 		is(node.(*ast.FunctionLiteral).Source, "function(){ return abc; }")
 	})
+}
+
+func BenchmarkParser(b *testing.B) {
+	src := underscore.Source()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		parser := newParser("", src)
+		parser.parse()
+	}
 }
