@@ -203,8 +203,10 @@ func (self *_parser) parseVariableDeclarationList(var_ file.Idx) []ast.Expressio
 		comments := self.findComments(false)
 
 		decl := self.parseVariableDeclaration(&declarationList)
-		if self.mode & StoreComments != 0 { self.commentMap.AddComments(decl, comments, ast.LEADING) }
-		if self.mode & StoreComments != 0 { self.commentMap.AddComments(decl, self.findComments(false), ast.TRAILING) }
+		if self.mode & StoreComments != 0 {
+			self.commentMap.AddComments(decl, comments, ast.LEADING)
+			self.commentMap.AddComments(decl, self.findComments(false), ast.TRAILING)
+		}
 
 		list = append(list, decl)
 		if self.token != token.COMMA {
@@ -298,8 +300,10 @@ func (self *_parser) parseObjectProperty() ast.Property {
 		Value: self.parseAssignmentExpression(),
 	}
 
-	if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp.Value, comments, ast.KEY) }
-	if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp.Value, comments2, ast.COLON) }
+	if self.mode & StoreComments != 0 {
+		self.commentMap.AddComments(exp.Value, comments, ast.KEY)
+		self.commentMap.AddComments(exp.Value, comments2, ast.COLON)
+	}
 	return exp
 }
 
@@ -313,8 +317,10 @@ func (self *_parser) parseObjectLiteral() ast.Expression {
 		// Leading comments for object literal
 		comments := self.findComments(false)
 		property := self.parseObjectProperty()
-		if self.mode & StoreComments != 0 { self.commentMap.AddComments(property.Value, comments, ast.LEADING) }
-		if self.mode & StoreComments != 0 { self.commentMap.AddComments(property.Value, comments2, ast.LEADING) }
+		if self.mode & StoreComments != 0 {
+			self.commentMap.AddComments(property.Value, comments, ast.LEADING)
+			self.commentMap.AddComments(property.Value, comments2, ast.LEADING)
+		}
 		value = append(value, property)
 		if self.token == token.COMMA {
 			self.next()
@@ -353,8 +359,10 @@ func (self *_parser) parseArrayLiteral() ast.Expression {
 			// This kind of comment requires a special empty expression node.
 			empty := &ast.EmptyExpression{self.idx, self.idx}
 
-			if self.mode & StoreComments != 0 { self.commentMap.AddComments(empty, comments, ast.LEADING) }
-			if self.mode & StoreComments != 0 { self.commentMap.AddComments(empty, comments2, ast.LEADING) }
+			if self.mode & StoreComments != 0 {
+				self.commentMap.AddComments(empty, comments, ast.LEADING)
+				self.commentMap.AddComments(empty, comments2, ast.LEADING)
+			}
 
 			value = append(value, empty)
 
@@ -365,8 +373,10 @@ func (self *_parser) parseArrayLiteral() ast.Expression {
 		}
 
 		exp := self.parseAssignmentExpression()
-		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp, comments, ast.LEADING) }
-		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp, comments2, ast.LEADING) }
+		if self.mode & StoreComments != 0 {
+			self.commentMap.AddComments(exp, comments, ast.LEADING)
+			self.commentMap.AddComments(exp, comments2, ast.LEADING)
+		}
 
 		value = append(value, exp)
 		if self.token != token.RIGHT_BRACKET {
@@ -985,8 +995,10 @@ func (self *_parser) parseExpression() ast.Expression {
 		}
 	}
 
-	if self.mode & StoreComments != 0 { self.commentMap.AddComments(left, comments, ast.LEADING) }
-	if self.mode & StoreComments != 0 { self.commentMap.AddComments(left, statementComments, ast.LEADING) }
+	if self.mode & StoreComments != 0 {
+		self.commentMap.AddComments(left, comments, ast.LEADING)
+		self.commentMap.AddComments(left, statementComments, ast.LEADING)
+	}
 
 	return left
 }

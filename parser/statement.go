@@ -671,9 +671,10 @@ func (self *_parser) parseIfStatement() ast.Statement {
 		node.Consequent = self.parseStatement()
 	}
 
-	if self.mode & StoreComments != 0 { self.commentMap.AddComments(node.Consequent, comments, ast.LEADING) }
-
-	if self.mode & StoreComments != 0 { self.commentMap.AddComments(node.Consequent, self.findComments(true), ast.TRAILING) }
+	if self.mode & StoreComments != 0 {
+		self.commentMap.AddComments(node.Consequent, comments, ast.LEADING)
+		self.commentMap.AddComments(node.Consequent, self.findComments(true), ast.TRAILING)
+	}
 
 	if self.token == token.ELSE {
 		self.next()
@@ -681,8 +682,10 @@ func (self *_parser) parseIfStatement() ast.Statement {
 
 		node.Alternate = self.parseStatement()
 
-		if self.mode & StoreComments != 0 { self.commentMap.AddComments(node.Alternate, comments, ast.LEADING) }
-		if self.mode & StoreComments != 0 { self.commentMap.AddComments(node.Alternate, self.findComments(false), ast.TRAILING) }
+		if self.mode & StoreComments != 0 {
+			self.commentMap.AddComments(node.Alternate, comments, ast.LEADING)
+			self.commentMap.AddComments(node.Alternate, self.findComments(false), ast.TRAILING)
+		}
 	}
 
 	return node
