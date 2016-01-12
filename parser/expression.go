@@ -203,8 +203,8 @@ func (self *_parser) parseVariableDeclarationList(var_ file.Idx) []ast.Expressio
 		comments := self.findComments(false)
 
 		decl := self.parseVariableDeclaration(&declarationList)
-		self.commentMap.AddComments(decl, comments, ast.LEADING)
-		self.commentMap.AddComments(decl, self.findComments(false), ast.TRAILING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(decl, comments, ast.LEADING) }
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(decl, self.findComments(false), ast.TRAILING) }
 
 		list = append(list, decl)
 		if self.token != token.COMMA {
@@ -298,8 +298,8 @@ func (self *_parser) parseObjectProperty() ast.Property {
 		Value: self.parseAssignmentExpression(),
 	}
 
-	self.commentMap.AddComments(exp.Value, comments, ast.KEY)
-	self.commentMap.AddComments(exp.Value, comments2, ast.COLON)
+	if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp.Value, comments, ast.KEY) }
+	if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp.Value, comments2, ast.COLON) }
 	return exp
 }
 
@@ -313,8 +313,8 @@ func (self *_parser) parseObjectLiteral() ast.Expression {
 		// Leading comments for object literal
 		comments := self.findComments(false)
 		property := self.parseObjectProperty()
-		self.commentMap.AddComments(property.Value, comments, ast.LEADING)
-		self.commentMap.AddComments(property.Value, comments2, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(property.Value, comments, ast.LEADING) }
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(property.Value, comments2, ast.LEADING) }
 		value = append(value, property)
 		if self.token == token.COMMA {
 			self.next()
@@ -332,7 +332,7 @@ func (self *_parser) parseObjectLiteral() ast.Expression {
 		Value:      value,
 	}
 
-	self.commentMap.AddComments(exp, comments2, ast.FINAL)
+	if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp, comments2, ast.FINAL) }
 	self.consumeComments(exp, ast.FINAL)
 
 	return exp
@@ -353,8 +353,8 @@ func (self *_parser) parseArrayLiteral() ast.Expression {
 			// This kind of comment requires a special empty expression node.
 			empty := &ast.EmptyExpression{self.idx, self.idx}
 
-			self.commentMap.AddComments(empty, comments, ast.LEADING)
-			self.commentMap.AddComments(empty, comments2, ast.LEADING)
+			if self.mode & StoreComments != 0 { self.commentMap.AddComments(empty, comments, ast.LEADING) }
+			if self.mode & StoreComments != 0 { self.commentMap.AddComments(empty, comments2, ast.LEADING) }
 
 			value = append(value, empty)
 
@@ -365,8 +365,8 @@ func (self *_parser) parseArrayLiteral() ast.Expression {
 		}
 
 		exp := self.parseAssignmentExpression()
-		self.commentMap.AddComments(exp, comments, ast.LEADING)
-		self.commentMap.AddComments(exp, comments2, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp, comments, ast.LEADING) }
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp, comments2, ast.LEADING) }
 
 		value = append(value, exp)
 		if self.token != token.RIGHT_BRACKET {
@@ -385,7 +385,7 @@ func (self *_parser) parseArrayLiteral() ast.Expression {
 	}
 
 	// This is where comments after a possible trailing comma are added
-	self.commentMap.AddComments(array, comments2, ast.FINAL)
+	if self.mode & StoreComments != 0 { self.commentMap.AddComments(array, comments2, ast.FINAL) }
 
 	return array
 }
@@ -396,7 +396,7 @@ func (self *_parser) parseArgumentList() (argumentList []ast.Expression, idx0, i
 		for {
 			comments := self.findComments(false)
 			exp := self.parseAssignmentExpression()
-			self.commentMap.AddComments(exp, comments, ast.LEADING)
+			if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp, comments, ast.LEADING) }
 			argumentList = append(argumentList, exp)
 			if self.token != token.COMMA {
 				break
@@ -417,7 +417,7 @@ func (self *_parser) parseCallExpression(left ast.Expression) ast.Expression {
 		RightParenthesis: idx1,
 	}
 
-	self.commentMap.AddComments(exp, self.findComments(false), ast.TRAILING)
+	if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp, self.findComments(false), ast.TRAILING) }
 	return exp
 }
 
@@ -470,7 +470,7 @@ func (self *_parser) parseNewExpression() ast.Expression {
 		node.RightParenthesis = idx1
 	}
 
-	self.commentMap.AddComments(node, self.findComments(false), ast.TRAILING)
+	if self.mode & StoreComments != 0 { self.commentMap.AddComments(node, self.findComments(false), ast.TRAILING) }
 
 	return node
 }
@@ -484,7 +484,7 @@ func (self *_parser) parseLeftHandSideExpression() ast.Expression {
 		left = self.parsePrimaryExpression()
 	}
 
-	self.commentMap.AddComments(left, self.findComments(false), ast.TRAILING)
+	if self.mode & StoreComments != 0 { self.commentMap.AddComments(left, self.findComments(false), ast.TRAILING) }
 
 	for {
 		if self.token == token.PERIOD {
@@ -514,7 +514,7 @@ func (self *_parser) parseLeftHandSideExpressionAllowCall() ast.Expression {
 		left = self.parsePrimaryExpression()
 	}
 
-	self.commentMap.AddComments(left, self.findComments(false), ast.TRAILING)
+	if self.mode & StoreComments != 0 { self.commentMap.AddComments(left, self.findComments(false), ast.TRAILING) }
 
 	for {
 		if self.token == token.PERIOD {
@@ -557,7 +557,7 @@ func (self *_parser) parsePostfixExpression() ast.Expression {
 			Postfix:  true,
 		}
 
-		self.commentMap.AddComments(exp, self.findComments(false), ast.TRAILING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp, self.findComments(false), ast.TRAILING) }
 
 		return exp
 	}
@@ -583,7 +583,7 @@ func (self *_parser) parseUnaryExpression() ast.Expression {
 			Operand:  self.parseUnaryExpression(),
 		}
 
-		self.commentMap.AddComments(exp.Operand, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp.Operand, comments, ast.LEADING) }
 		return exp
 	case token.INCREMENT, token.DECREMENT:
 		tkn := self.token
@@ -593,7 +593,7 @@ func (self *_parser) parseUnaryExpression() ast.Expression {
 		comments := self.findComments(false)
 
 		operand := self.parseUnaryExpression()
-		self.commentMap.AddComments(operand, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(operand, comments, ast.LEADING) }
 		switch operand.(type) {
 		case *ast.Identifier, *ast.DotExpression, *ast.BracketExpression:
 		default:
@@ -628,7 +628,7 @@ func (self *_parser) parseMultiplicativeExpression() ast.Expression {
 			Right:    next(),
 		}
 
-		self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING) }
 	}
 
 	return left
@@ -650,7 +650,7 @@ func (self *_parser) parseAdditiveExpression() ast.Expression {
 			Right:    next(),
 		}
 
-		self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING) }
 	}
 
 	return left
@@ -673,7 +673,7 @@ func (self *_parser) parseShiftExpression() ast.Expression {
 			Right:    next(),
 		}
 
-		self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING) }
 	}
 
 	return left
@@ -703,7 +703,7 @@ func (self *_parser) parseRelationalExpression() ast.Expression {
 			Comparison: true,
 		}
 
-		self.commentMap.AddComments(exp.Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp.Right, comments, ast.LEADING) }
 		return exp
 	case token.INSTANCEOF:
 		tkn := self.token
@@ -717,7 +717,7 @@ func (self *_parser) parseRelationalExpression() ast.Expression {
 			Right:    self.parseRelationalExpression(),
 		}
 
-		self.commentMap.AddComments(exp.Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp.Right, comments, ast.LEADING) }
 		return exp
 	case token.IN:
 		if !allowIn {
@@ -734,7 +734,7 @@ func (self *_parser) parseRelationalExpression() ast.Expression {
 			Right:    self.parseRelationalExpression(),
 		}
 
-		self.commentMap.AddComments(exp.Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp.Right, comments, ast.LEADING) }
 		return exp
 	}
 
@@ -759,7 +759,7 @@ func (self *_parser) parseEqualityExpression() ast.Expression {
 			Comparison: true,
 		}
 
-		self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING) }
 	}
 
 	return left
@@ -781,7 +781,7 @@ func (self *_parser) parseBitwiseAndExpression() ast.Expression {
 			Right:    next(),
 		}
 
-		self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING) }
 	}
 
 	return left
@@ -803,7 +803,7 @@ func (self *_parser) parseBitwiseExclusiveOrExpression() ast.Expression {
 			Right:    next(),
 		}
 
-		self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING) }
 	}
 
 	return left
@@ -825,7 +825,7 @@ func (self *_parser) parseBitwiseOrExpression() ast.Expression {
 			Right:    next(),
 		}
 
-		self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING) }
 	}
 
 	return left
@@ -847,7 +847,7 @@ func (self *_parser) parseLogicalAndExpression() ast.Expression {
 			Right:    next(),
 		}
 
-		self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING) }
 	}
 
 	return left
@@ -869,7 +869,7 @@ func (self *_parser) parseLogicalOrExpression() ast.Expression {
 			Right:    next(),
 		}
 
-		self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(left.(*ast.BinaryExpression).Right, comments, ast.LEADING) }
 	}
 
 	return left
@@ -885,7 +885,7 @@ func (self *_parser) parseConditionlExpression() ast.Expression {
 		comments1 := self.findComments(false)
 
 		consequent := self.parseAssignmentExpression()
-		self.commentMap.AddComments(consequent, comments1, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(consequent, comments1, ast.LEADING) }
 
 		self.expect(token.COLON)
 
@@ -897,7 +897,7 @@ func (self *_parser) parseConditionlExpression() ast.Expression {
 			Alternate:  self.parseAssignmentExpression(),
 		}
 
-		self.commentMap.AddComments(exp.Alternate, comments2, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp.Alternate, comments2, ast.LEADING) }
 		return exp
 	}
 
@@ -955,7 +955,7 @@ func (self *_parser) parseAssignmentExpression() ast.Expression {
 			Right:    self.parseAssignmentExpression(),
 		}
 
-		self.commentMap.AddComments(exp.Right, comments, ast.LEADING)
+		if self.mode & StoreComments != 0 { self.commentMap.AddComments(exp.Right, comments, ast.LEADING) }
 
 		return exp
 	}
@@ -985,8 +985,8 @@ func (self *_parser) parseExpression() ast.Expression {
 		}
 	}
 
-	self.commentMap.AddComments(left, comments, ast.LEADING)
-	self.commentMap.AddComments(left, statementComments, ast.LEADING)
+	if self.mode & StoreComments != 0 { self.commentMap.AddComments(left, comments, ast.LEADING) }
+	if self.mode & StoreComments != 0 { self.commentMap.AddComments(left, statementComments, ast.LEADING) }
 
 	return left
 }
