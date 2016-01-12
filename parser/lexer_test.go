@@ -97,13 +97,13 @@ func TestLexer(t *testing.T) {
 		test("abc = //",
 			token.IDENTIFIER, "abc", 1,
 			token.ASSIGN, "", 5,
-			token.COMMENT, "", 7,
+			token.EOF, "", 9,
 		)
 
 		test("abc = /*test*/",
 			token.IDENTIFIER, "abc", 1,
 			token.ASSIGN, "", 5,
-			token.COMMENT, "test", 7,
+			token.EOF, "", 15,
 		)
 
 		test("abc = 1 / 2",
@@ -241,13 +241,13 @@ Second line \
 		)
 
 		test("//",
-			token.COMMENT, "", 1,
+			token.EOF, "", 3,
 		)
 
 		test(";;//test",
 			token.SEMICOLON, "", 1,
 			token.SEMICOLON, "", 2,
-			token.COMMENT, "test", 3,
+			token.EOF, "", 9,
 		)
 
 		test("1",
