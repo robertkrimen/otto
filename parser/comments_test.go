@@ -34,7 +34,7 @@ func displayStatements(statements []ast.Statement) {
 func TestParser_comments(t *testing.T) {
 	tt(t, func() {
 		test := func(source string, chk interface{}) (*_parser, *ast.Program) {
-			parser, program, err := testParse(source)
+			parser, program, err := testParseWithMode(source, StoreComments)
 			is(firstErr(err), chk)
 
 			// Check unresolved comments

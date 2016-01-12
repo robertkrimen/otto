@@ -22,6 +22,10 @@ func firstErr(err error) error {
 var matchBeforeAfterSeparator = regexp.MustCompile(`(?m)^[ \t]*---$`)
 
 func testParse(src string) (parser *_parser, program *ast.Program, err error) {
+	return testParseWithMode(src, 0)
+}
+
+func testParseWithMode(src string, mode Mode) (parser *_parser, program *ast.Program, err error) {
 	defer func() {
 		if tmp := recover(); tmp != nil {
 			switch tmp := tmp.(type) {
@@ -37,6 +41,7 @@ func testParse(src string) (parser *_parser, program *ast.Program, err error) {
 		}
 	}()
 	parser = newParser("", src)
+	parser.mode = mode
 	program, err = parser.parse()
 	return
 }
