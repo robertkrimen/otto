@@ -239,14 +239,22 @@ func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
 				tkn = self.switch2(token.MULTIPLY, token.MULTIPLY_ASSIGN)
 			case '/':
 				if self.chr == '/' {
-					runes := self.readSingleLineComment()
-					literal = string(runes)
-					tkn = token.COMMENT
-					return
+					if self.mode & StoreComments != 0 {
+						runes := self.readSingleLineComment()
+						literal = string(runes)
+						tkn = token.COMMENT
+						return
+					}
+					self.skipSingleLineComment()
+					continue
 				} else if self.chr == '*' {
-					literal = string(self.readMultiLineComment())
-					tkn = token.COMMENT
-					return
+					if self.mode & StoreComments != 0 {
+						literal = string(self.readMultiLineComment())
+						tkn = token.COMMENT
+						return
+					}
+					self.skipMultiLineComment()
+					continue
 				} else {
 					// Could be division, could be RegExp literal
 					tkn = self.switch2(token.SLASH, token.QUOTIENT_ASSIGN)
