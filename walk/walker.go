@@ -171,9 +171,7 @@ func (v *VisitorImpl) VisitProgram(w *Walker, node *ast.Program, metadata []Meta
 		case *ast.FunctionDeclaration:
 			w.Walk(value.Function, metadata)
 		case *ast.VariableDeclaration:
-			for _, value := range value.List {
-				w.Walk(value, metadata)
-			}
+			// Not needed, variable declarations are found in the AST
 		default:
 			panic(fmt.Errorf("Here be dragons: visit Program.DeclarationList(%T)", value))
 		}
