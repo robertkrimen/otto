@@ -239,7 +239,7 @@ func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
 				tkn = self.switch2(token.MULTIPLY, token.MULTIPLY_ASSIGN)
 			case '/':
 				if self.chr == '/' {
-					if self.mode & StoreComments != 0 {
+					if self.mode&StoreComments != 0 {
 						runes := self.readSingleLineComment()
 						literal = string(runes)
 						tkn = token.COMMENT
@@ -248,7 +248,7 @@ func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
 					self.skipSingleLineComment()
 					continue
 				} else if self.chr == '*' {
-					if self.mode & StoreComments != 0 {
+					if self.mode&StoreComments != 0 {
 						literal = string(self.readMultiLineComment())
 						tkn = token.COMMENT
 						return
