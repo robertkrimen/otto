@@ -58,7 +58,7 @@ type Visitor interface {
 
 // Begin the walk of the given AST node
 func (w *Walker) Begin(node ast.Node) {
-	md := []Metadata{Metadata{nil}}
+	md := []Metadata{NewMetadata(nil)}
 	w.Walk(node, md)
 }
 
@@ -66,7 +66,7 @@ func (w *Walker) Begin(node ast.Node) {
 func (w *Walker) Walk(node ast.Node, metadata []Metadata) {
 
 	// Append the node
-	metadata = append(metadata, Metadata{node})
+	metadata = append(metadata, NewMetadata(node))
 
 	switch n := node.(type) {
 	case *ast.ArrayLiteral:
