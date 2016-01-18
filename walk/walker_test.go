@@ -45,7 +45,7 @@ func TestWalker(t *testing.T) {
 			t.Errorf("[%v] Failed, number of ancestors not correct, %v != %v", i, test.size, len(visitor.ancestors))
 		}
 
-		parent := visitor.ancestors[len(visitor.ancestors)-2].Parent
+		parent := visitor.ancestors[len(visitor.ancestors)-2].Parent()
 		typeOfParent := reflect.TypeOf(parent)
 
 		if test.parent != typeOfParent {
