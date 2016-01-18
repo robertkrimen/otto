@@ -6,14 +6,17 @@ import (
 	"reflect"
 )
 
-// Metadata contains information about a node
+// Metadata contains information about a node.
+// It is a map of values, by default the parent of the current node is inserted.
 type Metadata map[string]interface{}
 
+// NewMetadata returns a new instance
 func NewMetadata(parent ast.Node) Metadata {
 	md := Metadata{"parent": parent}
 	return md
 }
 
+// Parent retrieves the parent of the node
 func (md Metadata) Parent() ast.Node {
 	parent, ok := md["parent"].(ast.Node)
 	if !ok {
@@ -23,10 +26,12 @@ func (md Metadata) Parent() ast.Node {
 	return parent
 }
 
+// AddParent inserts the given node as the parent
 func (md Metadata) AddParent(parent ast.Node) {
 	md["parent"] = parent
 }
 
+// CurrentMetadata returns the last added element as the current metadata
 func CurrentMetadata(metadata []Metadata) Metadata {
 	l := len(metadata)
 	if l == 0 {
@@ -36,6 +41,7 @@ func CurrentMetadata(metadata []Metadata) Metadata {
 	return metadata[l-1]
 }
 
+// ParentMetadata returns the second last added element as the parent metadata
 func ParentMetadata(metadata []Metadata) Metadata {
 	l := len(metadata)
 	if l < 2 {
