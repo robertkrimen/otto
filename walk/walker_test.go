@@ -12,8 +12,10 @@ type testVisitor struct {
 	ancestors []Metadata
 }
 
-func (v *testVisitor) VisitIdentifier(w *Walker, node *ast.Identifier, metadata []Metadata) {
+func (v *testVisitor) VisitIdentifier(w *Walker, node *ast.Identifier, metadata []Metadata) Metadata {
 	v.ancestors = metadata
+
+	return CurrentMetadata(metadata)
 }
 
 func TestWalker(t *testing.T) {
