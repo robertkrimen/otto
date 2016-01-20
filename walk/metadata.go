@@ -3,7 +3,12 @@ package walk
 import (
 	"fmt"
 	"github.com/robertkrimen/otto/ast"
+	"github.com/robertkrimen/otto/file"
 	"reflect"
+)
+
+const (
+	Vars string = "vars"
 )
 
 // Metadata contains information about a node.
@@ -54,4 +59,10 @@ func ParentMetadata(metadata []Metadata) Metadata {
 // String displays information about the metadata
 func (md Metadata) String() string {
 	return fmt.Sprintf("{parent:%v}", reflect.TypeOf(md["parent"]))
+}
+
+type Variables map[string]file.Idx
+
+func NewVariables() Variables {
+	return Variables{}
 }

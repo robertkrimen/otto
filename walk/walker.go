@@ -3,6 +3,7 @@ package walk
 import (
 	"fmt"
 	"github.com/robertkrimen/otto/ast"
+	"github.com/robertkrimen/otto/file"
 )
 
 // Walker can walk a given AST with a visitor
@@ -62,11 +63,61 @@ func (w *Walker) Begin(node ast.Node) {
 	w.Walk(node, md)
 }
 
+// CollectScope collects information about the given scope
+func CollectScope(metadata Metadata, declarations []ast.Declaration) {
+	// Initialize the scope variables field in the metadata
+	vars, ok := metadata[Vars].(Variables)
+	if !ok {
+		vars = NewVariables()
+		metadata[Vars] = vars
+	}
+
+	for _, vd := range declarations {
+		switch d := vd.(type) {
+		case *ast.VariableDeclaration:
+			for _, v := range d.List {
+				vars[v.Name] = v.Idx
+			}
+		}
+	}
+}
+
+func FindVariable(metadata []Metadata, name string) file.Idx {
+	md := metadata[len(metadata)-1]
+
+	vars, ok := md[Vars].(Variables)
+	if ok {
+		for v, i := range vars {
+			if v == name {
+				return i
+			}
+		}
+	}
+
+	if len(metadata) > 1 {
+		metadata = metadata[:len(metadata)-1]
+		return FindVariable(metadata, name)
+	}
+
+	return -1
+}
+
 // Walk the AST, including metadata
 func (w *Walker) Walk(node ast.Node, metadata []Metadata) Metadata {
 
+	// Create metadata for current node
+	md := NewMetadata(node)
+
+	// Scope things
+	switch n := node.(type) {
+	case *ast.Program:
+		CollectScope(md, n.DeclarationList)
+	case *ast.FunctionLiteral:
+		CollectScope(md, n.DeclarationList)
+	}
+
 	// Append the node
-	metadata = append(metadata, NewMetadata(node))
+	metadata = append(metadata, md)
 
 	switch n := node.(type) {
 	case *ast.ArrayLiteral:
