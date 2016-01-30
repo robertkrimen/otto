@@ -143,6 +143,34 @@ func TestCall(t *testing.T) {
 	})
 }
 
+func TestRunFunctionWithSetArguments(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+		vm.Run(`var sillyFunction = function(record){record.silly = true; record.answer *= -1};`)
+		record := map[string]interface{}{"foo": "bar", "answer": 42}
+		// Set performs a conversion that allows the map to be addressed as a Javascript object
+		vm.Set("argument", record)
+		_, err := vm.Run("sillyFunction(argument)")
+
+		is(err, nil)
+		is(record["answer"].(float64), -42)
+		is(record["silly"].(bool), true)
+	})
+}
+
+func TestRunFunctionWithArgumentsPassedToCall(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+		vm.Run(`var sillyFunction = function(record){record.silly = true; record.answer *= -1};`)
+		record := map[string]interface{}{"foo": "bar", "answer": 42}
+		_, err := vm.Call("sillyFunction", nil, record)
+
+		is(err, nil)
+		is(record["answer"].(float64), -42)
+		is(record["silly"].(bool), true)
+	})
+}
+
 func TestMember(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
@@ -332,7 +360,7 @@ func TestTryFinally(t *testing.T) {
                 finally {
                     def = 1;
                     continue;
-                }   
+                }
                 def -= 1;
             }
             while (abc < 2)
@@ -969,6 +997,9 @@ func TestOttoCall(t *testing.T) {
                     return "def: " + (def + 3.14159 + ghi);
                 }
             };
+            function structFunc(s) {
+                return s.Val;
+            }
         `)
 		is(err, nil)
 
@@ -988,6 +1019,11 @@ func TestOttoCall(t *testing.T) {
 		value, err = vm.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")
 		is(err, nil)
 		is(value, "1,2,3,,4,5,6,7,abc")
+
+		s := struct{ Val int }{Val: 10}
+		value, err = vm.Call("structFunc", nil, s)
+		is(err, nil)
+		is(value, 10)
 	})
 }
 
@@ -1004,6 +1040,17 @@ func TestOttoCall_new(t *testing.T) {
             def = abc();
             [ def, def instanceof String ];
         `, "Nothing happens.,true")
+	})
+}
+
+func TestOttoCall_newWithBrackets(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		_, err := vm.Run(`var a = {default: function B(x) { this.x = x; } }`)
+		is(err, nil)
+
+		test(`(new a['default'](1)).x`, 1)
 	})
 }
 
@@ -1343,6 +1390,245 @@ func TestOttoRun(t *testing.T) {
 
 			is(script.String(), "// \nvar abc; if (!abc) abc = 0; abc += 2; abc;")
 		}
+	})
+}
+
+// This generates functions to be used by the test below. The arguments are
+// `src`, which is something that otto can execute, and `expected`, which is
+// what the result of executing `src` should be.
+func makeTestOttoEvalFunction(src, expected interface{}) func(c FunctionCall) Value {
+	return func(c FunctionCall) Value {
+		v, err := c.Otto.Eval(src)
+		is(err, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		i, err := v.Export()
+		is(err, nil)
+		if err != nil {
+			panic(err)
+		}
+
+		is(i, expected)
+
+		return v
+	}
+}
+
+func TestOttoEval(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("x1", makeTestOttoEvalFunction(`a`, 1))
+		vm.Set("y1", makeTestOttoEvalFunction(`b`, "hello"))
+		vm.Set("z1", makeTestOttoEvalFunction(`c`, true))
+		vm.Set("w", makeTestOttoEvalFunction(`a = 2; b = 'what'; c = false; null`, nil))
+		vm.Set("x2", makeTestOttoEvalFunction(`a`, 2))
+		vm.Set("y2", makeTestOttoEvalFunction(`b`, "what"))
+		vm.Set("z2", makeTestOttoEvalFunction(`c`, false))
+
+		// note that these variables are defined in the scope of function `t`,
+		// so would not usually be available to the functions called below.
+		//
+		// this is _not_ the recommended use case for `Eval` - instead it's
+		// intended to be used in `debugger` handlers. this code here is the
+		// equivalent of reading behind the current stack frame in C...
+		// technically valid, but completely insane.
+		//
+		// makes for a good test case though.
+		_, err := vm.Run(`(function t() {
+            var a = 1;
+            var b = 'hello';
+            var c = true;
+
+            x1();
+            y1();
+            z1();
+            w();
+            x2();
+            y2();
+            z2();
+        }())`)
+
+		is(err, nil)
+	})
+
+	// this test makes sure that `Eval` doesn't explode if the VM doesn't have
+	// a scope other than global defined.
+	tt(t, func() {
+		vm := New()
+
+		_, err := vm.Eval("null")
+		is(err, nil)
+
+		vm.Set("a", 1)
+		vm.Set("b", 2)
+
+		v, err := vm.Eval("a + b")
+		is(err, nil)
+		r, err := v.Export()
+		is(err, nil)
+		is(r, 3)
+	})
+}
+
+func TestOttoContext(t *testing.T) {
+	// These are all the builtin global scope symbols
+	builtins := []string{
+		"escape",
+		"URIError",
+		"RegExp",
+		"ReferenceError",
+		"parseFloat",
+		"parseInt",
+		"SyntaxError",
+		"decodeURIComponent",
+		"encodeURIComponent",
+		"Infinity",
+		"JSON",
+		"isNaN",
+		"unescape",
+		"decodeURI",
+		"Object",
+		"Function",
+		"RangeError",
+		"Error",
+		"get_context",
+		"eval",
+		"Number",
+		"Math",
+		"NaN",
+		"Date",
+		"Boolean",
+		"console",
+		"encodeURI",
+		"EvalError",
+		"Array",
+		"TypeError",
+		"String",
+		"isFinite",
+		"undefined",
+	}
+
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("get_context", func(c FunctionCall) Value {
+			ctx := c.Otto.Context()
+			is(ctx.Callee, "f1")
+			is(ctx.Filename, "<anonymous>")
+			is(ctx.Line, 8)
+			is(ctx.Column, 5)
+			is(ctx.Stacktrace, []string{
+				"f1 (<anonymous>:8:5)",
+				"f2 (<anonymous>:15:5)",
+				"f3 (<anonymous>:19:5)",
+				"t (<anonymous>:22:4)",
+			})
+			is(len(ctx.Symbols), 9+len(builtins))
+			is(ctx.Symbols["a"], 1)
+			is(ctx.Symbols["b"], "hello")
+			is(ctx.Symbols["c"], true)
+			is(ctx.Symbols["j"], 2)
+			is(ctx.Symbols["f1"].IsFunction(), true)
+			is(ctx.Symbols["f2"].IsFunction(), true)
+			is(ctx.Symbols["f3"].IsFunction(), true)
+			is(ctx.Symbols["t"].IsFunction(), true)
+			callee, _ := ctx.Symbols["arguments"].Object().Get("callee")
+			is(callee.IsDefined(), true)
+
+			return Value{}
+		})
+
+		_, err := vm.Run(`(function t() {
+			var a = 1;
+			var b = 'hello';
+			var c = true;
+
+			function f1() {
+				var j = 2;
+				get_context();
+				(function() {
+					var d = 4;
+				})()
+			}
+
+			function f2() {
+				f1();
+			}
+
+			function f3() {
+				f2();
+			}
+
+			f3();
+
+			a = 2;
+			b = 'goodbye';
+			c = false;
+		}())`)
+
+		is(err, nil)
+	})
+
+	// this test makes sure that `Context` works on global scope by default, if
+	// there is not a current scope.
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("get_context", func(c FunctionCall) Value {
+			ctx := c.Otto.Context()
+			is(ctx.Callee, "")
+			is(ctx.Filename, "<anonymous>")
+			is(ctx.Line, 3)
+			is(ctx.Column, 4)
+			is(ctx.Stacktrace, []string{"<anonymous>:3:4"})
+			is(len(ctx.Symbols), 2+len(builtins))
+			is(ctx.Symbols["a"], 1)
+			is(ctx.Symbols["b"], UndefinedValue())
+
+			return Value{}
+		})
+
+		_, err := vm.Run(`
+			var a = 1;
+			get_context()
+			var b = 2;
+		`)
+		is(err, nil)
+	})
+
+	// this test makes sure variables are shadowed correctly.
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("check_context", func(c FunctionCall) Value {
+			n, err := c.Argument(0).ToInteger()
+			is(err, nil)
+
+			ctx := c.Otto.Context()
+			is(ctx.Symbols["a"], n)
+
+			return Value{}
+		})
+
+		_, err := vm.Run(`
+            var a = 1;
+            check_context(1);
+            (function() {
+                var a = 2;
+                check_context(2);
+            }());
+            (function(a) {
+                check_context(3);
+            }(3));
+            (function(a) {
+                check_context(4);
+            }).call(null, 4);
+            check_context(1);
+        `)
+		is(err, nil)
 	})
 }
 
