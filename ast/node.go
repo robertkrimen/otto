@@ -83,7 +83,7 @@ type (
 
 	DotExpression struct {
 		Left       Expression
-		Identifier Identifier
+		Identifier *Identifier
 	}
 
 	EmptyExpression struct {
@@ -395,6 +395,8 @@ type Program struct {
 	DeclarationList []Declaration
 
 	File *file.File
+
+	CommentMap CommentMap
 }
 
 // ==== //
