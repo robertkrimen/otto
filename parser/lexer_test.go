@@ -100,6 +100,12 @@ func TestLexer(t *testing.T) {
 			token.EOF, "", 9,
 		)
 
+		test("abc = /*test*/",
+			token.IDENTIFIER, "abc", 1,
+			token.ASSIGN, "", 5,
+			token.EOF, "", 15,
+		)
+
 		test("abc = 1 / 2",
 			token.IDENTIFIER, "abc", 1,
 			token.ASSIGN, "", 5,
@@ -238,10 +244,10 @@ Second line \
 			token.EOF, "", 3,
 		)
 
-		test(";;//",
+		test(";;//test",
 			token.SEMICOLON, "", 1,
 			token.SEMICOLON, "", 2,
-			token.EOF, "", 5,
+			token.EOF, "", 9,
 		)
 
 		test("1",
