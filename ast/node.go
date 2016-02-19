@@ -396,7 +396,7 @@ type Program struct {
 
 	File *file.File
 
-	CommentMap CommentMap
+	Comments CommentMap
 }
 
 // ==== //

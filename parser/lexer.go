@@ -10,6 +10,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"
 	"github.com/robertkrimen/otto/token"
 )
@@ -120,7 +121,6 @@ func isLineTerminator(chr rune) bool {
 func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
 
 	self.implicitSemicolon = false
-	self.skippedLineBreak = false
 
 	for {
 		self.skipWhiteSpace()
@@ -196,6 +196,7 @@ func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
 			case '\r', '\n', '\u2028', '\u2029':
 				self.insertSemicolon = false
 				self.implicitSemicolon = true
+				self.comments.AtLineBreak()
 				continue
 			case ':':
 				tkn = token.COLON
@@ -240,18 +241,17 @@ func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
 			case '/':
 				if self.chr == '/' {
 					if self.mode&StoreComments != 0 {
-						runes := self.readSingleLineComment()
-						literal = string(runes)
-						tkn = token.COMMENT
-						return
+						literal := string(self.readSingleLineComment())
+						self.comments.AddComment(ast.NewComment(literal, self.idx))
+						continue
 					}
 					self.skipSingleLineComment()
 					continue
 				} else if self.chr == '*' {
 					if self.mode&StoreComments != 0 {
 						literal = string(self.readMultiLineComment())
-						tkn = token.COMMENT
-						return
+						self.comments.AddComment(ast.NewComment(literal, self.idx))
+						continue
 					}
 					self.skipMultiLineComment()
 					continue
@@ -487,7 +487,7 @@ func (self *_parser) skipWhiteSpace() {
 			continue
 		case '\r':
 			if self._peek() == '\n' {
-				self.skippedLineBreak = true
+				self.comments.AtLineBreak()
 				self.read()
 			}
 			fallthrough
@@ -495,7 +495,7 @@ func (self *_parser) skipWhiteSpace() {
 			if self.insertSemicolon {
 				return
 			}
-			self.skippedLineBreak = true
+			self.comments.AtLineBreak()
 			self.read()
 			continue
 		}
