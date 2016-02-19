@@ -803,3 +803,32 @@ func Test_debugger(t *testing.T) {
 		is(err, nil)
 	})
 }
+
+func Test_random(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+		vm.SetRandomSource(func() float64 { return 1 })
+
+		r, err := vm.Run(`Math.random()`)
+		is(err, nil)
+		f, err := r.ToFloat()
+		is(err, nil)
+		is(f, 1)
+	})
+
+	tt(t, func() {
+		vm := New()
+
+		r1, err := vm.Run(`Math.random()`)
+		is(err, nil)
+		f1, err := r1.ToFloat()
+		is(err, nil)
+
+		r2, err := vm.Run(`Math.random()`)
+		is(err, nil)
+		f2, err := r2.ToFloat()
+		is(err, nil)
+
+		is(f1 == f2, false)
+	})
+}
