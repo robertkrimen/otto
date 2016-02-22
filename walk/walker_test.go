@@ -26,7 +26,7 @@ func TestWalker(t *testing.T) {
 	}{
 		{`1 + b`, 5, reflect.TypeOf((*ast.BinaryExpression)(nil))},
 		{`c++`, 5, reflect.TypeOf((*ast.UnaryExpression)(nil))},
-		{`function fun(){}`, 4, reflect.TypeOf((*ast.FunctionLiteral)(nil))},
+		{`function fun(){}`, 5, reflect.TypeOf((*ast.FunctionLiteral)(nil))},
 		{`while(i){}`, 4, reflect.TypeOf((*ast.WhileStatement)(nil))},
 		{`if(i){}`, 4, reflect.TypeOf((*ast.IfStatement)(nil))},
 		{`with(i){}`, 4, reflect.TypeOf((*ast.WithStatement)(nil))},
@@ -47,7 +47,7 @@ func TestWalker(t *testing.T) {
 			t.Errorf("[%v] Failed, number of ancestors not correct, %v != %v", i, test.size, len(visitor.ancestors))
 		}
 
-		parent := visitor.ancestors[len(visitor.ancestors)-2].Parent()
+		parent := visitor.ancestors[len(visitor.ancestors)-2].Node()
 		typeOfParent := reflect.TypeOf(parent)
 
 		if test.parent != typeOfParent {

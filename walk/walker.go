@@ -11,6 +11,12 @@ type Walker struct {
 	Visitor Visitor
 }
 
+func NewWalker(visitor Visitor) *Walker {
+	return &Walker{
+		Visitor: visitor,
+	}
+}
+
 // Visitor interface for the walker.
 type Visitor interface {
 	VisitArray(walker *Walker, node *ast.ArrayLiteral, metadata []Metadata) Metadata
@@ -29,11 +35,13 @@ type Visitor interface {
 	VisitDebugger(walker *Walker, node *ast.DebuggerStatement, metadata []Metadata) Metadata
 	VisitDot(walker *Walker, node *ast.DotExpression, metadata []Metadata) Metadata
 	VisitDoWhile(walker *Walker, node *ast.DoWhileStatement, metadata []Metadata) Metadata
-	VisitEmpty(walker *Walker, node *ast.EmptyStatement, metadata []Metadata) Metadata
+	VisitEmpty(walker *Walker, node *ast.EmptyExpression, metadata []Metadata) Metadata
+	VisitEmptyStatement(walker *Walker, node *ast.EmptyStatement, metadata []Metadata) Metadata
 	VisitExpression(walker *Walker, node *ast.ExpressionStatement, metadata []Metadata) Metadata
 	VisitForIn(walker *Walker, node *ast.ForInStatement, metadata []Metadata) Metadata
 	VisitFor(walker *Walker, node *ast.ForStatement, metadata []Metadata) Metadata
 	VisitFunction(walker *Walker, node *ast.FunctionLiteral, metadata []Metadata) Metadata
+	VisitFunctionStatement(walker *Walker, node *ast.FunctionStatement, metadata []Metadata) Metadata
 	VisitIdentifier(walker *Walker, node *ast.Identifier, metadata []Metadata) Metadata
 	VisitIf(walker *Walker, node *ast.IfStatement, metadata []Metadata) Metadata
 	VisitLabelled(walker *Walker, node *ast.LabelledStatement, metadata []Metadata) Metadata
@@ -152,8 +160,10 @@ func (w *Walker) Walk(node ast.Node, metadata []Metadata) Metadata {
 		return w.Visitor.VisitDot(w, n, metadata)
 	case *ast.DoWhileStatement:
 		return w.Visitor.VisitDoWhile(w, n, metadata)
-	case *ast.EmptyStatement:
+	case *ast.EmptyExpression:
 		return w.Visitor.VisitEmpty(w, n, metadata)
+	case *ast.EmptyStatement:
+		return w.Visitor.VisitEmptyStatement(w, n, metadata)
 	case *ast.ExpressionStatement:
 		return w.Visitor.VisitExpression(w, n, metadata)
 	case *ast.ForInStatement:
@@ -162,6 +172,8 @@ func (w *Walker) Walk(node ast.Node, metadata []Metadata) Metadata {
 		return w.Visitor.VisitFor(w, n, metadata)
 	case *ast.FunctionLiteral:
 		return w.Visitor.VisitFunction(w, n, metadata)
+	case *ast.FunctionStatement:
+		return w.Visitor.VisitFunctionStatement(w, n, metadata)
 	case *ast.Identifier:
 		return w.Visitor.VisitIdentifier(w, n, metadata)
 	case *ast.IfStatement:
@@ -222,7 +234,7 @@ func (v *VisitorImpl) VisitProgram(w *Walker, node *ast.Program, metadata []Meta
 	for _, value := range node.DeclarationList {
 		switch value := value.(type) {
 		case *ast.FunctionDeclaration:
-			w.Walk(value.Function, metadata)
+			//w.Walk(value.Function, metadata)
 		case *ast.VariableDeclaration:
 			// Not needed, variable declarations are found in the AST
 		default:
@@ -341,7 +353,11 @@ func (v *VisitorImpl) VisitDoWhile(w *Walker, node *ast.DoWhileStatement, metada
 	return CurrentMetadata(metadata)
 }
 
-func (v *VisitorImpl) VisitEmpty(w *Walker, node *ast.EmptyStatement, metadata []Metadata) Metadata {
+func (v *VisitorImpl) VisitEmpty(w *Walker, node *ast.EmptyExpression, metadata []Metadata) Metadata {
+	return CurrentMetadata(metadata)
+}
+
+func (v *VisitorImpl) VisitEmptyStatement(w *Walker, node *ast.EmptyStatement, metadata []Metadata) Metadata {
 	return CurrentMetadata(metadata)
 }
 
@@ -378,7 +394,7 @@ func (v *VisitorImpl) VisitFunction(w *Walker, node *ast.FunctionLiteral, metada
 	for _, value := range node.DeclarationList {
 		switch value := value.(type) {
 		case *ast.FunctionDeclaration:
-			w.Walk(value.Function, metadata)
+			//w.Walk(value.Function, metadata)
 		case *ast.VariableDeclaration:
 			for _, value := range value.List {
 				w.Walk(value, metadata)
@@ -386,6 +402,14 @@ func (v *VisitorImpl) VisitFunction(w *Walker, node *ast.FunctionLiteral, metada
 		default:
 			panic(fmt.Errorf("Here be dragons: visit Function.declaration(%T)", value))
 		}
+	}
+
+	return CurrentMetadata(metadata)
+}
+
+func (v *VisitorImpl) VisitFunctionStatement(w *Walker, node *ast.FunctionStatement, metadata []Metadata) Metadata {
+	if node.Function != nil {
+		w.Walk(node.Function, metadata)
 	}
 
 	return CurrentMetadata(metadata)

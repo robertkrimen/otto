@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	Vars string = "vars"
+	Vars      string = "vars"
+	NodeField        = "node"
 )
 
 // Metadata contains information about a node.
@@ -16,14 +17,14 @@ const (
 type Metadata map[string]interface{}
 
 // NewMetadata returns a new instance
-func NewMetadata(parent ast.Node) Metadata {
-	md := Metadata{"parent": parent}
+func NewMetadata(node ast.Node) Metadata {
+	md := Metadata{NodeField: node}
 	return md
 }
 
 // Parent retrieves the parent of the node
-func (md Metadata) Parent() ast.Node {
-	parent, ok := md["parent"].(ast.Node)
+func (md Metadata) Node() ast.Node {
+	parent, ok := md[NodeField].(ast.Node)
 	if !ok {
 		return nil
 	}
@@ -33,7 +34,7 @@ func (md Metadata) Parent() ast.Node {
 
 // AddParent inserts the given node as the parent
 func (md Metadata) AddParent(parent ast.Node) {
-	md["parent"] = parent
+	md[NodeField] = parent
 }
 
 // CurrentMetadata returns the last added element as the current metadata
@@ -58,7 +59,7 @@ func ParentMetadata(metadata []Metadata) Metadata {
 
 // String displays information about the metadata
 func (md Metadata) String() string {
-	return fmt.Sprintf("{parent:%v}", reflect.TypeOf(md["parent"]))
+	return fmt.Sprintf("{node:%v}", reflect.TypeOf(md[NodeField]))
 }
 
 type Variables map[string]file.Idx
