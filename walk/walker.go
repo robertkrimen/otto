@@ -8,12 +8,15 @@ import (
 
 // Walker can walk a given AST with a visitor
 type Walker struct {
-	Visitor Visitor
+	Visitor         Visitor
+	Current, Parent ast.Node
+	CatchPanic      bool
 }
 
 func NewWalker(visitor Visitor) *Walker {
 	return &Walker{
-		Visitor: visitor,
+		Visitor:    visitor,
+		CatchPanic: false,
 	}
 }
 
@@ -67,6 +70,30 @@ type Visitor interface {
 
 // Begin the walk of the given AST node
 func (w *Walker) Begin(node ast.Node) {
+	if w.CatchPanic {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Printf("Recovered from %v\n", r)
+				fmt.Printf("Panicked at node: %v\n", w.Current)
+				fmt.Printf("Parent node is %v\n", w.Parent)
+
+				program, isProgram := node.(*ast.Program)
+				if isProgram {
+					var pos *file.Position
+					if w.Current != nil {
+						pos = program.File.Position(w.Current.Idx0())
+					} else if w.Parent != nil {
+						pos = program.File.Position(w.Parent.Idx0())
+					}
+					if pos != nil {
+						fmt.Printf("Position is %v\n", pos)
+					} else {
+						fmt.Printf("Unknown position!\n")
+					}
+				}
+			}
+		}()
+	}
 	md := []Metadata{NewMetadata(nil)}
 	w.Walk(node, md)
 }
@@ -112,6 +139,8 @@ func FindVariable(metadata []Metadata, name string) file.Idx {
 
 // Walk the AST, including metadata
 func (w *Walker) Walk(node ast.Node, metadata []Metadata) Metadata {
+	w.Current = node
+	w.Parent = ParentMetadata(metadata).Node()
 
 	// Create metadata for current node
 	md := NewMetadata(node)
