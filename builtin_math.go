@@ -3,10 +3,13 @@ package otto
 import (
 	"math"
 	"math/rand"
+	"time"
 )
 
 // Math
-
+func init() {
+	rand.Seed(int64(time.Now().Nanosecond()))
+}
 func builtinMath_abs(call FunctionCall) Value {
 	number := call.Argument(0).float64()
 	return toValue_float64(math.Abs(number))
