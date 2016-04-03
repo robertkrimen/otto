@@ -30,7 +30,7 @@ func builtinNumber_toString(call FunctionCall) Value {
 	if radixArgument.IsDefined() {
 		integer := toIntegerFloat(radixArgument)
 		if integer < 2 || integer > 36 {
-			panic(call.runtime.panicRangeError("RangeError: toString() radix must be between 2 and 36"))
+			panic(call.runtime.panicRangeError("toString() radix must be between 2 and 36"))
 		}
 		radix = int(integer)
 	}
@@ -67,7 +67,7 @@ func builtinNumber_toExponential(call FunctionCall) Value {
 	if value := call.Argument(0); value.IsDefined() {
 		precision = toIntegerFloat(value)
 		if 0 > precision {
-			panic(call.runtime.panicRangeError("RangeError: toString() radix must be between 2 and 36"))
+			panic(call.runtime.panicRangeError("toString() radix must be between 2 and 36"))
 		}
 	}
 	return toValue_string(strconv.FormatFloat(call.This.float64(), 'e', int(precision), 64))
@@ -83,7 +83,7 @@ func builtinNumber_toPrecision(call FunctionCall) Value {
 	}
 	precision := toIntegerFloat(value)
 	if 1 > precision {
-		panic(call.runtime.panicRangeError("RangeError: toPrecision() precision must be greater than 1"))
+		panic(call.runtime.panicRangeError("toPrecision() precision must be greater than 1"))
 	}
 	return toValue_string(strconv.FormatFloat(call.This.float64(), 'g', int(precision), 64))
 }
