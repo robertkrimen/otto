@@ -367,6 +367,10 @@ func (self Otto) SetRandomSource(fn func() float64) {
 	self.runtime.random = fn
 }
 
+func (self Otto) SetStackDepthLimit(limit int) {
+	self.runtime.stackLimit = limit
+}
+
 // Context is a structure that contains information about the current execution
 // context.
 type Context struct {

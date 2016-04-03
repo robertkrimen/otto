@@ -1650,6 +1650,56 @@ func Test_objectLength(t *testing.T) {
 	})
 }
 
+func Test_stackLimit(t *testing.T) {
+	code := `
+        function a() {}
+        function b() { a(); }
+        function c() { b(); }
+        function d() { c(); }
+        function e() { d(); }
+        e();
+    `
+
+	tt(t, func() {
+		_, vm := test()
+
+		_, err := vm.Run(code)
+
+		is(err == nil, true)
+	})
+
+	tt(t, func() {
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(2)
+
+		_, err := vm.Run(code)
+
+		is(err == nil, false)
+	})
+
+	tt(t, func() {
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(6)
+
+		_, err := vm.Run(code)
+
+		is(err == nil, true)
+	})
+
+	tt(t, func() {
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(1)
+		vm.vm.SetStackDepthLimit(0)
+
+		_, err := vm.Run(code)
+
+		is(err == nil, true)
+	})
+}
+
 func BenchmarkNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		New()
