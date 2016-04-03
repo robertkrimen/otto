@@ -69,7 +69,7 @@ func (self *_runtime) enterScope(scope *_scope) {
 	}
 
 	if self.stackLimit != 0 && scope.depth >= self.stackLimit {
-		panic(self.panicRangeError("RangeError: Maximum call stack size exceeded"))
+		panic(self.panicRangeError("Maximum call stack size exceeded"))
 	}
 
 	self.scope = scope
