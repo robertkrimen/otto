@@ -690,7 +690,9 @@ func (self Value) export() interface{} {
 				}
 				value := object.get(name).export()
 				t = reflect.TypeOf(value)
-				if state == 0 {
+				if t == nil {
+					state = 2
+				} else if state == 0 {
 					kind = t.Kind()
 					state = 1
 				} else if state == 1 && kind != t.Kind() {
