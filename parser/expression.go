@@ -455,7 +455,7 @@ func (self *_parser) parseDotMember(left ast.Expression) ast.Expression {
 
 	return &ast.DotExpression{
 		Left: left,
-		Identifier: ast.Identifier{
+		Identifier: &ast.Identifier{
 			Idx:  idx,
 			Name: literal,
 		},
