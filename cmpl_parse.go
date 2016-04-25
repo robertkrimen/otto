@@ -271,6 +271,9 @@ func (cmpl *_compiler) parseStatement(in ast.Statement) _nodeStatement {
 		}
 		return out
 
+	case *ast.FunctionStatement:
+		return emptyStatement
+
 	case *ast.IfStatement:
 		return &_nodeIfStatement{
 			test:       cmpl.parseExpression(in.Test),
