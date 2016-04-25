@@ -83,7 +83,7 @@ type (
 
 	DotExpression struct {
 		Left       Expression
-		Identifier Identifier
+		Identifier *Identifier
 	}
 
 	EmptyExpression struct {
@@ -277,6 +277,10 @@ type (
 		Body        Statement
 	}
 
+	FunctionStatement struct {
+		Function *FunctionLiteral
+	}
+
 	IfStatement struct {
 		If         file.Idx
 		Test       Expression
@@ -345,6 +349,7 @@ func (*EmptyStatement) _statementNode()      {}
 func (*ExpressionStatement) _statementNode() {}
 func (*ForInStatement) _statementNode()      {}
 func (*ForStatement) _statementNode()        {}
+func (*FunctionStatement) _statementNode()   {}
 func (*IfStatement) _statementNode()         {}
 func (*LabelledStatement) _statementNode()   {}
 func (*ReturnStatement) _statementNode()     {}
@@ -390,6 +395,8 @@ type Program struct {
 	DeclarationList []Declaration
 
 	File *file.File
+
+	Comments CommentMap
 }
 
 // ==== //
@@ -430,6 +437,7 @@ func (self *EmptyStatement) Idx0() file.Idx      { return self.Semicolon }
 func (self *ExpressionStatement) Idx0() file.Idx { return self.Expression.Idx0() }
 func (self *ForInStatement) Idx0() file.Idx      { return self.For }
 func (self *ForStatement) Idx0() file.Idx        { return self.For }
+func (self *FunctionStatement) Idx0() file.Idx   { return self.Function.Idx0() }
 func (self *IfStatement) Idx0() file.Idx         { return self.If }
 func (self *LabelledStatement) Idx0() file.Idx   { return self.Label.Idx0() }
 func (self *Program) Idx0() file.Idx             { return self.Body[0].Idx0() }
@@ -489,6 +497,7 @@ func (self *EmptyStatement) Idx1() file.Idx      { return self.Semicolon + 1 }
 func (self *ExpressionStatement) Idx1() file.Idx { return self.Expression.Idx1() }
 func (self *ForInStatement) Idx1() file.Idx      { return self.Body.Idx1() }
 func (self *ForStatement) Idx1() file.Idx        { return self.Body.Idx1() }
+func (self *FunctionStatement) Idx1() file.Idx   { return self.Function.Idx1() }
 func (self *IfStatement) Idx1() file.Idx {
 	if self.Alternate != nil {
 		return self.Alternate.Idx1()
