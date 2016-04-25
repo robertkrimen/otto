@@ -1651,6 +1651,9 @@ func Test_objectLength(t *testing.T) {
 }
 
 func Test_stackLimit(t *testing.T) {
+	// JavaScript stack depth before entering `a` is 5; becomes 6 after
+	// entering. setting the maximum stack depth to 5 should result in an
+	// error ocurring at that 5 -> 6 boundary.
 	code := `
         function a() {}
         function b() { a(); }
@@ -1660,6 +1663,7 @@ func Test_stackLimit(t *testing.T) {
         e();
     `
 
+	// has no error
 	tt(t, func() {
 		_, vm := test()
 
@@ -1668,6 +1672,7 @@ func Test_stackLimit(t *testing.T) {
 		is(err == nil, true)
 	})
 
+	// has error
 	tt(t, func() {
 		_, vm := test()
 
@@ -1678,6 +1683,18 @@ func Test_stackLimit(t *testing.T) {
 		is(err == nil, false)
 	})
 
+	// has error
+	tt(t, func() {
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(5)
+
+		_, err := vm.Run(code)
+
+		is(err == nil, false)
+	})
+
+	// has no error
 	tt(t, func() {
 		_, vm := test()
 
@@ -1688,6 +1705,7 @@ func Test_stackLimit(t *testing.T) {
 		is(err == nil, true)
 	})
 
+	// has no error
 	tt(t, func() {
 		_, vm := test()
 
