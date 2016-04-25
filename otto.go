@@ -367,6 +367,14 @@ func (self Otto) SetRandomSource(fn func() float64) {
 	self.runtime.random = fn
 }
 
+// SetStackDepthLimit sets an upper limit to the depth of the JavaScript
+// stack. In simpler terms, this limits the number of "nested" function calls
+// you can make in a particular interpreter instance.
+//
+// Note that this doesn't take into account the Go stack depth. If your
+// JavaScript makes a call to a Go function, otto won't keep track of what
+// happens outside the interpreter. So if your Go function is infinitely
+// recursive, you're still in trouble.
 func (self Otto) SetStackDepthLimit(limit int) {
 	self.runtime.stackLimit = limit
 }
