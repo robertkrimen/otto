@@ -707,7 +707,7 @@ func (self Value) export() interface{} {
 				result = append(result, value)
 			}
 
-			if state != 1 || kind == reflect.Interface {
+			if state != 1 || kind == reflect.Interface || t == nil {
 				// No common type
 				return result
 			}
