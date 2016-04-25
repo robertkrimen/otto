@@ -65,11 +65,11 @@ type _runtime struct {
 func (self *_runtime) enterScope(scope *_scope) {
 	scope.outer = self.scope
 	if self.scope != nil {
-		scope.depth = self.scope.depth + 1
-	}
+		if self.stackLimit != 0 && self.scope.depth+1 >= self.stackLimit {
+			panic(self.panicRangeError("Maximum call stack size exceeded"))
+		}
 
-	if self.stackLimit != 0 && scope.depth >= self.stackLimit {
-		panic(self.panicRangeError("Maximum call stack size exceeded"))
+		scope.depth = self.scope.depth + 1
 	}
 
 	self.scope = scope
