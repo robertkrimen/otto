@@ -86,6 +86,10 @@ type _parser struct {
 	skippedLineBreak bool
 }
 
+type Parser interface {
+	Scan() (tkn token.Token, literal string, idx file.Idx)
+}
+
 func _newParser(filename, src string, base int) *_parser {
 	return &_parser{
 		chr:              ' ', // This is set so we can start scanning by skipping whitespace
@@ -101,6 +105,11 @@ func _newParser(filename, src string, base int) *_parser {
 
 func newParser(filename, src string) *_parser {
 	return _newParser(filename, src, 1)
+}
+
+// Returns a new Parser.
+func NewParser(filename, src string) Parser {
+	return newParser(filename, src)
 }
 
 func ReadSource(filename string, src interface{}) ([]byte, error) {
@@ -174,6 +183,13 @@ func ParseFunction(parameterList, body string) (*ast.FunctionLiteral, error) {
 	}
 
 	return program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral), nil
+}
+
+// Scan reads a single token from the source at the current offset, increments the offset and
+// returns the token.Token token, a string literal representing the value of the token (if applicable)
+// and it's current file.Idx index.
+func (self *_parser) Scan() (tkn token.Token, literal string, idx file.Idx) {
+	return self.scan()
 }
 
 func (self *_parser) slice(idx0, idx1 file.Idx) string {
