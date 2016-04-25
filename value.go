@@ -689,15 +689,21 @@ func (self Value) export() interface{} {
 					continue
 				}
 				value := object.get(name).export()
+
 				t = reflect.TypeOf(value)
-				if t == nil {
-					state = 2
-				} else if state == 0 {
-					kind = t.Kind()
+
+				var k reflect.Kind
+				if t != nil {
+					k = t.Kind()
+				}
+
+				if state == 0 {
+					kind = k
 					state = 1
-				} else if state == 1 && kind != t.Kind() {
+				} else if state == 1 && kind != k {
 					state = 2
 				}
+
 				result = append(result, value)
 			}
 
