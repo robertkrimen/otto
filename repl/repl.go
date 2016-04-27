@@ -48,7 +48,12 @@ func RunWithPromptAndPrelude(vm *otto.Otto, prompt, prelude string) error {
 	prompt = strings.Trim(prompt, " ")
 	prompt += " "
 
-	rl, err := readline.New(prompt)
+	c := &readline.Config{
+		Prompt:       prompt,
+		AutoComplete: &autoCompleter{vm},
+	}
+
+	rl, err := readline.NewEx(c)
 	if err != nil {
 		return err
 	}
