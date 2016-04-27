@@ -67,6 +67,14 @@ func goSliceGetOwnProperty(self *_object, name string) *_property {
 		}
 	}
 
+	// Other methods
+	if method := self.value.(*_goSliceObject).value.MethodByName(name); (method != reflect.Value{}) {
+		return &_property{
+			value: self.runtime.toValue(method.Interface()),
+			mode:  0110,
+		}
+	}
+
 	return objectGetOwnProperty(self, name)
 }
 
