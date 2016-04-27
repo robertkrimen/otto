@@ -21,6 +21,7 @@ type _scope struct {
 	this     *_object
 	eval     bool // Replace this with kind?
 	outer    *_scope
+	depth    int
 
 	frame _frame
 }

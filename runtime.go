@@ -56,6 +56,7 @@ type _runtime struct {
 	eval         *_object // The builtin eval, for determine indirect versus direct invocation
 	debugger     func(*Otto)
 	random       func() float64
+	stackLimit   int
 
 	labels []string // FIXME
 	lck    sync.Mutex
@@ -63,6 +64,14 @@ type _runtime struct {
 
 func (self *_runtime) enterScope(scope *_scope) {
 	scope.outer = self.scope
+	if self.scope != nil {
+		if self.stackLimit != 0 && self.scope.depth+1 >= self.stackLimit {
+			panic(self.panicRangeError("Maximum call stack size exceeded"))
+		}
+
+		scope.depth = self.scope.depth + 1
+	}
+
 	self.scope = scope
 }
 

@@ -1650,6 +1650,74 @@ func Test_objectLength(t *testing.T) {
 	})
 }
 
+func Test_stackLimit(t *testing.T) {
+	// JavaScript stack depth before entering `a` is 5; becomes 6 after
+	// entering. setting the maximum stack depth to 5 should result in an
+	// error ocurring at that 5 -> 6 boundary.
+	code := `
+        function a() {}
+        function b() { a(); }
+        function c() { b(); }
+        function d() { c(); }
+        function e() { d(); }
+        e();
+    `
+
+	// has no error
+	tt(t, func() {
+		_, vm := test()
+
+		_, err := vm.Run(code)
+
+		is(err == nil, true)
+	})
+
+	// has error
+	tt(t, func() {
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(2)
+
+		_, err := vm.Run(code)
+
+		is(err == nil, false)
+	})
+
+	// has error
+	tt(t, func() {
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(5)
+
+		_, err := vm.Run(code)
+
+		is(err == nil, false)
+	})
+
+	// has no error
+	tt(t, func() {
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(6)
+
+		_, err := vm.Run(code)
+
+		is(err == nil, true)
+	})
+
+	// has no error
+	tt(t, func() {
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(1)
+		vm.vm.SetStackDepthLimit(0)
+
+		_, err := vm.Run(code)
+
+		is(err == nil, true)
+	})
+}
+
 func BenchmarkNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		New()
