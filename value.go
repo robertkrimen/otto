@@ -689,17 +689,25 @@ func (self Value) export() interface{} {
 					continue
 				}
 				value := object.get(name).export()
+
 				t = reflect.TypeOf(value)
+
+				var k reflect.Kind
+				if t != nil {
+					k = t.Kind()
+				}
+
 				if state == 0 {
-					kind = t.Kind()
+					kind = k
 					state = 1
-				} else if state == 1 && kind != t.Kind() {
+				} else if state == 1 && kind != k {
 					state = 2
 				}
+
 				result = append(result, value)
 			}
 
-			if state != 1 || kind == reflect.Interface {
+			if state != 1 || kind == reflect.Interface || t == nil {
 				// No common type
 				return result
 			}

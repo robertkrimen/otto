@@ -237,6 +237,12 @@ func TestExport(t *testing.T) {
 			is(value[5], nil)
 			is(value[5], interface{}(nil))
 		}
+		{
+			value := test(`[ undefined, null ];`).export().([]interface{})
+			is(value[0], nil)
+			is(value[1], nil)
+			is(value[1], interface{}(nil))
+		}
 
 		roundtrip := []interface{}{
 			true,
