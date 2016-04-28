@@ -643,9 +643,9 @@ func (self Object) Set(name string, value interface{}) error {
 	}
 }
 
-// Get the keys for the object
+// Keys gets the keys for the given object.
 //
-// Equivalent to calling Object.keys on the object
+// Equivalent to calling Object.keys on the object.
 func (self Object) Keys() []string {
 	var keys []string
 	self.object.enumerate(false, func(name string) bool {
@@ -655,8 +655,8 @@ func (self Object) Keys() []string {
 	return keys
 }
 
-// Get the keys (and those of the parents) for the object, in order of
-// "closest" to "furthest"
+// KeysByParent gets the keys (and those of the parents) for the given object,
+// in order of "closest" to "furthest".
 func (self Object) KeysByParent() [][]string {
 	var a [][]string
 
