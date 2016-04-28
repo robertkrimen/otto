@@ -40,7 +40,7 @@ func testParseWithMode(src string, mode Mode) (parser *_parser, program *ast.Pro
 			panic(tmp)
 		}
 	}()
-	parser = newParser("", src)
+	parser = _newParser("", src, 1, nil)
 	parser.mode = mode
 	program, err = parser.parse()
 	return
@@ -92,7 +92,7 @@ func TestParseFunction(t *testing.T) {
 func TestParserErr(t *testing.T) {
 	tt(t, func() {
 		test := func(input string, expect interface{}) (*ast.Program, *_parser) {
-			parser := newParser("", input)
+			parser := _newParser("", input, 1, nil)
 			program, err := parser.parse()
 			is(firstErr(err), expect)
 			return program, parser
@@ -968,7 +968,7 @@ func Test_parseNumberLiteral(t *testing.T) {
 
 func TestPosition(t *testing.T) {
 	tt(t, func() {
-		parser := newParser("", "// Lorem ipsum")
+		parser := _newParser("", "// Lorem ipsum", 1, nil)
 
 		// Out of range, idx0 (error condition)
 		is(parser.slice(0, 1), "")
@@ -986,7 +986,7 @@ func TestPosition(t *testing.T) {
 		is(parser.str[0:14], "// Lorem ipsum")
 		is(parser.slice(1, 15), "// Lorem ipsum")
 
-		parser = newParser("", "(function(){ return 0; })")
+		parser = _newParser("", "(function(){ return 0; })", 1, nil)
 		program, err := parser.parse()
 		is(err, nil)
 
@@ -1004,7 +1004,7 @@ func TestPosition(t *testing.T) {
 		is(node.Idx1(), file.Idx(25))
 		is(parser.slice(node.Idx0(), node.Idx1()), "function(){ return 0; }")
 
-		parser = newParser("", "(function(){ return abc; })")
+		parser = _newParser("", "(function(){ return abc; })", 1, nil)
 		program, err = parser.parse()
 		is(err, nil)
 		node = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral)
@@ -1017,7 +1017,7 @@ func BenchmarkParser(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		parser := newParser("", src)
+		parser := _newParser("", src, 1, nil)
 		parser.parse()
 	}
 }

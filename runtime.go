@@ -454,32 +454,35 @@ func (runtime *_runtime) newGoArray(value reflect.Value) *_object {
 	return self
 }
 
-func (runtime *_runtime) parse(filename string, src interface{}) (*ast.Program, error) {
-	return parser.ParseFile(nil, filename, src, 0)
+func (runtime *_runtime) parse(filename string, src, sm interface{}) (*ast.Program, error) {
+	return parser.ParseFileWithSourceMap(nil, filename, src, sm, 0)
 }
 
-func (runtime *_runtime) cmpl_parse(filename string, src interface{}) (*_nodeProgram, error) {
-	program, err := parser.ParseFile(nil, filename, src, 0)
+func (runtime *_runtime) cmpl_parse(filename string, src, sm interface{}) (*_nodeProgram, error) {
+	program, err := parser.ParseFileWithSourceMap(nil, filename, src, sm, 0)
 	if err != nil {
 		return nil, err
 	}
+
 	return cmpl_parse(program), nil
 }
 
-func (self *_runtime) parseSource(src interface{}) (*_nodeProgram, *ast.Program, error) {
+func (self *_runtime) parseSource(src, sm interface{}) (*_nodeProgram, *ast.Program, error) {
 	switch src := src.(type) {
 	case *ast.Program:
 		return nil, src, nil
 	case *Script:
 		return src.program, nil, nil
 	}
-	program, err := self.parse("", src)
+
+	program, err := self.parse("", src, sm)
+
 	return nil, program, err
 }
 
-func (self *_runtime) cmpl_runOrEval(src interface{}, eval bool) (Value, error) {
+func (self *_runtime) cmpl_runOrEval(src, sm interface{}, eval bool) (Value, error) {
 	result := Value{}
-	cmpl_program, program, err := self.parseSource(src)
+	cmpl_program, program, err := self.parseSource(src, sm)
 	if err != nil {
 		return result, err
 	}
@@ -498,12 +501,12 @@ func (self *_runtime) cmpl_runOrEval(src interface{}, eval bool) (Value, error) 
 	return result, err
 }
 
-func (self *_runtime) cmpl_run(src interface{}) (Value, error) {
-	return self.cmpl_runOrEval(src, false)
+func (self *_runtime) cmpl_run(src, sm interface{}) (Value, error) {
+	return self.cmpl_runOrEval(src, sm, false)
 }
 
-func (self *_runtime) cmpl_eval(src interface{}) (Value, error) {
-	return self.cmpl_runOrEval(src, true)
+func (self *_runtime) cmpl_eval(src, sm interface{}) (Value, error) {
+	return self.cmpl_runOrEval(src, sm, true)
 }
 
 func (self *_runtime) parseThrow(err error) {
@@ -523,14 +526,8 @@ func (self *_runtime) parseThrow(err error) {
 	panic(self.panicSyntaxError(err.Error()))
 }
 
-func (self *_runtime) parseOrThrow(source string) *ast.Program {
-	program, err := self.parse("", source)
-	self.parseThrow(err) // Will panic/throw appropriately
-	return program
-}
-
-func (self *_runtime) cmpl_parseOrThrow(source string) *_nodeProgram {
-	program, err := self.cmpl_parse("", source)
+func (self *_runtime) cmpl_parseOrThrow(src, sm interface{}) *_nodeProgram {
+	program, err := self.cmpl_parse("", src, sm)
 	self.parseThrow(err) // Will panic/throw appropriately
 	return program
 }
