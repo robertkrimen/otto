@@ -466,8 +466,9 @@ func (self *_parser) parseNewExpression() ast.Expression {
 	idx := self.expect(token.NEW)
 	callee := self.parseLeftHandSideExpression()
 	node := &ast.NewExpression{
-		New:    idx,
-		Callee: callee,
+		New:              idx,
+		Callee:           callee,
+		RightParenthesis: idx + file.Idx(3),
 	}
 	if self.token == token.LEFT_PARENTHESIS {
 		argumentList, idx0, idx1 := self.parseArgumentList()

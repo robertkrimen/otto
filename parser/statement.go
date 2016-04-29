@@ -375,6 +375,7 @@ func (self *_parser) parseThrowStatement() ast.Statement {
 
 	node := &ast.ThrowStatement{
 		Argument: self.parseExpression(),
+		Throw:    idx,
 	}
 	if self.mode&StoreComments != 0 {
 		self.comments.CommentMap.AddComments(node, comments, ast.LEADING)
@@ -390,7 +391,7 @@ func (self *_parser) parseSwitchStatement() ast.Statement {
 	if self.mode&StoreComments != 0 {
 		comments = self.comments.FetchAll()
 	}
-	self.expect(token.SWITCH)
+	idx := self.expect(token.SWITCH)
 	if self.mode&StoreComments != 0 {
 		comments = append(comments, self.comments.FetchAll()...)
 	}
@@ -398,6 +399,7 @@ func (self *_parser) parseSwitchStatement() ast.Statement {
 	node := &ast.SwitchStatement{
 		Discriminant: self.parseExpression(),
 		Default:      -1,
+		Switch:       idx,
 	}
 	self.expect(token.RIGHT_PARENTHESIS)
 	if self.mode&StoreComments != 0 {
@@ -440,7 +442,7 @@ func (self *_parser) parseWithStatement() ast.Statement {
 	if self.mode&StoreComments != 0 {
 		comments = self.comments.FetchAll()
 	}
-	self.expect(token.WITH)
+	idx := self.expect(token.WITH)
 	var withComments []*ast.Comment
 	if self.mode&StoreComments != 0 {
 		withComments = self.comments.FetchAll()
@@ -450,6 +452,7 @@ func (self *_parser) parseWithStatement() ast.Statement {
 
 	node := &ast.WithStatement{
 		Object: self.parseExpression(),
+		With:   idx,
 	}
 	self.expect(token.RIGHT_PARENTHESIS)
 
@@ -624,6 +627,7 @@ func (self *_parser) parseForOrForInStatement() ast.Statement {
 		}
 
 		forin := self.parseForIn(left[0])
+		forin.For = idx
 		if self.mode&StoreComments != 0 {
 			self.comments.CommentMap.AddComments(forin, comments, ast.LEADING)
 			self.comments.CommentMap.AddComments(forin, forComments, ast.FOR)
@@ -641,6 +645,7 @@ func (self *_parser) parseForOrForInStatement() ast.Statement {
 		self.comments.CommentMap.AddComments(forstatement, comments, ast.LEADING)
 		self.comments.CommentMap.AddComments(forstatement, forComments, ast.FOR)
 	}
+	forstatement.For = idx
 	return forstatement
 }
 
@@ -677,13 +682,15 @@ func (self *_parser) parseDoWhileStatement() ast.Statement {
 	if self.mode&StoreComments != 0 {
 		comments = self.comments.FetchAll()
 	}
-	self.expect(token.DO)
+	idx := self.expect(token.DO)
 	var doComments []*ast.Comment
 	if self.mode&StoreComments != 0 {
 		doComments = self.comments.FetchAll()
 	}
 
-	node := &ast.DoWhileStatement{}
+	node := &ast.DoWhileStatement{
+		Do: idx,
+	}
 	if self.token == token.LEFT_BRACE {
 		node.Body = self.parseBlockStatement()
 	} else {
@@ -713,7 +720,7 @@ func (self *_parser) parseWhileStatement() ast.Statement {
 	if self.mode&StoreComments != 0 {
 		comments = self.comments.FetchAll()
 	}
-	self.expect(token.WHILE)
+	idx := self.expect(token.WHILE)
 
 	var whileComments []*ast.Comment
 	if self.mode&StoreComments != 0 {
@@ -722,7 +729,8 @@ func (self *_parser) parseWhileStatement() ast.Statement {
 
 	self.expect(token.LEFT_PARENTHESIS)
 	node := &ast.WhileStatement{
-		Test: self.parseExpression(),
+		Test:  self.parseExpression(),
+		While: idx,
 	}
 	self.expect(token.RIGHT_PARENTHESIS)
 	node.Body = self.parseIterationStatement()
@@ -740,7 +748,7 @@ func (self *_parser) parseIfStatement() ast.Statement {
 	if self.mode&StoreComments != 0 {
 		comments = self.comments.FetchAll()
 	}
-	self.expect(token.IF)
+	idx := self.expect(token.IF)
 	var ifComments []*ast.Comment
 	if self.mode&StoreComments != 0 {
 		ifComments = self.comments.FetchAll()
@@ -749,6 +757,7 @@ func (self *_parser) parseIfStatement() ast.Statement {
 	self.expect(token.LEFT_PARENTHESIS)
 	node := &ast.IfStatement{
 		Test: self.parseExpression(),
+		If:   idx,
 	}
 	self.expect(token.RIGHT_PARENTHESIS)
 	if self.token == token.LEFT_BRACE {
