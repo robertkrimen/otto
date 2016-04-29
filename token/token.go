@@ -25,7 +25,7 @@ func (tkn Token) String() string {
 }
 
 // This is not used for anything
-func (tkn Token) precedence(in bool) int {
+func (tkn Token) Precedence(in bool) int {
 
 	switch tkn {
 	case LOGICAL_OR:
