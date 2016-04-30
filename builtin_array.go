@@ -416,27 +416,36 @@ func arraySortSwap(thisObject *_object, index0, index1 uint) {
 	}
 }
 
-func arraySortQuickPartition(thisObject *_object, left, right, pivot uint, compare *_object) uint {
+func arraySortQuickPartition(thisObject *_object, left, right, pivot uint, compare *_object) (uint, uint) {
 	arraySortSwap(thisObject, pivot, right) // Right is now the pivot value
 	cursor := left
+	cursor2 := left
 	for index := left; index < right; index++ {
-		if sortCompare(thisObject, index, right, compare) < 0 { // Compare to the pivot value
+		comparison := sortCompare(thisObject, index, right, compare) // Compare to the pivot value
+		if comparison < 0 {
 			arraySortSwap(thisObject, index, cursor)
+			if cursor < cursor2 {
+				arraySortSwap(thisObject, index, cursor2)
+			}
 			cursor += 1
+			cursor2 += 1
+		} else if comparison == 0 {
+			arraySortSwap(thisObject, index, cursor2)
+			cursor2 += 1
 		}
 	}
-	arraySortSwap(thisObject, cursor, right)
-	return cursor
+	arraySortSwap(thisObject, cursor2, right)
+	return cursor, cursor2
 }
 
 func arraySortQuickSort(thisObject *_object, left, right uint, compare *_object) {
 	if left < right {
-		pivot := left + (right-left)/2
-		pivot = arraySortQuickPartition(thisObject, left, right, pivot, compare)
+		middle := left + (right-left)/2
+		pivot, pivot2 := arraySortQuickPartition(thisObject, left, right, middle, compare)
 		if pivot > 0 {
 			arraySortQuickSort(thisObject, left, pivot-1, compare)
 		}
-		arraySortQuickSort(thisObject, pivot+1, right, compare)
+		arraySortQuickSort(thisObject, pivot2+1, right, compare)
 	}
 }
 
