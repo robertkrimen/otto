@@ -435,3 +435,31 @@ func TestMakeSyntaxError(t *testing.T) {
 		is(er.message, "i think you meant \"you're\"")
 	})
 }
+
+func TestErrorStackProperty(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+
+		s, err := vm.Compile("test.js", `
+			function A() { throw new TypeError('uh oh'); }
+			function B() { return A(); }
+			function C() { return B(); }
+
+			var s = null;
+
+			try { C(); } catch (e) { s = e.stack; }
+
+			s;
+		`)
+		if err != nil {
+			panic(err)
+		}
+
+		v, err := vm.Run(s)
+		if err != nil {
+			panic(err)
+		}
+
+		is(v.String(), "TypeError: uh oh\n    at A (test.js:2:29)\n    at B (test.js:3:26)\n    at C (test.js:4:26)\n    at test.js:8:10\n")
+	})
+}
