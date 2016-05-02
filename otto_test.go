@@ -851,6 +851,22 @@ func TestAPI(t *testing.T) {
 	})
 }
 
+func TestObjectKeys(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+		vm.Eval(`var x = Object.create(null); x.a = 1`)
+		vm.Eval(`var y = Object.create(x); y.b = 2`)
+
+		o1, _ := vm.Object("x")
+		is(o1.Keys(), []string{"a"})
+		is(o1.KeysByParent(), [][]string{{"a"}})
+
+		o2, _ := vm.Object("y")
+		is(o2.Keys(), []string{"b"})
+		is(o2.KeysByParent(), [][]string{{"b"}, {"a"}})
+	})
+}
+
 func TestUnicode(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
