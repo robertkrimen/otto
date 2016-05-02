@@ -5,11 +5,11 @@ import (
 )
 
 func builtinError(call FunctionCall) Value {
-	return toValue_object(call.runtime.newError("", call.Argument(0)))
+	return toValue_object(call.runtime.newError("Error", call.Argument(0)))
 }
 
 func builtinNewError(self *_object, argumentList []Value) Value {
-	return toValue_object(self.runtime.newError("", valueOfArrayIndex(argumentList, 0)))
+	return toValue_object(self.runtime.newError("Error", valueOfArrayIndex(argumentList, 0)))
 }
 
 func builtinError_toString(call FunctionCall) Value {

@@ -32,6 +32,24 @@ type _error struct {
 	offset int
 }
 
+func (err _error) format() string {
+	if len(err.name) == 0 {
+		return err.message
+	}
+	if len(err.message) == 0 {
+		return err.name
+	}
+	return fmt.Sprintf("%s: %s", err.name, err.message)
+}
+
+func (err _error) formatWithStack() string {
+	str := err.format() + "\n"
+	for _, frame := range err.trace {
+		str += "    at " + frame.location() + "\n"
+	}
+	return str
+}
+
 type _frame struct {
 	file   *file.File
 	offset int
@@ -98,13 +116,7 @@ type Error struct {
 //    TypeError: 'def' is not a function
 //
 func (err Error) Error() string {
-	if len(err.name) == 0 {
-		return err.message
-	}
-	if len(err.message) == 0 {
-		return err.name
-	}
-	return fmt.Sprintf("%s: %s", err.name, err.message)
+	return err.format()
 }
 
 // String returns a description of the error and a trace of where the
@@ -115,11 +127,7 @@ func (err Error) Error() string {
 //        at <anonymous>:7:1/
 //
 func (err Error) String() string {
-	str := err.Error() + "\n"
-	for _, frame := range err.trace {
-		str += "    at " + frame.location() + "\n"
-	}
-	return str
+	return err.formatWithStack()
 }
 
 func (err _error) describe(format string, in ...interface{}) string {

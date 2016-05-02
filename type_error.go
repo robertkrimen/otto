@@ -9,5 +9,16 @@ func (rt *_runtime) newErrorObject(name string, message Value) *_object {
 	} else {
 		self.value = newError(rt, name)
 	}
+
+	self.defineOwnProperty("stack", _property{
+		value: _propertyGetSet{
+			rt.newNativeFunction("get", func(FunctionCall) Value {
+				return toValue_string(self.value.(_error).formatWithStack())
+			}),
+			&_nilGetSetObject,
+		},
+		mode: modeConfigureMask & modeOnMask,
+	}, false)
+
 	return self
 }
