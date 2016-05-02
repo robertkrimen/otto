@@ -246,6 +246,192 @@ func TestErrorContext(t *testing.T) {
 			is(err1.trace[0].location(), "C (file1.js:7:5)")
 		}
 
+	})
+}
 
+func TestMakeCustomErrorReturn(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("A", func(c FunctionCall) Value {
+			return vm.MakeCustomError("CarrotError", "carrots is life, carrots is love")
+		})
+
+		s, _ := vm.Compile("test.js", `
+			function B() { return A(); }
+			function C() { return B(); }
+			function D() { return C(); }
+		`)
+
+		if _, err := vm.Run(s); err != nil {
+			panic(err)
+		}
+
+		v, err := vm.Call("D", nil)
+		if err != nil {
+			panic(err)
+		}
+
+		is(v.Class(), "Error")
+
+		name, err := v.Object().Get("name")
+		if err != nil {
+			panic(err)
+		}
+		is(name.String(), "CarrotError")
+
+		message, err := v.Object().Get("message")
+		if err != nil {
+			panic(err)
+		}
+		is(message.String(), "carrots is life, carrots is love")
+
+		str, err := v.Object().Call("toString")
+		if err != nil {
+			panic(err)
+		}
+		is(str, "CarrotError: carrots is life, carrots is love")
+
+		i, err := v.Export()
+		if err != nil {
+			panic(err)
+		}
+		t.Logf("%#v\n", i)
+	})
+}
+
+func TestMakeCustomError(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("A", func(c FunctionCall) Value {
+			panic(vm.MakeCustomError("CarrotError", "carrots is life, carrots is love"))
+
+			return UndefinedValue()
+		})
+
+		s, _ := vm.Compile("test.js", `
+			function B() { A(); }
+			function C() { B(); }
+			function D() { C(); }
+		`)
+
+		if _, err := vm.Run(s); err != nil {
+			panic(err)
+		}
+
+		_, err := vm.Call("D", nil)
+		if err == nil {
+			panic("error should not be nil")
+		}
+
+		is(err.Error(), "CarrotError: carrots is life, carrots is love")
+
+		er := err.(*Error)
+
+		is(er.name, "CarrotError")
+		is(er.message, "carrots is life, carrots is love")
+	})
+}
+
+func TestMakeTypeError(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("A", func(c FunctionCall) Value {
+			panic(vm.MakeTypeError("these aren't my glasses"))
+
+			return UndefinedValue()
+		})
+
+		s, _ := vm.Compile("test.js", `
+			function B() { A(); }
+			function C() { B(); }
+			function D() { C(); }
+		`)
+
+		if _, err := vm.Run(s); err != nil {
+			panic(err)
+		}
+
+		_, err := vm.Call("D", nil)
+		if err == nil {
+			panic("error should not be nil")
+		}
+
+		is(err.Error(), "TypeError: these aren't my glasses")
+
+		er := err.(*Error)
+
+		is(er.name, "TypeError")
+		is(er.message, "these aren't my glasses")
+	})
+}
+
+func TestMakeRangeError(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("A", func(c FunctionCall) Value {
+			panic(vm.MakeRangeError("too many"))
+
+			return UndefinedValue()
+		})
+
+		s, _ := vm.Compile("test.js", `
+			function B() { A(); }
+			function C() { B(); }
+			function D() { C(); }
+		`)
+
+		if _, err := vm.Run(s); err != nil {
+			panic(err)
+		}
+
+		_, err := vm.Call("D", nil)
+		if err == nil {
+			panic("error should not be nil")
+		}
+
+		is(err.Error(), "RangeError: too many")
+
+		er := err.(*Error)
+
+		is(er.name, "RangeError")
+		is(er.message, "too many")
+	})
+}
+
+func TestMakeSyntaxError(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+
+		vm.Set("A", func(c FunctionCall) Value {
+			panic(vm.MakeSyntaxError("i think you meant \"you're\""))
+
+			return UndefinedValue()
+		})
+
+		s, _ := vm.Compile("test.js", `
+			function B() { A(); }
+			function C() { B(); }
+			function D() { C(); }
+		`)
+
+		if _, err := vm.Run(s); err != nil {
+			panic(err)
+		}
+
+		_, err := vm.Call("D", nil)
+		if err == nil {
+			panic("error should not be nil")
+		}
+
+		is(err.Error(), "SyntaxError: i think you meant \"you're\"")
+
+		er := err.(*Error)
+
+		is(er.name, "SyntaxError")
+		is(er.message, "i think you meant \"you're\"")
 	})
 }

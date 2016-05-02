@@ -379,6 +379,30 @@ func (self Otto) SetStackDepthLimit(limit int) {
 	self.runtime.stackLimit = limit
 }
 
+// MakeCustomError creates a new Error object with the given name and message,
+// returning it as a Value.
+func (self Otto) MakeCustomError(name, message string) Value {
+	return self.runtime.toValue(self.runtime.newError(name, self.runtime.toValue(message)))
+}
+
+// MakeRangeError creates a new RangeError object with the given message,
+// returning it as a Value.
+func (self Otto) MakeRangeError(message string) Value {
+	return self.runtime.toValue(self.runtime.newRangeError(self.runtime.toValue(message)))
+}
+
+// MakeSyntaxError creates a new SyntaxError object with the given message,
+// returning it as a Value.
+func (self Otto) MakeSyntaxError(message string) Value {
+	return self.runtime.toValue(self.runtime.newSyntaxError(self.runtime.toValue(message)))
+}
+
+// MakeTypeError creates a new TypeError object with the given message,
+// returning it as a Value.
+func (self Otto) MakeTypeError(message string) Value {
+	return self.runtime.toValue(self.runtime.newTypeError(self.runtime.toValue(message)))
+}
+
 // Context is a structure that contains information about the current execution
 // context.
 type Context struct {
