@@ -136,10 +136,9 @@ func (self *_parser) parseRegExpLiteral() *ast.RegExpLiteral {
 
 	flags := ""
 	if self.token == token.IDENTIFIER { // gim
-
 		flags = self.literal
+		endOffset = self.chrOffset
 		self.next()
-		endOffset = self.chrOffset - 1
 	}
 
 	var value string
@@ -467,8 +466,9 @@ func (self *_parser) parseNewExpression() ast.Expression {
 	idx := self.expect(token.NEW)
 	callee := self.parseLeftHandSideExpression()
 	node := &ast.NewExpression{
-		New:    idx,
-		Callee: callee,
+		New:              idx,
+		Callee:           callee,
+		RightParenthesis: idx + file.Idx(3),
 	}
 	if self.token == token.LEFT_PARENTHESIS {
 		argumentList, idx0, idx1 := self.parseArgumentList()

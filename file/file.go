@@ -122,6 +122,23 @@ func NewFile(filename, src string, base int) *File {
 	}
 }
 
+// Position converts an Idx in the FileSet into a Position.
+func (self *File) Position(idx Idx) *Position {
+	position := &Position{}
+	offset := int(idx) - self.base
+	src := self.src[:offset]
+	position.Filename = self.name
+	position.Offset = offset
+	position.Line = 1 + strings.Count(src, "\n")
+	if index := strings.LastIndex(src, "\n"); index >= 0 {
+		position.Column = offset - index
+	} else {
+		position.Column = 1 + len(src)
+	}
+
+	return position
+}
+
 func (fl *File) Name() string {
 	return fl.name
 }

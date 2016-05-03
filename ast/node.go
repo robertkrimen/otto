@@ -420,11 +420,17 @@ func (self *NullLiteral) Idx0() file.Idx           { return self.Idx }
 func (self *NumberLiteral) Idx0() file.Idx         { return self.Idx }
 func (self *ObjectLiteral) Idx0() file.Idx         { return self.LeftBrace }
 func (self *RegExpLiteral) Idx0() file.Idx         { return self.Idx }
-func (self *SequenceExpression) Idx0() file.Idx    { return self.Sequence[0].Idx0() }
-func (self *StringLiteral) Idx0() file.Idx         { return self.Idx }
-func (self *ThisExpression) Idx0() file.Idx        { return self.Idx }
-func (self *UnaryExpression) Idx0() file.Idx       { return self.Idx }
-func (self *VariableExpression) Idx0() file.Idx    { return self.Idx }
+func (self *SequenceExpression) Idx0() file.Idx {
+	if len(self.Sequence) > 0 {
+		return self.Sequence[0].Idx0()
+	} else {
+		return 1
+	}
+}
+func (self *StringLiteral) Idx0() file.Idx      { return self.Idx }
+func (self *ThisExpression) Idx0() file.Idx     { return self.Idx }
+func (self *UnaryExpression) Idx0() file.Idx    { return self.Idx }
+func (self *VariableExpression) Idx0() file.Idx { return self.Idx }
 
 func (self *BadStatement) Idx0() file.Idx        { return self.From }
 func (self *BlockStatement) Idx0() file.Idx      { return self.LeftBrace }
@@ -470,9 +476,15 @@ func (self *NullLiteral) Idx1() file.Idx           { return file.Idx(int(self.Id
 func (self *NumberLiteral) Idx1() file.Idx         { return file.Idx(int(self.Idx) + len(self.Literal)) }
 func (self *ObjectLiteral) Idx1() file.Idx         { return self.RightBrace }
 func (self *RegExpLiteral) Idx1() file.Idx         { return file.Idx(int(self.Idx) + len(self.Literal)) }
-func (self *SequenceExpression) Idx1() file.Idx    { return self.Sequence[0].Idx1() }
-func (self *StringLiteral) Idx1() file.Idx         { return file.Idx(int(self.Idx) + len(self.Literal)) }
-func (self *ThisExpression) Idx1() file.Idx        { return self.Idx }
+func (self *SequenceExpression) Idx1() file.Idx {
+	if len(self.Sequence) > 0 {
+		return self.Sequence[0].Idx1()
+	} else {
+		return 1
+	}
+}
+func (self *StringLiteral) Idx1() file.Idx  { return file.Idx(int(self.Idx) + len(self.Literal)) }
+func (self *ThisExpression) Idx1() file.Idx { return self.Idx }
 func (self *UnaryExpression) Idx1() file.Idx {
 	if self.Postfix {
 		return self.Operand.Idx1() + 2 // ++ --
@@ -486,10 +498,16 @@ func (self *VariableExpression) Idx1() file.Idx {
 	return self.Initializer.Idx1()
 }
 
-func (self *BadStatement) Idx1() file.Idx        { return self.To }
-func (self *BlockStatement) Idx1() file.Idx      { return self.RightBrace + 1 }
-func (self *BranchStatement) Idx1() file.Idx     { return self.Idx }
-func (self *CaseStatement) Idx1() file.Idx       { return self.Consequent[len(self.Consequent)-1].Idx1() }
+func (self *BadStatement) Idx1() file.Idx    { return self.To }
+func (self *BlockStatement) Idx1() file.Idx  { return self.RightBrace + 1 }
+func (self *BranchStatement) Idx1() file.Idx { return self.Idx }
+func (self *CaseStatement) Idx1() file.Idx {
+	if len(self.Consequent) > 0 {
+		return self.Consequent[len(self.Consequent)-1].Idx1()
+	} else {
+		return self.Test.Idx1()
+	}
+}
 func (self *CatchStatement) Idx1() file.Idx      { return self.Body.Idx1() }
 func (self *DebuggerStatement) Idx1() file.Idx   { return self.Debugger + 8 }
 func (self *DoWhileStatement) Idx1() file.Idx    { return self.Test.Idx1() }
