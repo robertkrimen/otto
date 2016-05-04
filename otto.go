@@ -225,6 +225,7 @@ package otto
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/robertkrimen/otto/registry"
@@ -361,6 +362,10 @@ func (self Otto) setValue(name string, value Value) {
 
 func (self Otto) SetDebuggerHandler(fn func(vm *Otto)) {
 	self.runtime.debugger = fn
+}
+
+func (self Otto) SetConsoleWriter(w io.Writer) {
+	self.runtime.console = w
 }
 
 func (self Otto) SetRandomSource(fn func() float64) {

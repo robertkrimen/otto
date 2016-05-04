@@ -3,6 +3,7 @@ package otto
 import (
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"reflect"
 	"sync"
@@ -55,6 +56,7 @@ type _runtime struct {
 	otto         *Otto
 	eval         *_object // The builtin eval, for determine indirect versus direct invocation
 	debugger     func(*Otto)
+	console      io.Writer
 	random       func() float64
 	stackLimit   int
 
