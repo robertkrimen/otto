@@ -250,7 +250,7 @@ func Test_reflectStruct(t *testing.T) {
 
 			test(`raise:
                 abc.Func1Int(1.1);
-            `, "converting float64 to int would cause loss of precision")
+            `, "RangeError: converting float64 to int would cause loss of precision")
 
 			test(`
 		var v = 1;
