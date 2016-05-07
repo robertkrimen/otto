@@ -14,7 +14,7 @@ var is = terst.Is
 func TestLexer(t *testing.T) {
 	tt(t, func() {
 		setup := func(src string) *_parser {
-			parser := newParser("", src)
+			parser := _newParser("", src, 1, nil)
 			return parser
 		}
 

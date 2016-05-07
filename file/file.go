@@ -5,6 +5,8 @@ package file
 import (
 	"fmt"
 	"strings"
+
+	"gopkg.in/sourcemap.v1"
 )
 
 // Idx is a compact encoding of a source position within a file set.
@@ -90,28 +92,20 @@ func (self *FileSet) File(idx Idx) *File {
 
 // Position converts an Idx in the FileSet into a Position.
 func (self *FileSet) Position(idx Idx) *Position {
-	position := &Position{}
 	for _, file := range self.files {
 		if idx <= Idx(file.base+len(file.src)) {
-			offset := int(idx) - file.base
-			src := file.src[:offset]
-			position.Filename = file.name
-			position.Offset = offset
-			position.Line = 1 + strings.Count(src, "\n")
-			if index := strings.LastIndex(src, "\n"); index >= 0 {
-				position.Column = offset - index
-			} else {
-				position.Column = 1 + len(src)
-			}
+			return file.Position(idx - Idx(file.base))
 		}
 	}
-	return position
+
+	return nil
 }
 
 type File struct {
 	name string
 	src  string
 	base int // This will always be 1 or greater
+	sm   *sourcemap.Consumer
 }
 
 func NewFile(filename, src string, base int) *File {
@@ -120,6 +114,11 @@ func NewFile(filename, src string, base int) *File {
 		src:  src,
 		base: base,
 	}
+}
+
+func (fl *File) WithSourceMap(sm *sourcemap.Consumer) *File {
+	fl.sm = sm
+	return fl
 }
 
 func (fl *File) Name() string {
@@ -132,4 +131,34 @@ func (fl *File) Source() string {
 
 func (fl *File) Base() int {
 	return fl.base
+}
+
+func (fl *File) Position(idx Idx) *Position {
+	position := &Position{}
+
+	offset := int(idx) - fl.base
+
+	if offset >= len(fl.src) || offset < 0 {
+		return nil
+	}
+
+	src := fl.src[:offset]
+
+	position.Filename = fl.name
+	position.Offset = offset
+	position.Line = strings.Count(src, "\n") + 1
+
+	if index := strings.LastIndex(src, "\n"); index >= 0 {
+		position.Column = offset - index
+	} else {
+		position.Column = len(src) + 1
+	}
+
+	if fl.sm != nil {
+		if f, _, l, c, ok := fl.sm.Source(position.Line, position.Column); ok {
+			position.Filename, position.Line, position.Column = f, l, c
+		}
+	}
+
+	return position
 }

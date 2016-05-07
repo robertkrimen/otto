@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"errors"
-
-	"github.com/robertkrimen/otto/parser"
 )
 
 var ErrVersion = errors.New("version mismatch")
@@ -29,28 +27,27 @@ type Script struct {
 //      vm.Run(script)
 //
 func (self *Otto) Compile(filename string, src interface{}) (*Script, error) {
-	{
-		src, err := parser.ReadSource(filename, src)
-		if err != nil {
-			return nil, err
-		}
+	return self.CompileWithSourceMap(filename, src, nil)
+}
 
-		program, err := self.runtime.parse(filename, src)
-		if err != nil {
-			return nil, err
-		}
-
-		cmpl_program := cmpl_parse(program)
-
-		script := &Script{
-			version:  scriptVersion,
-			program:  cmpl_program,
-			filename: filename,
-			src:      string(src),
-		}
-
-		return script, nil
+// CompileWithSourceMap does the same thing as Compile, but with the obvious
+// difference of applying a source map.
+func (self *Otto) CompileWithSourceMap(filename string, src, sm interface{}) (*Script, error) {
+	program, err := self.runtime.parse(filename, src, sm)
+	if err != nil {
+		return nil, err
 	}
+
+	cmpl_program := cmpl_parse(program)
+
+	script := &Script{
+		version:  scriptVersion,
+		program:  cmpl_program,
+		filename: filename,
+		src:      program.File.Source(),
+	}
+
+	return script, nil
 }
 
 func (self *Script) String() string {

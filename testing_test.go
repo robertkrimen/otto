@@ -122,7 +122,7 @@ func (self *_tester) test(name string, expect ...interface{}) Value {
 			source = source[6:]
 			source = strings.TrimLeft(source, " ")
 		}
-		value, err = vm.runtime.cmpl_run(source)
+		value, err = vm.runtime.cmpl_run(source, nil)
 		if err != nil {
 			panic(err)
 		}

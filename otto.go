@@ -227,6 +227,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/robertkrimen/otto/file"
 	"github.com/robertkrimen/otto/registry"
 )
 
@@ -289,7 +290,7 @@ func Run(src interface{}) (*Otto, Value, error) {
 // src may also be a Program, but if the AST has been modified, then runtime behavior is undefined.
 //
 func (self Otto) Run(src interface{}) (Value, error) {
-	value, err := self.runtime.cmpl_run(src)
+	value, err := self.runtime.cmpl_run(src, nil)
 	if !value.safe() {
 		value = Value{}
 	}
@@ -307,7 +308,7 @@ func (self Otto) Eval(src interface{}) (Value, error) {
 		defer self.runtime.leaveScope()
 	}
 
-	value, err := self.runtime.cmpl_eval(src)
+	value, err := self.runtime.cmpl_eval(src, nil)
 	if !value.safe() {
 		value = Value{}
 	}
@@ -430,11 +431,17 @@ func (self Otto) Context() (ctx Context) {
 	ctx.Filename = "<unknown>"
 	ctx.Callee = frame.callee
 	if frame.file != nil {
-		ctx.Filename = frame.file.Name()
-		if ctx.Filename == "" {
-			ctx.Filename = "<anonymous>"
+		ctx.Filename = "<anonymous>"
+
+		p := frame.file.Position(file.Idx(frame.offset))
+		if p != nil {
+			ctx.Line = p.Line
+			ctx.Column = p.Column
+
+			if p.Filename != "" {
+				ctx.Filename = p.Filename
+			}
 		}
-		ctx.Line, ctx.Column = _position(frame.file, frame.offset)
 	}
 
 	// Get the current scope this Value
@@ -509,7 +516,7 @@ func (self Otto) Call(source string, this interface{}, argumentList ...interface
 	}()
 
 	if !construct && this == nil {
-		program, err := self.runtime.cmpl_parse("", source+"()")
+		program, err := self.runtime.cmpl_parse("", source+"()", nil)
 		if err == nil {
 			if node, ok := program.body[0].(*_nodeExpressionStatement); ok {
 				if node, ok := node.expression.(*_nodeCallExpression); ok {
@@ -574,7 +581,7 @@ func (self Otto) Call(source string, this interface{}, argumentList ...interface
 // If there is an error (like the source does not result in an object), then
 // nil and an error is returned.
 func (self Otto) Object(source string) (*Object, error) {
-	value, err := self.runtime.cmpl_run(source)
+	value, err := self.runtime.cmpl_run(source, nil)
 	if err != nil {
 		return nil, err
 	}
