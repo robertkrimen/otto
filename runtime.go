@@ -282,7 +282,8 @@ func convertNumeric(val reflect.Value, t reflect.Type) reflect.Value {
 
 // callParamConvert converts request val to type t if possible.
 // If the conversion fails due to overflow or type miss-match then it panics.
-// If no conversion is known then the original value is returned.
+// For nil parameters it does reflect.New(expectedType).Elem()
+// For all other types it uses reflect Value.Convert(expectedType).
 func callParamConvert(val reflect.Value, t reflect.Type) reflect.Value {
 	if val.Kind() == reflect.Interface {
 		val = reflect.ValueOf(val.Interface())
@@ -290,21 +291,26 @@ func callParamConvert(val reflect.Value, t reflect.Type) reflect.Value {
 
 	switch t.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Float32, reflect.Float64:
-		if val.Kind() == t.Kind() {
-			// Types already match
-			return val
-		}
-		return convertNumeric(val, t)
+		val = convertNumeric(val, t)
 	case reflect.Slice:
+		val = convertSlice(val, t)
 		if val.Kind() != reflect.Slice {
 			// Conversion from none slice type to slice not possible
 			panic(fmt.Sprintf("cannot use %v as type %v", val, t))
 		}
-	default:
-		// No supported conversion
+	}
+
+	if val.IsValid() { // Avoid "Call using zero Value argument"
+		if val.Type() != t {
+			return val.Convert(t)
+		}
 		return val
 	}
 
+	return reflect.New(t).Elem()
+}
+
+func convertSlice(val reflect.Value, t reflect.Type) reflect.Value {
 	elemType := t.Elem()
 	switch elemType.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Float32, reflect.Float64, reflect.Slice:
