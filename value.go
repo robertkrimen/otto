@@ -271,11 +271,11 @@ func toValue_reflectValuePanic(value interface{}, kind reflect.Kind) {
 	// FIXME?
 	switch kind {
 	case reflect.Struct:
-		panic(newError(nil, "TypeError", "invalid value (struct): missing runtime: %v (%T)", value, value))
+		panic(newError(nil, "TypeError", 0, "invalid value (struct): missing runtime: %v (%T)", value, value))
 	case reflect.Map:
-		panic(newError(nil, "TypeError", "invalid value (map): missing runtime: %v (%T)", value, value))
+		panic(newError(nil, "TypeError", 0, "invalid value (map): missing runtime: %v (%T)", value, value))
 	case reflect.Slice:
-		panic(newError(nil, "TypeError", "invalid value (slice): missing runtime: %v (%T)", value, value))
+		panic(newError(nil, "TypeError", 0, "invalid value (slice): missing runtime: %v (%T)", value, value))
 	}
 }
 
@@ -375,7 +375,7 @@ func toValue(value interface{}) Value {
 		return toValue(reflect.ValueOf(value))
 	}
 	// FIXME?
-	panic(newError(nil, "TypeError", "invalid value: %v (%T)", value, value))
+	panic(newError(nil, "TypeError", 0, "invalid value: %v (%T)", value, value))
 }
 
 // String will return the value as a string.

@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"path"
 	"reflect"
+	"runtime"
 	"sync"
 
 	"github.com/robertkrimen/otto/ast"
@@ -123,7 +125,7 @@ func (self *_runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, exce
 			switch caught := caught.(type) {
 			case _error:
 				exception = true
-				tryValue = toValue_object(self.newError(caught.name, caught.messageValue()))
+				tryValue = toValue_object(self.newError(caught.name, caught.messageValue(), 0))
 			case Value:
 				exception = true
 				tryValue = caught
@@ -351,9 +353,27 @@ func (self *_runtime) toValue(value interface{}) Value {
 	case Value:
 		return value
 	case func(FunctionCall) Value:
-		return toValue_object(self.newNativeFunction("", value))
+		var name, file string
+		var line int
+		pc := reflect.ValueOf(value).Pointer()
+		fn := runtime.FuncForPC(pc)
+		if fn != nil {
+			name = fn.Name()
+			file, line = fn.FileLine(pc)
+			file = path.Base(file)
+		}
+		return toValue_object(self.newNativeFunction(name, file, line, value))
 	case _nativeFunction:
-		return toValue_object(self.newNativeFunction("", value))
+		var name, file string
+		var line int
+		pc := reflect.ValueOf(value).Pointer()
+		fn := runtime.FuncForPC(pc)
+		if fn != nil {
+			name = fn.Name()
+			file, line = fn.FileLine(pc)
+			file = path.Base(file)
+		}
+		return toValue_object(self.newNativeFunction(name, file, line, value))
 	case Object, *Object, _object, *_object:
 		// Nothing happens.
 		// FIXME We should really figure out what can come here.
@@ -370,10 +390,23 @@ func (self *_runtime) toValue(value interface{}) Value {
 					return toValue_object(self.newGoArray(value))
 				}
 			case reflect.Func:
+				var name, file string
+				var line int
+				v := reflect.ValueOf(value)
+				if v.Kind() == reflect.Ptr {
+					pc := v.Pointer()
+					fn := runtime.FuncForPC(pc)
+					if fn != nil {
+						name = fn.Name()
+						file, line = fn.FileLine(pc)
+						file = path.Base(file)
+					}
+				}
+
 				// TODO Maybe cache this?
-				return toValue_object(self.newNativeFunction("", func(call FunctionCall) Value {
+				return toValue_object(self.newNativeFunction(name, file, line, func(call FunctionCall) Value {
 					argsCount := len(call.ArgumentList)
-					in := make([]reflect.Value, argsCount)
+					in := make([]reflect.Value, len(call.ArgumentList))
 					t := value.Type()
 					callSlice := false
 					paramsCount := t.NumIn()
