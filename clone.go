@@ -17,7 +17,13 @@ func (in *_runtime) clone() *_runtime {
 	in.lck.Lock()
 	defer in.lck.Unlock()
 
-	out := &_runtime{}
+	out := &_runtime{
+		debugger:   in.debugger,
+		random:     in.random,
+		stackLimit: in.stackLimit,
+		traceLimit: in.traceLimit,
+	}
+
 	clone := _clone{
 		runtime:      out,
 		_object:      make(map[*_object]*_object),

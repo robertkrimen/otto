@@ -165,18 +165,19 @@ func newError(rt *_runtime, name string, stackFramesToPop int, in ...interface{}
 				description, in = in[0].(string), in[1:]
 			}
 		}
-		limit := 10
+
+		limit := rt.traceLimit
+
 		err.trace = append(err.trace, frame)
 		if scope != nil {
-			for limit > 0 {
-				scope = scope.outer
-				if scope == nil {
+			for scope = scope.outer; scope != nil; scope = scope.outer {
+				if limit--; limit == 0 {
 					break
 				}
+
 				if scope.frame.offset >= 0 {
 					err.trace = append(err.trace, scope.frame)
 				}
-				limit--
 			}
 		}
 	} else {
