@@ -245,6 +245,7 @@ func New() *Otto {
 		runtime: newContext(),
 	}
 	self.runtime.otto = self
+	self.runtime.traceLimit = 10
 	self.Set("console", self.runtime.newConsole())
 
 	registry.Apply(func(entry registry.Entry) {
@@ -378,6 +379,15 @@ func (self Otto) SetRandomSource(fn func() float64) {
 // recursive, you're still in trouble.
 func (self Otto) SetStackDepthLimit(limit int) {
 	self.runtime.stackLimit = limit
+}
+
+// SetStackTraceLimit sets an upper limit to the number of stack frames that
+// otto will use when formatting an error's stack trace. By default, the limit
+// is 10. This is consistent with V8 and SpiderMonkey.
+//
+// TODO: expose via `Error.stackTraceLimit`
+func (self Otto) SetStackTraceLimit(limit int) {
+	self.runtime.traceLimit = limit
 }
 
 // MakeCustomError creates a new Error object with the given name and message,

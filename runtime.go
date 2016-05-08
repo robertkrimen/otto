@@ -60,6 +60,7 @@ type _runtime struct {
 	debugger     func(*Otto)
 	random       func() float64
 	stackLimit   int
+	traceLimit   int
 
 	labels []string // FIXME
 	lck    sync.Mutex
