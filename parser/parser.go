@@ -35,6 +35,7 @@ package parser
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -159,6 +160,19 @@ func ParseFileWithSourceMap(fileSet *file.FileSet, filename string, javascriptSo
 	src, err := ReadSource(filename, javascriptSource)
 	if err != nil {
 		return nil, err
+	}
+
+	if sourcemapSource == nil {
+		lines := bytes.Split(src, []byte("\n"))
+		lastLine := lines[len(lines)-1]
+		if bytes.HasPrefix(lastLine, []byte("//# sourceMappingURL=data:application/json")) {
+			bits := bytes.SplitN(lastLine, []byte(","), 2)
+			if len(bits) == 2 {
+				if d, err := base64.StdEncoding.DecodeString(string(bits[1])); err == nil {
+					sourcemapSource = d
+				}
+			}
+		}
 	}
 
 	sm, err := ReadSourceMap(filename, sourcemapSource)
