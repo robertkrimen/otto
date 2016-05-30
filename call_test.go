@@ -1364,3 +1364,143 @@ func TestNativeCallWithFunctionStringString(t *testing.T) {
 		t.Fail()
 	}
 }
+
+type testNativeCallWithStruct struct {
+	Prefix string
+}
+
+type testNativeCallWithStructArg struct {
+	Text string
+}
+
+func (t testNativeCallWithStruct) MakeStruct(s string) testNativeCallWithStructArg {
+	return testNativeCallWithStructArg{Text: s}
+}
+
+func (t testNativeCallWithStruct) MakeStructPointer(s string) *testNativeCallWithStructArg {
+	return &testNativeCallWithStructArg{Text: s}
+}
+
+func (t testNativeCallWithStruct) CallWithStruct(a testNativeCallWithStructArg) string {
+	return t.Prefix + a.Text
+}
+
+func (t *testNativeCallWithStruct) CallPointerWithStruct(a testNativeCallWithStructArg) string {
+	return t.Prefix + a.Text
+}
+
+func (t testNativeCallWithStruct) CallWithStructPointer(a *testNativeCallWithStructArg) string {
+	return t.Prefix + a.Text
+}
+
+func (t *testNativeCallWithStruct) CallPointerWithStructPointer(a *testNativeCallWithStructArg) string {
+	return t.Prefix + a.Text
+}
+
+func TestNativeCallMethodWithStruct(t *testing.T) {
+	vm := New()
+
+	called := false
+
+	vm.Set("x", testNativeCallWithStruct{Prefix: "a"})
+
+	vm.Set("t", func(s string) {
+		if s != "ab" {
+			t.Fail()
+		}
+
+		called = true
+	})
+
+	s, _ := vm.Compile("test.js", `t(x.CallWithStruct(x.MakeStruct("b")))`)
+
+	if _, err := vm.Run(s); err != nil {
+		t.Logf("err should have been nil; was %s\n", err.Error())
+		t.Fail()
+	}
+
+	if !called {
+		t.Fail()
+	}
+}
+
+func TestNativeCallPointerMethodWithStruct(t *testing.T) {
+	vm := New()
+
+	called := false
+
+	vm.Set("x", &testNativeCallWithStruct{Prefix: "a"})
+
+	vm.Set("t", func(s string) {
+		if s != "ab" {
+			t.Fail()
+		}
+
+		called = true
+	})
+
+	s, _ := vm.Compile("test.js", `t(x.CallPointerWithStruct(x.MakeStruct("b")))`)
+
+	if _, err := vm.Run(s); err != nil {
+		t.Logf("err should have been nil; was %s\n", err.Error())
+		t.Fail()
+	}
+
+	if !called {
+		t.Fail()
+	}
+}
+
+func TestNativeCallMethodWithStructPointer(t *testing.T) {
+	vm := New()
+
+	called := false
+
+	vm.Set("x", testNativeCallWithStruct{Prefix: "a"})
+
+	vm.Set("t", func(s string) {
+		if s != "ab" {
+			t.Fail()
+		}
+
+		called = true
+	})
+
+	s, _ := vm.Compile("test.js", `t(x.CallWithStructPointer(x.MakeStructPointer("b")))`)
+
+	if _, err := vm.Run(s); err != nil {
+		t.Logf("err should have been nil; was %s\n", err.Error())
+		t.Fail()
+	}
+
+	if !called {
+		t.Fail()
+	}
+}
+
+func TestNativeCallPointerMethodWithStructPointer(t *testing.T) {
+	vm := New()
+
+	called := false
+
+	vm.Set("x", &testNativeCallWithStruct{Prefix: "a"})
+
+	vm.Set("t", func(s string) {
+		if s != "ab" {
+			t.Fail()
+		}
+
+		called = true
+	})
+
+	s, _ := vm.Compile("test.js", `t(x.CallPointerWithStructPointer(x.MakeStructPointer("b")))`)
+
+	if _, err := vm.Run(s); err != nil {
+		t.Logf("err should have been nil; was %s\n", err.Error())
+		t.Fail()
+	}
+
+	if !called {
+		t.Fail()
+	}
+}
