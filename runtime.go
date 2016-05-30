@@ -293,6 +293,14 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 		return reflect.ValueOf(v)
 	}
 
+	if v.kind == valueObject {
+		if gso, ok := v._object().value.(*_goStructObject); ok {
+			if gso.value.Type().AssignableTo(t) {
+				return gso.value
+			}
+		}
+	}
+
 	if t.Kind() == reflect.Interface {
 		iv := reflect.ValueOf(v.export())
 		if iv.Type().AssignableTo(t) {
