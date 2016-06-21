@@ -334,6 +334,20 @@ func TestMakeCustomError(t *testing.T) {
 	})
 }
 
+func TestMakeCustomErrorFreshVM(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+		e := vm.MakeCustomError("CarrotError", "carrots is life, carrots is love")
+
+		str, err := e.ToString()
+		if err != nil {
+			panic(err)
+		}
+
+		is(str, "CarrotError: carrots is life, carrots is love")
+	})
+}
+
 func TestMakeTypeError(t *testing.T) {
 	tt(t, func() {
 		vm := New()
