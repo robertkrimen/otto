@@ -30,8 +30,8 @@ type Value struct {
 	value interface{}
 }
 
-func (vl Value) safe() bool {
-	return vl.kind < valueEmpty
+func (value Value) safe() bool {
+	return value.kind < valueEmpty
 }
 
 var (

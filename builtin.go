@@ -159,7 +159,7 @@ func builtinGlobal_parseFloat(call FunctionCall) Value {
 	}
 	value, err := strconv.ParseFloat(input, 64)
 	if err != nil {
-		for end := len(input); end > 0; end -= 1 {
+		for end := len(input); end > 0; end-- {
 			input := input[0:end]
 			if !parseFloat_matchValid.MatchString(input) {
 				return NaNValue()

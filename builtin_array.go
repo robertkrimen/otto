@@ -662,7 +662,7 @@ func builtinArray_reduceRight(call FunctionCall) Value {
 				for ; index >= 0; index-- {
 					if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 						accumulator = thisObject.get(key)
-						index -= 1
+						index--
 						break
 					}
 				}

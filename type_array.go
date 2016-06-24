@@ -73,7 +73,7 @@ func arrayDefineOwnProperty(self *_object, name string, descriptor _property, th
 			return false
 		}
 		for newLength < length {
-			length -= 1
+			length--
 			if !self.delete(strconv.FormatInt(int64(length), 10), false) {
 				descriptor.value = toValue_uint32(length + 1)
 				if !newWritable {

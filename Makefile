@@ -18,7 +18,7 @@ test: parser inline.go
 parser:
 	$(MAKE) -C parser
 
-inline.go: inline
+inline.go: inline.pl
 	./$< > $@
 
 #################
