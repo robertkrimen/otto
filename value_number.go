@@ -168,32 +168,32 @@ type _number struct {
 // FIXME
 // http://www.goinggo.net/2013/08/gustavos-ieee-754-brain-teaser.html
 // http://bazaar.launchpad.net/~niemeyer/strepr/trunk/view/6/strepr.go#L160
-func (vl Value) number() (number _number) {
-	switch vl := vl.value.(type) {
+func (value Value) number() (number _number) {
+	switch value := value.value.(type) {
 	case int8:
-		number.int64 = int64(vl)
+		number.int64 = int64(value)
 		return
 	case int16:
-		number.int64 = int64(vl)
+		number.int64 = int64(value)
 		return
 	case uint8:
-		number.int64 = int64(vl)
+		number.int64 = int64(value)
 		return
 	case uint16:
-		number.int64 = int64(vl)
+		number.int64 = int64(value)
 		return
 	case uint32:
-		number.int64 = int64(vl)
+		number.int64 = int64(value)
 		return
 	case int:
-		number.int64 = int64(vl)
+		number.int64 = int64(value)
 		return
 	case int64:
-		number.int64 = vl
+		number.int64 = value
 		return
 	}
 
-	float := vl.float64()
+	float := value.float64()
 	if float == 0 {
 		return
 	}
