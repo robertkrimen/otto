@@ -217,9 +217,9 @@ func _builtinGlobal_encodeURI(call FunctionCall, escape *p5r.Regexp) Value {
 		output = append(output, encode...)
 	}
 	{
-		// FIX: Find a better way of doing this
 		regexp_escape := escape.MustConvert()
 		value := regexp_escape.ReplaceAllFunc(output, func(target []byte) []byte {
+			// TODO There is probably a better way of doing this
 			if target[0] == ' ' {
 				return []byte("%20")
 			}
