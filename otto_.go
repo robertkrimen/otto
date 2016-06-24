@@ -2,13 +2,13 @@ package otto
 
 import (
 	"fmt"
-	"regexp"
+	"github.com/xyproto/p5r"
 	runtime_ "runtime"
 	"strconv"
 	"strings"
 )
 
-var isIdentifier_Regexp *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z\$][a-zA-Z0-9\$]*$`)
+var isIdentifier_Regexp *p5r.Regexp = p5r.MustCompile(`^[a-zA-Z\$][a-zA-Z0-9\$]*$`)
 
 func isIdentifier(string_ string) bool {
 	return isIdentifier_Regexp.MatchString(string_)

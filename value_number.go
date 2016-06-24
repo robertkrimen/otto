@@ -2,13 +2,13 @@ package otto
 
 import (
 	"fmt"
+	"github.com/xyproto/p5r"
 	"math"
-	"regexp"
 	"strconv"
 	"strings"
 )
 
-var stringToNumberParseInteger = regexp.MustCompile(`^(?:0[xX])`)
+var stringToNumberParseInteger = p5r.MustCompile(`^(?:0[xX])`)
 
 func parseNumber(value string) float64 {
 	value = strings.TrimSpace(value)

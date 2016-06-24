@@ -2,11 +2,11 @@ package otto
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"
 	"github.com/robertkrimen/otto/token"
+	"github.com/xyproto/p5r"
 )
 
 var trueLiteral = &_nodeLiteral{value: toValue_bool(true)}
@@ -491,7 +491,7 @@ type (
 	_nodeRegExpLiteral struct {
 		flags   string
 		pattern string // Value?
-		regexp  *regexp.Regexp
+		regexp  *p5r.Regexp
 	}
 
 	_nodeSequenceExpression struct {
