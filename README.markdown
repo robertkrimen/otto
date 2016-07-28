@@ -1,87 +1,108 @@
 # otto
 --
-    import "github.com/robertkrimen/otto"
+```go
+import "github.com/robertkrimen/otto"
+```
 
 Package otto is a JavaScript parser and interpreter written natively in Go.
 
 http://godoc.org/github.com/robertkrimen/otto
 
-    import (
-        "github.com/robertkrimen/otto"
-    )
+```go
+import (
+   "github.com/robertkrimen/otto"
+)
+```
 
 Run something in the VM
 
-    vm := otto.New()
-    vm.Run(`
-        abc = 2 + 2;
-    	console.log("The value of abc is " + abc); // 4
-    `)
+```go
+vm := otto.New()
+vm.Run(`
+    abc = 2 + 2;
+    console.log("The value of abc is " + abc); // 4
+`)
+```
 
 Get a value out of the VM
 
-    if value, err := vm.Get("abc"); err == nil {
-    	if value_int, err := value.ToInteger(); err == nil {
-    	    fmt.Printf("", value_int, err)
-    	}
+```go
+if value, err := vm.Get("abc"); err == nil {
+    if value_int, err := value.ToInteger(); err == nil {
+	fmt.Printf("", value_int, err)
     }
+}
+```
 
 Set a number
 
-    vm.Set("def", 11)
-    vm.Run(`
-    	console.log("The value of def is " + def);
-    	// The value of def is 11
-    `)
+```go
+vm.Set("def", 11)
+vm.Run(`
+    console.log("The value of def is " + def);
+    // The value of def is 11
+`)
+```
 
 Set a string
 
-    vm.Set("xyzzy", "Nothing happens.")
-    vm.Run(`
-    	console.log(xyzzy.length); // 16
-    `)
+```go
+vm.Set("xyzzy", "Nothing happens.")
+vm.Run(`
+    console.log(xyzzy.length); // 16
+`)
+```
 
 Get the value of an expression
 
-    value, _ = vm.Run("xyzzy.length")
-    {
-    	// value is an int64 with a value of 16
-    	value, _ := value.ToInteger()
-    }
+```go
+value, _ = vm.Run("xyzzy.length")
+{
+    // value is an int64 with a value of 16
+    value, _ := value.ToInteger()
+}
+```
 
 An error happens
 
-    value, err = vm.Run("abcdefghijlmnopqrstuvwxyz.length")
-    if err != nil {
-    	// err = ReferenceError: abcdefghijlmnopqrstuvwxyz is not defined
-    	// If there is an error, then value.IsUndefined() is true
-    	...
-    }
+```go
+value, err = vm.Run("abcdefghijlmnopqrstuvwxyz.length")
+if err != nil {
+    // err = ReferenceError: abcdefghijlmnopqrstuvwxyz is not defined
+    // If there is an error, then value.IsUndefined() is true
+    ...
+}
+```
 
 Set a Go function
 
-    vm.Set("sayHello", func(call otto.FunctionCall) otto.Value {
-        fmt.Printf("Hello, %s.\n", call.Argument(0).String())
-        return otto.Value{}
-    })
+```go
+vm.Set("sayHello", func(call otto.FunctionCall) otto.Value {
+    fmt.Printf("Hello, %s.\n", call.Argument(0).String())
+    return otto.Value{}
+})
+```
 
 Set a Go function that returns something useful
 
-    vm.Set("twoPlus", func(call otto.FunctionCall) otto.Value {
-        right, _ := call.Argument(0).ToInteger()
-        result, _ := vm.ToValue(2 + right)
-        return result
-    })
+```go
+vm.Set("twoPlus", func(call otto.FunctionCall) otto.Value {
+    right, _ := call.Argument(0).ToInteger()
+    return, _ := vm.ToValue(2 + right)
+    return result
+})
+```
 
 Use the functions in JavaScript
 
-    result, _ = vm.Run(`
-        sayHello("Xyzzy");      // Hello, Xyzzy.
-        sayHello();             // Hello, undefined
+```go
+result, _ = vm.Run(`
+    sayHello("Xyzzy");      // Hello, Xyzzy.
+    sayHello();             // Hello, undefined
 
-        result = twoPlus(2.0); // 4
-    `)
-
+    result = twoPlus(2.0); // 4
+`) 
+```
 
 ### Parser
 
@@ -92,23 +113,25 @@ http://godoc.org/github.com/robertkrimen/otto/parser
 
 Parse and return an AST
 
-    filename := "" // A filename is optional
-    src := `
-        // Sample xyzzy example
-        (function(){
-            if (3.14159 > 0) {
-                console.log("Hello, World.");
-                return;
-            }
+```go
+filenamee := "" // A filename is optional
+src := `
+    // Sample xyzzy example
+    (function(){
+        if (3.14159 > 0) {
+            console.log("Hello, World.");
+            return;
+        }
 
-            var xyzzy = NaN;
-            console.log("Nothing happens.");
-            return xyzzy;
-        })();
-    `
+        var xyzzy = NaN;
+        console.log("Nothing happens.");
+        return xyzzy;
+    })();
+`
 
-    // Parse some JavaScript, yielding a *ast.Program and/or an ErrorList
-    program, err := parser.ParseFile(nil, filename, src, 0)
+// Parse some JavaScript, yielding a *ast.Program and/or an ErrorList
+program, err := parser.ParseFile(nil, filename, src, 0)
+```
 
 ### otto
 
@@ -126,12 +149,14 @@ Run JavaScript by entering some source on stdin or by giving otto a filename:
 Optionally include the JavaScript utility-belt library, underscore, with this
 import:
 
-    import (
-    	"github.com/robertkrimen/otto"
-    	_ "github.com/robertkrimen/otto/underscore"
-    )
+```go
+import (
+    "github.com/robertkrimen/otto"
+    _ "github.com/robertkrimen/otto/underscore"
+)
 
-    // Now every otto runtime will come loaded with underscore
+// Now every otto runtime will come loaded with underscore
+```
 
 For more information: http://github.com/robertkrimen/otto/tree/master/underscore
 
@@ -172,53 +197,55 @@ In addition to the above, re2 (Go) has a different definition for \s: [\t\n\f\r
 If you want to stop long running executions (like third-party code), you can use
 the interrupt channel to do this:
 
-    package main
+```go
+package main
 
-    import (
-        "errors"
-        "fmt"
-        "os"
-        "time"
+import (
+    "errors"
+    "fmt"
+    "os"
+    "time"
 
-        "github.com/robertkrimen/otto"
-    )
+    "github.com/robertkrimen/otto"
+)
 
-    var halt = errors.New("Stahp")
+var halt = errors.New("Stahp")
 
-    func main() {
-        runUnsafe(`var abc = [];`)
-        runUnsafe(`
-        while (true) {
-            // Loop forever
-        }`)
-    }
+func main() {
+    runUnsafe(`var abc = [];`)
+    runUnsafe(`
+    while (true) {
+        // Loop forever
+    }`)
+}
 
-    func runUnsafe(unsafe string) {
-        start := time.Now()
-        defer func() {
-            duration := time.Since(start)
-            if caught := recover(); caught != nil {
-                if caught == halt {
-                    fmt.Fprintf(os.Stderr, "Some code took to long! Stopping after: %v\n", duration)
-                    return
-                }
-                panic(caught) // Something else happened, repanic!
+func runUnsafe(unsafe string) {
+    start := time.Now()
+    defer func() {
+        duration := time.Since(start)
+        if caught := recover(); caught != nil {
+            if caught == halt {
+                fmt.Fprintf(os.Stderr, "Some code took to long! Stopping after: %v\n", duration)
+                return
             }
-            fmt.Fprintf(os.Stderr, "Ran code successfully: %v\n", duration)
-        }()
+            panic(caught) // Something else happened, repanic!
+        }
+        fmt.Fprintf(os.Stderr, "Ran code successfully: %v\n", duration)
+    }()
 
-        vm := otto.New()
-        vm.Interrupt = make(chan func(), 1) // The buffer prevents blocking
+    vm := otto.New()
+    vm.Interrupt = make(chan func(), 1) // The buffer prevents blocking
 
-        go func() {
-            time.Sleep(2 * time.Second) // Stop after two seconds
-            vm.Interrupt <- func() {
-                panic(halt)
-            }
-        }()
+    go func() {
+        time.Sleep(2 * time.Second) // Stop after two seconds
+        vm.Interrupt <- func() {
+            panic(halt)
+        }
+    }()
 
-        vm.Run(unsafe) // Here be dragons (risky code)
-    }
+    vm.Run(unsafe) // Here be dragons (risky code)
+}
+```
 
 Where is setTimeout/setInterval?
 
@@ -425,15 +452,17 @@ If source begins with "new " (A lowercase new followed by a space), then Call
 will invoke the function constructor rather than performing a function call. In
 this case, the this argument has no effect.
 
-    // value is a String object
-    value, _ := vm.Call("Object", nil, "Hello, World.")
+```go
+// value is a String object
+value, _ := vm.Call("Object", nil, "Hello, World.")
 
-    // Likewise...
-    value, _ := vm.Call("new Object", nil, "Hello, World.")
+// Likewise...
+value, _ := vm.Call("new Object", nil, "Hello, World.")
 
-    // This will perform a concat on the given array and return the result
-    // value is [ 1, 2, 3, undefined, 4, 5, 6, 7, "abc" ]
-    value, _ := vm.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")
+// This will perform a concat on the given array and return the result
+// value is [ 1, 2, 3, undefined, 4, 5, 6, 7, "abc" ]
+value, _ := vm.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")
+```
 
 #### func (*Otto) Compile
 
@@ -443,8 +472,10 @@ func (self *Otto) Compile(filename string, src interface{}) (*Script, error)
 Compile will parse the given source and return a Script value or nil and an
 error if there was a problem during compilation.
 
-    script, err := vm.Compile("", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
-    vm.Run(script)
+```go
+script, err := vm.Compile("", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
+vm.Run(script)
+```
 
 #### func (*Otto) Copy
 
@@ -479,16 +510,22 @@ Object will run the given source and return the result as an object.
 
 For example, accessing an existing object:
 
-    object, _ := vm.Object(`Number`)
+```go
+object, _ := vm.Object(`Number`)
+```
 
 Or, creating a new object:
 
-    object, _ := vm.Object(`({ xyzzy: "Nothing happens." })`)
+```go
+object, _ := vm.Object(`({ xyzzy: "Nothing happens." })`)
+```
 
 Or, creating and assigning an object:
 
-    object, _ := vm.Object(`xyzzy = {}`)
-    object.Set("volume", 11)
+```go
+object, _ := vm.Object(`xyzzy = {}`)
+object.Set("volume", 11)
+```
 
 If there is an error (like the source does not result in an object), then nil
 and an error is returned.
@@ -569,7 +606,9 @@ FalseValue will return a value representing false.
 
 It is equivalent to:
 
-    ToValue(false)
+```go
+ToValue(false)
+```
 
 #### func  NaNValue
 
@@ -580,7 +619,9 @@ NaNValue will return a value representing NaN.
 
 It is equivalent to:
 
-    ToValue(math.NaN())
+```go
+ToValue(math.NaN())
+```
 
 #### func  NullValue
 
@@ -609,7 +650,9 @@ TrueValue will return a value representing true.
 
 It is equivalent to:
 
-    ToValue(true)
+```go
+ToValue(true)
+```
 
 #### func  UndefinedValue
 
