@@ -132,6 +132,7 @@ The following are some limitations with otto:
 
     * "use strict" will parse, but does nothing.
     * The regular expression engine (re2/regexp) is not fully compatible with the ECMA5 specification.
+    * Otto targets ES5. ES6 features (eg: Typed Arrays) are not supported.
 
 Regular Expression Incompatibility
 
