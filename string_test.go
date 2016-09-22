@@ -229,6 +229,29 @@ func TestString_split(t *testing.T) {
 	})
 }
 
+func Loop(s string, n int) {
+	vm := New()
+	vm.Set("done", func(call FunctionCall) Value {
+		n -= 1
+		typed, _ := vm.ToValue(n < 0)
+		return typed
+	})
+
+	vm.Run(s)
+}
+
+func BenchmarkString_split(b *testing.B) {
+	script := `
+data = "Lorem ipsum dolor sit amet, blandit nec elit. Ridiculus tortor wisi fusce vivamus cras maecenas. At at in, congue sit luctus amet nunc posuere integer, wisi vestibulum in in, id lacinia. Dolor neque lacus ultrices ipsum adipiscing. Mus suspendisse morbi dignissim nibh, amet et varius porttitor ligula lacinia, est odio turpis adipiscing amet vestibulum purus. Eget per ipsum nulla quisque. Luctus magna nam dui, vel sed nisl porttitor, libero duis a quis diam fringilla, netus ut non massa eros dictum. Elit nullam ipsum vestibulum lorem, leo consectetuer libero gravida consectetuer et litora, sit justo mi ac et quam dignissim."
+while(!done()) {
+  lines = data.split(" ")
+  //manually verify output
+  //console.log(JSON.stringify(lines))
+}
+`
+	Loop(script, b.N)
+}
+
 func TestString_slice(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
