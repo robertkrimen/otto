@@ -151,6 +151,17 @@ func TestString_match(t *testing.T) {
 	})
 }
 
+func BenchmarkString_match(b *testing.B) {
+	vm := New()
+	s, _ := vm.Compile("test.js", `"abc____abc_abc___".match(/__abc/g)`)
+	for i := 0; i < b.N; i++ {
+		_, e := vm.Run(s)
+		if e != nil {
+			b.Error(e.Error())
+		}
+	}
+}
+
 func TestString_replace(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
@@ -184,6 +195,17 @@ func TestString_replace(t *testing.T) {
 	})
 }
 
+func BenchmarkString_replace(b *testing.B) {
+	vm := New()
+	s, _ := vm.Compile("test.js", `"_abc_abd_".replace(/ab(c|d)/g, "$1")`)
+	for i := 0; i < b.N; i++ {
+		_, e := vm.Run(s)
+		if e != nil {
+			b.Error(e.Error())
+		}
+	}
+}
+
 func TestString_search(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
@@ -193,6 +215,17 @@ func TestString_search(t *testing.T) {
 		test(`"abc".search(/c$/)`, 2)
 		test(`"abc".search(/$/)`, 3)
 	})
+}
+
+func BenchmarkString_search(b *testing.B) {
+	vm := New()
+	s, _ := vm.Compile("test.js", `"abc".search(/c$/)`)
+	for i := 0; i < b.N; i++ {
+		_, e := vm.Run(s)
+		if e != nil {
+			b.Error(e.Error())
+		}
+	}
 }
 
 func TestString_split(t *testing.T) {
@@ -229,27 +262,28 @@ func TestString_split(t *testing.T) {
 	})
 }
 
-func Loop(s string, n int) {
+func BenchmarkString_splitWithString(b *testing.B) {
 	vm := New()
-	vm.Set("done", func(call FunctionCall) Value {
-		n -= 1
-		typed, _ := vm.ToValue(n < 0)
-		return typed
-	})
-
-	vm.Run(s)
+	vm.Set("data", "Lorem ipsum dolor sit amet, blandit nec elit. Ridiculus tortor wisi fusce vivamus")
+	s, _ := vm.Compile("test.js", `data.split(" ")`)
+	for i := 0; i < b.N; i++ {
+		_, e := vm.Run(s)
+		if e != nil {
+			b.Error(e.Error())
+		}
+	}
 }
 
-func BenchmarkString_split(b *testing.B) {
-	script := `
-data = "Lorem ipsum dolor sit amet, blandit nec elit. Ridiculus tortor wisi fusce vivamus cras maecenas. At at in, congue sit luctus amet nunc posuere integer, wisi vestibulum in in, id lacinia. Dolor neque lacus ultrices ipsum adipiscing. Mus suspendisse morbi dignissim nibh, amet et varius porttitor ligula lacinia, est odio turpis adipiscing amet vestibulum purus. Eget per ipsum nulla quisque. Luctus magna nam dui, vel sed nisl porttitor, libero duis a quis diam fringilla, netus ut non massa eros dictum. Elit nullam ipsum vestibulum lorem, leo consectetuer libero gravida consectetuer et litora, sit justo mi ac et quam dignissim."
-while(!done()) {
-  lines = data.split(" ")
-  //manually verify output
-  //console.log(JSON.stringify(lines))
-}
-`
-	Loop(script, b.N)
+func BenchmarkString_splitWithRegex(b *testing.B) {
+	vm := New()
+	vm.Set("data", "Lorem ipsum dolor sit amet, blandit nec elit. Ridiculus tortor wisi fusce vivamus")
+	s, _ := vm.Compile("test.js", `data.split(/ /)`)
+	for i := 0; i < b.N; i++ {
+		_, e := vm.Run(s)
+		if e != nil {
+			b.Error(e.Error())
+		}
+	}
 }
 
 func TestString_slice(t *testing.T) {
