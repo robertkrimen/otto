@@ -832,3 +832,28 @@ func Test_random(t *testing.T) {
 		is(f1 == f2, false)
 	})
 }
+
+func Test_stringArray(t *testing.T) {
+	getStrings := func() []string {
+		return []string{"these", "are", "strings"}
+	}
+	concatStrings := func(a []string) string {
+		if len(a) == 0 {
+			return ""
+		}
+		r := a[0]
+		for i := 1; i < len(a); i++ {
+			r += " "
+			r += a[i]
+		}
+		return r
+	}
+	tt(t, func() {
+		vm := New()
+		vm.Set("getStrings", getStrings)
+		vm.Set("concatStrings", concatStrings)
+		r1, err := vm.Run(`var a = getStrings(); concatStrings(a)`)
+		is(err, nil)
+		is(r1, "these are strings")
+	})
+}
