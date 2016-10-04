@@ -151,6 +151,17 @@ func TestString_match(t *testing.T) {
 	})
 }
 
+func BenchmarkString_match(b *testing.B) {
+	vm := New()
+	s, _ := vm.Compile("test.js", `"abc____abc_abc___".match(/__abc/g)`)
+	for i := 0; i < b.N; i++ {
+		_, e := vm.Run(s)
+		if e != nil {
+			b.Error(e.Error())
+		}
+	}
+}
+
 func TestString_replace(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
@@ -184,6 +195,17 @@ func TestString_replace(t *testing.T) {
 	})
 }
 
+func BenchmarkString_replace(b *testing.B) {
+	vm := New()
+	s, _ := vm.Compile("test.js", `"_abc_abd_".replace(/ab(c|d)/g, "$1")`)
+	for i := 0; i < b.N; i++ {
+		_, e := vm.Run(s)
+		if e != nil {
+			b.Error(e.Error())
+		}
+	}
+}
+
 func TestString_search(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
@@ -193,6 +215,17 @@ func TestString_search(t *testing.T) {
 		test(`"abc".search(/c$/)`, 2)
 		test(`"abc".search(/$/)`, 3)
 	})
+}
+
+func BenchmarkString_search(b *testing.B) {
+	vm := New()
+	s, _ := vm.Compile("test.js", `"abc".search(/c$/)`)
+	for i := 0; i < b.N; i++ {
+		_, e := vm.Run(s)
+		if e != nil {
+			b.Error(e.Error())
+		}
+	}
 }
 
 func TestString_split(t *testing.T) {
@@ -227,6 +260,30 @@ func TestString_split(t *testing.T) {
             [ def.constructor === Array, abc.length, def.length, def.join('') ];
         `, "true,19,19,one-1 two-2 three-3")
 	})
+}
+
+func BenchmarkString_splitWithString(b *testing.B) {
+	vm := New()
+	vm.Set("data", "Lorem ipsum dolor sit amet, blandit nec elit. Ridiculus tortor wisi fusce vivamus")
+	s, _ := vm.Compile("test.js", `data.split(" ")`)
+	for i := 0; i < b.N; i++ {
+		_, e := vm.Run(s)
+		if e != nil {
+			b.Error(e.Error())
+		}
+	}
+}
+
+func BenchmarkString_splitWithRegex(b *testing.B) {
+	vm := New()
+	vm.Set("data", "Lorem ipsum dolor sit amet, blandit nec elit. Ridiculus tortor wisi fusce vivamus")
+	s, _ := vm.Compile("test.js", `data.split(/ /)`)
+	for i := 0; i < b.N; i++ {
+		_, e := vm.Run(s)
+		if e != nil {
+			b.Error(e.Error())
+		}
+	}
 }
 
 func TestString_slice(t *testing.T) {
