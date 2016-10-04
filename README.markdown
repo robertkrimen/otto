@@ -88,7 +88,7 @@ Set a Go function that returns something useful
 ```go
 vm.Set("twoPlus", func(call otto.FunctionCall) otto.Value {
     right, _ := call.Argument(0).ToInteger()
-    return, _ := vm.ToValue(2 + right)
+    result, _ := vm.ToValue(2 + right)
     return result
 })
 ```
