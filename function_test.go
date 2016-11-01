@@ -2,6 +2,7 @@ package otto
 
 import (
 	"testing"
+	"net/http"
 	"errors"
 )
 
@@ -318,4 +319,23 @@ func Test_tooManyParameters(t *testing.T) {
 func Test_ParameterConversion(t *testing.T) {
 	InvalidParametersTest(t,`abc(1,2,3)`, nil)
 	InvalidParametersTest(t,`num("a","b","c")`, errors.New(`TypeError: can't convert from "string" to "int"`))
+}
+
+func TestBadArgs(t *testing.T) {
+	vm := New()
+	vm.Set("http", map[string]interface{}{
+		"Get": http.Get,
+		"Post": http.Post,
+		"PostForm": http.PostForm,
+		"NewRequest": http.NewRequest,
+	})
+
+	_, e := vm.Run(`console.log(http.Post("https://httpbin.org/post"));`)
+	if e != nil {
+		if e.Error() != "RangeError: expected 3 argument(s); got 1" {
+			t.Error(e)
+		}
+	} else {
+		t.Error("incorrect arguments failed to return an error")
+	}
 }
