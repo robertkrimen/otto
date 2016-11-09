@@ -1,0 +1,12 @@
+language: go
+
+go:
+  - 1.6
+  - 1.7
+  - master
+
+install:
+  - go get gopkg.in/sourcemap.v1
+  - go get gopkg.in/readline.v1
+
+script: go test -v -race ./...
