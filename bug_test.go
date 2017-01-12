@@ -647,3 +647,17 @@ this._hasher;f=g.finalize(f);g.reset();return g.finalize(this._oKey.clone().conc
 		test(`CryptoJS.HmacSHA256("Message", "secret");`, "aa747c502a898200f9e4fa21bac68136f886a0e27aec70ba06daf2e2a5cb5597")
 	})
 }
+
+func Test_S9_3_1_A2(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`
+			Number("\u0009\u000C\u0020\u00A0\u000B\u000A\u000D\u2028\u2029\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000") === 0;
+        `, true)
+
+		test(`
+			Number("\u180E") === 0;
+        `, true)
+	})
+}
