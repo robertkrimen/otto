@@ -675,3 +675,17 @@ func Test_S15_1_2_2_A2_T10(t *testing.T) {
         `, true)
 	})
 }
+
+func Test_S15_1_2_3_A2_T10(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`
+			parseFloat("\u180E" + "1.1") === parseFloat("1.1");
+        `, true)
+
+		test(`
+			parseFloat("\u180E" + "\u180E" + "\u180E" + "1.1") === parseFloat("1.1");
+        `, true)
+	})
+}
