@@ -70,7 +70,7 @@ func digitValue(chr rune) int {
 }
 
 func builtinGlobal_parseInt(call FunctionCall) Value {
-	input := strings.TrimSpace(call.Argument(0).string())
+	input := strings.Trim(call.Argument(0).string(), builtinString_trim_whitespace)
 	if len(input) == 0 {
 		return NaNValue()
 	}

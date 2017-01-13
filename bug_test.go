@@ -661,3 +661,17 @@ func Test_S9_3_1_A2(t *testing.T) {
         `, true)
 	})
 }
+
+func Test_S15_1_2_2_A2_T10(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`
+			parseInt("\u180E" + "1") === parseInt("1");
+        `, true)
+
+		test(`
+			parseInt("\u180E" + "\u180E" + "\u180E" + "1") === parseInt("1");
+        `, true)
+	})
+}
