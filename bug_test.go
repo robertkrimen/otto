@@ -689,3 +689,14 @@ func Test_S15_1_2_3_A2_T10(t *testing.T) {
         `, true)
 	})
 }
+
+func Test_issue234(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`
+			var abc = "6E6E6EF72905D973E8FEF9F38F01AC4D95A600E6A6E1.C1DBF2F71A5F8C9EB04B75E7A879B4C90C25313A".split("");
+			abc.splice(0, 2);
+		`, "6,E")
+	})
+}
