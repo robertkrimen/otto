@@ -95,7 +95,7 @@ func execRegExp(this *_object, target string) (match bool, result []int) {
 		index = 0
 	}
 	if 0 <= index && index <= int64(len(target)) {
-		result = this.regExpValue().regularExpression.MustConvert().FindStringSubmatchIndex(target[index:])
+		result = this.regExpValue().regularExpression.FindStringSubmatchIndex(target[index:])
 	}
 	if result == nil {
 		//this.defineProperty("lastIndex", toValue_(0), 0111, true)
