@@ -35,7 +35,7 @@ import (
 	"fmt"
 	"math/big"
 	"reflect"
-	"regexp"
+	regexp "github.com/xyproto/p5r"
 	"runtime"
 	"strings"
 	"sync"

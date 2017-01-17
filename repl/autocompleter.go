@@ -1,7 +1,7 @@
 package repl
 
 import (
-	"regexp"
+	regexp "github.com/xyproto/p5r"
 	"strings"
 
 	"github.com/robertkrimen/otto"
