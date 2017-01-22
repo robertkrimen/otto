@@ -98,6 +98,8 @@ func TestToBoolean(t *testing.T) {
 		//is(toValue(newObject()), true)
 		is(UndefinedValue(), false)
 		is(NullValue(), false)
+		is([]uint16{}, false)
+		is([]uint16{0x68, 0x65, 0x6c, 0x6c, 0x6f}, true)
 	})
 }
 
