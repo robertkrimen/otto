@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"regexp"
+	regexp "github.com/xyproto/p5r"
 	"strconv"
 	"strings"
 	"unicode"

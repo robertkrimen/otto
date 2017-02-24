@@ -137,8 +137,7 @@ func builtinString_match(call FunctionCall) Value {
 	}
 
 	{
-		// TODO: Use p5r directly instead of converting to a regexp struct
-		regexp_matcher := matcher.regExpValue().regularExpression.MustConvert()
+		regexp_matcher := matcher.regExpValue().regularExpression
 		result := regexp_matcher.FindAllStringIndex(target, -1)
 		matchCount := len(result)
 		if result == nil {
@@ -163,8 +162,7 @@ func builtinString_findAndReplaceString(input []byte, lastIndex int, match []int
 	if match[0] != lastIndex {
 		output = append(output, target[lastIndex:match[0]]...)
 	}
-	// TODO: Use p5r directly instead of converting to a regexp struct
-	replacement := builtinString_replace_Regexp.MustConvert().ReplaceAllFunc(replaceValue, func(part []byte) []byte {
+	replacement := builtinString_replace_Regexp.ReplaceAllFunc(replaceValue, func(part []byte) []byte {
 		// TODO Check if match[0] or match[1] can be -1 in this scenario
 		switch part[1] {
 		case '$':
@@ -211,8 +209,7 @@ func builtinString_replace(call FunctionCall) Value {
 		search = p5r.MustCompile(p5r.QuoteMeta(searchValue.string()))
 	}
 
-	// TODO: Use p5r directly instead of converting to a regexp struct
-	found := search.MustConvert().FindAllSubmatchIndex(target, find)
+	found := search.FindAllSubmatchIndex(target, find)
 	if found == nil {
 		return toValue_string(string(target)) // !match
 	}
@@ -274,8 +271,7 @@ func builtinString_search(call FunctionCall) Value {
 	if !searchValue.IsObject() || search.class != "RegExp" {
 		search = call.runtime.newRegExp(searchValue, Value{})
 	}
-	// TODO: Use p5r directly instead of converting to a regexp struct
-	result := search.regExpValue().regularExpression.MustConvert().FindStringIndex(target)
+	result := search.regExpValue().regularExpression.FindStringIndex(target)
 	if result == nil {
 		return toValue_int(-1)
 	}
@@ -316,8 +312,7 @@ func builtinString_split(call FunctionCall) Value {
 		targetLength := len(target)
 		search := separatorValue._object().regExpValue().regularExpression
 		valueArray := []Value{}
-		// TODO: Use p5r directly instead of converting to a regexp struct
-		result := search.MustConvert().FindAllStringSubmatchIndex(target, -1)
+		result := search.FindAllStringSubmatchIndex(target, -1)
 		lastIndex := 0
 		found := 0
 

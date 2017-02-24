@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"regexp"
+	regexp "github.com/xyproto/p5r"
 
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"

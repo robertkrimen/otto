@@ -62,7 +62,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"regexp"
+	regexp "github.com/xyproto/p5r"
 	"runtime"
 	"strings"
 	"unicode"

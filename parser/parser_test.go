@@ -2,7 +2,7 @@ package parser
 
 import (
 	"errors"
-	"regexp"
+	regexp "github.com/xyproto/p5r"
 	"strings"
 	"testing"
 
