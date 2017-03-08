@@ -1,10 +1,10 @@
 package parser
 
 import (
-	"../terst"
 	"testing"
 
 	"github.com/robertkrimen/otto/file"
+	"github.com/robertkrimen/otto/terst"
 	"github.com/robertkrimen/otto/token"
 )
 
