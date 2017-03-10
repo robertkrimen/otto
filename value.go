@@ -720,12 +720,9 @@ func (self Value) export() interface{} {
 			return val.Interface()
 		} else {
 			result := make(map[string]interface{})
-			// TODO Should we export everything? Or just what is enumerable?
 			object.enumerate(false, func(name string) bool {
 				value := object.get(name)
-				if value.IsDefined() {
-					result[name] = value.export()
-				}
+				result[name] = value.export()
 				return true
 			})
 			return result

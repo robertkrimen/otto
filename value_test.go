@@ -221,11 +221,11 @@ func TestExport(t *testing.T) {
 		is(test(`"Nothing happens";`).export(), "Nothing happens")
 		is(test(`String.fromCharCode(97,98,99,100,101,102)`).export(), "abcdef")
 		{
-			value := test(`({ abc: 1, def: true, ghi: undefined });`).export().(map[string]interface{})
+			value := test(`({ abc: 1, def: true, ghi: undefined, jkl: null });`).export().(map[string]interface{})
 			is(value["abc"], 1)
 			is(value["def"], true)
-			_, exists := value["ghi"]
-			is(exists, false)
+			is(value["ghi"], nil)
+			is(value["jkl"], nil)
 		}
 		{
 			value := test(`[ "abc", 1, "def", true, undefined, null ];`).export().([]interface{})
