@@ -2,7 +2,7 @@ package otto
 
 import (
 	"bytes"
-	"regexp"
+	"github.com/xyproto/p5r"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -137,7 +137,8 @@ func builtinString_match(call FunctionCall) Value {
 	}
 
 	{
-		result := matcher.regExpValue().regularExpression.FindAllStringIndex(target, -1)
+		regexp_matcher := matcher.regExpValue().regularExpression
+		result := regexp_matcher.FindAllStringIndex(target, -1)
 		matchCount := len(result)
 		if result == nil {
 			matcher.put("lastIndex", toValue_int(0), true)
@@ -153,7 +154,7 @@ func builtinString_match(call FunctionCall) Value {
 	}
 }
 
-var builtinString_replace_Regexp = regexp.MustCompile("\\$(?:[\\$\\&\\'\\`1-9]|0[1-9]|[1-9][0-9])")
+var builtinString_replace_Regexp = p5r.MustCompile("\\$(?:[\\$\\&\\'\\`1-9]|0[1-9]|[1-9][0-9])")
 
 func builtinString_findAndReplaceString(input []byte, lastIndex int, match []int, target []byte, replaceValue []byte) (output []byte) {
 	matchCount := len(match) / 2
@@ -195,7 +196,7 @@ func builtinString_replace(call FunctionCall) Value {
 	searchObject := searchValue._object()
 
 	// TODO If a capture is -1?
-	var search *regexp.Regexp
+	var search *p5r.Regexp
 	global := false
 	find := 1
 	if searchValue.IsObject() && searchObject.class == "RegExp" {
@@ -205,7 +206,7 @@ func builtinString_replace(call FunctionCall) Value {
 			find = -1
 		}
 	} else {
-		search = regexp.MustCompile(regexp.QuoteMeta(searchValue.string()))
+		search = p5r.MustCompile(p5r.QuoteMeta(searchValue.string()))
 	}
 
 	found := search.FindAllSubmatchIndex(target, find)

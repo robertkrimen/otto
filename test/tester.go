@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"regexp"
+	regexp "github.com/xyproto/p5r"
 	"strings"
 	"sync"
 	"text/tabwriter"

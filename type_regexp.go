@@ -2,14 +2,14 @@ package otto
 
 import (
 	"fmt"
-	"regexp"
+	"github.com/xyproto/p5r"
 	"unicode/utf8"
 
 	"github.com/robertkrimen/otto/parser"
 )
 
 type _regExpObject struct {
-	regularExpression *regexp.Regexp
+	regularExpression *p5r.Regexp
 	global            bool
 	ignoreCase        bool
 	multiline         bool
@@ -58,7 +58,7 @@ func (runtime *_runtime) newRegExpObject(pattern string, flags string) *_object 
 		re2pattern = fmt.Sprintf("(?%s:%s)", re2flags, re2pattern)
 	}
 
-	regularExpression, err := regexp.Compile(re2pattern)
+	regularExpression, err := p5r.Compile(re2pattern)
 	if err != nil {
 		panic(runtime.panicSyntaxError("Invalid regular expression: %s", err.Error()[22:]))
 	}
@@ -94,8 +94,7 @@ func execRegExp(this *_object, target string) (match bool, result []int) {
 	if !global {
 		index = 0
 	}
-	if 0 > index || index > int64(len(target)) {
-	} else {
+	if 0 <= index && index <= int64(len(target)) {
 		result = this.regExpValue().regularExpression.FindStringSubmatchIndex(target[index:])
 	}
 	if result == nil {

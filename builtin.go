@@ -2,9 +2,9 @@ package otto
 
 import (
 	"encoding/hex"
+	"github.com/xyproto/p5r"
 	"math"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"unicode/utf16"
@@ -148,8 +148,8 @@ func builtinGlobal_parseInt(call FunctionCall) Value {
 	return toValue_int64(value)
 }
 
-var parseFloat_matchBadSpecial = regexp.MustCompile(`[\+\-]?(?:[Ii]nf$|infinity)`)
-var parseFloat_matchValid = regexp.MustCompile(`[0-9eE\+\-\.]|Infinity`)
+var parseFloat_matchBadSpecial = p5r.MustCompile(`[\+\-]?(?:[Ii]nf$|infinity)`)
+var parseFloat_matchValid = p5r.MustCompile(`[0-9eE\+\-\.]|Infinity`)
 
 func builtinGlobal_parseFloat(call FunctionCall) Value {
 	// Caveat emptor: This implementation does NOT match the specification
@@ -179,7 +179,7 @@ func builtinGlobal_parseFloat(call FunctionCall) Value {
 
 // encodeURI/decodeURI
 
-func _builtinGlobal_encodeURI(call FunctionCall, escape *regexp.Regexp) Value {
+func _builtinGlobal_encodeURI(call FunctionCall, escape *p5r.Regexp) Value {
 	value := call.Argument(0)
 	var input []uint16
 	switch vl := value.value.(type) {
@@ -219,7 +219,7 @@ func _builtinGlobal_encodeURI(call FunctionCall, escape *regexp.Regexp) Value {
 	}
 	{
 		value := escape.ReplaceAllFunc(output, func(target []byte) []byte {
-			// Probably a better way of doing this
+			// TODO There is probably a better way of doing this
 			if target[0] == ' ' {
 				return []byte("%20")
 			}
@@ -229,20 +229,20 @@ func _builtinGlobal_encodeURI(call FunctionCall, escape *regexp.Regexp) Value {
 	}
 }
 
-var encodeURI_Regexp = regexp.MustCompile(`([^~!@#$&*()=:/,;?+'])`)
+var encodeURI_Regexp = p5r.MustCompile(`([^~!@#$&*()=:/,;?+'])`)
 
 func builtinGlobal_encodeURI(call FunctionCall) Value {
 	return _builtinGlobal_encodeURI(call, encodeURI_Regexp)
 }
 
-var encodeURIComponent_Regexp = regexp.MustCompile(`([^~!*()'])`)
+var encodeURIComponent_Regexp = p5r.MustCompile(`([^~!*()'])`)
 
 func builtinGlobal_encodeURIComponent(call FunctionCall) Value {
 	return _builtinGlobal_encodeURI(call, encodeURIComponent_Regexp)
 }
 
 // 3B/2F/3F/3A/40/26/3D/2B/24/2C/23
-var decodeURI_guard = regexp.MustCompile(`(?i)(?:%)(3B|2F|3F|3A|40|26|3D|2B|24|2C|23)`)
+var decodeURI_guard = p5r.MustCompile(`(?i)(?:%)(3B|2F|3F|3A|40|26|3D|2B|24|2C|23)`)
 
 func _decodeURI(input string, reserve bool) (string, bool) {
 	if reserve {

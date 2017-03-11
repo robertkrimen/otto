@@ -2,8 +2,8 @@ package otto
 
 import (
 	"fmt"
+	regexp "github.com/xyproto/p5r"
 	"math"
-	"regexp"
 	Time "time"
 )
 

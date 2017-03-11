@@ -2,13 +2,13 @@ package otto
 
 import (
 	"fmt"
+	"github.com/xyproto/p5r"
 	"math"
-	"regexp"
 	"strconv"
 	"unicode/utf16"
 )
 
-var matchLeading0Exponent = regexp.MustCompile(`([eE][\+\-])0+([1-9])`) // 1e-07 => 1e-7
+var matchLeading0Exponent = p5r.MustCompile(`([eE][\+\-])0+([1-9])`) // 1e-07 => 1e-7
 
 // FIXME
 // https://code.google.com/p/v8/source/browse/branches/bleeding_edge/src/conversions.cc?spec=svn18082&r=18082
