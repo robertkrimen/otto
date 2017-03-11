@@ -224,7 +224,8 @@ func TestExport(t *testing.T) {
 			value := test(`({ abc: 1, def: true, ghi: undefined, jkl: null });`).export().(map[string]interface{})
 			is(value["abc"], 1)
 			is(value["def"], true)
-			is(value["ghi"], nil)
+			_, exists := value["ghi"]
+			is(exists, false)
 			is(value["jkl"], nil)
 		}
 		{
