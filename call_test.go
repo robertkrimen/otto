@@ -1504,3 +1504,9 @@ func TestNativeCallPointerMethodWithStructPointer(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestNativeCallNilInterfaceArg(t *testing.T) {
+	vm := New()
+	vm.Set("f1", func(v interface{}) {})
+	vm.Call("f1", nil, nil)
+}
