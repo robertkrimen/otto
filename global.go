@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"os"
 	"strconv"
 	"time"
 )
@@ -52,6 +53,8 @@ func newContext() *_runtime {
 
 	self.eval = self.globalObject.property["eval"].value.(Value).value.(*_object)
 	self.globalObject.prototype = self.global.ObjectPrototype
+
+	self.console = os.Stdout
 
 	return self
 }
