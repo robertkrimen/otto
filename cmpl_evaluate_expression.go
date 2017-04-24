@@ -21,7 +21,19 @@ func (self *_runtime) cmpl_evaluate_nodeExpression(node _nodeExpression) Value {
 		default:
 		}
 	}
+	/*
+		defer func() { // 必须要先声明defer，否则不能捕获到panic异常
 
+			if err := recover(); err != nil {
+				fmt.Println("c")
+				fmt.Println(err) // 这里的err其实就是panic传入的内容，55
+
+				fmt.Printf("cmpl_evaluate_nodeExpression name=%s,filename=%s,base=%d,          	  offset=%d, argumentList=%+v\n", name, self.scope.frame.file.Name(), self.scope.frame.file.Base(), at, argumentList)
+
+				fmt.Println("d")
+			}
+		}()
+	*/
 	switch node := node.(type) {
 
 	case *_nodeArrayLiteral:
@@ -240,6 +252,21 @@ func (self *_runtime) cmpl_evaluate_nodeCallExpression(node *_nodeCallExpression
 	}
 
 	self.scope.frame.offset = int(at)
+
+	fileName := ""
+	base := 0
+	if self.scope.frame.file != nil {
+		fileName = self.scope.frame.file.Name()
+		base = self.scope.frame.file.Base()
+	}
+	defer func() { // 必须要先声明defer，否则不能捕获到panic异常
+
+		if err := recover(); err != nil {
+
+			panicStr, _ := fmt.Printf("JS RUNTIME ERROR =\"%d\",FUNCNAME=%s,FILENAME=%s,BASE=%d,OFFSET=%d, ARGUMENTLIST=%+v\n", err, name, fileName, base, at, argumentList)
+			panic(panicStr)
+		}
+	}()
 
 	return vl._object().call(this, argumentList, eval, frame)
 }

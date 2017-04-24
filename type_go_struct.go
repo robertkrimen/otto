@@ -2,6 +2,7 @@ package otto
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 )
 
@@ -64,6 +65,33 @@ func (self _goStructObject) setValue(name string, value Value) bool {
 		return false
 	}
 	fieldValue := self.getValue(name)
+
+	if field.Type.Kind() == reflect.Ptr {
+
+		_value, _ := value.Export()
+		if reflect.TypeOf(_value).Kind() == reflect.Ptr { //为go struct 指针
+			//valueElem := reflect.ValueOf(_value).Elem()
+			//fieldValue.Elem().Set(valueElem)
+			fieldValue.Set(reflect.ValueOf(_value))
+
+		} else { //普通类型的指针
+			if fieldValue.IsNil() {
+				fmt.Printf("_goStructObject setValue failed,reason:fieldValue is nil\n")
+				return false
+			}
+
+			elem, _ := ToValue(fieldValue.Elem())
+			_elem, _ := elem.Export()
+			reflectValue, err := value.toReflectValue(reflect.TypeOf(_elem).Kind())
+			if err != nil {
+				panic(err)
+			}
+			fieldValue.Elem().Set(reflectValue)
+
+		}
+		return true
+	}
+
 	reflectValue, err := value.toReflectValue(field.Type.Kind())
 	if err != nil {
 		panic(err)
