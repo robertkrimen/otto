@@ -297,3 +297,31 @@ func Test_toReflectValue(t *testing.T) {
 		is(err, nil)
 	})
 }
+
+func Test_toStructValue(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+		jsSrc := `(function () {return {one: 1, two: "Two", three: 3.0, four: [1,2,3,4], five: true};}())`
+		aStruct := struct {
+			One   int     `json:"one"`
+			Two   string  `json:"two"`
+			Three float32 `json:"three"`
+			Four  []int   `json:"four"`
+			Five  bool    `json:"five"`
+		}{}
+
+		val, err := vm.Run(jsSrc)
+		is(err, nil)
+		err = val.ToStruct(&aStruct)
+		is(err, nil)
+		is(aStruct.One, 1)
+		is(aStruct.Two, "Two")
+		is(aStruct.Three, 3.0)
+		is(len(aStruct.Four), 4)
+		is(aStruct.Four[0], 1)
+		is(aStruct.Four[1], 2)
+		is(aStruct.Four[2], 3)
+		is(aStruct.Four[3], 4)
+		is(aStruct.Five, true)
+	})
+}

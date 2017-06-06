@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"reflect"
@@ -1030,4 +1031,30 @@ func stringToReflectValue(value string, kind reflect.Kind) (reflect.Value, error
 
 	// FIXME This should end up as a TypeError?
 	panic(fmt.Errorf("invalid conversion of %q to reflect.Kind: %v", value, kind))
+}
+
+// ToStruct will attempt populate a struct passed in as a parameter.
+//
+// ToStruct returns an error if it runs into a problem.
+//
+// Example:
+// a := struct{One int, Two string}{}
+// val, _ := vm.Run(`(function (){ return {One: 1, Two: "two"}}())`)
+// _ := val.ToSruct(&a)
+// fmt.Printf("One: %d, Two: %s\n", a.One, a.Two)
+//
+func (value Value) ToStruct(aStruct interface{}) error {
+	raw, err := value.Export()
+	if err != nil {
+		return fmt.Errorf("failed to export value, %s", err)
+	}
+	src, err := json.Marshal(raw)
+	if err != nil {
+		return fmt.Errorf("failed to marshal value, %s", err)
+	}
+	err = json.Unmarshal(src, &aStruct)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal value, %s", err)
+	}
+	return nil
 }
