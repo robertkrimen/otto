@@ -4,7 +4,7 @@ import "fmt"
 
 // Visitor Enter method is invoked for each node encountered by Walk.
 // If the result visitor w is not nil, Walk visits each of the children
-// of node with the visitor v, followed by a call of the End method.
+// of node with the visitor v, followed by a call of the Exit method.
 type Visitor interface {
 	Enter(n Node) (v Visitor)
 	Exit(n Node)
