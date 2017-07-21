@@ -2,34 +2,28 @@ package ast
 
 import "fmt"
 
-// Visitor Visit method is invoked for each node encountered by Walk.
+// Visitor Enter method is invoked for each node encountered by Walk.
 // If the result visitor w is not nil, Walk visits each of the children
-// of node with the visitor v, followed by a call of v.Visit(nil).
+// of node with the visitor v, followed by a call of the Exit method.
 type Visitor interface {
-	Visit(n Node) (v Visitor)
-}
-
-// VisitorFunc is a helper method to use the function as the visitor. Refer to
-// Visitor documentation.
-type VisitorFunc func(Visitor, Node) Visitor
-
-// Visit method is invoked for each node encountered by Walk.
-func (vf VisitorFunc) Visit(n Node) Visitor {
-	return vf(vf, n)
+	Enter(n Node) (v Visitor)
+	Exit(n Node)
 }
 
 // Walk traverses an AST in depth-first order: It starts by calling
-// v.Visit(node); node must not be nil. If the visitor v returned by
-// v.Visit(node) is not nil, Walk is invoked recursively with visitor
+// v.Enter(node); node must not be nil. If the visitor v returned by
+// v.Enter(node) is not nil, Walk is invoked recursively with visitor
 // v for each of the non-nil children of node, followed by a call
-// of v.Visit(nil).
+// of v.Exit(node).
 func Walk(v Visitor, n Node) {
 	if n == nil {
 		return
 	}
-	if v = v.Visit(n); v == nil {
+	if v = v.Enter(n); v == nil {
 		return
 	}
+
+	defer v.Exit(n)
 
 	switch n := n.(type) {
 	case *ArrayLiteral:
@@ -220,6 +214,4 @@ func Walk(v Visitor, n Node) {
 	default:
 		panic(fmt.Sprintf("Walk: unexpected node type %T", n))
 	}
-
-	Walk(v, nil)
 }
