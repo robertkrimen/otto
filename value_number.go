@@ -322,3 +322,37 @@ func toUint16(value Value) uint16 {
 	}
 	return uint16(remainder)
 }
+
+// Returns sign of a number converted to -1,0,1
+func toIntSign(value Value) int {
+	{
+		switch value := value.value.(type) {
+		case int8:
+		case int16:
+		case int32:
+		case uint8:
+		case uint16:
+		case uint32:
+			if value > 0 {
+				return 1
+			} else if value < 0 {
+				return -1
+			} else {
+				return 0
+			}
+		}
+	}
+	floatValue := value.float64()
+	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) {
+		return 0
+	}
+	if floatValue == 0 {
+		return 0
+	}
+	if floatValue > 0 {
+		return 1
+	} else {
+		return -1
+	}
+}
+
