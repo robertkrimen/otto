@@ -328,14 +328,49 @@ func toIntSign(value Value) int {
 	{
 		switch value := value.value.(type) {
 		case int8:
-		case int16:
-		case int32:
-		case uint8:
-		case uint16:
-		case uint32:
-			if value > 0 {
+			if int8(value) > 0 {
 				return 1
-			} else if value < 0 {
+			} else if int8(value) < 0 {
+				return -1
+			} else {
+				return 0
+			}
+		case int16:
+			if int16(value) > 0 {
+				return 1
+			} else if int16(value) < 0 {
+				return -1
+			} else {
+				return 0
+			}
+		case int32:
+			if int32(value) > 0 {
+				return 1
+			} else if int32(value) < 0 {
+				return -1
+			} else {
+				return 0
+			}
+		case uint8:
+			if uint8(value) > 0 {
+				return 1
+			} else if uint8(value) < 0 {
+				return -1
+			} else {
+				return 0
+			}
+		case uint16:
+			if uint16(value) > 0 {
+				return 1
+			} else if uint16(value) < 0 {
+				return -1
+			} else {
+				return 0
+			}
+		case uint32:
+			if uint32(value) > 0 {
+				return 1
+			} else if uint32(value) < 0 {
 				return -1
 			} else {
 				return 0
