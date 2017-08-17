@@ -181,8 +181,10 @@ func TestArray_splice(t *testing.T) {
             def = abc.splice(1, 2, 3, 4, 5);
             ghi = [].concat(abc);
             jkl = ghi.splice(17, 21, 7, 8, 9);
-            [ abc, def, ghi, jkl ].join(";");
-        `, "0,3,4,5;1,2;0,3,4,5,7,8,9;")
+            mno = [].concat(abc);
+            pqr = mno.splice(2);
+            [ abc, def, ghi, jkl, mno, pqr ].join(";");
+        `, "0,3,4,5;1,2;0,3,4,5,7,8,9;;0,3;4,5")
 	})
 }
 
