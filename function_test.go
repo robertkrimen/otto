@@ -2,6 +2,8 @@ package otto
 
 import (
 	"testing"
+	"net/http"
+	"errors"
 )
 
 func TestFunction(t *testing.T) {
@@ -277,4 +279,63 @@ func TestFunction_toString(t *testing.T) {
             abc.toString();
         `, "function()   {       return -1    ;\n}")
 	})
+}
+
+func InvalidParametersTest(t *testing.T, script string, ex error) {
+	vm := New()
+	vm.Set("abc", func(a string, b string, c string) int {
+		return 1
+	})
+	vm.Set("num", func(a int, b int, c int) int {
+		return 1
+	})
+	_, e := vm.Run(script)
+	if e == nil && ex == nil {
+		// no problem
+	} else if e == nil {
+		t.Errorf("received nil, not %s", ex.Error())
+	} else if ex == nil {
+		t.Errorf("received %s, not nil", e.Error())
+	} else if e.Error() != ex.Error() {
+		t.Errorf("received %s, not %s", e.Error(), ex.Error())
+	}
+}
+
+func Test_correctParameters(t *testing.T) {
+	InvalidParametersTest(t,`abc("a","b","c")`, nil)
+	InvalidParametersTest(t,`num(1,2,3)`, nil)
+}
+
+func Test_lessParameters(t *testing.T) {
+	InvalidParametersTest(t,`abc("a","b")`, errors.New("RangeError: expected 3 argument(s); got 2"))
+	InvalidParametersTest(t,`num(1,2)`, errors.New("RangeError: expected 3 argument(s); got 2"))
+}
+
+func Test_tooManyParameters(t *testing.T) {
+	InvalidParametersTest(t,`abc("a","b","c","d")`, errors.New("RangeError: expected 3 argument(s); got 4"))
+	InvalidParametersTest(t,`num(1,2,3,4)`, errors.New("RangeError: expected 3 argument(s); got 4"))
+}
+
+func Test_ParameterConversion(t *testing.T) {
+	InvalidParametersTest(t,`abc(1,2,3)`, nil)
+	InvalidParametersTest(t,`num("a","b","c")`, errors.New(`TypeError: can't convert from "string" to "int"`))
+}
+
+func TestBadArgs(t *testing.T) {
+	vm := New()
+	vm.Set("http", map[string]interface{}{
+		"Get": http.Get,
+		"Post": http.Post,
+		"PostForm": http.PostForm,
+		"NewRequest": http.NewRequest,
+	})
+
+	_, e := vm.Run(`console.log(http.Post("https://httpbin.org/post"));`)
+	if e != nil {
+		if e.Error() != "RangeError: expected 3 argument(s); got 1" {
+			t.Error(e)
+		}
+	} else {
+		t.Error("incorrect arguments failed to return an error")
+	}
 }
