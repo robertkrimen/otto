@@ -286,3 +286,13 @@ func TestFunction_length(t *testing.T) {
 		test(`function a(x, y) {}; a.length`, 2)
 	})
 }
+
+func TestFunction_name(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`function a() {}; a.name`, "a")
+
+		test(`function a() {}; var b = a.bind(); b.name`, "bound a")
+	})
+}

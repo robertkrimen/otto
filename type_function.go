@@ -46,6 +46,7 @@ func (runtime *_runtime) newNativeFunctionObject(name, file string, line int, na
 		call:      native,
 		construct: defaultConstruct,
 	}
+	self.defineProperty("name", toValue_string(name), 0000, false)
 	self.defineProperty("length", toValue_int(length), 0000, false)
 	return self
 }
@@ -72,6 +73,7 @@ func (runtime *_runtime) newBoundFunctionObject(target *_object, this Value, arg
 	if length < 0 {
 		length = 0
 	}
+	self.defineProperty("name", toValue_string("bound "+target.get("name").String()), 0000, false)
 	self.defineProperty("length", toValue_int(length), 0000, false)
 	self.defineProperty("caller", Value{}, 0000, false)    // TODO Should throw a TypeError
 	self.defineProperty("arguments", Value{}, 0000, false) // TODO Should throw a TypeError
@@ -106,6 +108,7 @@ func (runtime *_runtime) newNodeFunctionObject(node *_nodeFunctionLiteral, stash
 		node:  node,
 		stash: stash,
 	}
+	self.defineProperty("name", toValue_string(node.name), 0000, false)
 	self.defineProperty("length", toValue_int(len(node.parameterList)), 0000, false)
 	return self
 }
