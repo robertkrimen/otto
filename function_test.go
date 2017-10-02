@@ -278,3 +278,11 @@ func TestFunction_toString(t *testing.T) {
         `, "function()   {       return -1    ;\n}")
 	})
 }
+
+func TestFunction_length(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`function a(x, y) {}; a.length`, 2)
+	})
+}
