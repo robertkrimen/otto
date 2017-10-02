@@ -296,3 +296,50 @@ func TestFunction_name(t *testing.T) {
 		test(`function a() {}; var b = a.bind(); b.name`, "bound a")
 	})
 }
+
+func TestFunction_caller(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		vm.Set("n", func(v Value) Value {
+			r, err := v.Call(UndefinedValue())
+			if err != nil {
+				panic(err)
+			}
+
+			return r
+		})
+
+		test(`
+            function a() { return a.caller; };
+            a()
+        `, NullValue())
+
+		test(`
+            function a() { return a.caller === b; };
+            function b() { return a(); }
+            b()
+        `, true)
+
+		test(`
+            function a() { return a.caller === b && b.caller === c; }
+            function b() { return a(); }
+            function c() { return b(); }
+            c();
+        `, true)
+
+		test(`
+            function a() { return a.caller === b && b.caller === n && n.caller === c; }
+            function b() { return a(); }
+            function c() { return n(b); }
+            c()
+        `, true)
+
+		test(`
+            function e() { return e.caller === g && f.caller === g && g.caller === f; }
+            function f(n) { return g(n - 1); }
+            function g(n) { return n > 0 ? f(n) : e(); }
+            f(2);
+        `, true)
+	})
+}
