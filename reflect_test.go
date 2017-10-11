@@ -649,6 +649,21 @@ func Test_reflectArray(t *testing.T) {
 			is(err, nil)
 			is(abc, []string{"str1", "str2", "str3"})
 		}
+
+		// issue #269
+		{
+			called := false
+			vm.Set("blah", func(c FunctionCall) Value {
+				v, err := c.Argument(0).Export()
+				is(err, nil)
+				is(v, []int64{3})
+				called = true
+				return UndefinedValue()
+			})
+			is(called, false)
+			test(`var x = 3; blah([x])`)
+			is(called, true)
+		}
 	})
 }
 
