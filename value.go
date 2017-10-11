@@ -645,11 +645,10 @@ func strictEqualityComparison(x Value, y Value) bool {
 //      Object      -> map[string]interface{}
 //
 func (self Value) Export() (interface{}, error) {
-	return self.export(), nil
+	return self.export(0), nil
 }
 
-func (self Value) export() interface{} {
-
+func (self Value) export(depth int) interface{} {
 	switch self.kind {
 	case valueUndefined:
 		return nil
@@ -666,6 +665,9 @@ func (self Value) export() interface{} {
 		}
 	case valueObject:
 		object := self._object()
+		if object.runtime.stackLimit != 0 && depth >= object.runtime.stackLimit {
+			panic(object.runtime.panicRangeError("Maximum stack size exceeded"))
+		}
 		switch value := object.value.(type) {
 		case *_goStructObject:
 			return value.value.Interface()
@@ -688,7 +690,7 @@ func (self Value) export() interface{} {
 				if !object.hasProperty(name) {
 					continue
 				}
-				value := object.get(name).export()
+				value := object.get(name).export(depth + 1)
 
 				t = reflect.TypeOf(value)
 
@@ -724,7 +726,7 @@ func (self Value) export() interface{} {
 			object.enumerate(false, func(name string) bool {
 				value := object.get(name)
 				if value.IsDefined() {
-					result[name] = value.export()
+					result[name] = value.export(depth + 1)
 				}
 				return true
 			})
