@@ -7,6 +7,8 @@ import (
 	"github.com/robertkrimen/otto/file"
 )
 
+var TimeoutError = errors.New("timeout")
+
 type _exception struct {
 	value interface{}
 }

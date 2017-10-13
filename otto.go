@@ -227,6 +227,7 @@ package otto
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/robertkrimen/otto/file"
 	"github.com/robertkrimen/otto/registry"
@@ -299,6 +300,17 @@ func (self Otto) Run(src interface{}) (Value, error) {
 	return value, err
 }
 
+// RunWithTimeout runs given javascript code with timeout
+//
+// Behaves like Run but with first timeout argument
+//
+func (self Otto) RunWithTimeout(timeout time.Duration, src interface{}) (val Value, err error) {
+	defer handleTimeout(&err)
+	self.setTimeout(timeout)
+
+	return self.Run(src)
+}
+
 // Eval will do the same thing as Run, except without leaving the current scope.
 //
 // By staying in the same scope, the code evaluated has access to everything
@@ -315,6 +327,17 @@ func (self Otto) Eval(src interface{}) (Value, error) {
 		value = Value{}
 	}
 	return value, err
+}
+
+// EvalWithTimeout runs given javascript code with timeout
+//
+// Behaves like Eval but with first timeout argument
+//
+func (self Otto) EvalWithTimeout(timeout time.Duration, src interface{}) (val Value, err error) {
+	defer handleTimeout(&err)
+	self.setTimeout(timeout)
+
+	return self.Eval(src)
 }
 
 // Get the value of the top-level binding of the given name.
@@ -595,6 +618,44 @@ func (self Otto) Call(source string, this interface{}, argumentList ...interface
 			return Value{}, err
 		}
 		return result, nil
+	}
+}
+
+// CallWithTimeout calls given javascript code with timeout
+//
+// Behaves like Call but with first timeout argument
+//
+func (self Otto) CallWithTimeout(
+	timeout time.Duration,
+	source string,
+	this interface{},
+	argumentList ...interface{},
+) (val Value, err error) {
+	defer handleTimeout(&err)
+	self.setTimeout(timeout)
+
+	return self.Call(source, this, argumentList)
+}
+
+// setTimeout sets timeout value
+func (self Otto) setTimeout(timeout time.Duration) {
+	self.runtime.otto.Interrupt = make(chan func(), 1)
+
+	time.AfterFunc(timeout, func() {
+		self.runtime.otto.Interrupt <- func() {
+			panic(TimeoutError)
+		}
+	})
+}
+
+// handleTimeout handles timeout error
+func handleTimeout(err *error) {
+	if caught := recover(); caught != nil {
+		if caught == TimeoutError {
+			*err = TimeoutError
+			return
+		}
+		panic(caught)
 	}
 }
 
