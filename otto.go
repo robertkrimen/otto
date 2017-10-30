@@ -305,8 +305,9 @@ func (self Otto) Run(src interface{}) (Value, error) {
 // Behaves like Run but with first timeout argument
 //
 func (self Otto) RunWithTimeout(timeout time.Duration, src interface{}) (val Value, err error) {
+	timer := self.setTimeout(timeout)
+	defer timer.Stop()
 	defer handleTimeout(&err)
-	self.setTimeout(timeout)
 
 	return self.Run(src)
 }
@@ -334,8 +335,9 @@ func (self Otto) Eval(src interface{}) (Value, error) {
 // Behaves like Eval but with first timeout argument
 //
 func (self Otto) EvalWithTimeout(timeout time.Duration, src interface{}) (val Value, err error) {
+	timer := self.setTimeout(timeout)
+	defer timer.Stop()
 	defer handleTimeout(&err)
-	self.setTimeout(timeout)
 
 	return self.Eval(src)
 }
@@ -631,17 +633,20 @@ func (self Otto) CallWithTimeout(
 	this interface{},
 	argumentList ...interface{},
 ) (val Value, err error) {
+	timer := self.setTimeout(timeout)
+	defer timer.Stop()
 	defer handleTimeout(&err)
-	self.setTimeout(timeout)
 
 	return self.Call(source, this, argumentList)
 }
 
 // setTimeout sets timeout value
-func (self Otto) setTimeout(timeout time.Duration) {
-	self.runtime.otto.Interrupt = make(chan func(), 1)
+func (self Otto) setTimeout(timeout time.Duration) *time.Timer {
+	if self.runtime.otto.Interrupt == nil {
+		self.runtime.otto.Interrupt = make(chan func(), 1)
+	}
 
-	time.AfterFunc(timeout, func() {
+	return time.AfterFunc(timeout, func() {
 		self.runtime.otto.Interrupt <- func() {
 			panic(TimeoutError)
 		}
