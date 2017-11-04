@@ -92,14 +92,20 @@ func TestToBoolean(t *testing.T) {
 		}
 
 		is("", false)
-		is("xyzzy", true)
+		is("xyzzy", false)
+		is("1", true)
+		is("true", true)
+		is("tRue", true)
 		is(1, true)
 		is(0, false)
 		//is(toValue(newObject()), true)
 		is(UndefinedValue(), false)
 		is(NullValue(), false)
 		is([]uint16{}, false)
-		is([]uint16{0x68, 0x65, 0x6c, 0x6c, 0x6f}, true)
+		is([]uint16{0x68, 0x65, 0x6c, 0x6c, 0x6f}, false)
+		is([]uint16{49}, true)
+		is([]uint16{116, 114, 117, 101}, true)
+		is([]uint16{116, 114, 117, 69}, true)
 	})
 }
 

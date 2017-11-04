@@ -5,6 +5,7 @@ import (
 	"math"
 	"reflect"
 	"unicode/utf16"
+	"strings"
 )
 
 func (value Value) bool() bool {
@@ -32,12 +33,17 @@ func (value Value) bool() bool {
 		}
 		return true
 	case string:
-		return 0 != len(value)
+		return stringToBool(value)
 	case []uint16:
-		return 0 != len(utf16.Decode(value))
+		return stringToBool(string(utf16.Decode(value)))
 	}
 	if value.IsObject() {
 		return true
 	}
 	panic(fmt.Errorf("toBoolean(%T)", value.value))
+}
+
+func stringToBool(s string) bool {
+	s = strings.ToLower(s)
+	return s == "1" || s == "true"
 }
