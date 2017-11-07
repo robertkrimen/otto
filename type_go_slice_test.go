@@ -16,8 +16,8 @@ func TestGoSlice(t *testing.T) {
 	tt(t, func() {
 		test, vm := test()
 		vm.Set("TestSlice", GoSliceTest{1, 2, 3})
-		is(test(`TestSlice.length`).export(), 3)
-		is(test(`TestSlice[1]`).export(), 2)
-		is(test(`TestSlice.Sum()`).export(), 6)
+		is(test(`TestSlice.length`).export(0), 3)
+		is(test(`TestSlice[1]`).export(0), 2)
+		is(test(`TestSlice.Sum()`).export(0), 6)
 	})
 }

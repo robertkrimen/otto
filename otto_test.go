@@ -1734,6 +1734,87 @@ func Test_stackLimit(t *testing.T) {
 	})
 }
 
+func Test_exportStackLimit(t *testing.T) {
+	code := `
+		a = {};
+		a.b = {};
+		a.b.c = {};
+		a.b.c.d = {};
+		a.b.c.d.e = {};
+
+		a
+	`
+
+	// has no panic
+	tt(t, func() {
+		defer func() {
+			caught := recover()
+			is(caught == nil, true)
+		}()
+
+		_, vm := test()
+
+		val, err := vm.Run(code)
+		is(err == nil, true)
+
+		_, err = val.Export()
+		is(err == nil, true)
+	})
+
+	// has panic
+	tt(t, func() {
+		defer func() {
+			caught := recover()
+			is(caught == nil, false)
+		}()
+
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(2)
+
+		val, err := vm.Run(code)
+		is(err == nil, true)
+
+		_, err = val.Export()
+		is(err == nil, true)
+	})
+
+	// has error
+	tt(t, func() {
+		defer func() {
+			caught := recover()
+			is(caught == nil, false)
+		}()
+
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(4)
+
+		val, err := vm.Run(code)
+		is(err == nil, true)
+
+		val.Export()
+	})
+
+	// has no panic
+	tt(t, func() {
+		defer func() {
+			caught := recover()
+			is(caught == nil, true)
+		}()
+
+		_, vm := test()
+
+		vm.vm.SetStackDepthLimit(10)
+
+		val, err := vm.Run(code)
+		is(err == nil, true)
+
+		_, err = val.Export()
+		is(err == nil, true)
+	})
+}
+
 func BenchmarkNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		New()
