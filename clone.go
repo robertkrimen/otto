@@ -71,7 +71,7 @@ func (in *_runtime) clone() *_runtime {
 		clone.object(in.global.URIErrorPrototype),
 	}
 
-	out.eval = out.globalObject.property["eval"].value.(Value).value.(*_object)
+	out.eval = out.globalObject.getProperty("eval").value.(Value).value.(*_object)
 	out.globalObject.prototype = out.global.ObjectPrototype
 
 	// Not sure if this is necessary, but give some help to the GC

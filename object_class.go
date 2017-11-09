@@ -21,7 +21,7 @@ type _objectClass struct {
 
 func objectEnumerate(self *_object, all bool, each func(string) bool) {
 	for _, name := range self.propertyOrder {
-		if all || self.property[name].enumerable() {
+		if all || self.getProperty(name).enumerable() {
 			if !each(name) {
 				return
 			}
@@ -464,8 +464,15 @@ func objectClone(in *_object, out *_object, clone *_clone) *_object {
 	if out.prototype != nil {
 		out.prototype = clone.object(in.prototype)
 	}
+
+	out.propertyMx.Lock()
+	defer out.propertyMx.Unlock()
 	out.property = make(map[string]_property, len(in.property))
 	out.propertyOrder = make([]string, len(in.propertyOrder))
+
+	in.propertyMx.RLock()
+	defer in.propertyMx.RUnlock()
+
 	copy(out.propertyOrder, in.propertyOrder)
 	for index, property := range in.property {
 		out.property[index] = clone.property(property)

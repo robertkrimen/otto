@@ -358,7 +358,9 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 
 				if o.class == "Array" {
 					for i := int64(0); i < l; i++ {
+						o.propertyMx.RLock()
 						p, ok := o.property[strconv.FormatInt(i, 10)]
+						o.propertyMx.Unlock()
 						if !ok {
 							continue
 						}
