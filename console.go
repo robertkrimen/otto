@@ -2,7 +2,6 @@ package otto
 
 import (
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -15,12 +14,12 @@ func formatForConsole(argumentList []Value) string {
 }
 
 func builtinConsole_log(call FunctionCall) Value {
-	fmt.Fprintln(os.Stdout, formatForConsole(call.ArgumentList))
+	fmt.Fprintln(call.runtime.otto.stdOutWriter, formatForConsole(call.ArgumentList))
 	return Value{}
 }
 
 func builtinConsole_error(call FunctionCall) Value {
-	fmt.Fprintln(os.Stdout, formatForConsole(call.ArgumentList))
+	fmt.Fprintln(call.runtime.otto.stdErrWriter, formatForConsole(call.ArgumentList))
 	return Value{}
 }
 

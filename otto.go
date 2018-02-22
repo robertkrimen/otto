@@ -226,6 +226,8 @@ package otto
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"strings"
 
 	"github.com/robertkrimen/otto/file"
@@ -236,8 +238,10 @@ import (
 type Otto struct {
 	// Interrupt is a channel for interrupting the runtime. You can use this to halt a long running execution, for example.
 	// See "Halting Problem" for more information.
-	Interrupt chan func()
-	runtime   *_runtime
+	Interrupt    chan func()
+	runtime      *_runtime
+	stdOutWriter io.Writer
+	stdErrWriter io.Writer
 }
 
 // New will allocate a new JavaScript runtime
@@ -247,6 +251,10 @@ func New() *Otto {
 	}
 	self.runtime.otto = self
 	self.runtime.traceLimit = 10
+
+	self.stdOutWriter = os.Stdout
+	self.stdErrWriter = os.Stdout
+
 	self.Set("console", self.runtime.newConsole())
 
 	registry.Apply(func(entry registry.Entry) {
@@ -278,6 +286,13 @@ func Run(src interface{}) (*Otto, Value, error) {
 	otto := New()
 	value, err := otto.Run(src) // This already does safety checking
 	return otto, value, err
+}
+
+// SetConsoleWriters sets the built in console output.
+// By default it is using os.StdOut
+func (otto *Otto) SetConsoleWriters(stdOut io.Writer, stdErr io.Writer) {
+	otto.stdOutWriter = stdOut
+	otto.stdErrWriter = stdErr
 }
 
 // Run will run the given source (parsing it first if necessary), returning the resulting value and error (if any)
