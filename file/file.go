@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"gopkg.in/sourcemap.v1"
+	"gopkg.in/sourcemap.v2"
 )
 
 // Idx is a compact encoding of a source position within a file set.
