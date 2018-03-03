@@ -40,7 +40,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/go-sourcemap/sourcemap"
+	"gopkg.in/sourcemap.v2"
 
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"
