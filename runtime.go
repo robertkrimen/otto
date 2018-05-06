@@ -306,6 +306,17 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 				}
 			}
 		}
+
+		if gao, ok := v._object().value.(*_goArrayObject); ok {
+			if gao.value.Type().AssignableTo(t) {
+				// please see TestDynamicFunctionReturningInterface for why this exists
+				if t.Kind() == reflect.Interface && gao.value.Type().ConvertibleTo(t) {
+					return gao.value.Convert(t)
+				} else {
+					return gao.value
+				}
+			}
+		}
 	}
 
 	if t.Kind() == reflect.Interface {
