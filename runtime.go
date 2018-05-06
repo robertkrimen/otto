@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"encoding"
 	"errors"
 	"fmt"
 	"math"
@@ -528,6 +529,20 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 		}
 
 		return reflect.ValueOf(v.String())
+	}
+
+	if v.kind == valueString {
+		var s encoding.TextUnmarshaler
+
+		if reflect.PtrTo(t).Implements(reflect.TypeOf(&s).Elem()) {
+			r := reflect.New(t)
+
+			if err := r.Interface().(encoding.TextUnmarshaler).UnmarshalText([]byte(v.string())); err != nil {
+				panic(self.panicSyntaxError("can't convert to %s: %s", t.String(), err.Error()))
+			}
+
+			return r.Elem()
+		}
 	}
 
 	s := "OTTO DOES NOT UNDERSTAND THIS TYPE"

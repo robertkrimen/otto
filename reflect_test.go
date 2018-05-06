@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -839,6 +840,42 @@ func TestStructCallParameterConversion(t *testing.T) {
 
 		x = T{"", false, 0}
 		if _, err := vm.Run("f({x: true})"); err == nil {
+			t.Fail()
+		}
+	})
+}
+
+type TestTextUnmarshallerCallParameterConversion_MyStruct struct{}
+
+func (m *TestTextUnmarshallerCallParameterConversion_MyStruct) UnmarshalText(b []byte) error {
+	if string(b) == "good" {
+		return nil
+	}
+
+	return fmt.Errorf("NOT_GOOD: %s", string(b))
+}
+
+func TestTextUnmarshallerCallParameterConversion(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		vm.Set("f", func(t TestTextUnmarshallerCallParameterConversion_MyStruct) bool { return true })
+
+		// success
+		test("f('good')", true)
+
+		// explicit failure, should pass error message up
+		if _, err := vm.Run("f('bad')"); err == nil || !strings.Contains(err.Error(), "NOT_GOOD: bad") {
+			t.Fail()
+		}
+
+		// wrong input
+		if _, err := vm.Run("f(null)"); err == nil {
+			t.Fail()
+		}
+
+		// no input
+		if _, err := vm.Run("f()"); err == nil {
 			t.Fail()
 		}
 	})
