@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/robertkrimen/otto/ast"
@@ -448,6 +449,66 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 
 				return []reflect.Value{self.convertCallParameter(rv, t.Out(0))}
 			})
+		}
+	case reflect.Struct:
+		if o := v._object(); o != nil && o.class == "Object" {
+			s := reflect.New(t)
+
+			for _, k := range o.propertyOrder {
+				var f *reflect.StructField
+
+				for i := 0; i < t.NumField(); i++ {
+					ff := t.Field(i)
+
+					if j := ff.Tag.Get("json"); j != "" {
+						if j == "-" {
+							continue
+						}
+
+						a := strings.Split(j, ",")
+
+						if a[0] == k {
+							f = &ff
+							break
+						}
+					}
+
+					if ff.Name == k {
+						f = &ff
+						break
+					}
+
+					if strings.EqualFold(ff.Name, k) {
+						f = &ff
+					}
+				}
+
+				if f == nil {
+					panic(self.panicTypeError("can't convert object; field %q was supplied but does not exist on target %v", k, t))
+				}
+
+				ss := s
+
+				for _, i := range f.Index {
+					if ss.Kind() == reflect.Ptr {
+						if ss.IsNil() {
+							if !ss.CanSet() {
+								panic(self.panicTypeError("can't set embedded pointer to unexported struct: %v", ss.Type().Elem()))
+							}
+
+							ss.Set(reflect.New(ss.Type().Elem()))
+						}
+
+						ss = ss.Elem()
+					}
+
+					ss = ss.Field(i)
+				}
+
+				ss.Set(self.convertCallParameter(o.get(k), ss.Type()))
+			}
+
+			return s.Elem()
 		}
 	}
 

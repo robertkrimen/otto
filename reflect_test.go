@@ -796,3 +796,50 @@ func TestDynamicFunctionReturningInterface(t *testing.T) {
 		}
 	})
 }
+
+func TestStructCallParameterConversion(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		type T struct {
+			StringValue  string `json:"s"`
+			BooleanValue bool   `json:"b"`
+			IntegerValue int    `json:"i"`
+		}
+
+		var x T
+
+		vm.Set("f", func(t T) bool { return t == x })
+
+		// test set properties
+
+		x = T{"A", true, 1}
+		test("f({s: 'A', b: true, i: 1})", true)
+
+		// test zero-value properties
+
+		x = T{"", false, 0}
+		test("f({s: '', b: false, i: 0})", true)
+
+		// test missing properties
+
+		x = T{"", true, 1}
+		test("f({b: true, i: 1})", true)
+
+		x = T{"A", false, 1}
+		test("f({s: 'A', i: 1})", true)
+
+		x = T{"A", true, 0}
+		test("f({s: 'A', b: true})", true)
+
+		x = T{"", false, 0}
+		test("f({})", true)
+
+		// make sure it fails with extra properties
+
+		x = T{"", false, 0}
+		if _, err := vm.Run("f({x: true})"); err == nil {
+			t.Fail()
+		}
+	})
+}
