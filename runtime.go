@@ -296,7 +296,12 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 	if v.kind == valueObject {
 		if gso, ok := v._object().value.(*_goStructObject); ok {
 			if gso.value.Type().AssignableTo(t) {
-				return gso.value
+				// please see TestDynamicFunctionReturningInterface for why this exists
+				if t.Kind() == reflect.Interface && gso.value.Type().ConvertibleTo(t) {
+					return gso.value.Convert(t)
+				} else {
+					return gso.value
+				}
 			}
 		}
 	}

@@ -757,3 +757,42 @@ func TestPassthrough(t *testing.T) {
 		}
 	})
 }
+
+type TestDynamicFunctionReturningInterface_MyStruct1 struct{}
+
+func (m *TestDynamicFunctionReturningInterface_MyStruct1) Error() string { return "MyStruct1" }
+
+type TestDynamicFunctionReturningInterface_MyStruct2 struct{}
+
+func (m *TestDynamicFunctionReturningInterface_MyStruct2) Error() string { return "MyStruct2" }
+
+func TestDynamicFunctionReturningInterface(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		var l []func() error
+
+		vm.Set("r", func(cb func() error) { l = append(l, cb) })
+		vm.Set("e1", func() error { return &TestDynamicFunctionReturningInterface_MyStruct1{} })
+		vm.Set("e2", func() error { return &TestDynamicFunctionReturningInterface_MyStruct2{} })
+		vm.Set("e3", func() error { return nil })
+
+		test("r(function() { return e1(); })", UndefinedValue())
+		test("r(function() { return e2(); })", UndefinedValue())
+		test("r(function() { return e3(); })", UndefinedValue())
+		test("r(function() { return null; })", UndefinedValue())
+
+		if l[0]() == nil {
+			t.Fail()
+		}
+		if l[1]() == nil {
+			t.Fail()
+		}
+		if l[2]() != nil {
+			t.Fail()
+		}
+		if l[3]() != nil {
+			t.Fail()
+		}
+	})
+}
