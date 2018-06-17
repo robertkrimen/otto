@@ -1,10 +1,10 @@
 package otto
 
 import (
-	"testing"
-	"math/rand"
 	"fmt"
+	"math/rand"
 	"strings"
+	"testing"
 )
 
 func TestGoSliceQuickSort(t *testing.T) {
@@ -158,9 +158,6 @@ func benchmarkJsArraySort(size int, sortFuncCall string, sortCode string, b *tes
 	}
 }
 
-
-
-
 /**********************************************************************************************************************/
 // Appendix - all the Javascript algorithm code constants
 
@@ -206,7 +203,6 @@ function swap(arr, i, j){
 
 	`
 
-
 const jsMergeSort = `
 
 function mergeSort(arr){
@@ -241,7 +237,6 @@ function merge(left, right){
 }
 
 `
-
 
 const jsHeapSort = `
 
@@ -299,7 +294,6 @@ function swap(arr, i, j){
 
 
 `
-
 
 // Copied from JetStream benchmarking suite
 // http://browserbench.org/JetStream/sources/crypto-aes.js
@@ -730,4 +724,3 @@ var decryptedText = AESDecryptCtr(cipherText, password, 256);
 if (decryptedText != plainText)
     throw "ERROR: bad result: expected " + plainText + " but got " + decryptedText;
 `
-
