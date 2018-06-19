@@ -700,6 +700,9 @@ func (self *_parser) parseDoWhileStatement() ast.Statement {
 	node.Test = self.parseExpression()
 	self.expect(token.RIGHT_PARENTHESIS)
 
+	self.implicitSemicolon = true
+	self.optionalSemicolon()
+
 	if self.mode&StoreComments != 0 {
 		self.comments.CommentMap.AddComments(node, comments, ast.LEADING)
 		self.comments.CommentMap.AddComments(node, doComments, ast.DO)
