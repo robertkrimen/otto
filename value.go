@@ -52,7 +52,17 @@ func ToValue(value interface{}) (Value, error) {
 	})
 	return result, err
 }
-
+func ToValueNoERROR(value interface{})(Value){
+	result := Value{}
+	err := catchPanic(func() {
+		result = toValue(value)
+	})
+	if err != nil{
+		v,_ := ToValue(err)
+		return v
+	}
+	return result
+}
 func (value Value) isEmpty() bool {
 	return value.kind == valueEmpty
 }

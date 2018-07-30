@@ -1,5 +1,7 @@
 package otto
-
+import(
+	_"fmt"
+)
 // _constructFunction
 type _constructFunction func(*_object, []Value) Value
 

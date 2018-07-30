@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -754,6 +755,128 @@ func TestPassthrough(t *testing.T) {
                 abc.Mno = mno;
                 abc.Mno.Ghi;
             `, "<mno.Ghi>")
+		}
+	})
+}
+
+type TestDynamicFunctionReturningInterface_MyStruct1 struct{}
+
+func (m *TestDynamicFunctionReturningInterface_MyStruct1) Error() string { return "MyStruct1" }
+
+type TestDynamicFunctionReturningInterface_MyStruct2 struct{}
+
+func (m *TestDynamicFunctionReturningInterface_MyStruct2) Error() string { return "MyStruct2" }
+
+func TestDynamicFunctionReturningInterface(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		var l []func() error
+
+		vm.Set("r", func(cb func() error) { l = append(l, cb) })
+		vm.Set("e1", func() error { return &TestDynamicFunctionReturningInterface_MyStruct1{} })
+		vm.Set("e2", func() error { return &TestDynamicFunctionReturningInterface_MyStruct2{} })
+		vm.Set("e3", func() error { return nil })
+
+		test("r(function() { return e1(); })", UndefinedValue())
+		test("r(function() { return e2(); })", UndefinedValue())
+		test("r(function() { return e3(); })", UndefinedValue())
+		test("r(function() { return null; })", UndefinedValue())
+
+		if l[0]() == nil {
+			t.Fail()
+		}
+		if l[1]() == nil {
+			t.Fail()
+		}
+		if l[2]() != nil {
+			t.Fail()
+		}
+		if l[3]() != nil {
+			t.Fail()
+		}
+	})
+}
+
+func TestStructCallParameterConversion(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		type T struct {
+			StringValue  string `json:"s"`
+			BooleanValue bool   `json:"b"`
+			IntegerValue int    `json:"i"`
+		}
+
+		var x T
+
+		vm.Set("f", func(t T) bool { return t == x })
+
+		// test set properties
+
+		x = T{"A", true, 1}
+		test("f({s: 'A', b: true, i: 1})", true)
+
+		// test zero-value properties
+
+		x = T{"", false, 0}
+		test("f({s: '', b: false, i: 0})", true)
+
+		// test missing properties
+
+		x = T{"", true, 1}
+		test("f({b: true, i: 1})", true)
+
+		x = T{"A", false, 1}
+		test("f({s: 'A', i: 1})", true)
+
+		x = T{"A", true, 0}
+		test("f({s: 'A', b: true})", true)
+
+		x = T{"", false, 0}
+		test("f({})", true)
+
+		// make sure it fails with extra properties
+
+		x = T{"", false, 0}
+		if _, err := vm.Run("f({x: true})"); err == nil {
+			t.Fail()
+		}
+	})
+}
+
+type TestTextUnmarshallerCallParameterConversion_MyStruct struct{}
+
+func (m *TestTextUnmarshallerCallParameterConversion_MyStruct) UnmarshalText(b []byte) error {
+	if string(b) == "good" {
+		return nil
+	}
+
+	return fmt.Errorf("NOT_GOOD: %s", string(b))
+}
+
+func TestTextUnmarshallerCallParameterConversion(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		vm.Set("f", func(t TestTextUnmarshallerCallParameterConversion_MyStruct) bool { return true })
+
+		// success
+		test("f('good')", true)
+
+		// explicit failure, should pass error message up
+		if _, err := vm.Run("f('bad')"); err == nil || !strings.Contains(err.Error(), "NOT_GOOD: bad") {
+			t.Fail()
+		}
+
+		// wrong input
+		if _, err := vm.Run("f(null)"); err == nil {
+			t.Fail()
+		}
+
+		// no input
+		if _, err := vm.Run("f()"); err == nil {
+			t.Fail()
 		}
 	})
 }

@@ -453,8 +453,8 @@ func (self *_runtime) cmpl_evaluate_nodeVariableExpression(node *_nodeVariableEx
 		left := getIdentifierReference(self, self.scope.lexical, node.name, false, _at(node.idx))
 		right := self.cmpl_evaluate_nodeExpression(node.initializer)
 		rightValue := right.resolve()
-
 		self.putValue(left, rightValue)
+		//self.putValue()
 	}
 	return toValue_string(node.name)
 }

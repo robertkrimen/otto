@@ -3,7 +3,8 @@ package otto
 import (
 	"fmt"
 	"runtime"
-
+	"reflect"
+	//""
 	"github.com/robertkrimen/otto/token"
 )
 
@@ -12,6 +13,25 @@ func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
 	// If the Interrupt channel is nil, then
 	// we avoid runtime.Gosched() overhead (if any)
 	// FIXME: Test this
+
+	//fmt.Println("1")
+
+	//self.FPSFunction()
+	//fmt.Println("name:",reflect.TypeOf(node).String())
+	/*var temp *_nodeBlockStatement
+	if reflect.TypeOf(node).(*_nodeBlockStatement) != temp{
+		//Not Node Block
+		self.FPSFunction()
+	}*/
+	if !self.InFPSFunction {
+		if reflect.TypeOf(node).String() != "*_nodeBlockStatement" {
+			//Not Block. Call FPSFunction
+			self.InFPSFunction = true
+			self.FPSFunction()
+			self.InFPSFunction = false
+		}
+	}
+	//node.(type)
 	if self.otto.Interrupt != nil {
 		runtime.Gosched()
 		select {
@@ -101,6 +121,7 @@ func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
 		// Variables are already defined, this is initialization only
 		for _, variable := range node.list {
 			self.cmpl_evaluate_nodeVariableExpression(variable.(*_nodeVariableExpression))
+
 		}
 		return emptyValue
 
@@ -109,7 +130,6 @@ func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
 
 	case *_nodeWithStatement:
 		return self.cmpl_evaluate_nodeWithStatement(node)
-
 	}
 
 	panic(fmt.Errorf("Here be dragons: evaluate_nodeStatement(%T)", node))

@@ -2,10 +2,12 @@ package otto
 
 import (
 	"strconv"
+	_"fmt"
+	//"reflect"
 )
 
 func (self *_runtime) cmpl_evaluate_nodeProgram(node *_nodeProgram, eval bool) Value {
-	if !eval {
+	if !eval {	//非eval 进入目标作用域
 		self.enterGlobalScope()
 		defer func() {
 			self.leaveScope()
@@ -14,7 +16,10 @@ func (self *_runtime) cmpl_evaluate_nodeProgram(node *_nodeProgram, eval bool) V
 	self.cmpl_functionDeclaration(node.functionList)
 	self.cmpl_variableDeclaration(node.varList)
 	self.scope.frame.file = node.file
-	return self.cmpl_evaluate_nodeStatementList(node.body)
+	//node.file.Name()
+	//fmt.Println(node.functionList)
+	value := self.cmpl_evaluate_nodeStatementList(node.body)
+	return value
 }
 
 func (self *_runtime) cmpl_call_nodeFunction(function *_object, stash *_fnStash, node *_nodeFunctionLiteral, this Value, argumentList []Value) Value {
@@ -31,6 +36,7 @@ func (self *_runtime) cmpl_call_nodeFunction(function *_object, stash *_fnStash,
 		if name == "arguments" {
 			argumentsFound = true
 		}
+		//fmt.Println(name)
 		value := Value{}
 		if index < len(argumentList) {
 			value = argumentList[index]

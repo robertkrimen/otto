@@ -238,6 +238,7 @@ type Otto struct {
 	// See "Halting Problem" for more information.
 	Interrupt chan func()
 	runtime   *_runtime
+	Runtime   *_runtime
 }
 
 // New will allocate a new JavaScript runtime
@@ -245,10 +246,11 @@ func New() *Otto {
 	self := &Otto{
 		runtime: newContext(),
 	}
+	self.Runtime = self.runtime
 	self.runtime.otto = self
 	self.runtime.traceLimit = 10
 	self.Set("console", self.runtime.newConsole())
-
+	//默认对象
 	registry.Apply(func(entry registry.Entry) {
 		self.Run(entry.Source())
 	})
@@ -292,13 +294,16 @@ func Run(src interface{}) (*Otto, Value, error) {
 // src may also be a Program, but if the AST has been modified, then runtime behavior is undefined.
 //
 func (self Otto) Run(src interface{}) (Value, error) {
+	//fmt.Println(string(src))
 	value, err := self.runtime.cmpl_run(src, nil)
 	if !value.safe() {
 		value = Value{}
 	}
 	return value, err
 }
-
+func (self Otto) SetFPSFunction(FPSFunction func()){
+	self.runtime.FPSFunction = FPSFunction
+}
 // Eval will do the same thing as Run, except without leaving the current scope.
 //
 // By staying in the same scope, the code evaluated has access to everything
@@ -630,7 +635,14 @@ func (self Otto) Object(source string) (*Object, error) {
 func (self Otto) ToValue(value interface{}) (Value, error) {
 	return self.runtime.safeToValue(value)
 }
-
+func (self Otto)ToValueNoERROR(data interface{})Value{
+	value,err := self.runtime.safeToValue(data)
+	if err != nil{
+		v,_ := self.runtime.safeToValue(err)
+		return v
+	}
+	return value
+}
 // Copy will create a copy/clone of the runtime.
 //
 // Copy is useful for saving some time when creating many similar runtimes.
