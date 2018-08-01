@@ -33,7 +33,7 @@ func TestErrorContextNative(t *testing.T) {
 		is(err1.message, "wow")
 		is(len(err1.trace), 3)
 		is(err1.trace[0].location(), "F (test.js:2:29)")
-		is(err1.trace[1].location(), "github.com/robertkrimen/otto.TestErrorContextNative.func1.1 (error_native_test.go:15)")
+		is(err1.trace[1].location(), "github.com/dorbmon/otto.TestErrorContextNative.func1.1 (error_native_test.go:15)")
 		is(err1.trace[2].location(), "G (test.js:3:26)")
 	})
 }

@@ -2,7 +2,7 @@
 Package underscore contains the source for the JavaScript utility-belt library.
 
 	import (
-		_ "github.com/robertkrimen/otto/underscore"
+		_ "github.com/dorbmon/otto/underscore"
 	)
 	// Every Otto runtime will now include underscore
 
@@ -15,7 +15,7 @@ By importing this package, you'll automatically load underscore every time you c
 To prevent this behavior, you can do the following:
 
 	import (
-		"github.com/robertkrimen/otto/underscore"
+		"github.com/dorbmon/otto/underscore"
 	)
 
 	func init() {
@@ -26,7 +26,7 @@ To prevent this behavior, you can do the following:
 package underscore
 
 import (
-	"github.com/robertkrimen/otto/registry"
+	"github.com/dorbmon/otto/registry"
 )
 
 var entry *registry.Entry = registry.Register(func() string {

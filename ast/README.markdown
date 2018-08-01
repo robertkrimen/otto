@@ -1,6 +1,6 @@
 # ast
 --
-    import "github.com/robertkrimen/otto/ast"
+    import "github.com/dorbmon/otto/ast"
 
 Package ast declares types representing a JavaScript AST.
 
@@ -1065,4 +1065,4 @@ func (self *WithStatement) Idx1() file.Idx
 ```
 
 --
-**godocdown** http://github.com/robertkrimen/godocdown
+**godocdown** http://github.com/dorbmon/godocdown

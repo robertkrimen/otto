@@ -1,6 +1,6 @@
 # token
 --
-    import "github.com/robertkrimen/otto/token"
+    import "github.com/dorbmon/otto/token"
 
 Package token defines constants representing the lexical tokens of JavaScript
 (ECMA5).
@@ -168,4 +168,4 @@ the String() is "+"). For all other tokens the string corresponds to the token
 name (e.g. for the token IDENTIFIER, the string is "IDENTIFIER").
 
 --
-**godocdown** http://github.com/robertkrimen/godocdown
+**godocdown** http://github.com/dorbmon/godocdown
