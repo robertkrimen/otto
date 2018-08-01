@@ -9,6 +9,7 @@ http://godoc.org/github.com/robertkrimen/otto
 
 Run something in the VM
 
+
     vm := otto.New()
     vm.Run(`
         abc = 2 + 2;
@@ -227,9 +228,10 @@ package otto
 import (
 	"fmt"
 	"strings"
+	"errors"
 
-	"github.com/robertkrimen/otto/file"
-	"github.com/robertkrimen/otto/registry"
+	"github.com/dorbmon/otto"
+	"github.com/dorbmon/otto/registry"
 )
 
 // Otto is the representation of the JavaScript runtime. Each instance of Otto has a self-contained namespace.
@@ -265,7 +267,34 @@ func (otto *Otto) clone() *Otto {
 	self.runtime.otto = self
 	return self
 }
-
+func NewThread(Master *otto.Otto,Thread otto.Value)(*otto.Otto,error){
+	if !Thread.IsFunction(){
+		return nil,errors.New("It's not a function.")
+	}
+	//创建新的线程
+	newOtto := otto.New()
+	newOtto.Set("Get",func(call otto.FunctionCall)otto.Value{
+		varName := call.ArgumentList[0]
+		if varName.IsNull(){
+			return otto.FalseValue()
+		}
+		value,err := Master.Get(varName.String())
+		if err != nil{
+			return otto.FalseValue()
+		}
+		return value
+	})
+	newOtto.Set("Set",func(call otto.FunctionCall)otto.Value{
+		varName := call.Argument(0)
+		varValue := call.Argument(1)
+		if varName.IsNull() || varValue.IsNull(){
+			return otto.FalseValue()
+		}
+		err,_ := otto.ToValue(Master.Set(varName.String(),varValue))
+		return err
+	})
+	return newOtto,nil
+}
 // Run will allocate a new JavaScript runtime, run the given source
 // on the allocated runtime, and return the runtime, resulting value, and
 // error (if any).
@@ -327,6 +356,7 @@ func (self Otto) Eval(src interface{}) (Value, error) {
 // If there is an error (like the binding does not exist), then the value
 // will be undefined.
 func (self Otto) Get(name string) (Value, error) {
+
 	value := Value{}
 	err := catchPanic(func() {
 		value = self.getValue(name)

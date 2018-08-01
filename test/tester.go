@@ -76,6 +76,7 @@ func test(filename string) error {
 
 	if option != "parse" {
 		vm := otto.New()
+		//vm.Get("ss")
 		_, err = vm.Run(string(script))
 		if err != nil {
 			value := err.Error()
