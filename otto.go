@@ -267,30 +267,30 @@ func (otto *Otto) clone() *Otto {
 	self.runtime.otto = self
 	return self
 }
-func NewThread(Master *otto.Otto,Thread otto.Value)(*otto.Otto,error){
+func NewThread(Master *Otto,Thread Value)(*Otto,error){
 	if !Thread.IsFunction(){
 		return nil,errors.New("It's not a function.")
 	}
 	//创建新的线程
-	newOtto := otto.New()
-	newOtto.Set("Get",func(call otto.FunctionCall)otto.Value{
+	newOtto := New()
+	newOtto.Set("Get",func(call FunctionCall)Value{
 		varName := call.ArgumentList[0]
 		if varName.IsNull(){
-			return otto.FalseValue()
+			return FalseValue()
 		}
 		value,err := Master.Get(varName.String())
 		if err != nil{
-			return otto.FalseValue()
+			return FalseValue()
 		}
 		return value
 	})
-	newOtto.Set("Set",func(call otto.FunctionCall)otto.Value{
+	newOtto.Set("Set",func(call FunctionCall)Value{
 		varName := call.Argument(0)
 		varValue := call.Argument(1)
 		if varName.IsNull() || varValue.IsNull(){
-			return otto.FalseValue()
+			return FalseValue()
 		}
-		err,_ := otto.ToValue(Master.Set(varName.String(),varValue))
+		err,_ := ToValue(Master.Set(varName.String(),varValue))
 		return err
 	})
 	return newOtto,nil
