@@ -67,7 +67,14 @@ func ToValueNoERROR(value interface{})(Value){
 func (value Value) isEmpty() bool {
 	return value.kind == valueEmpty
 }
-
+func (value Value)SetRuntime(rt *_runtime)error{
+	if reflect.TypeOf(value.value).String() == "*_object"{
+		//为object
+		value.value.(*_object).runtime = rt
+		return nil
+	}
+	return errors.New("ERROR TYPE.")
+}
 // Undefined
 
 // UndefinedValue will return a Value representing undefined.
