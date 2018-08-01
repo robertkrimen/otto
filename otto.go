@@ -230,7 +230,7 @@ import (
 	"strings"
 	"errors"
 
-	"github.com/dorbmon/otto"
+	"github.com/dorbmon/otto/file"
 	"github.com/dorbmon/otto/registry"
 )
 
