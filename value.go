@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strconv"
 	"unicode/utf16"
+	"errors"
 )
 
 type _valueKind int
