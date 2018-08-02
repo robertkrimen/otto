@@ -2,9 +2,9 @@ package otto
 
 import (
 	"fmt"
-	"runtime"
 	"reflect"
-	//""
+	"runtime"
+	//"os"
 	"github.com/dorbmon/otto/token"
 )
 
@@ -23,8 +23,9 @@ func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
 		//Not Node Block
 		self.FPSFunction()
 	}*/
-	if self.Pause{
-		<-self.ContinueChan	//Waiting..
+	if self.Pause {
+		runtime.Gosched()
+		<-self.ContinueChan //Waiting..
 		self.Pause = false
 	}
 	if !self.InFPSFunction {

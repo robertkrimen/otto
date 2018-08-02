@@ -44,7 +44,8 @@ var (
 func newContext() *_runtime {
 
 	self := &_runtime{}
-
+	self.Pause = false
+	self.ContinueChan = make(chan int)
 	self.globalStash = self.newObjectStash(nil, nil)
 	self.globalObject = self.globalStash.object
 

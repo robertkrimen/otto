@@ -614,7 +614,12 @@ type (
 )
 
 // _expressionNode
-
+func (this _nodeFunctionLiteral) GetName() string {
+	return this.name
+}
+func (this _nodeFunctionLiteral) GetSource() string {
+	return this.source
+}
 func (*_nodeArrayLiteral) _expressionNode()          {}
 func (*_nodeAssignExpression) _expressionNode()      {}
 func (*_nodeBinaryExpression) _expressionNode()      {}

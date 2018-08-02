@@ -1,18 +1,19 @@
 package otto
 
 import (
+	_ "fmt"
 	"strconv"
-	_"fmt"
 	//"reflect"
 )
 
 func (self *_runtime) cmpl_evaluate_nodeProgram(node *_nodeProgram, eval bool) Value {
-	if !eval {	//非eval 进入目标作用域
+	if !eval { //非eval 进入目标作用域
 		self.enterGlobalScope()
 		defer func() {
 			self.leaveScope()
 		}()
 	}
+	self.MainFunctionList = node.functionList
 	self.cmpl_functionDeclaration(node.functionList)
 	self.cmpl_variableDeclaration(node.varList)
 	self.scope.frame.file = node.file

@@ -226,9 +226,9 @@ Here is some more discussion of the issue:
 package otto
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
 
 	"github.com/dorbmon/otto/file"
 	"github.com/dorbmon/otto/registry"
@@ -248,7 +248,7 @@ func New() *Otto {
 	self := &Otto{
 		runtime: newContext(),
 	}
-	self.Runtime.ContinueChan = make(chan int)
+	//self.Runtime.ContinueChan = make(chan int)
 	self.Runtime = self.runtime
 	self.runtime.otto = self
 	self.runtime.traceLimit = 10
@@ -268,34 +268,35 @@ func (otto *Otto) clone() *Otto {
 	self.runtime.otto = self
 	return self
 }
-func NewThread(Master *Otto,Thread Value)(*Otto,error){
-	if !Thread.IsFunction(){
-		return nil,errors.New("It's not a function.")
+func NewThread(Master *Otto, Thread Value) (*Otto, error) {
+	if !Thread.IsFunction() {
+		return nil, errors.New("It's not a function.")
 	}
 	//创建新的线程
 	newOtto := New()
-	newOtto.Set("Get",func(call FunctionCall)Value{
+	newOtto.Set("Get", func(call FunctionCall) Value {
 		varName := call.ArgumentList[0]
-		if varName.IsNull(){
+		if varName.IsNull() {
 			return FalseValue()
 		}
-		value,err := Master.Get(varName.String())
-		if err != nil{
+		value, err := Master.Get(varName.String())
+		if err != nil {
 			return FalseValue()
 		}
 		return value
 	})
-	newOtto.Set("Set",func(call FunctionCall)Value{
+	newOtto.Set("Set", func(call FunctionCall) Value {
 		varName := call.Argument(0)
 		varValue := call.Argument(1)
-		if varName.IsNull() || varValue.IsNull(){
+		if varName.IsNull() || varValue.IsNull() {
 			return FalseValue()
 		}
-		err,_ := ToValue(Master.Set(varName.String(),varValue))
+		err, _ := ToValue(Master.Set(varName.String(), varValue))
 		return err
 	})
-	return newOtto,nil
+	return newOtto, nil
 }
+
 // Run will allocate a new JavaScript runtime, run the given source
 // on the allocated runtime, and return the runtime, resulting value, and
 // error (if any).
@@ -331,9 +332,10 @@ func (self Otto) Run(src interface{}) (Value, error) {
 	}
 	return value, err
 }
-func (self Otto) SetFPSFunction(FPSFunction func()){
+func (self Otto) SetFPSFunction(FPSFunction func()) {
 	self.runtime.FPSFunction = FPSFunction
 }
+
 // Eval will do the same thing as Run, except without leaving the current scope.
 //
 // By staying in the same scope, the code evaluated has access to everything
@@ -666,14 +668,15 @@ func (self Otto) Object(source string) (*Object, error) {
 func (self Otto) ToValue(value interface{}) (Value, error) {
 	return self.runtime.safeToValue(value)
 }
-func (self Otto)ToValueNoERROR(data interface{})Value{
-	value,err := self.runtime.safeToValue(data)
-	if err != nil{
-		v,_ := self.runtime.safeToValue(err)
+func (self Otto) ToValueNoERROR(data interface{}) Value {
+	value, err := self.runtime.safeToValue(data)
+	if err != nil {
+		v, _ := self.runtime.safeToValue(err)
 		return v
 	}
 	return value
 }
+
 // Copy will create a copy/clone of the runtime.
 //
 // Copy is useful for saving some time when creating many similar runtimes.

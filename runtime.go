@@ -53,22 +53,24 @@ type _global struct {
 }
 
 type _runtime struct {
-	global       _global
-	globalObject *_object
-	globalStash  *_objectStash
-	scope        *_scope
-	otto         *Otto
-	eval         *_object // The builtin eval, for determine indirect versus direct invocation
-	debugger     func(*Otto)
-	random       func() float64
-	FPSFunction func()
-	InFPSFunction bool	//防止FPS递归。
-	stackLimit   int
-	traceLimit   int
-	Pause bool
-	ContinueChan chan int
-	labels []string // FIXME
-	lck    sync.Mutex
+	global           _global
+	globalObject     *_object
+	globalStash      *_objectStash
+	scope            *_scope
+	otto             *Otto
+	eval             *_object // The builtin eval, for determine indirect versus direct invocation
+	debugger         func(*Otto)
+	random           func() float64
+	FPSFunction      func()
+	InFPSFunction    bool //防止FPS递归。
+	MainFunctionList []*_nodeFunctionLiteral
+	stackLimit       int
+	traceLimit       int
+	Pause            bool
+	ContinueChan     chan int
+	NoteString       string
+	labels           []string // FIXME
+	lck              sync.Mutex
 }
 
 func (self *_runtime) enterScope(scope *_scope) {

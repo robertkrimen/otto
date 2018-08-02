@@ -1,7 +1,9 @@
 package otto
-import(
-	_"fmt"
+
+import (
+	_ "fmt"
 )
+
 // _constructFunction
 type _constructFunction func(*_object, []Value) Value
 
@@ -199,7 +201,6 @@ func (self *_object) call(this Value, argumentList []Value, eval bool, frame _fr
 				rt.leaveScope()
 			}()
 		}
-
 		return fn.call(FunctionCall{
 			runtime: self.runtime,
 			eval:    eval,
