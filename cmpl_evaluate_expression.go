@@ -5,7 +5,7 @@ import (
 	"math"
 	"runtime"
 
-	"github.com/robertkrimen/otto/token"
+	"github.com/dorbmon/otto/token"
 )
 
 func (self *_runtime) cmpl_evaluate_nodeExpression(node _nodeExpression) Value {
@@ -453,8 +453,8 @@ func (self *_runtime) cmpl_evaluate_nodeVariableExpression(node *_nodeVariableEx
 		left := getIdentifierReference(self, self.scope.lexical, node.name, false, _at(node.idx))
 		right := self.cmpl_evaluate_nodeExpression(node.initializer)
 		rightValue := right.resolve()
-
 		self.putValue(left, rightValue)
+		//self.putValue()
 	}
 	return toValue_string(node.name)
 }

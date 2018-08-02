@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/robertkrimen/otto/ast"
-	"github.com/robertkrimen/otto/file"
-	"github.com/robertkrimen/otto/token"
+	"github.com/dorbmon/otto/ast"
+	"github.com/dorbmon/otto/file"
+	"github.com/dorbmon/otto/token"
 )
 
 var trueLiteral = &_nodeLiteral{value: toValue_bool(true)}
@@ -614,7 +614,12 @@ type (
 )
 
 // _expressionNode
-
+func (this _nodeFunctionLiteral) GetName() string {
+	return this.name
+}
+func (this _nodeFunctionLiteral) GetSource() string {
+	return this.source
+}
 func (*_nodeArrayLiteral) _expressionNode()          {}
 func (*_nodeAssignExpression) _expressionNode()      {}
 func (*_nodeBinaryExpression) _expressionNode()      {}

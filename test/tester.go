@@ -12,8 +12,8 @@ import (
 	"sync"
 	"text/tabwriter"
 
-	"github.com/robertkrimen/otto"
-	"github.com/robertkrimen/otto/parser"
+	"github.com/dorbmon/otto"
+	"github.com/dorbmon/otto/parser"
 )
 
 var flag_test *bool = flag.Bool("test", false, "")
@@ -76,6 +76,7 @@ func test(filename string) error {
 
 	if option != "parse" {
 		vm := otto.New()
+		//vm.Get("ss")
 		_, err = vm.Run(string(script))
 		if err != nil {
 			value := err.Error()

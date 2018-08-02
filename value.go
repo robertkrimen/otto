@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"reflect"
@@ -52,9 +53,27 @@ func ToValue(value interface{}) (Value, error) {
 	})
 	return result, err
 }
-
+func ToValueNoERROR(value interface{}) Value {
+	result := Value{}
+	err := catchPanic(func() {
+		result = toValue(value)
+	})
+	if err != nil {
+		v, _ := ToValue(err)
+		return v
+	}
+	return result
+}
 func (value Value) isEmpty() bool {
 	return value.kind == valueEmpty
+}
+func (value Value) SetRuntime(rt *_runtime) error {
+	if reflect.TypeOf(value.value).String() == "*otto._object" {
+		//为object
+		value.value.(*_object).runtime = rt
+		return nil
+	}
+	return errors.New("ERROR TYPE.")
 }
 
 // Undefined

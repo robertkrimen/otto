@@ -12,8 +12,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/robertkrimen/otto/ast"
-	"github.com/robertkrimen/otto/parser"
+	"github.com/dorbmon/otto/ast"
+	"github.com/dorbmon/otto/parser"
 )
 
 type _global struct {
@@ -53,19 +53,24 @@ type _global struct {
 }
 
 type _runtime struct {
-	global       _global
-	globalObject *_object
-	globalStash  *_objectStash
-	scope        *_scope
-	otto         *Otto
-	eval         *_object // The builtin eval, for determine indirect versus direct invocation
-	debugger     func(*Otto)
-	random       func() float64
-	stackLimit   int
-	traceLimit   int
-
-	labels []string // FIXME
-	lck    sync.Mutex
+	global           _global
+	globalObject     *_object
+	globalStash      *_objectStash
+	scope            *_scope
+	otto             *Otto
+	eval             *_object // The builtin eval, for determine indirect versus direct invocation
+	debugger         func(*Otto)
+	random           func() float64
+	FPSFunction      func()
+	InFPSFunction    bool //防止FPS递归。
+	MainFunctionList []*_nodeFunctionLiteral
+	stackLimit       int
+	traceLimit       int
+	Pause            bool
+	ContinueChan     chan int
+	NoteString       string
+	labels           []string // FIXME
+	lck              sync.Mutex
 }
 
 func (self *_runtime) enterScope(scope *_scope) {
@@ -755,6 +760,7 @@ func (self *_runtime) parseSource(src, sm interface{}) (*_nodeProgram, *ast.Prog
 }
 
 func (self *_runtime) cmpl_runOrEval(src, sm interface{}, eval bool) (Value, error) {
+	//fmt.Println("src:",src)
 	result := Value{}
 	cmpl_program, program, err := self.parseSource(src, sm)
 	if err != nil {
@@ -763,6 +769,7 @@ func (self *_runtime) cmpl_runOrEval(src, sm interface{}, eval bool) (Value, err
 	if cmpl_program == nil {
 		cmpl_program = cmpl_parse(program)
 	}
+	//fmt.Println(cmpl_program.file.Source())
 	err = catchPanic(func() {
 		result = self.cmpl_evaluate_nodeProgram(cmpl_program, eval)
 	})
@@ -772,6 +779,7 @@ func (self *_runtime) cmpl_runOrEval(src, sm interface{}, eval bool) (Value, err
 	case valueReference:
 		result = result.resolve()
 	}
+	//fmt.Println(string(src))
 	return result, err
 }
 

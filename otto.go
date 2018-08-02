@@ -1,13 +1,14 @@
 /*
 Package otto is a JavaScript parser and interpreter written natively in Go.
 
-http://godoc.org/github.com/robertkrimen/otto
+http://godoc.org/github.com/dorbmon/otto
 
     import (
-        "github.com/robertkrimen/otto"
+        "github.com/dorbmon/otto"
     )
 
 Run something in the VM
+
 
     vm := otto.New()
     vm.Run(`
@@ -81,7 +82,7 @@ Parser
 
 A separate parser is available in the parser package if you're just interested in building an AST.
 
-http://godoc.org/github.com/robertkrimen/otto/parser
+http://godoc.org/github.com/dorbmon/otto/parser
 
 Parse and return an AST
 
@@ -105,9 +106,9 @@ Parse and return an AST
 
 otto
 
-You can run (Go) JavaScript from the commandline with: http://github.com/robertkrimen/otto/tree/master/otto
+You can run (Go) JavaScript from the commandline with: http://github.com/dorbmon/otto/tree/master/otto
 
-	$ go get -v github.com/robertkrimen/otto/otto
+	$ go get -v github.com/dorbmon/otto/otto
 
 Run JavaScript by entering some source on stdin or by giving otto a filename:
 
@@ -118,13 +119,13 @@ underscore
 Optionally include the JavaScript utility-belt library, underscore, with this import:
 
 	import (
-		"github.com/robertkrimen/otto"
-		_ "github.com/robertkrimen/otto/underscore"
+		"github.com/dorbmon/otto"
+		_ "github.com/dorbmon/otto/underscore"
 	)
 
 	// Now every otto runtime will come loaded with underscore
 
-For more information: http://github.com/robertkrimen/otto/tree/master/underscore
+For more information: http://github.com/dorbmon/otto/tree/master/underscore
 
 Caveat Emptor
 
@@ -164,7 +165,7 @@ If you want to stop long running executions (like third-party code), you can use
         "os"
         "time"
 
-        "github.com/robertkrimen/otto"
+        "github.com/dorbmon/otto"
     )
 
     var halt = errors.New("Stahp")
@@ -211,7 +212,7 @@ It would not be difficult to provide something like these via Go, but you probab
 
 For an example of how this could be done in Go with otto, see natto:
 
-http://github.com/robertkrimen/natto
+http://github.com/dorbmon/natto
 
 Here is some more discussion of the issue:
 
@@ -225,11 +226,12 @@ Here is some more discussion of the issue:
 package otto
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/robertkrimen/otto/file"
-	"github.com/robertkrimen/otto/registry"
+	"github.com/dorbmon/otto/file"
+	"github.com/dorbmon/otto/registry"
 )
 
 // Otto is the representation of the JavaScript runtime. Each instance of Otto has a self-contained namespace.
@@ -238,6 +240,7 @@ type Otto struct {
 	// See "Halting Problem" for more information.
 	Interrupt chan func()
 	runtime   *_runtime
+	Runtime   *_runtime
 }
 
 // New will allocate a new JavaScript runtime
@@ -245,10 +248,12 @@ func New() *Otto {
 	self := &Otto{
 		runtime: newContext(),
 	}
+	//self.Runtime.ContinueChan = make(chan int)
+	self.Runtime = self.runtime
 	self.runtime.otto = self
 	self.runtime.traceLimit = 10
 	self.Set("console", self.runtime.newConsole())
-
+	//默认对象
 	registry.Apply(func(entry registry.Entry) {
 		self.Run(entry.Source())
 	})
@@ -262,6 +267,34 @@ func (otto *Otto) clone() *Otto {
 	}
 	self.runtime.otto = self
 	return self
+}
+func NewThread(Master *Otto, Thread Value) (*Otto, error) {
+	if !Thread.IsFunction() {
+		return nil, errors.New("It's not a function.")
+	}
+	//创建新的线程
+	newOtto := New()
+	newOtto.Set("Get", func(call FunctionCall) Value {
+		varName := call.ArgumentList[0]
+		if varName.IsNull() {
+			return FalseValue()
+		}
+		value, err := Master.Get(varName.String())
+		if err != nil {
+			return FalseValue()
+		}
+		return value
+	})
+	newOtto.Set("Set", func(call FunctionCall) Value {
+		varName := call.Argument(0)
+		varValue := call.Argument(1)
+		if varName.IsNull() || varValue.IsNull() {
+			return FalseValue()
+		}
+		err, _ := ToValue(Master.Set(varName.String(), varValue))
+		return err
+	})
+	return newOtto, nil
 }
 
 // Run will allocate a new JavaScript runtime, run the given source
@@ -292,11 +325,15 @@ func Run(src interface{}) (*Otto, Value, error) {
 // src may also be a Program, but if the AST has been modified, then runtime behavior is undefined.
 //
 func (self Otto) Run(src interface{}) (Value, error) {
+	//fmt.Println(string(src))
 	value, err := self.runtime.cmpl_run(src, nil)
 	if !value.safe() {
 		value = Value{}
 	}
 	return value, err
+}
+func (self Otto) SetFPSFunction(FPSFunction func()) {
+	self.runtime.FPSFunction = FPSFunction
 }
 
 // Eval will do the same thing as Run, except without leaving the current scope.
@@ -322,6 +359,7 @@ func (self Otto) Eval(src interface{}) (Value, error) {
 // If there is an error (like the binding does not exist), then the value
 // will be undefined.
 func (self Otto) Get(name string) (Value, error) {
+
 	value := Value{}
 	err := catchPanic(func() {
 		value = self.getValue(name)
@@ -629,6 +667,14 @@ func (self Otto) Object(source string) (*Object, error) {
 // ToValue will convert an interface{} value to a value digestible by otto/JavaScript.
 func (self Otto) ToValue(value interface{}) (Value, error) {
 	return self.runtime.safeToValue(value)
+}
+func (self Otto) ToValueNoERROR(data interface{}) Value {
+	value, err := self.runtime.safeToValue(data)
+	if err != nil {
+		v, _ := self.runtime.safeToValue(err)
+		return v
+	}
+	return value
 }
 
 // Copy will create a copy/clone of the runtime.

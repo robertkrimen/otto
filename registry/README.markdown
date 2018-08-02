@@ -1,6 +1,6 @@
 # registry
 --
-    import "github.com/robertkrimen/otto/registry"
+    import "github.com/dorbmon/otto/registry"
 
 Package registry is an expirmental package to facillitate altering the otto
 runtime via import.
@@ -48,4 +48,4 @@ func (self Entry) Source() string
 ```
 
 --
-**godocdown** http://github.com/robertkrimen/godocdown
+**godocdown** http://github.com/dorbmon/godocdown
