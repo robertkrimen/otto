@@ -65,8 +65,8 @@ type _runtime struct {
 	InFPSFunction bool	//防止FPS递归。
 	stackLimit   int
 	traceLimit   int
-
-
+	Pause bool
+	ContinueChan chan int
 	labels []string // FIXME
 	lck    sync.Mutex
 }

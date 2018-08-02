@@ -248,6 +248,7 @@ func New() *Otto {
 	self := &Otto{
 		runtime: newContext(),
 	}
+	self.Runtime.ContinueChan = make(chan int)
 	self.Runtime = self.runtime
 	self.runtime.otto = self
 	self.runtime.traceLimit = 10

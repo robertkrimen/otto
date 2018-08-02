@@ -23,6 +23,10 @@ func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
 		//Not Node Block
 		self.FPSFunction()
 	}*/
+	if self.Pause{
+		<-self.ContinueChan	//Waiting..
+		self.Pause = false
+	}
 	if !self.InFPSFunction {
 		if reflect.TypeOf(node).String() != "*_nodeBlockStatement" {
 			//Not Block. Call FPSFunction
@@ -46,7 +50,7 @@ func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
 	case *_nodeBlockStatement:
 		labels := self.labels
 		self.labels = nil
-
+		self.Pause.Unlock()
 		value := self.cmpl_evaluate_nodeStatementList(node.list)
 		switch value.kind {
 		case valueResult:
