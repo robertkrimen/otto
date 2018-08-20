@@ -598,6 +598,16 @@ func (self Otto) Call(source string, this interface{}, argumentList ...interface
 	}
 }
 
+// ialex32x: provide a method to construct js object by golang
+func (self Otto) Construct(fn Value, argumentList ...interface{}) (Value, error) {
+	this := Value{}
+	result, err := fn.constructSafe(self.runtime, this, argumentList...)
+	if err != nil {
+		return Value{}, err
+	}
+	return result, nil
+}
+
 // Object will run the given source and return the result as an object.
 //
 // For example, accessing an existing object:

@@ -8,7 +8,6 @@ import (
 	"sync/atomic"
 
 	"github.com/robertkrimen/otto"
-	"gopkg.in/readline.v1"
 )
 
 var counter uint32

@@ -2,9 +2,16 @@ package otto
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
+
+var ConsoleLogWriter io.Writer = os.Stdout
+var ConsoleErrorWriter io.Writer = os.Stdout
+var ConsoleDebugWriter io.Writer = os.Stdout
+var ConsoleInfoWriter io.Writer = os.Stdout
+var ConsoleWarnWriter io.Writer = os.Stdout
 
 func formatForConsole(argumentList []Value) string {
 	output := []string{}
@@ -15,12 +22,27 @@ func formatForConsole(argumentList []Value) string {
 }
 
 func builtinConsole_log(call FunctionCall) Value {
-	fmt.Fprintln(os.Stdout, formatForConsole(call.ArgumentList))
+	fmt.Fprintln(ConsoleLogWriter, formatForConsole(call.ArgumentList))
+	return Value{}
+}
+
+func builtinConsole_debug(call FunctionCall) Value {
+	fmt.Fprintln(ConsoleDebugWriter, formatForConsole(call.ArgumentList))
+	return Value{}
+}
+
+func builtinConsole_info(call FunctionCall) Value {
+	fmt.Fprintln(ConsoleInfoWriter, formatForConsole(call.ArgumentList))
+	return Value{}
+}
+
+func builtinConsole_warn(call FunctionCall) Value {
+	fmt.Fprintln(ConsoleWarnWriter, formatForConsole(call.ArgumentList))
 	return Value{}
 }
 
 func builtinConsole_error(call FunctionCall) Value {
-	fmt.Fprintln(os.Stdout, formatForConsole(call.ArgumentList))
+	fmt.Fprintln(ConsoleErrorWriter, formatForConsole(call.ArgumentList))
 	return Value{}
 }
 
