@@ -99,7 +99,6 @@ func execRegExp(this *_object, target string) (match bool, result []int) {
 		result = this.regExpValue().regularExpression.FindStringSubmatchIndex(target[index:])
 	}
 	if result == nil {
-		//this.defineProperty("lastIndex", toValue_(0), 0111, true)
 		this.put("lastIndex", toValue_int(0), true)
 		return // !match
 	}
@@ -112,7 +111,6 @@ func execRegExp(this *_object, target string) (match bool, result []int) {
 		result[index] += int(startIndex)
 	}
 	if global {
-		//this.defineProperty("lastIndex", toValue_(endIndex), 0111, true)
 		this.put("lastIndex", toValue_int(endIndex), true)
 	}
 	return // match
