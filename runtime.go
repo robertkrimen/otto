@@ -264,6 +264,8 @@ func (self *_runtime) convertNumeric(v Value, t reflect.Type) reflect.Value {
 				panic(self.panicRangeError(fmt.Sprintf("converting %v to %v would overflow", val.Type(), t)))
 			}
 			return val.Convert(t)
+		case reflect.Float32, reflect.Float64:
+			return val.Convert(t)
 		}
 
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -279,10 +281,12 @@ func (self *_runtime) convertNumeric(v Value, t reflect.Type) reflect.Value {
 				panic(self.panicRangeError(fmt.Sprintf("converting %v to %v would overflow", val.Type(), t)))
 			}
 			return val.Convert(t)
+		case reflect.Float32, reflect.Float64:
+			return val.Convert(t)
 		}
 	}
 
-	panic(self.panicTypeError(fmt.Sprintf("unsupported type %v for numeric conversion", val.Type())))
+	panic(self.panicTypeError(fmt.Sprintf("unsupported type %v -> %v for numeric conversion", val.Type(), t)))
 }
 
 func fieldIndexByName(t reflect.Type, name string) []int {
