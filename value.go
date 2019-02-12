@@ -715,7 +715,15 @@ func (self Value) export() interface{} {
 			// Convert to the common type
 			val := reflect.MakeSlice(reflect.SliceOf(t), len(result), len(result))
 			for i, v := range result {
-				val.Index(i).Set(reflect.ValueOf(v))
+				vs := reflect.ValueOf(v)
+				if !reflect.TypeOf(v).AssignableTo(t) && vs.Kind() == reflect.Slice {
+					vscopy := reflect.MakeSlice(t, vs.Len(), vs.Len())
+					for i := 0; i < vs.Len(); i++ {
+						vscopy.Index(i).Set(vs.Index(i))
+					}
+					vs = vscopy
+				}
+				val.Index(i).Set(vs)
 			}
 			return val.Interface()
 		} else {

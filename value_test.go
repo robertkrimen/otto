@@ -286,6 +286,11 @@ func TestExport(t *testing.T) {
 			vm.Set("abc", abc)
 			is(test(`abc;`).export(), abc)
 		}
+
+		{
+			is(test(`[[true, null, 64], [null, "hola", null]];`).export(), [][]interface{}{{true, nil, int64(64)}, {nil, "hola", nil}})
+			is(test(`[["abc", "def", "ghi"], [true, 32, null]];`).export(), [][]interface{}{{"abc", "def", "ghi"}, {true, int64(32), nil}})
+		}
 	})
 }
 
