@@ -1130,6 +1130,29 @@ func _newContext(runtime *_runtime) {
 				call: builtinArray_sort,
 			},
 		}
+		includes_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueBoolean,
+						value: 1,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "includes",
+				call: builtinArray_includes,
+			},
+		}
 		indexOf_function := &_object{
 			runtime:     runtime,
 			class:       "Function",
@@ -1457,6 +1480,13 @@ func _newContext(runtime *_runtime) {
 					value: Value{
 						kind:  valueObject,
 						value: sort_function,
+					},
+				},
+				"includes": _property{
+					mode: 0101,
+					value: Value{
+						kind: valueObject,
+						value: includes_function,
 					},
 				},
 				"indexOf": _property{

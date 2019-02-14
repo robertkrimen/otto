@@ -471,6 +471,35 @@ func builtinArray_isArray(call FunctionCall) Value {
 	return toValue_bool(isArray(call.Argument(0)._object()))
 }
 
+func builtinArray_includes(call FunctionCall) Value {
+	thisObject := call.thisObject()
+	if arrayLength, targetMatchesCount := int64(toUint32(thisObject.get("length"))), int(len(call.ArgumentList));
+	   arrayLength > 0 && targetMatchesCount > 0 {
+		for matchIndex := 0; matchIndex >= 0 && matchIndex < targetMatchesCount; matchIndex++ {
+			matchValue := call.Argument(matchIndex)
+			matchResult := false
+			for index := int64(0); index >= 0 && index < arrayLength; index++ {
+				name := arrayIndexToString(int64(index))
+				if !thisObject.hasProperty(name) {
+					continue
+				}
+				value := thisObject.get(name)
+				if strictEqualityComparison(matchValue, value) {
+					matchResult = true
+					break
+				}
+			}
+			if matchResult == false {
+				return toValue_bool(false)
+			}
+		}
+
+		return toValue_bool(true)
+	}
+
+	return toValue_bool(false)
+}
+
 func builtinArray_indexOf(call FunctionCall) Value {
 	thisObject, matchValue := call.thisObject(), call.Argument(0)
 	if length := int64(toUint32(thisObject.get("length"))); length > 0 {

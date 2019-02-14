@@ -345,6 +345,59 @@ func TestArray_isArray(t *testing.T) {
 	})
 }
 
+func TestArray_includes(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`['a', 'b', 'c', 'b'].includes('b')`, true)
+
+		test(`['a', 'b', 'c', 'b'].includes('z')`, false)
+
+		test(`['a', 'b', 'c', 'b'].includes('b', 'z')`, false)
+
+		test(`['a', 'b', 'c', 'b'].includes()`, false)
+
+		test(`
+           Object.prototype.includes = Array.prototype.includes;
+           var abc = {0: 'a', 1: 'b', 2: 'c', length: 3};
+           abc.includes('c');
+        `, true)
+
+		test(`[true].includes(true, "-Infinity")`, false)
+
+		test(`[true].includes(true)`, true)
+
+		test(`
+           var target = {};
+           Math[3] = target;
+           Math.length = 5;
+           Array.prototype.includes.call(Math, target) === true;
+        `, true)
+
+		test(`
+           var _NaN = NaN;
+           var abc = new Array("NaN", undefined, 0, false, null, {toString:function(){return NaN}}, "false", _NaN, NaN);
+           abc.includes(NaN);
+        `, false)
+
+		test(`[-1.3333333333333].includes(-(4/3))`, false)
+
+		test(`[-1.3333333333333333].includes(-(4/3))`, true)
+
+		test(`[-(4/3)].includes(-(4/3))`, true)
+
+		test(`
+            var jkl = new Array(-1, 0, 1);
+            jkl.includes(jkl.indexOf(0));
+        `, true)
+
+		test(`
+            var jkl = new Array(-1, 0);
+            jkl.includes(jkl.indexOf(0));
+        `, false)
+	})
+}
+
 func TestArray_indexOf(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
