@@ -484,7 +484,10 @@ func builtinArray_includes(call FunctionCall) Value {
 					continue
 				}
 				value := thisObject.get(name)
-				if strictEqualityComparison(matchValue, value) {
+
+				if strictEqualityComparison(matchValue, value) ||
+					matchValue.IsNaN() && value.IsNaN() {
+
 					matchResult = true
 					break
 				}

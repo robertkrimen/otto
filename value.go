@@ -173,6 +173,8 @@ func (value Value) IsNaN() bool {
 		return false
 	case uint, uint8, uint32, uint64:
 		return false
+	case string:
+		return false
 	}
 
 	return math.IsNaN(value.float64())

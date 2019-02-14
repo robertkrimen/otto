@@ -349,6 +349,36 @@ func TestArray_includes(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
+		test(`
+           var abc = new Array(0, NaN);
+           abc.includes(NaN);
+        `, true)
+
+		test(`
+           var abc = new Array(0, null);
+           abc.includes(null);
+        `, true)
+
+		test(`
+           var abc = new Array(0, undefined);
+           abc.includes(undefined);
+        `, true)
+
+		test(`
+           var test = 123;
+           [test].includes(123);
+        `, true)
+
+		test(`
+           var test = 123;
+           [123].includes(test);
+        `, true)
+
+		test(`
+           var test = 123;
+           [test].includes(test);
+        `, true)
+
 		test(`['a', 'b', 'c', 'b'].includes('b')`, true)
 
 		test(`['a', 'b', 'c', 'b'].includes('z')`, false)
@@ -378,7 +408,7 @@ func TestArray_includes(t *testing.T) {
            var _NaN = NaN;
            var abc = new Array("NaN", undefined, 0, false, null, {toString:function(){return NaN}}, "false", _NaN, NaN);
            abc.includes(NaN);
-        `, false)
+        `, true)
 
 		test(`[-1.3333333333333].includes(-(4/3))`, false)
 
