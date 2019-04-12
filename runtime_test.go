@@ -857,3 +857,48 @@ func Test_stringArray(t *testing.T) {
 		is(r1, "these are strings")
 	})
 }
+
+type goByteArrayWithMethodsTest [8]byte
+
+func (g goByteArrayWithMethodsTest) S() string    { return string(g[:]) }
+func (g goByteArrayWithMethodsTest) F(i int) byte { return g[i] }
+
+func Test_goByteArrayWithMethods_typeof_S(t *testing.T) {
+	a := goByteArrayWithMethodsTest{97, 98, 99, 100, 101, 102, 103, 104}
+
+	tt(t, func() {
+		test, vm := test()
+		vm.Set("a", a)
+		is(test("typeof a.S").export(), "function")
+	})
+}
+
+func Test_goByteArrayWithMethods_S(t *testing.T) {
+	a := goByteArrayWithMethodsTest{97, 98, 99, 100, 101, 102, 103, 104}
+
+	tt(t, func() {
+		test, vm := test()
+		vm.Set("a", a)
+		is(test("a.S()").export(), "abcdefgh")
+	})
+}
+
+func Test_goByteArrayWithMethods_F0(t *testing.T) {
+	a := goByteArrayWithMethodsTest{97, 98, 99, 100, 101, 102, 103, 104}
+
+	tt(t, func() {
+		test, vm := test()
+		vm.Set("a", a)
+		is(test("a.F(0)").export(), 97)
+	})
+}
+
+func Test_goByteArrayWithMethods_F1(t *testing.T) {
+	a := goByteArrayWithMethodsTest{97, 98, 99, 100, 101, 102, 103, 104}
+
+	tt(t, func() {
+		test, vm := test()
+		vm.Set("a", a)
+		is(test("a.F(1)").export(), 98)
+	})
+}
