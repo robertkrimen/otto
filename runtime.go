@@ -2,6 +2,7 @@ package otto
 
 import (
 	"encoding"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -322,6 +323,7 @@ func fieldIndexByName(t reflect.Type, name string) []int {
 }
 
 var typeOfValue = reflect.TypeOf(Value{})
+var typeOfJSONRawMessage = reflect.TypeOf(json.RawMessage{})
 
 // convertCallParameter converts request val to type t if possible.
 // If the conversion fails due to overflow or type miss-match then it panics.
@@ -329,6 +331,12 @@ var typeOfValue = reflect.TypeOf(Value{})
 func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Value {
 	if t == typeOfValue {
 		return reflect.ValueOf(v)
+	}
+
+	if t == typeOfJSONRawMessage {
+		if d, err := json.Marshal(v.export()); err == nil {
+			return reflect.ValueOf(d)
+		}
 	}
 
 	if v.kind == valueObject {

@@ -1,6 +1,8 @@
 package otto
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"math"
 	"reflect"
@@ -879,4 +881,57 @@ func TestTextUnmarshallerCallParameterConversion(t *testing.T) {
 			t.Fail()
 		}
 	})
+}
+
+func TestJSONRawMessageCallParameterConversion(t *testing.T) {
+	for _, e := range []struct {
+		c string
+		r string
+		e bool
+	}{
+		{"f({a:1})", `{"a":1}`, false},
+		{"f(null)", `null`, false},
+		{"f(1)", `1`, false},
+		{"f('x')", `"x"`, false},
+		{"f([1,2,3])", `[1,2,3]`, false},
+		{"f(function(){})", `{}`, false},
+		{"f()", `[1,2,3]`, true},
+	} {
+		t.Run(e.c, func(t *testing.T) {
+			vm := New()
+			vm.Set("f", func(m json.RawMessage) json.RawMessage { return m })
+			r, err := vm.Run(e.c)
+			if err != nil {
+				if !e.e {
+					t.Error("err should be nil")
+					t.Fail()
+				}
+
+				return
+			}
+
+			if e.e {
+				t.Error("err should not be nil")
+				t.Fail()
+				return
+			}
+
+			v, err := r.Export()
+			if err != nil {
+				t.Error(err)
+				t.Fail()
+			}
+
+			m, ok := v.(json.RawMessage)
+			if !ok {
+				t.Error("result should be json.RawMessage")
+				t.Fail()
+			}
+
+			if !bytes.Equal(m, json.RawMessage(e.r)) {
+				t.Errorf("output is wrong\nexpected: %s\nactual:   %s\n", e.r, m)
+				t.Fail()
+			}
+		})
+	}
 }
