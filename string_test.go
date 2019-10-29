@@ -299,6 +299,33 @@ func TestString_slice(t *testing.T) {
 	})
 }
 
+func TestString_slice_unicode(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`"uñiçode".slice()`, "uñiçode")
+		test(`"uñiçode".slice(0)`, "uñiçode")
+		test(`"uñiçode".slice(0,11)`, "uñiçode")
+		test(`"uñiçode".slice(0,-1)`, "uñiçod")
+		test(`"uñiçode".slice(-1,11)`, "e")
+	})
+}
+
+func TestString_substring_unicode(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`"uñiçode".substring()`, "uñiçode")
+		test(`"uñiçode".substring(0)`, "uñiçode")
+		test(`"uñiçode".substring(0,11)`, "uñiçode")
+		test(`"uñiçode".substring(11,0)`, "uñiçode")
+		test(`"uñiçode".substring(0,-1)`, "")
+		test(`"uñiçode".substring(-1,11)`, "uñiçode")
+		test(`"uñiçode".substring(1)`, "ñiçode")
+		test(`"uñiçode".substring(Infinity, Infinity)`, "")
+	})
+}
+
 func TestString_substring(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()

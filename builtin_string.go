@@ -391,30 +391,30 @@ func builtinString_split(call FunctionCall) Value {
 
 func builtinString_slice(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
-	target := call.This.string()
+	target := []rune(call.This.string())
 
 	length := int64(len(target))
 	start, end := rangeStartEnd(call.ArgumentList, length, false)
 	if end-start <= 0 {
 		return toValue_string("")
 	}
-	return toValue_string(target[start:end])
+	return toValue_string(string(target[start:end]))
 }
 
 func builtinString_substring(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
-	target := call.This.string()
+	target := []rune(call.This.string())
 
 	length := int64(len(target))
 	start, end := rangeStartEnd(call.ArgumentList, length, true)
 	if start > end {
 		start, end = end, start
 	}
-	return toValue_string(target[start:end])
+	return toValue_string(string(target[start:end]))
 }
 
 func builtinString_substr(call FunctionCall) Value {
-	target := call.This.string()
+	target := []rune(call.This.string())
 
 	size := int64(len(target))
 	start, length := rangeStartLength(call.ArgumentList, size)
@@ -435,7 +435,7 @@ func builtinString_substr(call FunctionCall) Value {
 		length = size - start
 	}
 
-	return toValue_string(target[start : start+length])
+	return toValue_string(string(target[start : start+length]))
 }
 
 func builtinString_toLowerCase(call FunctionCall) Value {
