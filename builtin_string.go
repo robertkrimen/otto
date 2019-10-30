@@ -70,12 +70,26 @@ func builtinString_concat(call FunctionCall) Value {
 	return toValue_string(value.String())
 }
 
+func lastIndexRune(s, substr string) int {
+	if i := strings.LastIndex(s, substr); i >= 0 {
+		return utf8.RuneCountInString(s[:i])
+	}
+	return -1
+}
+
+func indexRune(s, substr string) int {
+	if i := strings.Index(s, substr); i >= 0 {
+		return utf8.RuneCountInString(s[:i])
+	}
+	return -1
+}
+
 func builtinString_indexOf(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
 	value := call.This.string()
 	target := call.Argument(0).string()
 	if 2 > len(call.ArgumentList) {
-		return toValue_int(strings.Index(value, target))
+		return toValue_int(indexRune(value, target))
 	}
 	start := toIntegerFloat(call.Argument(1))
 	if 0 > start {
@@ -86,7 +100,7 @@ func builtinString_indexOf(call FunctionCall) Value {
 		}
 		return toValue_int(-1)
 	}
-	index := strings.Index(value[int(start):], target)
+	index := indexRune(value[int(start):], target)
 	if index >= 0 {
 		index += int(start)
 	}
@@ -98,16 +112,16 @@ func builtinString_lastIndexOf(call FunctionCall) Value {
 	value := call.This.string()
 	target := call.Argument(0).string()
 	if 2 > len(call.ArgumentList) || call.ArgumentList[1].IsUndefined() {
-		return toValue_int(strings.LastIndex(value, target))
+		return toValue_int(lastIndexRune(value, target))
 	}
 	length := len(value)
 	if length == 0 {
-		return toValue_int(strings.LastIndex(value, target))
+		return toValue_int(lastIndexRune(value, target))
 	}
 	start := call.ArgumentList[1].number()
 	if start.kind == numberInfinity { // FIXME
 		// startNumber is infinity, so start is the end of string (start = length)
-		return toValue_int(strings.LastIndex(value, target))
+		return toValue_int(lastIndexRune(value, target))
 	}
 	if 0 > start.int64 {
 		start.int64 = 0
@@ -116,7 +130,7 @@ func builtinString_lastIndexOf(call FunctionCall) Value {
 	if end > length {
 		end = length
 	}
-	return toValue_int(strings.LastIndex(value[:end], target))
+	return toValue_int(lastIndexRune(value[:end], target))
 }
 
 func builtinString_match(call FunctionCall) Value {

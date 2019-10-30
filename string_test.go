@@ -94,6 +94,12 @@ func TestString_indexOf(t *testing.T) {
 		test(`"abc".indexOf("a")`, 0)
 		test(`"abc".indexOf("bc")`, 1)
 		test(`"abc".indexOf("bc", 11)`, -1)
+
+		test(`"uñiçode".indexOf("ñ")`, 1)
+		test(`"uñiçode".indexOf("ñ", 11)`, -1)
+		test(`"uññiçode".indexOf("ç")`, 4)
+		test(`"uññiçode".indexOf("ç", 11)`, -1)
+
 		test(`"$$abcdabcd".indexOf("ab", function(){return -Infinity;}())`, 2)
 		test(`"$$abcdabcd".indexOf("ab", function(){return NaN;}())`, 2)
 
@@ -127,6 +133,11 @@ func TestString_lastIndexOf(t *testing.T) {
 		test(`"abc".lastIndexOf("abc", 1)`, 0)
 		test(`"abc".lastIndexOf("abc", 2)`, 0)
 		test(`"abc".lastIndexOf("abc", 3)`, 0)
+
+		test(`"uñiçodeñ".lastIndexOf("ñ")`, 7)
+		test(`"uñiçode".lastIndexOf("ñ")`, 1)
+		test(`"uñiçodeñ".lastIndexOf("ç")`, 3)
+		test(`"uñiçodeñ".lastIndexOf("aç")`, -1)
 
 		test(`
             abc = new Object(true);
@@ -296,6 +307,15 @@ func TestString_slice(t *testing.T) {
 		test(`"abc".slice(0,-1)`, "ab")
 		test(`"abc".slice(-1,11)`, "c")
 		test(`abc = "abc"; abc.slice(abc.length+1, 0)`, "")
+	})
+}
+
+func TestString_length(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`"abc".length`, 3)
+		test(`"uñiçode".length`, 7)
 	})
 }
 
