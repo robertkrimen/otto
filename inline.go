@@ -2627,6 +2627,29 @@ func _newContext(runtime *_runtime) {
 				call: builtinNumber_toLocaleString,
 			},
 		}
+		isNaN_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 1,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "isNaN",
+				call: builtinNumber_isNaN,
+			},
+		}
 		runtime.global.NumberPrototype = &_object{
 			runtime:     runtime,
 			class:       "Number",
@@ -2713,6 +2736,13 @@ func _newContext(runtime *_runtime) {
 						value: runtime.global.NumberPrototype,
 					},
 				},
+				"isNaN": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: isNaN_function,
+					},
+				},
 				"MAX_VALUE": _property{
 					mode: 0,
 					value: Value{
@@ -2752,6 +2782,7 @@ func _newContext(runtime *_runtime) {
 			propertyOrder: []string{
 				"length",
 				"prototype",
+				"isNaN",
 				"MAX_VALUE",
 				"MIN_VALUE",
 				"NaN",

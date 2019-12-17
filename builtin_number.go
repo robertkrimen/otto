@@ -88,6 +88,13 @@ func builtinNumber_toPrecision(call FunctionCall) Value {
 	return toValue_string(strconv.FormatFloat(call.This.float64(), 'g', int(precision), 64))
 }
 
+func builtinNumber_isNaN(call FunctionCall) Value {
+	if len(call.ArgumentList) < 1 {
+		return toValue_bool(false)
+	}
+	return toValue_bool(call.Argument(0).IsNaN())
+}
+
 func builtinNumber_toLocaleString(call FunctionCall) Value {
 	return builtinNumber_toString(call)
 }
