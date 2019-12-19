@@ -36,8 +36,8 @@ func _newGoStructObject(value reflect.Value) *_goStructObject {
 }
 
 func (self _goStructObject) getValue(name string) reflect.Value {
-	if f, ok := self.field(name); ok {
-		return reflect.Indirect(self.value).FieldByIndex(f.Index)
+	if idx := fieldIndexByName(reflect.Indirect(self.value).Type(), name); len(idx) > 0 {
+		return reflect.Indirect(self.value).FieldByIndex(idx)
 	}
 
 	if validGoStructName(name) {
@@ -54,14 +54,8 @@ func (self _goStructObject) getValue(name string) reflect.Value {
 	return reflect.Value{}
 }
 
-func (self _goStructObject) field(name string) (reflect.StructField, bool) {
-	t := reflect.Indirect(self.value).Type()
-
-	if idx := fieldIndexByName(t, name); len(idx) > 0 {
-		return t.FieldByIndex(idx), true
-	}
-
-	return reflect.StructField{}, false
+func (self _goStructObject) fieldIndex(name string) []int {
+	return fieldIndexByName(reflect.Indirect(self.value).Type(), name)
 }
 
 func (self _goStructObject) method(name string) (reflect.Method, bool) {
@@ -69,7 +63,7 @@ func (self _goStructObject) method(name string) (reflect.Method, bool) {
 }
 
 func (self _goStructObject) setValue(rt *_runtime, name string, value Value) bool {
-	if _, exists := self.field(name); !exists {
+	if idx := fieldIndexByName(reflect.Indirect(self.value).Type(), name); len(idx) == 0 {
 		return false
 	}
 
