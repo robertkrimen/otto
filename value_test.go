@@ -214,23 +214,23 @@ func TestExport(t *testing.T) {
 	tt(t, func() {
 		test, vm := test()
 
-		is(test(`null;`).export(), nil)
-		is(test(`undefined;`).export(), nil)
-		is(test(`true;`).export(), true)
-		is(test(`false;`).export(), false)
-		is(test(`0;`).export(), 0)
-		is(test(`3.1459`).export(), 3.1459)
-		is(test(`"Nothing happens";`).export(), "Nothing happens")
-		is(test(`String.fromCharCode(97,98,99,100,101,102)`).export(), "abcdef")
+		is(test(`null;`).export(0), nil)
+		is(test(`undefined;`).export(0), nil)
+		is(test(`true;`).export(0), true)
+		is(test(`false;`).export(0), false)
+		is(test(`0;`).export(0), 0)
+		is(test(`3.1459`).export(0), 3.1459)
+		is(test(`"Nothing happens";`).export(0), "Nothing happens")
+		is(test(`String.fromCharCode(97,98,99,100,101,102)`).export(0), "abcdef")
 		{
-			value := test(`({ abc: 1, def: true, ghi: undefined });`).export().(map[string]interface{})
+			value := test(`({ abc: 1, def: true, ghi: undefined });`).export(0).(map[string]interface{})
 			is(value["abc"], 1)
 			is(value["def"], true)
 			_, exists := value["ghi"]
 			is(exists, false)
 		}
 		{
-			value := test(`[ "abc", 1, "def", true, undefined, null ];`).export().([]interface{})
+			value := test(`[ "abc", 1, "def", true, undefined, null ];`).export(0).([]interface{})
 			is(value[0], "abc")
 			is(value[1], 1)
 			is(value[2], "def")
@@ -240,7 +240,7 @@ func TestExport(t *testing.T) {
 			is(value[5], interface{}(nil))
 		}
 		{
-			value := test(`[ undefined, null ];`).export().([]interface{})
+			value := test(`[ undefined, null ];`).export(0).([]interface{})
 			is(value[0], nil)
 			is(value[1], nil)
 			is(value[1], interface{}(nil))
@@ -269,7 +269,7 @@ func TestExport(t *testing.T) {
 			input, err := json.Marshal(value)
 			is(err, nil)
 
-			output, err := json.Marshal(test("(" + string(input) + ");").export())
+			output, err := json.Marshal(test("(" + string(input) + ");").export(0))
 			is(err, nil)
 
 			is(string(input), string(output))
@@ -284,7 +284,7 @@ func TestExport(t *testing.T) {
 			abc.def = 3
 			abc.xyz = 3.1459
 			vm.Set("abc", abc)
-			is(test(`abc;`).export(), abc)
+			is(test(`abc;`).export(0), abc)
 		}
 	})
 }

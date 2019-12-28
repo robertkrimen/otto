@@ -213,7 +213,7 @@ func (self *_runtime) safeToValue(value interface{}) (Value, error) {
 // convertNumeric converts numeric parameter val from js to that of type t if it is safe to do so, otherwise it panics.
 // This allows literals (int64), bitwise values (int32) and the general form (float64) of javascript numerics to be passed as parameters to go functions easily.
 func (self *_runtime) convertNumeric(v Value, t reflect.Type) reflect.Value {
-	val := reflect.ValueOf(v.export())
+	val := reflect.ValueOf(v.export(0))
 
 	if val.Kind() == t.Kind() {
 		return val
@@ -364,7 +364,7 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 	}
 
 	if t.Kind() == reflect.Interface {
-		e := v.export()
+		e := v.export(0)
 		if e == nil {
 			return reflect.Zero(t)
 		}
