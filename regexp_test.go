@@ -256,7 +256,7 @@ func TestRegExp_controlCharacter(t *testing.T) {
 		test, _ := test()
 
 		for code := 0x41; code < 0x5a; code++ {
-			string_ := string(code - 64)
+			string_ := string(rune(code - 64))
 			test(fmt.Sprintf(`
                 var code = 0x%x;
                 var string = String.fromCharCode(code %% 32);
