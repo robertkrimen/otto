@@ -68,7 +68,11 @@ func (self _goStructObject) setValue(rt *_runtime, name string, value Value) boo
 	}
 
 	fieldValue := self.getValue(name)
-	fieldValue.Set(rt.convertCallParameter(value, fieldValue.Type()))
+	converted, err := rt.convertCallParameter(value, fieldValue.Type())
+	if err != nil {
+		panic(rt.panicTypeError(err.Error()))
+	}
+	fieldValue.Set(converted)
 
 	return true
 }
