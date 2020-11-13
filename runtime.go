@@ -294,6 +294,10 @@ func fieldIndexByName(t reflect.Type, name string) []int {
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 
+		if strings.HasPrefix(f.Tag.Get("json"), "-") {
+			continue
+		}
+
 		if !validGoStructName(f.Name) {
 			continue
 		}
