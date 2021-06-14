@@ -122,6 +122,21 @@ func TestRegExp_exec(t *testing.T) {
         `, "3,7")
 
 		test(`
+            abc = /(\d)?(s)/g;
+            def = 's';
+            ghi = abc.exec(def);
+            [ ghi[1] === undefined, ghi[2] === 's' ];
+        `, "true,true")
+
+		test(`
+            abc = /(\d)?(s)/g;
+            def = '%s';
+            abc.lastIndex = 1;
+            ghi = abc.exec(def);
+            [ ghi[1] === undefined, ghi[2] === 's' ];
+        `, "true,true")
+
+		test(`
             var abc = /[abc](\d)?/.exec("a0 b c1 d3");
             [ abc.length, abc.input, abc.index, abc ];
         `, "2,a0 b c1 d3,0,a0,0")
