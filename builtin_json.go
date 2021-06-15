@@ -211,7 +211,7 @@ func builtinJSON_stringifyWalk(ctx _builtinJSON_stringifyContext, key string, ho
 	}
 
 	if ctx.replacerFunction != nil {
-		value = (*ctx.replacerFunction).call(ctx.call.runtime, toValue_object(holder), key, value)
+		value = ctx.replacerFunction.call(ctx.call.runtime, toValue_object(holder), key, value)
 	}
 
 	if value.kind == valueObject {
