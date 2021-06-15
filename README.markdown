@@ -867,5 +867,11 @@ ToString will convert the value to a string (string).
 If there is an error during the conversion process (like an uncaught exception),
 then the result will be the empty string ("") and an error.
 
+## Tools
+
+Name|Description
+:--|:--
+[gojs-tool](https://github.com/gogap/gojs-tool)|A tool for otto to convert go packages to js natvie modules
+
 --
 **godocdown** http://github.com/robertkrimen/godocdown
