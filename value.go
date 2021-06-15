@@ -314,6 +314,8 @@ func toValue(value interface{}) Value {
 	case string:
 		return Value{valueString, value}
 	// A rune is actually an int32, which is handled above
+	case error:
+		return Value{valueString, value.Error()}
 	case *_object:
 		return Value{valueObject, value}
 	case *Object:
