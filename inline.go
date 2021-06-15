@@ -6286,7 +6286,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 			},
 			value: _nativeFunctionObject{
 				name: "debug",
-				call: builtinConsole_log,
+				call: builtinConsole_debug,
 			},
 		}
 		info_function := &_object{
@@ -6309,7 +6309,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 			},
 			value: _nativeFunctionObject{
 				name: "info",
-				call: builtinConsole_log,
+				call: builtinConsole_info,
 			},
 		}
 		error_function := &_object{
@@ -6355,7 +6355,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 			},
 			value: _nativeFunctionObject{
 				name: "warn",
-				call: builtinConsole_error,
+				call: builtinConsole_warn,
 			},
 		}
 		dir_function := &_object{
