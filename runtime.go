@@ -298,12 +298,6 @@ func fieldIndexByName(t reflect.Type, name string) []int {
 			continue
 		}
 
-		if f.Anonymous {
-			if a := fieldIndexByName(f.Type, name); a != nil {
-				return append([]int{i}, a...)
-			}
-		}
-
 		if a := strings.SplitN(f.Tag.Get("json"), ",", 2); a[0] != "" {
 			if a[0] == "-" {
 				continue
