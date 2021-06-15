@@ -681,6 +681,8 @@ func (self Value) export() interface{} {
 			lengthValue := object.get("length")
 			length := lengthValue.value.(uint32)
 			kind := reflect.Invalid
+			keyKind := reflect.Invalid
+			elemKind := reflect.Invalid
 			state := 0
 			var t reflect.Type
 			for index := uint32(0); index < length; index += 1 {
@@ -692,15 +694,24 @@ func (self Value) export() interface{} {
 
 				t = reflect.TypeOf(value)
 
-				var k reflect.Kind
+				var k, kk, ek reflect.Kind
 				if t != nil {
 					k = t.Kind()
+					switch k {
+					case reflect.Map:
+						kk = t.Key().Kind()
+						fallthrough
+					case reflect.Array, reflect.Chan, reflect.Ptr, reflect.Slice:
+						ek = t.Elem().Kind()
+					}
 				}
 
 				if state == 0 {
 					kind = k
+					keyKind = kk
+					elemKind = ek
 					state = 1
-				} else if state == 1 && kind != k {
+				} else if state == 1 && (kind != k || keyKind != kk || elemKind != ek) {
 					state = 2
 				}
 
