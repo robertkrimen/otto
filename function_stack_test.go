@@ -16,8 +16,8 @@ func TestFunction_stack(t *testing.T) {
 		vm.Run(s)
 
 		expected := []_frame{
-			{native: true, nativeFile: "function_stack_test.go", nativeLine: 30, offset: 0, callee: "github.com/robertkrimen/otto.TestFunction_stack.func1.2"},
-			{native: true, nativeFile: "function_stack_test.go", nativeLine: 25, offset: 0, callee: "github.com/robertkrimen/otto.TestFunction_stack.func1.1"},
+			{native: true, nativeFile: "function_stack_test.go", nativeLine: 30, offset: 0, callee: "github.com/arkadiont/otto.TestFunction_stack.func1.2"},
+			{native: true, nativeFile: "function_stack_test.go", nativeLine: 25, offset: 0, callee: "github.com/arkadiont/otto.TestFunction_stack.func1.1"},
 			{native: false, nativeFile: "", nativeLine: 0, offset: 29, callee: "X", file: s.program.file},
 			{native: false, nativeFile: "", nativeLine: 0, offset: 29, callee: "X", file: s.program.file},
 		}

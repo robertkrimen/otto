@@ -5,7 +5,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/robertkrimen/otto/token"
+	"github.com/arkadiont/otto/token"
 )
 
 func (self *_runtime) evaluateMultiply(left float64, right float64) Value {

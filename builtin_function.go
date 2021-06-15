@@ -2,11 +2,10 @@ package otto
 
 import (
 	"fmt"
+	"github.com/arkadiont/otto/parser"
 	"regexp"
 	"strings"
 	"unicode"
-
-	"github.com/robertkrimen/otto/parser"
 )
 
 // Function

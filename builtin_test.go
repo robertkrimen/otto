@@ -10,6 +10,16 @@ func TestString_substr(t *testing.T) {
 
 		test(`
             [
+                "uñiçode".substr(0,1), // "u"
+                "uñiçode".substr(0,2), // "uñ"
+                "uñiçode".substr(0,3), // "uñi"
+                "uñiçode".substr(0,4), // "uñiç"
+                "uñiçode".substr(0,9), // "uñiçode"
+            ];
+        `, "u,uñ,uñi,uñiç,uñiçode")
+
+		test(`
+            [
                 "abc".substr(0,1), // "a"
                 "abc".substr(0,2), // "ab"
                 "abc".substr(0,3), // "abc"
