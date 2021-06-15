@@ -50,7 +50,7 @@ func newContext() *_runtime {
 
 	_newContext(self)
 
-	self.eval = self.globalObject.property["eval"].value.(Value).value.(*_object)
+	self.eval = self.globalObject.getProperty("eval").value.(Value).value.(*_object)
 	self.globalObject.prototype = self.global.ObjectPrototype
 
 	return self

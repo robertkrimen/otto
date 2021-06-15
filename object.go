@@ -1,5 +1,7 @@
 package otto
 
+import "sync"
+
 type _object struct {
 	runtime *_runtime
 
@@ -10,6 +12,7 @@ type _object struct {
 	prototype  *_object
 	extensible bool
 
+	propertyMx sync.RWMutex
 	property      map[string]_property
 	propertyOrder []string
 }
@@ -119,11 +122,17 @@ func (self *_object) enumerate(all bool, each func(string) bool) {
 }
 
 func (self *_object) _exists(name string) bool {
+	self.propertyMx.RLock()
+	defer self.propertyMx.RUnlock()
+
 	_, exists := self.property[name]
 	return exists
 }
 
 func (self *_object) _read(name string) (_property, bool) {
+	self.propertyMx.RLock()
+	defer self.propertyMx.RUnlock()
+
 	property, exists := self.property[name]
 	return property, exists
 }
@@ -132,6 +141,10 @@ func (self *_object) _write(name string, value interface{}, mode _propertyMode) 
 	if value == nil {
 		value = Value{}
 	}
+
+	self.propertyMx.Lock()
+	defer self.propertyMx.Unlock()
+
 	_, exists := self.property[name]
 	self.property[name] = _property{value, mode}
 	if !exists {
@@ -140,6 +153,9 @@ func (self *_object) _write(name string, value interface{}, mode _propertyMode) 
 }
 
 func (self *_object) _delete(name string) {
+	self.propertyMx.Lock()
+	defer self.propertyMx.Unlock()
+
 	_, exists := self.property[name]
 	delete(self.property, name)
 	if exists {

@@ -285,6 +285,8 @@ func getStashProperties(stash _stash) (keys []string) {
 			keys = append(keys, k)
 		}
 	case *_objectStash:
+		vars.object.propertyMx.RLock()
+		defer vars.object.propertyMx.RUnlock()
 		for k := range vars.object.property {
 			keys = append(keys, k)
 		}
