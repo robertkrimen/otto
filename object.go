@@ -6,6 +6,7 @@ type _object struct {
 	class       string
 	objectClass *_objectClass
 	value       interface{}
+	data        interface{}
 
 	prototype  *_object
 	extensible bool

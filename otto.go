@@ -721,6 +721,14 @@ func (self Object) Set(name string, value interface{}) error {
 	}
 }
 
+func (self Object) SetPrivate(data interface{}) {
+	self.object.data = data
+}
+
+func (self Object) GetPrivate() interface{} {
+	return self.object.data
+}
+
 // Keys gets the keys for the given object.
 //
 // Equivalent to calling Object.keys on the object.
