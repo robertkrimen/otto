@@ -419,7 +419,7 @@ func typeKindString(value interface{}) string {
 
 func (scope *_scope) reset() {
 	scope.name = ""
-	scope.output = scope.output[:]
+	scope.output = scope.output[:0]
 	scope.start = time.Time{}
 	scope.duration = 0
 }
