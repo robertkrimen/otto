@@ -87,11 +87,8 @@ func (value Value) IsNull() bool {
 // ---
 
 func (value Value) isCallable() bool {
-	switch value := value.value.(type) {
-	case *_object:
-		return value.isCall()
-	}
-	return false
+	v, ok := value.value.(*_object)
+	return ok && v.isCall()
 }
 
 // Call the value as a function with the given this value and argument list and
@@ -118,8 +115,7 @@ func (value Value) Call(this Value, argumentList ...interface{}) (Value, error) 
 }
 
 func (value Value) call(rt *_runtime, this Value, argumentList ...interface{}) Value {
-	switch function := value.value.(type) {
-	case *_object:
+	if function, ok := value.value.(*_object); ok {
 		return function.call(this, function.runtime.toValueArray(argumentList...), false, nativeFrame)
 	}
 	if rt == nil {
@@ -137,8 +133,7 @@ func (value Value) constructSafe(rt *_runtime, this Value, argumentList ...inter
 }
 
 func (value Value) construct(rt *_runtime, this Value, argumentList ...interface{}) Value {
-	switch fn := value.value.(type) {
-	case *_object:
+	if fn, ok := value.value.(*_object); ok {
 		return fn.construct(fn.runtime.toValueArray(argumentList...))
 	}
 	if rt == nil {
@@ -461,9 +456,8 @@ func (value Value) ToString() (string, error) {
 }
 
 func (value Value) _object() *_object {
-	switch value := value.value.(type) {
-	case *_object:
-		return value
+	if v, ok := value.value.(*_object); ok {
+		return v
 	}
 	return nil
 }
@@ -472,24 +466,21 @@ func (value Value) _object() *_object {
 //
 // This method will not do any implicit conversion. For example, calling this method on a string primitive value will not return a String object.
 func (value Value) Object() *Object {
-	switch object := value.value.(type) {
-	case *_object:
+	if object, ok := value.value.(*_object); ok {
 		return _newObject(object, value)
 	}
 	return nil
 }
 
 func (value Value) reference() _reference {
-	switch value := value.value.(type) {
-	case _reference:
+	if value, ok := value.value.(_reference); ok {
 		return value
 	}
 	return nil
 }
 
 func (value Value) resolve() Value {
-	switch value := value.value.(type) {
-	case _reference:
+	if value, ok := value.value.(_reference); ok {
 		return value.getValue()
 	}
 	return value
