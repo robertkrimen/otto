@@ -145,6 +145,17 @@ func (self *_runtime) cmpl_evaluate_nodeDoWhileStatement(node *_nodeDoWhileState
 	result := emptyValue
 resultBreak:
 	for {
+
+		// this is to prevent do while cycles with no body from running forever
+		if len(node.body) == 0 && self.otto.Interrupt != nil {
+			runtime.Gosched()
+			select {
+			case value := <-self.otto.Interrupt:
+				value()
+			default:
+			}
+		}
+
 		for _, node := range node.body {
 			value := self.cmpl_evaluate_nodeStatement(node)
 			switch value.kind {
@@ -259,6 +270,17 @@ resultBreak:
 				break
 			}
 		}
+
+		// this is to prevent for cycles with no body from running forever
+		if len(body) == 0 && self.otto.Interrupt != nil {
+			runtime.Gosched()
+			select {
+			case value := <-self.otto.Interrupt:
+				value()
+			default:
+			}
+		}
+
 		for _, node := range body {
 			value := self.cmpl_evaluate_nodeStatement(node)
 			switch value.kind {
