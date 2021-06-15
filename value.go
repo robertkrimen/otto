@@ -325,8 +325,7 @@ func toValue(value interface{}) Value {
 	case _result:
 		return Value{valueResult, value}
 	case nil:
-		// TODO Ugh.
-		return Value{}
+		return nullValue
 	case reflect.Value:
 		for value.Kind() == reflect.Ptr {
 			// We were given a pointer, so we'll drill down until we get a non-pointer

@@ -39,7 +39,8 @@ func TestToValue(t *testing.T) {
 		vm := tester.vm
 
 		value, _ := vm.ToValue(nil)
-		is(value, "undefined")
+		is(value, "null")
+		is(value, nullValue)
 
 		value, _ = vm.ToValue((*byte)(nil))
 		is(value, "undefined")
