@@ -303,68 +303,66 @@ func toUint16(value Value) uint16 {
 
 // toIntSign returns sign of a number converted to -1, 0 ,1
 func toIntSign(value Value) int {
-	{
-		switch value := value.value.(type) {
-		case int8:
-			if int8(value) > 0 {
-				return 1
-			} else if int8(value) < 0 {
-				return -1
-			}
-
-			return 0
-		case int16:
-			if int16(value) > 0 {
-				return 1
-			} else if int16(value) < 0 {
-				return -1
-			} 
-				
-			return 0
-		case int32:
-			if int32(value) > 0 {
-				return 1
-			} else if int32(value) < 0 {
-				return -1
-			} 
-				
-			return 0
-		case uint8:
-			if uint8(value) > 0 {
-				return 1
-			} else if uint8(value) < 0 {
-				return -1
-			} 
-				
-			return 0
-		case uint16:
-			if uint16(value) > 0 {
-				return 1
-			} else if uint16(value) < 0 {
-				return -1
-			} 
-				
-			return 0
-		case uint32:
-			if uint32(value) > 0 {
-				return 1
-			} else if uint32(value) < 0 {
-				return -1
-			} 
-				
-			return 0
+	switch value := value.value.(type) {
+	case int8:
+		if int8(value) > 0 {
+			return 1
+		} else if int8(value) < 0 {
+			return -1
 		}
+	
+		return 0
+	case int16:
+		if int16(value) > 0 {
+			return 1
+		} else if int16(value) < 0 {
+			return -1
+		} 
+			
+		return 0
+	case int32:
+		if int32(value) > 0 {
+			return 1
+		} else if int32(value) < 0 {
+			return -1
+		} 
+			
+		return 0
+	case uint8:
+		if uint8(value) > 0 {
+			return 1
+		} else if uint8(value) < 0 {
+			return -1
+		} 
+			
+		return 0
+	case uint16:
+		if uint16(value) > 0 {
+			return 1
+		} else if uint16(value) < 0 {
+			return -1
+		} 
+			
+		return 0
+	case uint32:
+		if uint32(value) > 0 {
+			return 1
+		} else if uint32(value) < 0 {
+			return -1
+		} 
+			
+		return 0
 	}
 	floatValue := value.float64()
-	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) {
+	switch {
+	case math.IsNaN(floatValue), math.IsInf(floatValue, 0):
 		return 0
-	}
-	if floatValue == 0 {
+	case floatValue == 0:
 		return 0
-	}
-	if floatValue > 0 {
+	case floatValue > 0:
 		return 1
-	} 
-	return -1
+	default:
+		return -1
+	}
 }
 
