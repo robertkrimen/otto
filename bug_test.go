@@ -748,3 +748,28 @@ func Test_issue186(t *testing.T) {
 		})
 	}
 }
+
+func Test_issue266(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`
+			[0.5, 0.8, 0.2].sort(function(a, b) {
+				return a - b;
+			});
+        `, "0.2,0.5,0.8")
+
+		test(`
+			[2147483647, -1, 1].sort(function(a, b) {
+				return a - b;
+			});
+        `, "-1,1,2147483647")
+
+		test(`
+			[2e11, -2e11, 0].sort(function(a, b) {
+				return a - b;
+			});
+        `, "-200000000000,0,200000000000")
+
+	})
+}
