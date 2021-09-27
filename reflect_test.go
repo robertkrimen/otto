@@ -228,7 +228,7 @@ func Test_reflectStruct(t *testing.T) {
 
 			test(`
                 ret = abc.FuncReturn2();
-                if (ret && ret.length && ret.length == 2 && ret[0] == "def" && ret[1] === null) {
+                if (ret && ret.length && ret.length == 2 && ret[0] == "def" && ret[1] === undefined) {
                         true;
                 } else {
                        false;
