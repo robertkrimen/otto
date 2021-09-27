@@ -291,11 +291,20 @@ func (self *_runtime) convertNumeric(v Value, t reflect.Type) reflect.Value {
 }
 
 func fieldIndexByName(t reflect.Type, name string) []int {
+	if t.Kind() != reflect.Struct {
+		return nil
+	}
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 
 		if !validGoStructName(f.Name) {
 			continue
+		}
+
+		if f.Anonymous {
+			if a := fieldIndexByName(f.Type, name); a != nil {
+				return append([]int{i}, a...)
+			}
 		}
 
 		if a := strings.SplitN(f.Tag.Get("json"), ",", 2); a[0] != "" {
