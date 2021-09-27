@@ -620,7 +620,7 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) (reflect.Val
 		s = v.Class()
 	}
 
-	return reflect.Zero(t), fmt.Errorf("can't convert from %s to %s", s, t)
+	return reflect.Zero(t), fmt.Errorf("can't convert from %q to %q", s, t)
 }
 
 func (self *_runtime) toValue(value interface{}) Value {
