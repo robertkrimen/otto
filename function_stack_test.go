@@ -30,7 +30,14 @@ func TestFunction_stack(t *testing.T) {
 		vm.Set("B", func(c FunctionCall) Value {
 			depth := 0
 			for scope := c.Otto.runtime.scope; scope != nil; scope = scope.outer {
-				is(scope.frame, expected[depth])
+				// these properties are tested explicitly so that we don't test `.fn`,
+				// which will differ from run to run
+				is(scope.frame.native, expected[depth].native)
+				is(scope.frame.nativeFile, expected[depth].nativeFile)
+				is(scope.frame.nativeLine, expected[depth].nativeLine)
+				is(scope.frame.offset, expected[depth].offset)
+				is(scope.frame.callee, expected[depth].callee)
+				is(scope.frame.file, expected[depth].file)
 				depth++
 			}
 

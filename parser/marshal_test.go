@@ -854,8 +854,6 @@ func TestParserAST(t *testing.T) {
 ]
             `)
 
-		return
-
 		test(`
         if (!abc && abc.jkl(def) && abc[0] === +abc[0] && abc.length < ghi) {
         }

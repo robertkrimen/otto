@@ -98,9 +98,9 @@ func TestParserErr(t *testing.T) {
 			return program, parser
 		}
 
-		program, parser := test("", nil)
+		test("", nil)
 
-		program, parser = test(`
+		program, parser := test(`
         var abc;
         break; do {
         } while(true);
@@ -523,7 +523,7 @@ func TestParser(t *testing.T) {
             abc()
         `, nil)
 
-		program := test("", nil)
+		test("", nil)
 
 		test("//", nil)
 
@@ -541,7 +541,7 @@ func TestParser(t *testing.T) {
 
 		test("new +", "(anonymous): Line 1:5 Unexpected token +")
 
-		program = test(";", nil)
+		program := test(";", nil)
 		is(len(program.Body), 1)
 		is(program.Body[0].(*ast.EmptyStatement).Semicolon, file.Idx(1))
 
@@ -1012,9 +1012,19 @@ func TestPosition(t *testing.T) {
 
 		parser = _newParser("", "this.style", 1, nil)
 		program, err = parser.parse()
+		is(err, nil)
 		node = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.DotExpression).Left.(*ast.ThisExpression)
 		is(node.Idx0(), file.Idx(1))
 		is(node.Idx1(), file.Idx(5))
+
+		parser = _newParser("", "(function(){ if (abc) { throw 'failed'; } })", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block := program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.IfStatement)
+		is(node.Idx0(), 21)
+		node = node.(*ast.IfStatement).Consequent.(*ast.BlockStatement).List[0].(*ast.ThrowStatement)
+		is(node.Idx0(), 39)
 	})
 }
 

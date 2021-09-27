@@ -6,7 +6,7 @@ type _constructFunction func(*_object, []Value) Value
 // 13.2.2 [[Construct]]
 func defaultConstruct(fn *_object, argumentList []Value) Value {
 	object := fn.runtime.newObject()
-	object.class = "Object"
+	object.class = classObject
 
 	prototype := fn.get("prototype")
 	if prototype.kind != valueObject {
@@ -37,8 +37,8 @@ type _nativeFunctionObject struct {
 	construct _constructFunction // [[Construct]]
 }
 
-func (runtime *_runtime) newNativeFunctionObject(name, file string, line int, native _nativeFunction, length int) *_object {
-	self := runtime.newClassObject("Function")
+func (runtime *_runtime) _newNativeFunctionObject(name, file string, line int, native _nativeFunction, length int) *_object {
+	self := runtime.newClassObject(classFunction)
 	self.value = _nativeFunctionObject{
 		name:      name,
 		file:      file,
@@ -46,7 +46,32 @@ func (runtime *_runtime) newNativeFunctionObject(name, file string, line int, na
 		call:      native,
 		construct: defaultConstruct,
 	}
-	self.defineProperty("length", toValue_int(length), 0000, false)
+	self.defineProperty("name", toValue_string(name), 0000, false)
+	self.defineProperty(propertyLength, toValue_int(length), 0000, false)
+	return self
+}
+
+func (runtime *_runtime) newNativeFunctionObject(name, file string, line int, native _nativeFunction, length int) *_object {
+	self := runtime._newNativeFunctionObject(name, file, line, native, length)
+	self.defineOwnProperty("caller", _property{
+		value: _propertyGetSet{
+			runtime._newNativeFunctionObject("get", "internal", 0, func(fc FunctionCall) Value {
+				for sc := runtime.scope; sc != nil; sc = sc.outer {
+					if sc.frame.fn == self {
+						if sc.outer == nil || sc.outer.frame.fn == nil {
+							return nullValue
+						}
+
+						return runtime.toValue(sc.outer.frame.fn)
+					}
+				}
+
+				return nullValue
+			}, 0),
+			&_nilGetSetObject,
+		},
+		mode: 0000,
+	}, false)
 	return self
 }
 
@@ -61,18 +86,19 @@ type _bindFunctionObject struct {
 }
 
 func (runtime *_runtime) newBoundFunctionObject(target *_object, this Value, argumentList []Value) *_object {
-	self := runtime.newClassObject("Function")
+	self := runtime.newClassObject(classFunction)
 	self.value = _bindFunctionObject{
 		target:       target,
 		this:         this,
 		argumentList: argumentList,
 	}
-	length := int(toInt32(target.get("length")))
+	length := int(toInt32(target.get(propertyLength)))
 	length -= len(argumentList)
 	if length < 0 {
 		length = 0
 	}
-	self.defineProperty("length", toValue_int(length), 0000, false)
+	self.defineProperty("name", toValue_string("bound "+target.get("name").String()), 0000, false)
+	self.defineProperty(propertyLength, toValue_int(length), 0000, false)
 	self.defineProperty("caller", Value{}, 0000, false)    // TODO Should throw a TypeError
 	self.defineProperty("arguments", Value{}, 0000, false) // TODO Should throw a TypeError
 	return self
@@ -101,12 +127,32 @@ type _nodeFunctionObject struct {
 }
 
 func (runtime *_runtime) newNodeFunctionObject(node *_nodeFunctionLiteral, stash _stash) *_object {
-	self := runtime.newClassObject("Function")
+	self := runtime.newClassObject(classFunction)
 	self.value = _nodeFunctionObject{
 		node:  node,
 		stash: stash,
 	}
-	self.defineProperty("length", toValue_int(len(node.parameterList)), 0000, false)
+	self.defineProperty("name", toValue_string(node.name), 0000, false)
+	self.defineProperty(propertyLength, toValue_int(len(node.parameterList)), 0000, false)
+	self.defineOwnProperty("caller", _property{
+		value: _propertyGetSet{
+			runtime.newNativeFunction("get", "internal", 0, func(fc FunctionCall) Value {
+				for sc := runtime.scope; sc != nil; sc = sc.outer {
+					if sc.frame.fn == self {
+						if sc.outer == nil || sc.outer.frame.fn == nil {
+							return nullValue
+						}
+
+						return runtime.toValue(sc.outer.frame.fn)
+					}
+				}
+
+				return nullValue
+			}),
+			&_nilGetSetObject,
+		},
+		mode: 0000,
+	}, false)
 	return self
 }
 
@@ -145,6 +191,7 @@ func (self *_object) call(this Value, argumentList []Value, eval bool, frame _fr
 				nativeLine: fn.line,
 				callee:     fn.name,
 				file:       nil,
+				fn:         self,
 			}
 			defer func() {
 				rt.leaveScope()
@@ -171,6 +218,7 @@ func (self *_object) call(this Value, argumentList []Value, eval bool, frame _fr
 		rt.scope.frame = _frame{
 			callee: fn.node.name,
 			file:   fn.node.file,
+			fn:     self,
 		}
 		defer func() {
 			rt.leaveScope()

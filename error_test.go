@@ -272,7 +272,7 @@ func TestMakeCustomErrorReturn(t *testing.T) {
 			panic(err)
 		}
 
-		is(v.Class(), "Error")
+		is(v.Class(), classError)
 
 		name, err := v.Object().Get("name")
 		if err != nil {
@@ -306,8 +306,6 @@ func TestMakeCustomError(t *testing.T) {
 
 		vm.Set("A", func(c FunctionCall) Value {
 			panic(vm.MakeCustomError("CarrotError", "carrots is life, carrots is love"))
-
-			return UndefinedValue()
 		})
 
 		s, _ := vm.Compile("test.js", `
@@ -354,8 +352,6 @@ func TestMakeTypeError(t *testing.T) {
 
 		vm.Set("A", func(c FunctionCall) Value {
 			panic(vm.MakeTypeError("these aren't my glasses"))
-
-			return UndefinedValue()
 		})
 
 		s, _ := vm.Compile("test.js", `
@@ -388,8 +384,6 @@ func TestMakeRangeError(t *testing.T) {
 
 		vm.Set("A", func(c FunctionCall) Value {
 			panic(vm.MakeRangeError("too many"))
-
-			return UndefinedValue()
 		})
 
 		s, _ := vm.Compile("test.js", `
@@ -422,8 +416,6 @@ func TestMakeSyntaxError(t *testing.T) {
 
 		vm.Set("A", func(c FunctionCall) Value {
 			panic(vm.MakeSyntaxError("i think you meant \"you're\""))
-
-			return UndefinedValue()
 		})
 
 		s, _ := vm.Compile("test.js", `

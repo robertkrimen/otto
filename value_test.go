@@ -253,14 +253,14 @@ func TestExport(t *testing.T) {
 			3.1459,
 			[]interface{}{true, false, 0, 3.1459, "abc"},
 			map[string]interface{}{
-				"Boolean": true,
-				"Number":  3.1459,
-				"String":  "abc",
-				"Array":   []interface{}{false, 0, "", nil},
-				"Object": map[string]interface{}{
-					"Boolean": false,
-					"Number":  0,
-					"String":  "def",
+				classBoolean: true,
+				classNumber:  3.1459,
+				classString:  "abc",
+				classArray:   []interface{}{false, 0, "", nil},
+				classObject: map[string]interface{}{
+					classBoolean: false,
+					classNumber:  0,
+					classString:  "def",
 				},
 			},
 		}

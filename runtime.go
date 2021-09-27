@@ -1,6 +1,8 @@
 package otto
 
 import (
+	"encoding"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -8,6 +10,7 @@ import (
 	"reflect"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/robertkrimen/otto/ast"
@@ -262,6 +265,8 @@ func (self *_runtime) convertNumeric(v Value, t reflect.Type) reflect.Value {
 				panic(self.panicRangeError(fmt.Sprintf("converting %v to %v would overflow", val.Type(), t)))
 			}
 			return val.Convert(t)
+		case reflect.Float32, reflect.Float64:
+			return val.Convert(t)
 		}
 
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -277,86 +282,146 @@ func (self *_runtime) convertNumeric(v Value, t reflect.Type) reflect.Value {
 				panic(self.panicRangeError(fmt.Sprintf("converting %v to %v would overflow", val.Type(), t)))
 			}
 			return val.Convert(t)
+		case reflect.Float32, reflect.Float64:
+			return val.Convert(t)
 		}
 	}
 
-	panic(self.panicTypeError(fmt.Sprintf("unsupported type %v for numeric conversion", val.Type())))
+	panic(self.panicTypeError(fmt.Sprintf("unsupported type %v -> %v for numeric conversion", val.Type(), t)))
+}
+
+func fieldIndexByName(t reflect.Type, name string) []int {
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+
+		if !validGoStructName(f.Name) {
+			continue
+		}
+
+		if f.Anonymous {
+			if a := fieldIndexByName(f.Type, name); a != nil {
+				return append([]int{i}, a...)
+			}
+		}
+
+		if a := strings.SplitN(f.Tag.Get("json"), ",", 2); a[0] != "" {
+			if a[0] == "-" {
+				continue
+			}
+
+			if a[0] == name {
+				return []int{i}
+			}
+		}
+
+		if f.Name == name {
+			return []int{i}
+		}
+	}
+
+	return nil
 }
 
 var typeOfValue = reflect.TypeOf(Value{})
+var typeOfJSONRawMessage = reflect.TypeOf(json.RawMessage{})
 
 // convertCallParameter converts request val to type t if possible.
 // If the conversion fails due to overflow or type miss-match then it panics.
 // If no conversion is known then the original value is returned.
-func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Value {
+func (self *_runtime) convertCallParameter(v Value, t reflect.Type) (reflect.Value, error) {
 	if t == typeOfValue {
-		return reflect.ValueOf(v)
+		return reflect.ValueOf(v), nil
+	}
+
+	if t == typeOfJSONRawMessage {
+		if d, err := json.Marshal(v.export()); err == nil {
+			return reflect.ValueOf(d), nil
+		}
 	}
 
 	if v.kind == valueObject {
 		if gso, ok := v._object().value.(*_goStructObject); ok {
 			if gso.value.Type().AssignableTo(t) {
-				return gso.value
+				// please see TestDynamicFunctionReturningInterface for why this exists
+				if t.Kind() == reflect.Interface && gso.value.Type().ConvertibleTo(t) {
+					return gso.value.Convert(t), nil
+				} else {
+					return gso.value, nil
+				}
 			}
 		}
-	}
 
-	if t.Kind() == reflect.Interface {
-		e := v.export()
-		if e == nil {
-			return reflect.Zero(t)
-		}
-		iv := reflect.ValueOf(e)
-		if iv.Type().AssignableTo(t) {
-			return iv
+		if gao, ok := v._object().value.(*_goArrayObject); ok {
+			if gao.value.Type().AssignableTo(t) {
+				// please see TestDynamicFunctionReturningInterface for why this exists
+				if t.Kind() == reflect.Interface && gao.value.Type().ConvertibleTo(t) {
+					return gao.value.Convert(t), nil
+				} else {
+					return gao.value, nil
+				}
+			}
 		}
 	}
 
 	tk := t.Kind()
 
+	if tk == reflect.Interface {
+		e := v.export()
+		if e == nil {
+			return reflect.Zero(t), nil
+		}
+		iv := reflect.ValueOf(e)
+		if iv.Type().AssignableTo(t) {
+			return iv, nil
+		}
+	}
+
 	if tk == reflect.Ptr {
 		switch v.kind {
 		case valueEmpty, valueNull, valueUndefined:
-			return reflect.Zero(t)
+			return reflect.Zero(t), nil
 		default:
 			var vv reflect.Value
-			if err := catchPanic(func() { vv = self.convertCallParameter(v, t.Elem()) }); err == nil {
-				if vv.CanAddr() {
-					return vv.Addr()
-				}
-
-				pv := reflect.New(vv.Type())
-				pv.Elem().Set(vv)
-				return pv
+			vv, err := self.convertCallParameter(v, t.Elem())
+			if err != nil {
+				return reflect.Zero(t), fmt.Errorf("can't convert to %s: %s", t, err.Error())
 			}
+
+			if vv.CanAddr() {
+				return vv.Addr(), nil
+			}
+
+			pv := reflect.New(vv.Type())
+			pv.Elem().Set(vv)
+			return pv, nil
 		}
 	}
 
 	switch tk {
 	case reflect.Bool:
-		return reflect.ValueOf(v.bool())
+		return reflect.ValueOf(v.bool()), nil
 	case reflect.String:
 		switch v.kind {
 		case valueString:
-			return reflect.ValueOf(v.value)
+			return reflect.ValueOf(v.value), nil
 		case valueNumber:
-			return reflect.ValueOf(fmt.Sprintf("%v", v.value))
+			return reflect.ValueOf(fmt.Sprintf("%v", v.value)), nil
 		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Float32, reflect.Float64:
 		switch v.kind {
 		case valueNumber:
-			return self.convertNumeric(v, t)
+			return self.convertNumeric(v, t), nil
 		}
 	case reflect.Slice:
 		if o := v._object(); o != nil {
-			if lv := o.get("length"); lv.IsNumber() {
+			if lv := o.get(propertyLength); lv.IsNumber() {
 				l := lv.number().int64
 
 				s := reflect.MakeSlice(t, int(l), int(l))
 
 				tt := t.Elem()
 
-				if o.class == "Array" {
+				if o.class == classArray {
 					for i := int64(0); i < l; i++ {
 						p, ok := o.property[strconv.FormatInt(i, 10)]
 						if !ok {
@@ -368,12 +433,14 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 							continue
 						}
 
-						ev := self.convertCallParameter(e, tt)
+						ev, err := self.convertCallParameter(e, tt)
+						if err != nil {
+							return reflect.Zero(t), fmt.Errorf("couldn't convert element %d of %s: %s", i, t, err.Error())
+						}
 
 						s.Index(int(i)).Set(ev)
 					}
-				} else if o.class == "GoArray" {
-
+				} else if o.class == classGoArray {
 					var gslice bool
 					switch o.value.(type) {
 					case *_goSliceObject:
@@ -398,32 +465,46 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 							continue
 						}
 
-						ev := self.convertCallParameter(e, tt)
+						ev, err := self.convertCallParameter(e, tt)
+						if err != nil {
+							return reflect.Zero(t), fmt.Errorf("couldn't convert element %d of %s: %s", i, t, err.Error())
+						}
 
 						s.Index(int(i)).Set(ev)
 					}
 				}
 
-				return s
+				return s, nil
 			}
 		}
 	case reflect.Map:
 		if o := v._object(); o != nil && t.Key().Kind() == reflect.String {
 			m := reflect.MakeMap(t)
 
+			var err error
+
 			o.enumerate(false, func(k string) bool {
-				m.SetMapIndex(reflect.ValueOf(k), self.convertCallParameter(o.get(k), t.Elem()))
+				v, verr := self.convertCallParameter(o.get(k), t.Elem())
+				if verr != nil {
+					err = fmt.Errorf("couldn't convert property %q of %s: %s", k, t, verr.Error())
+					return false
+				}
+				m.SetMapIndex(reflect.ValueOf(k), v)
 				return true
 			})
 
-			return m
+			if err != nil {
+				return reflect.Zero(t), err
+			}
+
+			return m, nil
 		}
 	case reflect.Func:
 		if t.NumOut() > 1 {
-			panic(self.panicTypeError("converting JavaScript values to Go functions with more than one return value is currently not supported"))
+			return reflect.Zero(t), fmt.Errorf("converting JavaScript values to Go functions with more than one return value is currently not supported")
 		}
 
-		if o := v._object(); o != nil && o.class == "Function" {
+		if o := v._object(); o != nil && o.class == classFunction {
 			return reflect.MakeFunc(t, func(args []reflect.Value) []reflect.Value {
 				l := make([]interface{}, len(args))
 				for i, a := range args {
@@ -441,8 +522,52 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 					return nil
 				}
 
-				return []reflect.Value{self.convertCallParameter(rv, t.Out(0))}
-			})
+				r, err := self.convertCallParameter(rv, t.Out(0))
+				if err != nil {
+					panic(self.panicTypeError(err.Error()))
+				}
+
+				return []reflect.Value{r}
+			}), nil
+		}
+	case reflect.Struct:
+		if o := v._object(); o != nil && o.class == classObject {
+			s := reflect.New(t)
+
+			for _, k := range o.propertyOrder {
+				idx := fieldIndexByName(t, k)
+
+				if idx == nil {
+					return reflect.Zero(t), fmt.Errorf("can't convert property %q of %s: field does not exist", k, t)
+				}
+
+				ss := s
+
+				for _, i := range idx {
+					if ss.Kind() == reflect.Ptr {
+						if ss.IsNil() {
+							if !ss.CanSet() {
+								return reflect.Zero(t), fmt.Errorf("can't convert property %q of %s: %s is unexported", k, t, ss.Type().Elem())
+							}
+
+							ss.Set(reflect.New(ss.Type().Elem()))
+						}
+
+						ss = ss.Elem()
+					}
+
+					ss = ss.Field(i)
+				}
+
+				v, err := self.convertCallParameter(o.get(k), ss.Type())
+				if err != nil {
+					return reflect.Zero(t), fmt.Errorf("couldn't convert property %q of %s: %s", k, t, err.Error())
+				}
+
+				ss.Set(v)
+			}
+
+			return s.Elem(), nil
 		}
 	}
 
@@ -451,17 +576,32 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 			if fn := o.get("toString"); fn.IsFunction() {
 				sv, err := fn.Call(v)
 				if err != nil {
-					panic(err)
+					return reflect.Zero(t), fmt.Errorf("couldn't call toString: %s", err.Error())
 				}
 
-				var r reflect.Value
-				if err := catchPanic(func() { r = self.convertCallParameter(sv, t) }); err == nil {
-					return r
+				r, err := self.convertCallParameter(sv, t)
+				if err != nil {
+					return reflect.Zero(t), fmt.Errorf("couldn't convert toString result: %s", err.Error())
 				}
+				return r, nil
 			}
 		}
 
-		return reflect.ValueOf(v.String())
+		return reflect.ValueOf(v.String()), nil
+	}
+
+	if v.kind == valueString {
+		var s encoding.TextUnmarshaler
+
+		if reflect.PtrTo(t).Implements(reflect.TypeOf(&s).Elem()) {
+			r := reflect.New(t)
+
+			if err := r.Interface().(encoding.TextUnmarshaler).UnmarshalText([]byte(v.string())); err != nil {
+				return reflect.Zero(t), fmt.Errorf("can't convert to %s as TextUnmarshaller: %s", t.String(), err.Error())
+			}
+
+			return r.Elem(), nil
+		}
 	}
 
 	s := "OTTO DOES NOT UNDERSTAND THIS TYPE"
@@ -480,7 +620,7 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) reflect.Valu
 		s = v.Class()
 	}
 
-	panic(self.panicTypeError("can't convert from %q to %q", s, t.String()))
+	return reflect.Zero(t), fmt.Errorf("can't convert from %q to %q", s, t)
 }
 
 func (self *_runtime) toValue(value interface{}) Value {
@@ -585,15 +725,19 @@ func (self *_runtime) toValue(value interface{}) Value {
 						// actual set of variadic Go arguments. if that succeeds, break
 						// out of the loop.
 						if typ.IsVariadic() && len(c.ArgumentList) == nargs && i == nargs-1 {
-							var v reflect.Value
-							if err := catchPanic(func() { v = self.convertCallParameter(a, typ.In(n)) }); err == nil {
+							if v, err := self.convertCallParameter(a, typ.In(n)); err == nil {
 								in[i] = v
 								callSlice = true
 								break
 							}
 						}
 
-						in[i] = self.convertCallParameter(a, t)
+						v, err := self.convertCallParameter(a, t)
+						if err != nil {
+							panic(self.panicTypeError(err.Error()))
+						}
+
+						in[i] = v
 					}
 
 					var out []reflect.Value

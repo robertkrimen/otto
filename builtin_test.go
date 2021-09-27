@@ -134,3 +134,14 @@ func TestGlobal_unescape(t *testing.T) {
         `, "abc,==,abc=%+32,世界")
 	})
 }
+
+func TestNumber_isNaN(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+		test(`Number.isNaN(1)`, false)
+		test(`Number.isNaN(null)`, false)
+		test(`Number.isNaN()`, false)
+		test(`Number.isNaN(Number.NaN)`, true)
+		test(`Number.isNaN(0+undefined)`, true)
+	})
+}
