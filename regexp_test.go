@@ -36,13 +36,13 @@ func TestRegExp(t *testing.T) {
 		result := test(`/(a)?/.exec('b')`, ",")
 		is(result._object().get("0"), "")
 		is(result._object().get("1"), "undefined")
-		is(result._object().get("length"), 2)
+		is(result._object().get(propertyLength), 2)
 
 		result = test(`/(a)?(b)?/.exec('b')`, "b,,b")
 		is(result._object().get("0"), "b")
 		is(result._object().get("1"), "undefined")
 		is(result._object().get("2"), "b")
-		is(result._object().get("length"), 3)
+		is(result._object().get(propertyLength), 3)
 
 		test(`/\u0041/.source`, "\\u0041")
 		test(`/\a/.source`, "\\a")

@@ -19,7 +19,7 @@ type _regExpObject struct {
 
 func (runtime *_runtime) newRegExpObject(pattern string, flags string) *_object {
 	self := runtime.newObject()
-	self.class = "RegExp"
+	self.class = classRegExp
 
 	global := false
 	ignoreCase := false
@@ -85,7 +85,7 @@ func (self *_object) regExpValue() _regExpObject {
 }
 
 func execRegExp(this *_object, target string) (match bool, result []int) {
-	if this.class != "RegExp" {
+	if this.class != classRegExp {
 		panic(this.runtime.panicTypeError("Calling RegExp.exec on a non-RegExp object"))
 	}
 	lastIndex := this.get("lastIndex").number().int64

@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+const (
+	testAb = "ab"
+)
+
 func BenchmarkNativeCallWithString(b *testing.B) {
 	vm := New()
 	vm.Set("x", func(a1 string) {})
@@ -1405,7 +1409,7 @@ func TestNativeCallMethodWithStruct(t *testing.T) {
 	vm.Set("x", testNativeCallWithStruct{Prefix: "a"})
 
 	vm.Set("t", func(s string) {
-		if s != "ab" {
+		if s != testAb {
 			t.Fail()
 		}
 
@@ -1432,7 +1436,7 @@ func TestNativeCallPointerMethodWithStruct(t *testing.T) {
 	vm.Set("x", &testNativeCallWithStruct{Prefix: "a"})
 
 	vm.Set("t", func(s string) {
-		if s != "ab" {
+		if s != testAb {
 			t.Fail()
 		}
 
@@ -1459,7 +1463,7 @@ func TestNativeCallMethodWithStructPointer(t *testing.T) {
 	vm.Set("x", testNativeCallWithStruct{Prefix: "a"})
 
 	vm.Set("t", func(s string) {
-		if s != "ab" {
+		if s != testAb {
 			t.Fail()
 		}
 
@@ -1486,7 +1490,7 @@ func TestNativeCallPointerMethodWithStructPointer(t *testing.T) {
 	vm.Set("x", &testNativeCallWithStruct{Prefix: "a"})
 
 	vm.Set("t", func(s string) {
-		if s != "ab" {
+		if s != testAb {
 			t.Fail()
 		}
 

@@ -41,7 +41,7 @@ func (a *autoCompleter) Do(line []rune, pos int) ([][]rune, int) {
 
 		if o := r.Object(); o != nil {
 			for _, v := range o.KeysByParent() {
-				l = append(l, v...)
+				l = append(l, v...) // nolint: makezero
 			}
 		}
 	}

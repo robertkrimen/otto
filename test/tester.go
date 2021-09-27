@@ -42,7 +42,7 @@ var target = map[string]string{
 // http://api.cdnjs.com/libraries
 
 func fetch(name, location string) error {
-	response, err := http.Get(location)
+	response, err := http.Get(location) // nolint: noctx
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func main() {
 	err := func() error {
 
 		if flag.Arg(0) == "fetch" {
-			response, err := http.Get("http://api.cdnjs.com/libraries")
+			response, err := http.Get("http://api.cdnjs.com/libraries") // nolint: noctx
 			if err != nil {
 				return err
 			}
@@ -166,8 +166,8 @@ func main() {
 					case "parse":
 						fmt.Fprintln(writer, name, "\t| pass (parse)")
 					case "re2":
-						continue
 						fmt.Fprintln(writer, name, "\t| unknown (re2)")
+						continue
 					}
 				} else {
 					fmt.Fprintln(writer, name, "\t| fail")
