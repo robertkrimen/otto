@@ -1,8 +1,9 @@
 package ast
 
 import (
-	"github.com/robertkrimen/otto/file"
 	"testing"
+
+	"github.com/robertkrimen/otto/file"
 )
 
 func TestCommentMap(t *testing.T) {

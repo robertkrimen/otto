@@ -2,9 +2,10 @@ package parser
 
 import (
 	"fmt"
-	"github.com/robertkrimen/otto/ast"
 	"reflect"
 	"testing"
+
+	"github.com/robertkrimen/otto/ast"
 )
 
 func checkComments(actual []*ast.Comment, expected []string, position ast.CommentPosition) error {
@@ -29,13 +30,6 @@ func checkComments(actual []*ast.Comment, expected []string, position ast.Commen
 	}
 
 	return nil
-}
-
-func displayStatements(statements []ast.Statement) {
-	fmt.Printf("Printing statements (%v)\n", len(statements))
-	for k, v := range statements {
-		fmt.Printf("Type of line %v: %v\n", k, reflect.TypeOf(v))
-	}
 }
 
 func displayComments(m ast.CommentMap) {
@@ -404,7 +398,7 @@ t2 = "Nothing happens."
 		is(checkComments((parser.comments.CommentMap)[program.Body[1]], []string{"Test", "Test2"}, ast.LEADING), nil)
 
 		// Misc
-		parser, program = test(`
+		parser, _ = test(`
 var x = Object.create({y: {
 },
 // a
@@ -413,7 +407,7 @@ var x = Object.create({y: {
 		is(parser.comments.CommentMap.Size(), 1)
 
 		// Misc 2
-		parser, program = test(`
+		parser, _ = test(`
 var x = Object.create({y: {
 },
 // a
@@ -818,7 +812,7 @@ if(a) {
 		is(checkComments((parser.comments.CommentMap)[program.Body[0].(*ast.IfStatement).Alternate], []string{"comment"}, ast.TRAILING), nil)
 
 		// If then else pt 8
-		parser, program = test(`
+		parser, _ = test(`
 if
 /*comment*/
 (a) {
@@ -830,7 +824,7 @@ if
 		is(parser.comments.CommentMap.Size(), 1)
 
 		// If then else pt 9
-		parser, program = test(`
+		parser, _ = test(`
 if
 (a)
  /*comment*/{
@@ -842,7 +836,7 @@ if
 		is(parser.comments.CommentMap.Size(), 1)
 
 		// If then else pt 10
-		parser, program = test(`
+		parser, _ = test(`
 if(a){
 	b
 }
@@ -971,7 +965,7 @@ while(a) {
 		is(checkComments((parser.comments.CommentMap)[program.Body[0].(*ast.WhileStatement).Body.(*ast.BlockStatement)], []string{"comment"}, ast.FINAL), nil)
 
 		// While pt 8
-		parser, program = test(`
+		parser, _ = test(`
 while
 /*comment*/(a) {
 
@@ -980,7 +974,7 @@ while
 		is(parser.comments.CommentMap.Size(), 1)
 
 		// While pt 9
-		parser, program = test(`
+		parser, _ = test(`
 while
 (a)
  /*comment*/{
@@ -1109,7 +1103,7 @@ with(a)  {
 		is(checkComments((parser.comments.CommentMap)[program.Body[0].(*ast.WithStatement).Body], []string{"comment"}, ast.TRAILING), nil)
 
 		// With pt 7
-		parser, program = test(`
+		parser, _ = test(`
 with
 /*comment*/(a)  {
 }
@@ -1117,7 +1111,7 @@ with
 		is(parser.comments.CommentMap.Size(), 1)
 
 		// With pt 8
-		parser, program = test(`
+		parser, _ = test(`
 with
 (a)
   /*comment*/{
@@ -1176,7 +1170,7 @@ var a, b;
 		is(checkComments((parser.comments.CommentMap)[program], []string{"comment"}, ast.TRAILING), nil)
 
 		// Return
-		parser, program = test(`
+		parser, _ = test(`
 		function f() {
 /*comment*/return o
 }
@@ -1356,7 +1350,7 @@ try {
 		is(checkComments((parser.comments.CommentMap)[program.Body[0].(*ast.TryStatement).Finally], []string{"comment"}, ast.LEADING), nil)
 
 		// Switch / comment
-		parser, program = test(`
+		parser, _ = test(`
 var volvo = 1
 //comment
 switch(abra) {
@@ -1365,7 +1359,7 @@ switch(abra) {
 		is(parser.comments.CommentMap.Size(), 1)
 
 		// Switch / comment
-		parser, program = test(`
+		parser, _ = test(`
 f("string",{
    key: "val"
    //comment

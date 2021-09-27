@@ -193,7 +193,7 @@ func (value Value) IsFunction() bool {
 	if value.kind != valueObject {
 		return false
 	}
-	return value.value.(*_object).class == "Function"
+	return value.value.(*_object).class == classFunction
 }
 
 // Class will return the class string of the value or the empty string if value is not an object.
@@ -227,42 +227,42 @@ func (value Value) isStringObject() bool {
 	if value.kind != valueObject {
 		return false
 	}
-	return value.value.(*_object).class == "String"
+	return value.value.(*_object).class == classString
 }
 
 func (value Value) isBooleanObject() bool {
 	if value.kind != valueObject {
 		return false
 	}
-	return value.value.(*_object).class == "Boolean"
+	return value.value.(*_object).class == classBoolean
 }
 
 func (value Value) isNumberObject() bool {
 	if value.kind != valueObject {
 		return false
 	}
-	return value.value.(*_object).class == "Number"
+	return value.value.(*_object).class == classNumber
 }
 
 func (value Value) isDate() bool {
 	if value.kind != valueObject {
 		return false
 	}
-	return value.value.(*_object).class == "Date"
+	return value.value.(*_object).class == classDate
 }
 
 func (value Value) isRegExp() bool {
 	if value.kind != valueObject {
 		return false
 	}
-	return value.value.(*_object).class == "RegExp"
+	return value.value.(*_object).class == classRegExp
 }
 
 func (value Value) isError() bool {
 	if value.kind != valueObject {
 		return false
 	}
-	return value.value.(*_object).class == "Error"
+	return value.value.(*_object).class == classError
 }
 
 // ---
@@ -503,14 +503,6 @@ var (
 	__NegativeZero__     float64 = math.Float64frombits(0 | (1 << 63))
 )
 
-func positiveInfinity() float64 {
-	return __PositiveInfinity__
-}
-
-func negativeInfinity() float64 {
-	return __NegativeInfinity__
-}
-
 func positiveZero() float64 {
 	return __PositiveZero__
 }
@@ -569,62 +561,60 @@ func sameValue(x Value, y Value) bool {
 	if x.kind != y.kind {
 		return false
 	}
-	result := false
+
 	switch x.kind {
 	case valueUndefined, valueNull:
-		result = true
+		return true
 	case valueNumber:
 		x := x.float64()
 		y := y.float64()
 		if math.IsNaN(x) && math.IsNaN(y) {
-			result = true
-		} else {
-			result = x == y
-			if result && x == 0 {
-				// Since +0 != -0
-				result = math.Signbit(x) == math.Signbit(y)
-			}
+			return true
 		}
+
+		if x == y {
+			if x == 0 {
+				// Since +0 != -0
+				return math.Signbit(x) == math.Signbit(y)
+			}
+			return true
+		}
+		return false
 	case valueString:
-		result = x.string() == y.string()
+		return x.string() == y.string()
 	case valueBoolean:
-		result = x.bool() == y.bool()
+		return x.bool() == y.bool()
 	case valueObject:
-		result = x._object() == y._object()
+		return x._object() == y._object()
 	default:
 		panic(hereBeDragons())
 	}
-
-	return result
 }
 
 func strictEqualityComparison(x Value, y Value) bool {
 	if x.kind != y.kind {
 		return false
 	}
-	result := false
+
 	switch x.kind {
 	case valueUndefined, valueNull:
-		result = true
+		return true
 	case valueNumber:
 		x := x.float64()
 		y := y.float64()
 		if math.IsNaN(x) && math.IsNaN(y) {
-			result = false
-		} else {
-			result = x == y
+			return false
 		}
+		return x == y
 	case valueString:
-		result = x.string() == y.string()
+		return x.string() == y.string()
 	case valueBoolean:
-		result = x.bool() == y.bool()
+		return x.bool() == y.bool()
 	case valueObject:
-		result = x._object() == y._object()
+		return x._object() == y._object()
 	default:
 		panic(hereBeDragons())
 	}
-
-	return result
 }
 
 // Export will attempt to convert the value to a Go representation
@@ -676,9 +666,9 @@ func (self Value) export() interface{} {
 		case *_goSliceObject:
 			return value.value.Interface()
 		}
-		if object.class == "Array" {
+		if object.class == classArray {
 			result := make([]interface{}, 0)
-			lengthValue := object.get("length")
+			lengthValue := object.get(propertyLength)
 			length := lengthValue.value.(uint32)
 			kind := reflect.Invalid
 			state := 0

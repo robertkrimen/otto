@@ -8,23 +8,23 @@ import (
 )
 
 func TestGoSliceQuickSort(t *testing.T) {
-	testGoSliceSort("quickSort(testSlice, 0, testSlice.length-1);", jsQuickSort, t)
+	testGoSliceSort(t, "quickSort(testSlice, 0, testSlice.length-1);", jsQuickSort)
 }
 
 func TestGoSliceHeapSort(t *testing.T) {
-	testGoSliceSort("heapSort(testSlice)", jsHeapSort, t)
+	testGoSliceSort(t, "heapSort(testSlice)", jsHeapSort)
 }
 
 func TestJsArrayQuicksort(t *testing.T) {
-	testJsArraySort("quickSort(testSlice, 0, testSlice.length-1);", jsQuickSort, t)
+	testJsArraySort(t, "quickSort(testSlice, 0, testSlice.length-1);", jsQuickSort)
 }
 
 func TestJsArrayHeapSort(t *testing.T) {
-	testJsArraySort("heapSort(testSlice)", jsHeapSort, t)
+	testJsArraySort(t, "heapSort(testSlice)", jsHeapSort)
 }
 
 func TestJsArrayMergeSort(t *testing.T) {
-	testJsArraySort("testSlice = mergeSort(testSlice)", jsMergeSort, t)
+	testJsArraySort(t, "testSlice = mergeSort(testSlice)", jsMergeSort)
 }
 
 func TestCryptoAes(t *testing.T) {
@@ -36,27 +36,26 @@ func TestCryptoAes(t *testing.T) {
 }
 
 func BenchmarkGoSliceQuickSort100000000(b *testing.B) {
-	benchmarkGoSliceSort(100000000, "quickSort(testSlice, 0, testSlice.length-1);", jsQuickSort, b)
+	benchmarkGoSliceSort(b, 100000000, "quickSort(testSlice, 0, testSlice.length-1);", jsQuickSort)
 }
 
 func BenchmarkGoSliceHeapSort100000000(b *testing.B) {
-	benchmarkGoSliceSort(100000000, "heapSort(testSlice);", jsHeapSort, b)
+	benchmarkGoSliceSort(b, 100000000, "heapSort(testSlice);", jsHeapSort)
 }
 
 func BenchmarkJsArrayQuickSort10000(b *testing.B) {
-	benchmarkJsArraySort(10000, "quickSort(testSlice, 0, testSlice.length-1);", jsQuickSort, b)
+	benchmarkJsArraySort(b, 10000, "quickSort(testSlice, 0, testSlice.length-1);", jsQuickSort)
 }
 
 func BenchmarkJsArrayMergeSort10000(b *testing.B) {
-	benchmarkJsArraySort(10000, "mergeSort(testSlice);", jsMergeSort, b)
+	benchmarkJsArraySort(b, 10000, "mergeSort(testSlice);", jsMergeSort)
 }
 
 func BenchmarkJsArrayHeapSort10000(b *testing.B) {
-	benchmarkJsArraySort(10000, "heapSort(testSlice);", jsHeapSort, b)
+	benchmarkJsArraySort(b, 10000, "heapSort(testSlice);", jsHeapSort)
 }
 
 func BenchmarkCryptoAES(b *testing.B) {
-
 	vm := New()
 
 	// Make sure VM creation time is not counted in runtime test
@@ -67,7 +66,8 @@ func BenchmarkCryptoAES(b *testing.B) {
 	}
 }
 
-func testGoSliceSort(sortFuncCall string, sortCode string, t *testing.T) {
+func testGoSliceSort(t *testing.T, sortFuncCall string, sortCode string) {
+	t.Helper()
 	tt(t, func() {
 		test, vm := test()
 
@@ -94,7 +94,8 @@ func testGoSliceSort(sortFuncCall string, sortCode string, t *testing.T) {
 	})
 }
 
-func testJsArraySort(sortFuncCall string, sortCode string, t *testing.T) {
+func testJsArraySort(t *testing.T, sortFuncCall string, sortCode string) {
+	t.Helper()
 	tt(t, func() {
 		test, vm := test()
 
@@ -113,7 +114,8 @@ func testJsArraySort(sortFuncCall string, sortCode string, t *testing.T) {
 	})
 }
 
-func benchmarkGoSliceSort(size int, sortFuncCall string, sortCode string, b *testing.B) {
+func benchmarkGoSliceSort(b *testing.B, size int, sortFuncCall string, sortCode string) {
+	b.Helper()
 	// generate arbitrary slice of 'size'
 	testSlice := make([]int, size)
 	for i := 0; i < size; i++ {
@@ -133,7 +135,8 @@ func benchmarkGoSliceSort(size int, sortFuncCall string, sortCode string, b *tes
 	}
 }
 
-func benchmarkJsArraySort(size int, sortFuncCall string, sortCode string, b *testing.B) {
+func benchmarkJsArraySort(b *testing.B, size int, sortFuncCall string, sortCode string) {
+	b.Helper()
 	// generate arbitrary slice of 'size'
 	testSlice := make([]string, size)
 	for i, _ := range testSlice {
