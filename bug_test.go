@@ -773,3 +773,31 @@ func Test_issue266(t *testing.T) {
 
 	})
 }
+
+func Test_issue369 (t *testing.T) {
+	tt(t, func() {
+		test, tester := test()
+
+		type Test struct {
+			Value string
+		}
+
+		type PtrTest struct {
+			*Test
+		}
+
+		testItem := Test{
+			Value: "A test value",
+		}
+
+		ptrTestItem := PtrTest{
+			Test: &testItem,
+		}
+
+		tester.Set("testVariable", ptrTestItem)
+
+		test(`
+		JSON.stringify(testVariable);
+	`, `{"Test":{"Value":"A test value"}}`)
+	})
+}
