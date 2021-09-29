@@ -245,6 +245,21 @@ func TestExport(t *testing.T) {
 			is(value[1], nil)
 			is(value[1], interface{}(nil))
 		}
+		{
+			value := test(`[[1, 2.1], [3, 4], ["a", "b"], [{c: 5, d: 6}]];`).export().([]interface{})
+			value0 := value[0].([]interface{})
+			is(value0[0], 1)
+			is(value0[1], 2.1)
+			value1 := value[1].([]int64)
+			is(value1[0], 3)
+			is(value1[1], 4)
+			value2 := value[2].([]string)
+			is(value2[0], "a")
+			is(value2[1], "b")
+			value3 := value[3].([]map[string]interface{})
+			is(value3[0]["c"], 5)
+			is(value3[0]["d"], 6)
+		}
 
 		roundtrip := []interface{}{
 			true,
