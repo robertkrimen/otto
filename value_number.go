@@ -331,24 +331,18 @@ func toIntSign(value Value) int {
 	case uint8:
 		if uint8(value) > 0 {
 			return 1
-		} else if uint8(value) < 0 {
-			return -1
 		}
 
 		return 0
 	case uint16:
 		if uint16(value) > 0 {
 			return 1
-		} else if uint16(value) < 0 {
-			return -1
 		}
 
 		return 0
 	case uint32:
 		if uint32(value) > 0 {
 			return 1
-		} else if uint32(value) < 0 {
-			return -1
 		}
 
 		return 0
