@@ -33,7 +33,7 @@ func TestGlobal(t *testing.T) {
 
 			// FIXME enterGlobalScope
 			if false {
-				value := runtime.scope.lexical.getBinding("Object", false)._object().call(UndefinedValue(), []Value{toValue(runtime.newObject())}, false, nativeFrame)
+				value := runtime.scope.lexical.getBinding(classObject, false)._object().call(UndefinedValue(), []Value{toValue(runtime.newObject())}, false, nativeFrame)
 				is(value.IsObject(), true)
 				is(value, "[object Object]")
 				is(value._object().prototype == runtime.global.ObjectPrototype, true)
@@ -51,16 +51,16 @@ func TestGlobal(t *testing.T) {
 				is(call(value, "propertyIsEnumerable", "xyzzy"), true)
 				is(value._object().get("xyzzy"), "Nothing happens.")
 
-				is(call(runtime.scope.lexical.getBinding("Object", false), "isPrototypeOf", value), false)
-				is(call(runtime.scope.lexical.getBinding("Object", false)._object().get("prototype"), "isPrototypeOf", value), true)
-				is(call(runtime.scope.lexical.getBinding("Function", false), "isPrototypeOf", value), false)
+				is(call(runtime.scope.lexical.getBinding(classObject, false), "isPrototypeOf", value), false)
+				is(call(runtime.scope.lexical.getBinding(classObject, false)._object().get("prototype"), "isPrototypeOf", value), true)
+				is(call(runtime.scope.lexical.getBinding(classFunction, false), "isPrototypeOf", value), false)
 
 				is(runtime.newObject().prototype == runtime.global.Object.get("prototype")._object(), true)
 
 				abc := runtime.newBoolean(toValue_bool(true))
 				is(toValue_object(abc), "true") // TODO Call primitive?
 
-				//def := runtime.localGet("Boolean")._object().Construct(UndefinedValue(), []Value{})
+				//def := runtime.localGet(classBoolean)._object().Construct(UndefinedValue(), []Value{})
 				//is(def, "false") // TODO Call primitive?
 			}
 		}

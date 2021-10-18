@@ -372,6 +372,7 @@ sub newContext {
                 1,
                 $self->functionDeclare(
                     $class,
+                    "isNaN", 1,
                 ),
                 $self->numberConstantDeclare(
                     "MAX_VALUE", "math.MaxFloat64",

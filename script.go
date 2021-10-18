@@ -86,34 +86,27 @@ func (self *Script) marshalBinary() ([]byte, error) {
 // will return an error.
 //
 // The binary format can change at any time and should be considered unspecified and opaque.
-//
-func (self *Script) unmarshalBinary(data []byte) error {
+func (self *Script) unmarshalBinary(data []byte) (err error) {
 	decoder := gob.NewDecoder(bytes.NewReader(data))
-	err := decoder.Decode(&self.version)
-	if err != nil {
-		goto error
+	defer func() {
+		if err != nil {
+			self.version = ""
+			self.program = nil
+			self.filename = ""
+			self.src = ""
+		}
+	}()
+	if err = decoder.Decode(&self.version); err != nil {
+		return err
 	}
 	if self.version != scriptVersion {
-		err = ErrVersion
-		goto error
+		return ErrVersion
 	}
-	err = decoder.Decode(&self.program)
-	if err != nil {
-		goto error
+	if err = decoder.Decode(&self.program); err != nil {
+		return err
 	}
-	err = decoder.Decode(&self.filename)
-	if err != nil {
-		goto error
+	if err = decoder.Decode(&self.filename); err != nil {
+		return err
 	}
-	err = decoder.Decode(&self.src)
-	if err != nil {
-		goto error
-	}
-	return nil
-error:
-	self.version = ""
-	self.program = nil
-	self.filename = ""
-	self.src = ""
-	return err
+	return decoder.Decode(&self.src)
 }

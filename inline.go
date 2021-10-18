@@ -8,7 +8,7 @@ func _newContext(runtime *_runtime) {
 	{
 		runtime.global.ObjectPrototype = &_object{
 			runtime:     runtime,
-			class:       "Object",
+			class:       classObject,
 			objectClass: _classObject,
 			prototype:   nil,
 			extensible:  true,
@@ -18,7 +18,7 @@ func _newContext(runtime *_runtime) {
 	{
 		runtime.global.FunctionPrototype = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.ObjectPrototype,
 			extensible:  true,
@@ -28,12 +28,12 @@ func _newContext(runtime *_runtime) {
 	{
 		valueOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -42,7 +42,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "valueOf",
@@ -51,12 +51,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -65,7 +65,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toString",
@@ -74,12 +74,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toLocaleString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -88,7 +88,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toLocaleString",
@@ -97,12 +97,12 @@ func _newContext(runtime *_runtime) {
 		}
 		hasOwnProperty_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -111,7 +111,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "hasOwnProperty",
@@ -120,12 +120,12 @@ func _newContext(runtime *_runtime) {
 		}
 		isPrototypeOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -134,7 +134,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "isPrototypeOf",
@@ -143,12 +143,12 @@ func _newContext(runtime *_runtime) {
 		}
 		propertyIsEnumerable_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -157,7 +157,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "propertyIsEnumerable",
@@ -225,12 +225,12 @@ func _newContext(runtime *_runtime) {
 	{
 		toString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -239,7 +239,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toString",
@@ -248,12 +248,12 @@ func _newContext(runtime *_runtime) {
 		}
 		apply_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -262,7 +262,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "apply",
@@ -271,12 +271,12 @@ func _newContext(runtime *_runtime) {
 		}
 		call_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -285,7 +285,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "call",
@@ -294,12 +294,12 @@ func _newContext(runtime *_runtime) {
 		}
 		bind_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -308,7 +308,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "bind",
@@ -348,7 +348,7 @@ func _newContext(runtime *_runtime) {
 				mode:  0101,
 				value: Value{},
 			},
-			"length": _property{
+			propertyLength: _property{
 				mode: 0,
 				value: Value{
 					kind:  valueNumber,
@@ -362,18 +362,18 @@ func _newContext(runtime *_runtime) {
 			"call",
 			"bind",
 			"constructor",
-			"length",
+			propertyLength,
 		}
 	}
 	{
 		getPrototypeOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -382,7 +382,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getPrototypeOf",
@@ -391,12 +391,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getOwnPropertyDescriptor_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -405,7 +405,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getOwnPropertyDescriptor",
@@ -414,12 +414,12 @@ func _newContext(runtime *_runtime) {
 		}
 		defineProperty_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -428,7 +428,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "defineProperty",
@@ -437,12 +437,12 @@ func _newContext(runtime *_runtime) {
 		}
 		defineProperties_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -451,7 +451,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "defineProperties",
@@ -460,12 +460,12 @@ func _newContext(runtime *_runtime) {
 		}
 		create_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -474,7 +474,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "create",
@@ -483,12 +483,12 @@ func _newContext(runtime *_runtime) {
 		}
 		isExtensible_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -497,7 +497,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "isExtensible",
@@ -506,12 +506,12 @@ func _newContext(runtime *_runtime) {
 		}
 		preventExtensions_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -520,7 +520,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "preventExtensions",
@@ -529,12 +529,12 @@ func _newContext(runtime *_runtime) {
 		}
 		isSealed_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -543,7 +543,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "isSealed",
@@ -552,12 +552,12 @@ func _newContext(runtime *_runtime) {
 		}
 		seal_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -566,7 +566,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "seal",
@@ -575,12 +575,12 @@ func _newContext(runtime *_runtime) {
 		}
 		isFrozen_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -589,7 +589,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "isFrozen",
@@ -598,12 +598,12 @@ func _newContext(runtime *_runtime) {
 		}
 		freeze_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -612,7 +612,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "freeze",
@@ -621,12 +621,12 @@ func _newContext(runtime *_runtime) {
 		}
 		keys_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -635,7 +635,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "keys",
@@ -644,12 +644,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getOwnPropertyNames_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -658,7 +658,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getOwnPropertyNames",
@@ -667,17 +667,17 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.Object = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			value: _nativeFunctionObject{
-				name:      "Object",
+				name:      classObject,
 				call:      builtinObject,
 				construct: builtinNewObject,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -784,7 +784,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 				"getPrototypeOf",
 				"getOwnPropertyDescriptor",
@@ -813,17 +813,17 @@ func _newContext(runtime *_runtime) {
 	{
 		Function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			value: _nativeFunctionObject{
-				name:      "Function",
+				name:      classFunction,
 				call:      builtinFunction,
 				construct: builtinNewFunction,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -839,7 +839,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 			},
 		}
@@ -856,12 +856,12 @@ func _newContext(runtime *_runtime) {
 	{
 		toString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -870,7 +870,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toString",
@@ -879,12 +879,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toLocaleString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -893,7 +893,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toLocaleString",
@@ -902,12 +902,12 @@ func _newContext(runtime *_runtime) {
 		}
 		concat_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -916,7 +916,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "concat",
@@ -925,12 +925,12 @@ func _newContext(runtime *_runtime) {
 		}
 		join_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -939,7 +939,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "join",
@@ -948,12 +948,12 @@ func _newContext(runtime *_runtime) {
 		}
 		splice_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -962,7 +962,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "splice",
@@ -971,12 +971,12 @@ func _newContext(runtime *_runtime) {
 		}
 		shift_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -985,7 +985,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "shift",
@@ -994,12 +994,12 @@ func _newContext(runtime *_runtime) {
 		}
 		pop_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1008,7 +1008,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "pop",
@@ -1017,12 +1017,12 @@ func _newContext(runtime *_runtime) {
 		}
 		push_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1031,7 +1031,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "push",
@@ -1040,12 +1040,12 @@ func _newContext(runtime *_runtime) {
 		}
 		slice_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1054,7 +1054,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "slice",
@@ -1063,12 +1063,12 @@ func _newContext(runtime *_runtime) {
 		}
 		unshift_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1077,7 +1077,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "unshift",
@@ -1086,12 +1086,12 @@ func _newContext(runtime *_runtime) {
 		}
 		reverse_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1100,7 +1100,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "reverse",
@@ -1109,12 +1109,12 @@ func _newContext(runtime *_runtime) {
 		}
 		sort_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1123,7 +1123,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "sort",
@@ -1132,12 +1132,12 @@ func _newContext(runtime *_runtime) {
 		}
 		indexOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1146,7 +1146,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "indexOf",
@@ -1155,12 +1155,12 @@ func _newContext(runtime *_runtime) {
 		}
 		lastIndexOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1169,7 +1169,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "lastIndexOf",
@@ -1178,12 +1178,12 @@ func _newContext(runtime *_runtime) {
 		}
 		every_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1192,7 +1192,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "every",
@@ -1201,12 +1201,12 @@ func _newContext(runtime *_runtime) {
 		}
 		some_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1215,7 +1215,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "some",
@@ -1224,12 +1224,12 @@ func _newContext(runtime *_runtime) {
 		}
 		forEach_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1238,7 +1238,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "forEach",
@@ -1247,12 +1247,12 @@ func _newContext(runtime *_runtime) {
 		}
 		map_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1261,7 +1261,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "map",
@@ -1270,12 +1270,12 @@ func _newContext(runtime *_runtime) {
 		}
 		filter_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1284,7 +1284,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "filter",
@@ -1293,12 +1293,12 @@ func _newContext(runtime *_runtime) {
 		}
 		reduce_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1307,7 +1307,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "reduce",
@@ -1316,12 +1316,12 @@ func _newContext(runtime *_runtime) {
 		}
 		reduceRight_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1330,7 +1330,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "reduceRight",
@@ -1339,12 +1339,12 @@ func _newContext(runtime *_runtime) {
 		}
 		isArray_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1353,7 +1353,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "isArray",
@@ -1362,13 +1362,13 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.ArrayPrototype = &_object{
 			runtime:     runtime,
-			class:       "Array",
+			class:       classArray,
 			objectClass: _classArray,
 			prototype:   runtime.global.ObjectPrototype,
 			extensible:  true,
 			value:       nil,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0100,
 					value: Value{
 						kind:  valueNumber,
@@ -1524,7 +1524,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"toString",
 				"toLocaleString",
 				"concat",
@@ -1550,17 +1550,17 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.Array = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			value: _nativeFunctionObject{
-				name:      "Array",
+				name:      classArray,
 				call:      builtinArray,
 				construct: builtinNewArray,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1583,7 +1583,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 				"isArray",
 			},
@@ -1600,12 +1600,12 @@ func _newContext(runtime *_runtime) {
 	{
 		toString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1614,7 +1614,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toString",
@@ -1623,12 +1623,12 @@ func _newContext(runtime *_runtime) {
 		}
 		valueOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1637,7 +1637,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "valueOf",
@@ -1646,12 +1646,12 @@ func _newContext(runtime *_runtime) {
 		}
 		charAt_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1660,7 +1660,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "charAt",
@@ -1669,12 +1669,12 @@ func _newContext(runtime *_runtime) {
 		}
 		charCodeAt_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1683,7 +1683,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "charCodeAt",
@@ -1692,12 +1692,12 @@ func _newContext(runtime *_runtime) {
 		}
 		concat_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1706,7 +1706,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "concat",
@@ -1715,12 +1715,12 @@ func _newContext(runtime *_runtime) {
 		}
 		indexOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1729,7 +1729,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "indexOf",
@@ -1738,12 +1738,12 @@ func _newContext(runtime *_runtime) {
 		}
 		lastIndexOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1752,7 +1752,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "lastIndexOf",
@@ -1761,12 +1761,12 @@ func _newContext(runtime *_runtime) {
 		}
 		match_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1775,7 +1775,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "match",
@@ -1784,12 +1784,12 @@ func _newContext(runtime *_runtime) {
 		}
 		replace_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1798,7 +1798,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "replace",
@@ -1807,12 +1807,12 @@ func _newContext(runtime *_runtime) {
 		}
 		search_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1821,7 +1821,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "search",
@@ -1830,12 +1830,12 @@ func _newContext(runtime *_runtime) {
 		}
 		split_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1844,7 +1844,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "split",
@@ -1853,12 +1853,12 @@ func _newContext(runtime *_runtime) {
 		}
 		slice_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1867,7 +1867,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "slice",
@@ -1876,12 +1876,12 @@ func _newContext(runtime *_runtime) {
 		}
 		substring_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1890,7 +1890,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "substring",
@@ -1899,12 +1899,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toLowerCase_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1913,7 +1913,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toLowerCase",
@@ -1922,12 +1922,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toUpperCase_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1936,7 +1936,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toUpperCase",
@@ -1945,12 +1945,12 @@ func _newContext(runtime *_runtime) {
 		}
 		substr_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1959,7 +1959,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "substr",
@@ -1968,12 +1968,12 @@ func _newContext(runtime *_runtime) {
 		}
 		trim_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -1982,7 +1982,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "trim",
@@ -1991,12 +1991,12 @@ func _newContext(runtime *_runtime) {
 		}
 		trimLeft_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2005,7 +2005,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "trimLeft",
@@ -2014,12 +2014,12 @@ func _newContext(runtime *_runtime) {
 		}
 		trimRight_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2028,7 +2028,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "trimRight",
@@ -2037,12 +2037,12 @@ func _newContext(runtime *_runtime) {
 		}
 		localeCompare_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2051,7 +2051,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "localeCompare",
@@ -2060,12 +2060,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toLocaleLowerCase_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2074,7 +2074,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toLocaleLowerCase",
@@ -2083,12 +2083,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toLocaleUpperCase_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2097,7 +2097,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toLocaleUpperCase",
@@ -2106,12 +2106,12 @@ func _newContext(runtime *_runtime) {
 		}
 		fromCharCode_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2120,7 +2120,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "fromCharCode",
@@ -2129,13 +2129,13 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.StringPrototype = &_object{
 			runtime:     runtime,
-			class:       "String",
+			class:       classString,
 			objectClass: _classString,
 			prototype:   runtime.global.ObjectPrototype,
 			extensible:  true,
 			value:       prototypeValueString,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2298,7 +2298,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"toString",
 				"valueOf",
 				"charAt",
@@ -2325,17 +2325,17 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.String = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			value: _nativeFunctionObject{
-				name:      "String",
+				name:      classString,
 				call:      builtinString,
 				construct: builtinNewString,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2358,7 +2358,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 				"fromCharCode",
 			},
@@ -2375,12 +2375,12 @@ func _newContext(runtime *_runtime) {
 	{
 		toString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2389,7 +2389,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toString",
@@ -2398,12 +2398,12 @@ func _newContext(runtime *_runtime) {
 		}
 		valueOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2412,7 +2412,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "valueOf",
@@ -2421,7 +2421,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.BooleanPrototype = &_object{
 			runtime:     runtime,
-			class:       "Boolean",
+			class:       classBoolean,
 			objectClass: _classObject,
 			prototype:   runtime.global.ObjectPrototype,
 			extensible:  true,
@@ -2449,17 +2449,17 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.Boolean = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			value: _nativeFunctionObject{
-				name:      "Boolean",
+				name:      classBoolean,
 				call:      builtinBoolean,
 				construct: builtinNewBoolean,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2475,7 +2475,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 			},
 		}
@@ -2491,12 +2491,12 @@ func _newContext(runtime *_runtime) {
 	{
 		toString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2505,7 +2505,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toString",
@@ -2514,12 +2514,12 @@ func _newContext(runtime *_runtime) {
 		}
 		valueOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2528,7 +2528,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "valueOf",
@@ -2537,12 +2537,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toFixed_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2551,7 +2551,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toFixed",
@@ -2560,12 +2560,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toExponential_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2574,7 +2574,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toExponential",
@@ -2583,12 +2583,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toPrecision_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2597,7 +2597,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toPrecision",
@@ -2606,12 +2606,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toLocaleString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2620,16 +2620,39 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toLocaleString",
 				call: builtinNumber_toLocaleString,
 			},
 		}
+		isNaN_function := &_object{
+			runtime:     runtime,
+			class:       classFunction,
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				propertyLength: _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 1,
+					},
+				},
+			},
+			propertyOrder: []string{
+				propertyLength,
+			},
+			value: _nativeFunctionObject{
+				name: "isNaN",
+				call: builtinNumber_isNaN,
+			},
+		}
 		runtime.global.NumberPrototype = &_object{
 			runtime:     runtime,
-			class:       "Number",
+			class:       classNumber,
 			objectClass: _classObject,
 			prototype:   runtime.global.ObjectPrototype,
 			extensible:  true,
@@ -2689,17 +2712,17 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.Number = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			value: _nativeFunctionObject{
-				name:      "Number",
+				name:      classNumber,
 				call:      builtinNumber,
 				construct: builtinNewNumber,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2711,6 +2734,13 @@ func _newContext(runtime *_runtime) {
 					value: Value{
 						kind:  valueObject,
 						value: runtime.global.NumberPrototype,
+					},
+				},
+				"isNaN": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: isNaN_function,
 					},
 				},
 				"MAX_VALUE": _property{
@@ -2750,8 +2780,9 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
+				"isNaN",
 				"MAX_VALUE",
 				"MIN_VALUE",
 				"NaN",
@@ -2771,12 +2802,12 @@ func _newContext(runtime *_runtime) {
 	{
 		abs_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2785,7 +2816,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "abs",
@@ -2794,12 +2825,12 @@ func _newContext(runtime *_runtime) {
 		}
 		acos_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2808,7 +2839,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "acos",
@@ -2817,12 +2848,12 @@ func _newContext(runtime *_runtime) {
 		}
 		asin_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2831,7 +2862,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "asin",
@@ -2840,12 +2871,12 @@ func _newContext(runtime *_runtime) {
 		}
 		atan_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2854,7 +2885,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "atan",
@@ -2863,12 +2894,12 @@ func _newContext(runtime *_runtime) {
 		}
 		atan2_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2877,7 +2908,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "atan2",
@@ -2886,12 +2917,12 @@ func _newContext(runtime *_runtime) {
 		}
 		ceil_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2900,7 +2931,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "ceil",
@@ -2909,12 +2940,12 @@ func _newContext(runtime *_runtime) {
 		}
 		cos_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2923,7 +2954,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "cos",
@@ -2932,12 +2963,12 @@ func _newContext(runtime *_runtime) {
 		}
 		exp_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2946,7 +2977,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "exp",
@@ -2955,12 +2986,12 @@ func _newContext(runtime *_runtime) {
 		}
 		floor_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2969,7 +3000,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "floor",
@@ -2978,12 +3009,12 @@ func _newContext(runtime *_runtime) {
 		}
 		log_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -2992,7 +3023,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "log",
@@ -3001,12 +3032,12 @@ func _newContext(runtime *_runtime) {
 		}
 		max_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3015,7 +3046,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "max",
@@ -3024,12 +3055,12 @@ func _newContext(runtime *_runtime) {
 		}
 		min_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3038,7 +3069,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "min",
@@ -3047,12 +3078,12 @@ func _newContext(runtime *_runtime) {
 		}
 		pow_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3061,7 +3092,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "pow",
@@ -3070,12 +3101,12 @@ func _newContext(runtime *_runtime) {
 		}
 		random_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3084,7 +3115,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "random",
@@ -3093,12 +3124,12 @@ func _newContext(runtime *_runtime) {
 		}
 		round_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3107,7 +3138,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "round",
@@ -3116,12 +3147,12 @@ func _newContext(runtime *_runtime) {
 		}
 		sin_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3130,7 +3161,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "sin",
@@ -3139,12 +3170,12 @@ func _newContext(runtime *_runtime) {
 		}
 		sqrt_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3153,7 +3184,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "sqrt",
@@ -3162,12 +3193,12 @@ func _newContext(runtime *_runtime) {
 		}
 		tan_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3176,7 +3207,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "tan",
@@ -3406,12 +3437,12 @@ func _newContext(runtime *_runtime) {
 	{
 		toString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3420,7 +3451,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toString",
@@ -3429,12 +3460,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toDateString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3443,7 +3474,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toDateString",
@@ -3452,12 +3483,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toTimeString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3466,7 +3497,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toTimeString",
@@ -3475,12 +3506,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toUTCString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3489,7 +3520,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toUTCString",
@@ -3498,12 +3529,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toISOString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3512,7 +3543,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toISOString",
@@ -3521,12 +3552,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toJSON_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3535,7 +3566,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toJSON",
@@ -3544,12 +3575,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toGMTString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3558,7 +3589,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toGMTString",
@@ -3567,12 +3598,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toLocaleString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3581,7 +3612,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toLocaleString",
@@ -3590,12 +3621,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toLocaleDateString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3604,7 +3635,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toLocaleDateString",
@@ -3613,12 +3644,12 @@ func _newContext(runtime *_runtime) {
 		}
 		toLocaleTimeString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3627,7 +3658,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toLocaleTimeString",
@@ -3636,12 +3667,12 @@ func _newContext(runtime *_runtime) {
 		}
 		valueOf_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3650,7 +3681,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "valueOf",
@@ -3659,12 +3690,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getTime_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3673,7 +3704,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getTime",
@@ -3682,12 +3713,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getYear_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3696,7 +3727,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getYear",
@@ -3705,12 +3736,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getFullYear_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3719,7 +3750,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getFullYear",
@@ -3728,12 +3759,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getUTCFullYear_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3742,7 +3773,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getUTCFullYear",
@@ -3751,12 +3782,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getMonth_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3765,7 +3796,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getMonth",
@@ -3774,12 +3805,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getUTCMonth_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3788,7 +3819,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getUTCMonth",
@@ -3797,12 +3828,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getDate_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3811,7 +3842,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getDate",
@@ -3820,12 +3851,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getUTCDate_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3834,7 +3865,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getUTCDate",
@@ -3843,12 +3874,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getDay_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3857,7 +3888,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getDay",
@@ -3866,12 +3897,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getUTCDay_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3880,7 +3911,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getUTCDay",
@@ -3889,12 +3920,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getHours_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3903,7 +3934,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getHours",
@@ -3912,12 +3943,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getUTCHours_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3926,7 +3957,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getUTCHours",
@@ -3935,12 +3966,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getMinutes_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3949,7 +3980,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getMinutes",
@@ -3958,12 +3989,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getUTCMinutes_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3972,7 +4003,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getUTCMinutes",
@@ -3981,12 +4012,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getSeconds_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -3995,7 +4026,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getSeconds",
@@ -4004,12 +4035,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getUTCSeconds_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4018,7 +4049,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getUTCSeconds",
@@ -4027,12 +4058,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getMilliseconds_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4041,7 +4072,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getMilliseconds",
@@ -4050,12 +4081,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getUTCMilliseconds_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4064,7 +4095,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getUTCMilliseconds",
@@ -4073,12 +4104,12 @@ func _newContext(runtime *_runtime) {
 		}
 		getTimezoneOffset_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4087,7 +4118,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "getTimezoneOffset",
@@ -4096,12 +4127,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setTime_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4110,7 +4141,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setTime",
@@ -4119,12 +4150,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setMilliseconds_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4133,7 +4164,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setMilliseconds",
@@ -4142,12 +4173,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setUTCMilliseconds_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4156,7 +4187,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setUTCMilliseconds",
@@ -4165,12 +4196,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setSeconds_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4179,7 +4210,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setSeconds",
@@ -4188,12 +4219,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setUTCSeconds_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4202,7 +4233,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setUTCSeconds",
@@ -4211,12 +4242,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setMinutes_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4225,7 +4256,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setMinutes",
@@ -4234,12 +4265,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setUTCMinutes_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4248,7 +4279,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setUTCMinutes",
@@ -4257,12 +4288,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setHours_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4271,7 +4302,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setHours",
@@ -4280,12 +4311,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setUTCHours_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4294,7 +4325,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setUTCHours",
@@ -4303,12 +4334,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setDate_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4317,7 +4348,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setDate",
@@ -4326,12 +4357,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setUTCDate_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4340,7 +4371,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setUTCDate",
@@ -4349,12 +4380,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setMonth_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4363,7 +4394,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setMonth",
@@ -4372,12 +4403,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setUTCMonth_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4386,7 +4417,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setUTCMonth",
@@ -4395,12 +4426,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setYear_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4409,7 +4440,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setYear",
@@ -4418,12 +4449,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setFullYear_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4432,7 +4463,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setFullYear",
@@ -4441,12 +4472,12 @@ func _newContext(runtime *_runtime) {
 		}
 		setUTCFullYear_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4455,7 +4486,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "setUTCFullYear",
@@ -4464,12 +4495,12 @@ func _newContext(runtime *_runtime) {
 		}
 		parse_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4478,7 +4509,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "parse",
@@ -4487,12 +4518,12 @@ func _newContext(runtime *_runtime) {
 		}
 		UTC_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4501,7 +4532,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "UTC",
@@ -4510,12 +4541,12 @@ func _newContext(runtime *_runtime) {
 		}
 		now_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4524,7 +4555,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "now",
@@ -4533,7 +4564,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.DatePrototype = &_object{
 			runtime:     runtime,
-			class:       "Date",
+			class:       classDate,
 			objectClass: _classObject,
 			prototype:   runtime.global.ObjectPrototype,
 			extensible:  true,
@@ -4913,17 +4944,17 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.Date = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			value: _nativeFunctionObject{
-				name:      "Date",
+				name:      classDate,
 				call:      builtinDate,
 				construct: builtinNewDate,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4960,7 +4991,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 				"parse",
 				"UTC",
@@ -4979,12 +5010,12 @@ func _newContext(runtime *_runtime) {
 	{
 		toString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -4993,7 +5024,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toString",
@@ -5002,12 +5033,12 @@ func _newContext(runtime *_runtime) {
 		}
 		exec_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5016,7 +5047,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "exec",
@@ -5025,12 +5056,12 @@ func _newContext(runtime *_runtime) {
 		}
 		test_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5039,7 +5070,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "test",
@@ -5048,12 +5079,12 @@ func _newContext(runtime *_runtime) {
 		}
 		compile_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5062,7 +5093,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "compile",
@@ -5071,7 +5102,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.RegExpPrototype = &_object{
 			runtime:     runtime,
-			class:       "RegExp",
+			class:       classRegExp,
 			objectClass: _classObject,
 			prototype:   runtime.global.ObjectPrototype,
 			extensible:  true,
@@ -5115,17 +5146,17 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.RegExp = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			value: _nativeFunctionObject{
-				name:      "RegExp",
+				name:      classRegExp,
 				call:      builtinRegExp,
 				construct: builtinNewRegExp,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5141,7 +5172,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 			},
 		}
@@ -5157,12 +5188,12 @@ func _newContext(runtime *_runtime) {
 	{
 		toString_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5171,7 +5202,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "toString",
@@ -5180,7 +5211,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.ErrorPrototype = &_object{
 			runtime:     runtime,
-			class:       "Error",
+			class:       classError,
 			objectClass: _classObject,
 			prototype:   runtime.global.ObjectPrototype,
 			extensible:  true,
@@ -5197,7 +5228,7 @@ func _newContext(runtime *_runtime) {
 					mode: 0101,
 					value: Value{
 						kind:  valueString,
-						value: "Error",
+						value: classError,
 					},
 				},
 				"message": _property{
@@ -5216,17 +5247,17 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.Error = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			value: _nativeFunctionObject{
-				name:      "Error",
+				name:      classError,
 				call:      builtinError,
 				construct: builtinNewError,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5242,7 +5273,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 			},
 		}
@@ -5278,7 +5309,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.EvalError = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
@@ -5288,7 +5319,7 @@ func _newContext(runtime *_runtime) {
 				construct: builtinNewEvalError,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5304,7 +5335,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 			},
 		}
@@ -5340,7 +5371,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.TypeError = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
@@ -5350,7 +5381,7 @@ func _newContext(runtime *_runtime) {
 				construct: builtinNewTypeError,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5366,7 +5397,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 			},
 		}
@@ -5402,7 +5433,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.RangeError = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
@@ -5412,7 +5443,7 @@ func _newContext(runtime *_runtime) {
 				construct: builtinNewRangeError,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5428,7 +5459,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 			},
 		}
@@ -5464,7 +5495,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.ReferenceError = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
@@ -5474,7 +5505,7 @@ func _newContext(runtime *_runtime) {
 				construct: builtinNewReferenceError,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5490,7 +5521,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 			},
 		}
@@ -5526,7 +5557,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.SyntaxError = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
@@ -5536,7 +5567,7 @@ func _newContext(runtime *_runtime) {
 				construct: builtinNewSyntaxError,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5552,7 +5583,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 			},
 		}
@@ -5588,7 +5619,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.URIError = &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
@@ -5598,7 +5629,7 @@ func _newContext(runtime *_runtime) {
 				construct: builtinNewURIError,
 			},
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5614,7 +5645,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 				"prototype",
 			},
 		}
@@ -5630,12 +5661,12 @@ func _newContext(runtime *_runtime) {
 	{
 		parse_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5644,7 +5675,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "parse",
@@ -5653,12 +5684,12 @@ func _newContext(runtime *_runtime) {
 		}
 		stringify_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5667,7 +5698,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "stringify",
@@ -5705,12 +5736,12 @@ func _newContext(runtime *_runtime) {
 	{
 		eval_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5719,7 +5750,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "eval",
@@ -5728,12 +5759,12 @@ func _newContext(runtime *_runtime) {
 		}
 		parseInt_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5742,7 +5773,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "parseInt",
@@ -5751,12 +5782,12 @@ func _newContext(runtime *_runtime) {
 		}
 		parseFloat_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5765,7 +5796,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "parseFloat",
@@ -5774,12 +5805,12 @@ func _newContext(runtime *_runtime) {
 		}
 		isNaN_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5788,7 +5819,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "isNaN",
@@ -5797,12 +5828,12 @@ func _newContext(runtime *_runtime) {
 		}
 		isFinite_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5811,7 +5842,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "isFinite",
@@ -5820,12 +5851,12 @@ func _newContext(runtime *_runtime) {
 		}
 		decodeURI_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5834,7 +5865,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "decodeURI",
@@ -5843,12 +5874,12 @@ func _newContext(runtime *_runtime) {
 		}
 		decodeURIComponent_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5857,7 +5888,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "decodeURIComponent",
@@ -5866,12 +5897,12 @@ func _newContext(runtime *_runtime) {
 		}
 		encodeURI_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5880,7 +5911,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "encodeURI",
@@ -5889,12 +5920,12 @@ func _newContext(runtime *_runtime) {
 		}
 		encodeURIComponent_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5903,7 +5934,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "encodeURIComponent",
@@ -5912,12 +5943,12 @@ func _newContext(runtime *_runtime) {
 		}
 		escape_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5926,7 +5957,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "escape",
@@ -5935,12 +5966,12 @@ func _newContext(runtime *_runtime) {
 		}
 		unescape_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -5949,7 +5980,7 @@ func _newContext(runtime *_runtime) {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "unescape",
@@ -6034,42 +6065,42 @@ func _newContext(runtime *_runtime) {
 					value: unescape_function,
 				},
 			},
-			"Object": _property{
+			classObject: _property{
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
 					value: runtime.global.Object,
 				},
 			},
-			"Function": _property{
+			classFunction: _property{
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
 					value: runtime.global.Function,
 				},
 			},
-			"Array": _property{
+			classArray: _property{
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
 					value: runtime.global.Array,
 				},
 			},
-			"String": _property{
+			classString: _property{
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
 					value: runtime.global.String,
 				},
 			},
-			"Boolean": _property{
+			classBoolean: _property{
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
 					value: runtime.global.Boolean,
 				},
 			},
-			"Number": _property{
+			classNumber: _property{
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
@@ -6083,21 +6114,21 @@ func _newContext(runtime *_runtime) {
 					value: runtime.global.Math,
 				},
 			},
-			"Date": _property{
+			classDate: _property{
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
 					value: runtime.global.Date,
 				},
 			},
-			"RegExp": _property{
+			classRegExp: _property{
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
 					value: runtime.global.RegExp,
 				},
 			},
-			"Error": _property{
+			classError: _property{
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
@@ -6186,16 +6217,16 @@ func _newContext(runtime *_runtime) {
 			"encodeURIComponent",
 			"escape",
 			"unescape",
-			"Object",
-			"Function",
-			"Array",
-			"String",
-			"Boolean",
-			"Number",
+			classObject,
+			classFunction,
+			classArray,
+			classString,
+			classBoolean,
+			classNumber,
 			"Math",
-			"Date",
-			"RegExp",
-			"Error",
+			classDate,
+			classRegExp,
+			classError,
 			"EvalError",
 			"TypeError",
 			"RangeError",
@@ -6214,12 +6245,12 @@ func newConsoleObject(runtime *_runtime) *_object {
 	{
 		log_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -6228,7 +6259,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "log",
@@ -6237,12 +6268,12 @@ func newConsoleObject(runtime *_runtime) *_object {
 		}
 		debug_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -6251,7 +6282,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "debug",
@@ -6260,12 +6291,12 @@ func newConsoleObject(runtime *_runtime) *_object {
 		}
 		info_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -6274,7 +6305,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "info",
@@ -6283,12 +6314,12 @@ func newConsoleObject(runtime *_runtime) *_object {
 		}
 		error_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -6297,7 +6328,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "error",
@@ -6306,12 +6337,12 @@ func newConsoleObject(runtime *_runtime) *_object {
 		}
 		warn_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -6320,7 +6351,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "warn",
@@ -6329,12 +6360,12 @@ func newConsoleObject(runtime *_runtime) *_object {
 		}
 		dir_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -6343,7 +6374,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "dir",
@@ -6352,12 +6383,12 @@ func newConsoleObject(runtime *_runtime) *_object {
 		}
 		time_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -6366,7 +6397,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "time",
@@ -6375,12 +6406,12 @@ func newConsoleObject(runtime *_runtime) *_object {
 		}
 		timeEnd_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -6389,7 +6420,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "timeEnd",
@@ -6398,12 +6429,12 @@ func newConsoleObject(runtime *_runtime) *_object {
 		}
 		trace_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -6412,7 +6443,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "trace",
@@ -6421,12 +6452,12 @@ func newConsoleObject(runtime *_runtime) *_object {
 		}
 		assert_function := &_object{
 			runtime:     runtime,
-			class:       "Function",
+			class:       classFunction,
 			objectClass: _classObject,
 			prototype:   runtime.global.FunctionPrototype,
 			extensible:  true,
 			property: map[string]_property{
-				"length": _property{
+				propertyLength: _property{
 					mode: 0,
 					value: Value{
 						kind:  valueNumber,
@@ -6435,7 +6466,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 				},
 			},
 			propertyOrder: []string{
-				"length",
+				propertyLength,
 			},
 			value: _nativeFunctionObject{
 				name: "assert",
@@ -6444,7 +6475,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 		}
 		return &_object{
 			runtime:     runtime,
-			class:       "Object",
+			class:       classObject,
 			objectClass: _classObject,
 			prototype:   runtime.global.ObjectPrototype,
 			extensible:  true,
@@ -6543,20 +6574,6 @@ func toValue_int(value int) Value {
 	}
 }
 
-func toValue_int8(value int8) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
-func toValue_int16(value int16) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
 func toValue_int32(value int32) Value {
 	return Value{
 		kind:  valueNumber,
@@ -6571,20 +6588,6 @@ func toValue_int64(value int64) Value {
 	}
 }
 
-func toValue_uint(value uint) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
-func toValue_uint8(value uint8) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
 func toValue_uint16(value uint16) Value {
 	return Value{
 		kind:  valueNumber,
@@ -6593,20 +6596,6 @@ func toValue_uint16(value uint16) Value {
 }
 
 func toValue_uint32(value uint32) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
-func toValue_uint64(value uint64) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
-func toValue_float32(value float32) Value {
 	return Value{
 		kind:  valueNumber,
 		value: value,

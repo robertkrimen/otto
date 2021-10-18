@@ -24,7 +24,7 @@ func builtinNewNumber(self *_object, argumentList []Value) Value {
 
 func builtinNumber_toString(call FunctionCall) Value {
 	// Will throw a TypeError if ThisObject is not a Number
-	value := call.thisClassObject("Number").primitiveValue()
+	value := call.thisClassObject(classNumber).primitiveValue()
 	radix := 10
 	radixArgument := call.Argument(0)
 	if radixArgument.IsDefined() {
@@ -41,7 +41,7 @@ func builtinNumber_toString(call FunctionCall) Value {
 }
 
 func builtinNumber_valueOf(call FunctionCall) Value {
-	return call.thisClassObject("Number").primitiveValue()
+	return call.thisClassObject(classNumber).primitiveValue()
 }
 
 func builtinNumber_toFixed(call FunctionCall) Value {
@@ -86,6 +86,13 @@ func builtinNumber_toPrecision(call FunctionCall) Value {
 		panic(call.runtime.panicRangeError("toPrecision() precision must be greater than 1"))
 	}
 	return toValue_string(strconv.FormatFloat(call.This.float64(), 'g', int(precision), 64))
+}
+
+func builtinNumber_isNaN(call FunctionCall) Value {
+	if len(call.ArgumentList) < 1 {
+		return toValue_bool(false)
+	}
+	return toValue_bool(call.Argument(0).IsNaN())
 }
 
 func builtinNumber_toLocaleString(call FunctionCall) Value {

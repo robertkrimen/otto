@@ -1326,6 +1326,7 @@ func TestOttoCall_clone(t *testing.T) {
 			value, err := vm2.Run(`
                 [ abc.toString(), def.toString() ];
             `)
+			is(err, nil)
 			is(value, `function() { return "abc"; },function() { return "def"; }`)
 
 			_, err = vm2.Run(`
@@ -1336,11 +1337,13 @@ func TestOttoCall_clone(t *testing.T) {
 			value, err = vm1.Run(`
                 [ abc.toString(), def.toString() ];
             `)
+			is(err, nil)
 			is(value, `function() { return "abc"; },function() { return "def"; }`)
 
 			value, err = vm2.Run(`
                 [ abc.toString(), def.toString() ];
             `)
+			is(err, nil)
 			is(value, `function() { return "abc"; },function() { return "ghi"; }`)
 		}
 
@@ -1367,6 +1370,7 @@ func TestOttoRun(t *testing.T) {
 		is(value, 4)
 
 		program, err = parser.ParseFile(nil, "", "var abc; if (!abc) abc = 0; abc += 2; abc;", 0)
+		is(err, nil)
 		value, err = vm.Run(program)
 		is(err, nil)
 		is(value, 2)
@@ -1494,7 +1498,7 @@ func TestOttoContext(t *testing.T) {
 	builtins := []string{
 		"escape",
 		"URIError",
-		"RegExp",
+		classRegExp,
 		"ReferenceError",
 		"parseFloat",
 		"parseInt",
@@ -1506,23 +1510,23 @@ func TestOttoContext(t *testing.T) {
 		"isNaN",
 		"unescape",
 		"decodeURI",
-		"Object",
-		"Function",
+		classObject,
+		classFunction,
 		"RangeError",
-		"Error",
+		classError,
 		"get_context",
 		"eval",
-		"Number",
+		classNumber,
 		"Math",
 		"NaN",
-		"Date",
-		"Boolean",
+		classDate,
+		classBoolean,
 		"console",
 		"encodeURI",
 		"EvalError",
-		"Array",
+		classArray,
 		"TypeError",
-		"String",
+		classString,
 		"isFinite",
 		"undefined",
 	}

@@ -1,6 +1,6 @@
 module github.com/robertkrimen/otto
 
-go 1.13
+go 1.14
 
 require (
 	github.com/chzyer/logex v1.1.10 // indirect

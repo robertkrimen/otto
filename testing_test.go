@@ -10,8 +10,9 @@ import (
 )
 
 func tt(t *testing.T, arguments ...func()) {
+	t.Helper()
 	halt := errors.New("A test was taking too long")
-	timer := time.AfterFunc(2*time.Second, func() {
+	timer := time.AfterFunc(20*time.Second, func() {
 		panic(halt)
 	})
 	defer func() {
