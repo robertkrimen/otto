@@ -1,4 +1,4 @@
-module github.com/arkadiont/otto
+module github.com/robertkrimen/otto
 
 go 1.13
 

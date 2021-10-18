@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/arkadiont/otto/ast"
+	"github.com/robertkrimen/otto/ast"
 )
 
 func marshal(name string, children ...interface{}) interface{} {

@@ -31,13 +31,13 @@ func TestNativeStackFrames(t *testing.T) {
 				ctx := c.Otto.ContextSkip(-1, false)
 
 				is(ctx.Stacktrace, []string{
-					"github.com/arkadiont/otto.TestNativeStackFrames.func1.2 (native_stack_test.go:28)",
+					"github.com/robertkrimen/otto.TestNativeStackFrames.func1.2 (native_stack_test.go:28)",
 					"B (input.js:3:22)",
-					"github.com/arkadiont/otto.TestNativeStackFrames.func1.1 (native_stack_test.go:20)",
+					"github.com/robertkrimen/otto.TestNativeStackFrames.func1.1 (native_stack_test.go:20)",
 					"A (input.js:2:22)", "input.js:4:7",
 				})
 
-				is(ctx.Callee, "github.com/arkadiont/otto.TestNativeStackFrames.func1.2")
+				is(ctx.Callee, "github.com/robertkrimen/otto.TestNativeStackFrames.func1.2")
 				is(ctx.Filename, "native_stack_test.go")
 				is(ctx.Line, 28)
 				is(ctx.Column, 0)
@@ -49,7 +49,7 @@ func TestNativeStackFrames(t *testing.T) {
 
 				is(ctx.Stacktrace, []string{
 					"B (input.js:3:22)",
-					"github.com/arkadiont/otto.TestNativeStackFrames.func1.1 (native_stack_test.go:20)",
+					"github.com/robertkrimen/otto.TestNativeStackFrames.func1.1 (native_stack_test.go:20)",
 					"A (input.js:2:22)", "input.js:4:7",
 				})
 
@@ -72,14 +72,14 @@ func TestNativeStackFrames(t *testing.T) {
 				ctx := c.Otto.ContextSkip(-1, false)
 
 				is(ctx.Stacktrace, []string{
-					"github.com/arkadiont/otto.TestNativeStackFrames.func1.3 (native_stack_test.go:69)",
-					"github.com/arkadiont/otto.TestNativeStackFrames.func1.2 (native_stack_test.go:28)",
+					"github.com/robertkrimen/otto.TestNativeStackFrames.func1.3 (native_stack_test.go:69)",
+					"github.com/robertkrimen/otto.TestNativeStackFrames.func1.2 (native_stack_test.go:28)",
 					"B (input.js:3:22)",
-					"github.com/arkadiont/otto.TestNativeStackFrames.func1.1 (native_stack_test.go:20)",
+					"github.com/robertkrimen/otto.TestNativeStackFrames.func1.1 (native_stack_test.go:20)",
 					"A (input.js:2:22)", "input.js:4:7",
 				})
 
-				is(ctx.Callee, "github.com/arkadiont/otto.TestNativeStackFrames.func1.3")
+				is(ctx.Callee, "github.com/robertkrimen/otto.TestNativeStackFrames.func1.3")
 				is(ctx.Filename, "native_stack_test.go")
 				is(ctx.Line, 69)
 				is(ctx.Column, 0)
@@ -91,7 +91,7 @@ func TestNativeStackFrames(t *testing.T) {
 
 				is(ctx.Stacktrace, []string{
 					"B (input.js:3:22)",
-					"github.com/arkadiont/otto.TestNativeStackFrames.func1.1 (native_stack_test.go:20)",
+					"github.com/robertkrimen/otto.TestNativeStackFrames.func1.1 (native_stack_test.go:20)",
 					"A (input.js:2:22)", "input.js:4:7",
 				})
 

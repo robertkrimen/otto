@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/arkadiont/otto/file"
+	"github.com/robertkrimen/otto/file"
 )
 
 type _exception struct {

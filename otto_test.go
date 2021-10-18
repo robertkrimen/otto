@@ -5,7 +5,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/arkadiont/otto/parser"
+	"github.com/robertkrimen/otto/parser"
 )
 
 func TestOtto(t *testing.T) {

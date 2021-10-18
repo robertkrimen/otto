@@ -40,9 +40,9 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/arkadiont/otto/ast"
-	"github.com/arkadiont/otto/file"
-	"github.com/arkadiont/otto/token"
+	"github.com/robertkrimen/otto/ast"
+	"github.com/robertkrimen/otto/file"
+	"github.com/robertkrimen/otto/token"
 	"gopkg.in/sourcemap.v1"
 )
 

@@ -12,8 +12,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/arkadiont/otto/ast"
-	"github.com/arkadiont/otto/parser"
+	"github.com/robertkrimen/otto/ast"
+	"github.com/robertkrimen/otto/parser"
 )
 
 type _global struct {

@@ -2,7 +2,7 @@ package otto
 
 import (
 	"fmt"
-	"github.com/arkadiont/otto/parser"
+	"github.com/robertkrimen/otto/parser"
 	"regexp"
 	"strings"
 	"unicode"

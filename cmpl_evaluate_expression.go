@@ -2,7 +2,7 @@ package otto
 
 import (
 	"fmt"
-	"github.com/arkadiont/otto/token"
+	"github.com/robertkrimen/otto/token"
 	"math"
 	"runtime"
 )

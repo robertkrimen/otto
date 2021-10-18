@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/arkadiont/otto/file"
+	"github.com/robertkrimen/otto/file"
 	"testing"
 )
 

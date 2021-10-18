@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/arkadiont/otto"
+	"github.com/robertkrimen/otto"
 )
 
 type autoCompleter struct {

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/arkadiont/otto/terst"
+	"github.com/robertkrimen/otto/terst"
 )
 
 func tt(t *testing.T, arguments ...func()) {

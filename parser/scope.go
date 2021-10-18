@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/arkadiont/otto/ast"
+	"github.com/robertkrimen/otto/ast"
 )
 
 type _scope struct {

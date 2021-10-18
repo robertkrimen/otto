@@ -1,8 +1,8 @@
 package otto
 
 import (
-	"github.com/arkadiont/otto/ast"
-	"github.com/arkadiont/otto/file"
+	"github.com/robertkrimen/otto/ast"
+	"github.com/robertkrimen/otto/file"
 )
 
 type _file struct {

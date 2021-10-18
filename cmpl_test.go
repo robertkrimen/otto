@@ -3,7 +3,7 @@ package otto
 import (
 	"testing"
 
-	"github.com/arkadiont/otto/parser"
+	"github.com/robertkrimen/otto/parser"
 )
 
 func Test_cmpl(t *testing.T) {
