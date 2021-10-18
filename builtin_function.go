@@ -2,10 +2,11 @@ package otto
 
 import (
 	"fmt"
-	"github.com/robertkrimen/otto/parser"
 	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/robertkrimen/otto/parser"
 )
 
 // Function

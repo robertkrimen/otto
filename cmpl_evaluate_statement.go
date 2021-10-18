@@ -2,8 +2,9 @@ package otto
 
 import (
 	"fmt"
-	"github.com/robertkrimen/otto/token"
 	"runtime"
+
+	"github.com/robertkrimen/otto/token"
 )
 
 func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
