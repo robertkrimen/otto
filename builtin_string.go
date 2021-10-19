@@ -396,7 +396,7 @@ func builtinString_split(call FunctionCall) Value {
 
 func builtinString_slice(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
-	target := []rune(call.This.string())
+	target := call.This.string()
 
 	length := int64(len(target))
 	start, end := rangeStartEnd(call.ArgumentList, length, false)
