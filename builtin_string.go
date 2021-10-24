@@ -184,7 +184,7 @@ func builtinString_findAndReplaceString(input []byte, lastIndex int, match []int
 		case '`':
 			return target[:match[0]]
 		case '\'':
-			return target[match[1]:len(target)]
+			return target[match[1]:]
 		}
 		matchNumberParse, err := strconv.ParseInt(string(part[1:]), 10, 64)
 		if err != nil {
