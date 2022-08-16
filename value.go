@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"reflect"
@@ -1022,4 +1023,18 @@ func stringToReflectValue(value string, kind reflect.Kind) (reflect.Value, error
 
 	// FIXME This should end up as a TypeError?
 	panic(fmt.Errorf("invalid conversion of %q to reflect.Kind: %v", value, kind))
+}
+
+func (self Value) MarshalJSON() ([]byte, error) {
+	switch self.kind {
+	case valueUndefined, valueNull:
+		return []byte("null"), nil
+	case valueBoolean, valueNumber:
+		return json.Marshal(self.value)
+	case valueString:
+		return json.Marshal(self.string())
+	case valueObject:
+		return self.Object().MarshalJSON()
+	}
+	return nil, fmt.Errorf("invalid type %v", self.kind)
 }

@@ -312,3 +312,74 @@ func Test_toReflectValue(t *testing.T) {
 		is(err, nil)
 	})
 }
+
+func TestJSONMarshaling(t *testing.T) {
+	tt(t, func() {
+		eval, tester := test()
+		toJSON := func(val interface{}) string {
+			j, err := json.Marshal(val)
+			is(err, nil)
+			return string(j)
+		}
+
+		is(toJSON(UndefinedValue()), `null`)
+		is(toJSON(NullValue()), `null`)
+		is(toJSON(FalseValue()), `false`)
+		is(toJSON(TrueValue()), `true`)
+
+		is(toJSON(toValue(0)), `0`)
+		is(toJSON(toValue(1234)), `1234`)
+		is(toJSON(toValue(1234.125)), `1234.125`)
+		is(toJSON(toValue(-1234)), `-1234`)
+		is(toJSON(toValue(-1234.125)), `-1234.125`)
+
+		is(toJSON(toValue("")), `""`)
+		is(toJSON(toValue("Otto")), `"Otto"`)
+		is(toJSON(eval(`String.fromCharCode(97,98,99,100,101,102)`)), `"abcdef"`)
+
+		is(toJSON(eval("[]")), `[]`)
+		is(toJSON(eval("[1, 2, 3]")), `[1,2,3]`)
+		is(toJSON(eval("new Array(1,2,3)")), `[1,2,3]`)
+
+		is(toJSON(eval(`({a:1, b:"hi", c:[true,false]})`)), `{"a":1,"b":"hi","c":[true,false]}`)
+
+		goArray := []string{"foo", "bar"}
+		val, _ := tester.vm.ToValue(goArray)
+		is(toJSON(val), `["foo","bar"]`)
+
+		goMap := map[string]interface{}{
+			"bar": []int{1, 2, 3},
+			"foo": 17,
+		}
+		val, _ = tester.vm.ToValue(goMap)
+		is(toJSON(val), `{"bar":[1,2,3],"foo":17}`)
+	})
+}
+
+func TestNestedJSONMarshaling(t *testing.T) {
+	tt(t, func() {
+		eval, _ := test()
+		toJSON := func(val interface{}) string {
+			j, err := json.Marshal(val)
+			is(err, nil)
+			return string(j)
+		}
+
+		goMap := map[string]interface{}{
+			"foo": 17,
+		}
+
+		fn := eval(`(function(obj) {obj.jsVal = "hi"; obj.jsArray = [17,true]; return obj;})`)
+		result, err := fn.Call(fn, goMap)
+		is(err, nil)
+		exported, err := result.Export()
+		is(err, nil)
+
+		is(toJSON(exported), `{"foo":17,"jsArray":[17,true],"jsVal":"hi"}`)
+
+		// Before MarshalJSON was implemented, this last assertion would fail:
+		// FAIL (==)
+		//      got: {"foo":17,"jsArray":{},"jsVal":"hi"}
+		// expected: {"foo":17,"jsArray":[17,true],"jsVal":"hi"}
+	})
+}
