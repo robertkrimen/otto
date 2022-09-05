@@ -4,8 +4,7 @@ import (
 	"fmt"
 )
 
-func ExampleSynopsis() {
-
+func ExampleSynopsis() { // nolint: govet
 	vm := New()
 	vm.Run(`
         abc = 2 + 2;
@@ -70,8 +69,7 @@ func ExampleSynopsis() {
 	// 4
 }
 
-func ExampleConsole() {
-
+func ExampleConsole() { // nolint: govet
 	vm := New()
 	console := map[string]interface{}{
 		"log": func(call FunctionCall) Value {
@@ -81,10 +79,11 @@ func ExampleConsole() {
 	}
 
 	err := vm.Set("console", console)
+	if err != nil {
+		panic(fmt.Errorf("console error: %w", err))
+	}
 
-	value, err := vm.Run(`
-        console.log("Hello, World.");
-    `)
+	value, err := vm.Run(`console.log("Hello, World.");`)
 	fmt.Println(value)
 	fmt.Println(err)
 

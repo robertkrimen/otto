@@ -761,11 +761,11 @@ func TestPassthrough(t *testing.T) {
 	})
 }
 
-type TestDynamicFunctionReturningInterface_MyStruct1 struct{}
+type TestDynamicFunctionReturningInterface_MyStruct1 struct{} // nolint: errname
 
 func (m *TestDynamicFunctionReturningInterface_MyStruct1) Error() string { return "MyStruct1" }
 
-type TestDynamicFunctionReturningInterface_MyStruct2 struct{}
+type TestDynamicFunctionReturningInterface_MyStruct2 struct{} // nolint: errname
 
 func (m *TestDynamicFunctionReturningInterface_MyStruct2) Error() string { return "MyStruct2" }
 

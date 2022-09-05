@@ -15,7 +15,7 @@ import (
 
 func (runtime *_runtime) newGoStructObject(value reflect.Value) *_object {
 	self := runtime.newObject()
-	self.class = "Object" // TODO Should this be something else?
+	self.class = classObject // TODO Should this be something else?
 	self.objectClass = _classGoStruct
 	self.value = _newGoStructObject(value)
 	return self
@@ -68,7 +68,11 @@ func (self _goStructObject) setValue(rt *_runtime, name string, value Value) boo
 	}
 
 	fieldValue := self.getValue(name)
-	fieldValue.Set(rt.convertCallParameter(value, fieldValue.Type()))
+	converted, err := rt.convertCallParameter(value, fieldValue.Type())
+	if err != nil {
+		panic(rt.panicTypeError(err.Error()))
+	}
+	fieldValue.Set(converted)
 
 	return true
 }

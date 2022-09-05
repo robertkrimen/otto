@@ -1,8 +1,11 @@
 package otto
 
 import (
+	"errors"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 func Test_issue116(t *testing.T) {
@@ -691,5 +694,82 @@ func Test_issue234(t *testing.T) {
 			var abc = "6E6E6EF72905D973E8FEF9F38F01AC4D95A600E6A6E1.C1DBF2F71A5F8C9EB04B75E7A879B4C90C25313A".split("");
 			abc.splice(0, 2);
 		`, "6,E")
+	})
+}
+
+func Test_issue186(t *testing.T) {
+	tests := []struct {
+		name   string
+		script string
+		err    error
+	}{
+		{
+			name:   "missing",
+			script: `abc("a","b")`,
+			err:    errors.New("RangeError: expected 3 argument(s); got 2"),
+		},
+		{
+			name:   "too-many",
+			script: `abc("a","b","c","d")`,
+			err:    errors.New("RangeError: expected 3 argument(s); got 4"),
+		},
+		{
+			name:   "valid-conversion",
+			script: `abc(1,2,3)`,
+		},
+		{
+			name:   "valid-type",
+			script: `num(1,2,3)`,
+		},
+		{
+			name:   "invalid-type-conversion",
+			script: `num("a","b","c")`,
+			err:    errors.New(`TypeError: can't convert from "string" to "int"`),
+		},
+	}
+
+	vm := New()
+	vm.Set("abc", func(a string, b string, c string) int {
+		return 1
+	})
+	vm.Set("num", func(a int, b int, c int) int {
+		return 1
+	})
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := vm.Run(tc.script)
+			if tc.err != nil {
+				require.Error(t, err)
+				require.Equal(t, tc.err.Error(), err.Error())
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
+func Test_issue266(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`
+			[0.5, 0.8, 0.2].sort(function(a, b) {
+				return a - b;
+			});
+        `, "0.2,0.5,0.8")
+
+		test(`
+			[2147483647, -1, 1].sort(function(a, b) {
+				return a - b;
+			});
+        `, "-1,1,2147483647")
+
+		test(`
+			[2e11, -2e11, 0].sort(function(a, b) {
+				return a - b;
+			});
+        `, "-200000000000,0,200000000000")
+
 	})
 }
