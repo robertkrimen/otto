@@ -2,10 +2,14 @@ package otto
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"io"
 	"testing"
+	"time"
 
 	"github.com/robertkrimen/otto/parser"
+	"github.com/stretchr/testify/require"
 )
 
 func TestOtto(t *testing.T) {
@@ -1736,6 +1740,56 @@ func Test_stackLimit(t *testing.T) {
 
 		is(err == nil, true)
 	})
+}
+
+func TestOttoInterrupt(t *testing.T) {
+	tests := []struct {
+		name   string
+		script string
+	}{
+		{
+			name:   "empty-for-loop",
+			script: "for(;;) {}",
+		},
+		{
+			name:   "empty-do-while",
+			script: "do{} while(true)",
+		},
+	}
+
+	halt := errors.New("interrupt")
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			vm := New()
+			vm.Interrupt = make(chan func(), 1)
+			ec := make(chan error, 1)
+			go func() {
+				defer func() {
+					if caught := recover(); caught != nil {
+						if caught == halt {
+							fmt.Println(caught)
+							ec <- nil
+							return
+						}
+						panic(caught)
+					}
+				}()
+				_, err := vm.Run(tc.script)
+				ec <- err
+			}()
+
+			// Give the vm chance to execute the loop.
+			time.Sleep(time.Millisecond * 100)
+			vm.Interrupt <- func() { panic(halt) }
+
+			select {
+			case <-time.After(time.Second):
+				t.Fatal("timeout")
+			case err := <-ec:
+				require.NoError(t, err)
+			}
+		})
+	}
 }
 
 func BenchmarkNew(b *testing.B) {
