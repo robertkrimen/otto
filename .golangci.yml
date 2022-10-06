@@ -71,6 +71,11 @@ linters:
     - gocyclo
     - misspell
     - cyclop
+    - varnamelen
+    - nonamedreturns
+    - maintidx
+    - ireturn
+    - exhaustruct
 
 issues:
   exclude:

@@ -3,6 +3,8 @@ name: Go test and lint
 on:
   push:
     branches: '**'
+  pull_request:
+    branches: 'master'
 
 jobs:
   go-test-lint:

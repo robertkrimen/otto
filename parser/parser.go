@@ -131,7 +131,7 @@ func ReadSource(filename string, src interface{}) ([]byte, error) {
 
 func ReadSourceMap(filename string, src interface{}) (*sourcemap.Consumer, error) {
 	if src == nil {
-		return nil, nil
+		return nil, nil //nolint: nilnil
 	}
 
 	switch src := src.(type) {
