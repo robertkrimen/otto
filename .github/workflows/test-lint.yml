@@ -1,24 +1,59 @@
 name: Go test and lint
 
 on:
-  push:
-    branches: '**'
+  pull_request:
+    branches: 'master'
 
 jobs:
   go-test-lint:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: [1.18]
+        golangcli: [v1.50.0]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.17
+          go-version: ${{ matrix.go }}
 
-      - name: Test
-        run: go test -v ./...
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+      - name: Go Cache Paths
+        id: go-cache-paths
+        run: |
+          echo "::set-output name=go-build::$(go env GOCACHE)"
+          echo "::set-output name=go-mod::$(go env GOMODCACHE)"
+
+      - name: Go Build Cache
+        uses: actions/cache@v3
         with:
-          version: latest
+          path: ${{ steps.go-cache-paths.outputs.go-build }}
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+
+      - name: Go Mod Cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.go-cache-paths.outputs.go-mod }}
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+
+      - name: Validate go mod
+        run: |
+          go mod tidy
+          git --no-pager diff && [[ 0 -eq $(git status --porcelain | wc -l) ]]
+
+      - name: Go Lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: ${{ matrix.golangci }}
+          args: "--out-${NO_FUTURE}format colored-line-number"
+          skip-pkg-cache: true
+          skip-build-cache: true
+
+      - name: Go Build
+        run: go build ./...
+
+      - name: Go Test
+        run: go test -race -v ./...

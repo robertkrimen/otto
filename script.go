@@ -12,7 +12,6 @@ var scriptVersion = "2014-04-13/1"
 
 // Script is a handle for some (reusable) JavaScript.
 // Passing a Script value to a run method will evaluate the JavaScript.
-//
 type Script struct {
 	version  string
 	program  *_nodeProgram
@@ -23,9 +22,8 @@ type Script struct {
 // Compile will parse the given source and return a Script value or nil and
 // an error if there was a problem during compilation.
 //
-//      script, err := vm.Compile("", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
-//      vm.Run(script)
-//
+//	script, err := vm.Compile("", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
+//	vm.Run(script)
 func (self *Otto) Compile(filename string, src interface{}) (*Script, error) {
 	return self.CompileWithSourceMap(filename, src, nil)
 }
@@ -58,7 +56,6 @@ func (self *Script) String() string {
 // that is later unmarshalled can be executed on the same version of the otto runtime.
 //
 // The binary format can change at any time and should be considered unspecified and opaque.
-//
 func (self *Script) marshalBinary() ([]byte, error) {
 	var bfr bytes.Buffer
 	encoder := gob.NewEncoder(&bfr)

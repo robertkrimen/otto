@@ -42,7 +42,7 @@ var target = map[string]string{
 // http://api.cdnjs.com/libraries
 
 func fetch(name, location string) error {
-	response, err := http.Get(location) // nolint: noctx
+	response, err := http.Get(location) //nolint: noctx
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func main() {
 	err := func() error {
 
 		if flag.Arg(0) == "fetch" {
-			response, err := http.Get("http://api.cdnjs.com/libraries") // nolint: noctx
+			response, err := http.Get("http://api.cdnjs.com/libraries") //nolint: noctx
 			if err != nil {
 				return err
 			}

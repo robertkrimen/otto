@@ -134,7 +134,7 @@ func rangeStartLength(source []Value, size int64) (start, length int64) {
 }
 
 func hereBeDragons(arguments ...interface{}) string {
-	pc, _, _, _ := runtime_.Caller(1) // nolint: dogsled
+	pc, _, _, _ := runtime_.Caller(1) //nolint: dogsled
 	name := runtime_.FuncForPC(pc).Name()
 	message := fmt.Sprintf("Here be dragons -- %s", name)
 	if len(arguments) > 0 {

@@ -119,7 +119,7 @@ func (self *_parser) errorUnexpectedToken(tkn token.Token) error {
 }
 
 // ErrorList is a list of *Errors.
-type ErrorList []*Error // nolint: errname
+type ErrorList []*Error //nolint: errname
 
 // Add adds an Error with given position and message to an ErrorList.
 func (self *ErrorList) Add(position file.Position, msg string) {

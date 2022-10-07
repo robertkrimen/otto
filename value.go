@@ -94,14 +94,13 @@ func (value Value) isCallable() bool {
 // Call the value as a function with the given this value and argument list and
 // return the result of invocation. It is essentially equivalent to:
 //
-//		value.apply(thisValue, argumentList)
+//	value.apply(thisValue, argumentList)
 //
 // An undefined value and an error will result if:
 //
-//		1. There is an error during conversion of the argument list
-//		2. The value is not actually a function
-//		3. An (uncaught) exception is thrown
-//
+//  1. There is an error during conversion of the argument list
+//  2. The value is not actually a function
+//  3. An (uncaught) exception is thrown
 func (value Value) Call(this Value, argumentList ...interface{}) (Value, error) {
 	result := Value{}
 	err := catchPanic(func() {
@@ -195,15 +194,14 @@ func (value Value) IsFunction() bool {
 //
 // The return value will (generally) be one of:
 //
-//		Object
-//		Function
-//		Array
-//		String
-//		Number
-//		Boolean
-//		Date
-//		RegExp
-//
+//	Object
+//	Function
+//	Array
+//	String
+//	Number
+//	Boolean
+//	Date
+//	RegExp
 func (value Value) Class() string {
 	if value.kind != valueObject {
 		return ""
@@ -386,11 +384,11 @@ func (value Value) String() string {
 
 // ToBoolean will convert the value to a boolean (bool).
 //
-//		ToValue(0).ToBoolean() => false
-//		ToValue("").ToBoolean() => false
-//		ToValue(true).ToBoolean() => true
-//		ToValue(1).ToBoolean() => true
-//		ToValue("Nothing happens").ToBoolean() => true
+//	ToValue(0).ToBoolean() => false
+//	ToValue("").ToBoolean() => false
+//	ToValue(true).ToBoolean() => true
+//	ToValue(1).ToBoolean() => true
+//	ToValue("Nothing happens").ToBoolean() => true
 //
 // If there is an error during the conversion process (like an uncaught exception), then the result will be false and an error.
 func (value Value) ToBoolean() (bool, error) {
@@ -410,9 +408,9 @@ func (value Value) numberValue() Value {
 
 // ToFloat will convert the value to a number (float64).
 //
-//		ToValue(0).ToFloat() => 0.
-//		ToValue(1.1).ToFloat() => 1.1
-//		ToValue("11").ToFloat() => 11.
+//	ToValue(0).ToFloat() => 0.
+//	ToValue(1.1).ToFloat() => 1.1
+//	ToValue("11").ToFloat() => 11.
 //
 // If there is an error during the conversion process (like an uncaught exception), then the result will be 0 and an error.
 func (value Value) ToFloat() (float64, error) {
@@ -425,9 +423,9 @@ func (value Value) ToFloat() (float64, error) {
 
 // ToInteger will convert the value to a number (int64).
 //
-//		ToValue(0).ToInteger() => 0
-//		ToValue(1.1).ToInteger() => 1
-//		ToValue("11").ToInteger() => 11
+//	ToValue(0).ToInteger() => 0
+//	ToValue(1.1).ToInteger() => 1
+//	ToValue("11").ToInteger() => 11
 //
 // If there is an error during the conversion process (like an uncaught exception), then the result will be 0 and an error.
 func (value Value) ToInteger() (int64, error) {
@@ -440,11 +438,11 @@ func (value Value) ToInteger() (int64, error) {
 
 // ToString will convert the value to a string (string).
 //
-//		ToValue(0).ToString() => "0"
-//		ToValue(false).ToString() => "false"
-//		ToValue(1.1).ToString() => "1.1"
-//		ToValue("11").ToString() => "11"
-//		ToValue('Nothing happens.').ToString() => "Nothing happens."
+//	ToValue(0).ToString() => "0"
+//	ToValue(false).ToString() => "false"
+//	ToValue(1.1).ToString() => "1.1"
+//	ToValue("11").ToString() => "11"
+//	ToValue('Nothing happens.').ToString() => "Nothing happens."
 //
 // If there is an error during the conversion process (like an uncaught exception), then the result will be the empty string ("") and an error.
 func (value Value) ToString() (string, error) {
@@ -506,8 +504,7 @@ func negativeZero() float64 {
 //
 // It is equivalent to:
 //
-//		ToValue(math.NaN())
-//
+//	ToValue(math.NaN())
 func NaNValue() Value {
 	return Value{valueNumber, __NaN__}
 }
@@ -532,8 +529,7 @@ func negativeZeroValue() Value {
 //
 // It is equivalent to:
 //
-//		ToValue(true)
-//
+//	ToValue(true)
 func TrueValue() Value {
 	return Value{valueBoolean, true}
 }
@@ -542,8 +538,7 @@ func TrueValue() Value {
 //
 // It is equivalent to:
 //
-//		ToValue(false)
-//
+//	ToValue(false)
 func FalseValue() Value {
 	return Value{valueBoolean, false}
 }
@@ -617,14 +612,13 @@ func strictEqualityComparison(x Value, y Value) bool {
 // If a reasonable conversion is not possible, then the original
 // value is returned.
 //
-//      undefined   -> nil (FIXME?: Should be Value{})
-//      null        -> nil
-//      boolean     -> bool
-//      number      -> A number type (int, float32, uint64, ...)
-//      string      -> string
-//      Array       -> []interface{}
-//      Object      -> map[string]interface{}
-//
+//	undefined   -> nil (FIXME?: Should be Value{})
+//	null        -> nil
+//	boolean     -> bool
+//	number      -> A number type (int, float32, uint64, ...)
+//	string      -> string
+//	Array       -> []interface{}
+//	Object      -> map[string]interface{}
 func (self Value) Export() (interface{}, error) {
 	return self.export(), nil
 }
