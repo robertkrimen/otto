@@ -76,6 +76,10 @@ linters:
     - maintidx
     - ireturn
     - exhaustruct
+    - nosnakecase
+    - deadcode
+    - dupword
+    - gci
 
 issues:
   exclude:

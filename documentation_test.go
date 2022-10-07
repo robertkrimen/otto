@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func ExampleSynopsis() { // nolint: govet
+func ExampleSynopsis() { //nolint: govet
 	vm := New()
 	vm.Run(`
         abc = 2 + 2;
@@ -69,7 +69,7 @@ func ExampleSynopsis() { // nolint: govet
 	// 4
 }
 
-func ExampleConsole() { // nolint: govet
+func ExampleConsole() { //nolint: govet
 	vm := New()
 	console := map[string]interface{}{
 		"log": func(call FunctionCall) Value {
