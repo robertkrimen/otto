@@ -21,7 +21,6 @@ To prevent this behavior, you can do the following:
 	func init() {
 		underscore.Disable()
 	}
-
 */
 package underscore
 
