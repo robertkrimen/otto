@@ -224,6 +224,7 @@ Here is some more discussion of the issue:
 package otto
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -761,4 +762,30 @@ func (self Object) KeysByParent() [][]string {
 //	RegExp
 func (self Object) Class() string {
 	return self.object.class
+}
+
+func (self Object) MarshalJSON() ([]byte, error) {
+	var goValue interface{}
+	switch value := self.object.value.(type) {
+	case *_goStructObject:
+		goValue = value.value.Interface()
+	case *_goMapObject:
+		goValue = value.value.Interface()
+	case *_goArrayObject:
+		goValue = value.value.Interface()
+	case *_goSliceObject:
+		goValue = value.value.Interface()
+	default:
+		// It's a JS object; pass it to JSON.stringify:
+		var result []byte
+		err := catchPanic(func() {
+			resultVal := builtinJSON_stringify(FunctionCall{
+				runtime:      self.object.runtime,
+				ArgumentList: []Value{self.value},
+			})
+			result = []byte(resultVal.String())
+		})
+		return result, err
+	}
+	return json.Marshal(goValue)
 }
