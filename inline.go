@@ -6263,7 +6263,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 			},
 			value: _nativeFunctionObject{
 				name: "log",
-				call: builtinConsole_log,
+				call: builtinConsole_log(runtime.otto),
 			},
 		}
 		debug_function := &_object{
@@ -6286,7 +6286,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 			},
 			value: _nativeFunctionObject{
 				name: "debug",
-				call: builtinConsole_log,
+				call: builtinConsole_log(runtime.otto),
 			},
 		}
 		info_function := &_object{
@@ -6309,7 +6309,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 			},
 			value: _nativeFunctionObject{
 				name: "info",
-				call: builtinConsole_log,
+				call: builtinConsole_log(runtime.otto),
 			},
 		}
 		error_function := &_object{
@@ -6332,7 +6332,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 			},
 			value: _nativeFunctionObject{
 				name: "error",
-				call: builtinConsole_error,
+				call: builtinConsole_error(runtime.otto),
 			},
 		}
 		warn_function := &_object{
@@ -6355,7 +6355,7 @@ func newConsoleObject(runtime *_runtime) *_object {
 			},
 			value: _nativeFunctionObject{
 				name: "warn",
-				call: builtinConsole_error,
+				call: builtinConsole_error(runtime.otto),
 			},
 		}
 		dir_function := &_object{

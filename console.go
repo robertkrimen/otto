@@ -1,27 +1,30 @@
 package otto
 
-import (
-	"fmt"
-	"os"
-	"strings"
-)
-
-func formatForConsole(argumentList []Value) string {
-	output := []string{}
+// TODO use x/exp/slices
+func argsAsAny(argumentList []Value) []interface{} {
+	output := make([]interface{}, 0, len(argumentList))
 	for _, argument := range argumentList {
-		output = append(output, fmt.Sprintf("%v", argument))
+		output = append(output, argument.String())
 	}
-	return strings.Join(output, " ")
+	return output
 }
 
-func builtinConsole_log(call FunctionCall) Value {
-	fmt.Fprintln(os.Stdout, formatForConsole(call.ArgumentList))
-	return Value{}
+func builtinConsole_log(otto *Otto) func(call FunctionCall) Value {
+	return func(call FunctionCall) Value {
+		// println("---------")
+		// args := argsAsAny(call.ArgumentList)
+		// fmt.Printf("args %v\n", args)
+		// otto.log.Print(args...)
+		otto.log.Print(argsAsAny(call.ArgumentList)...)
+		return Value{}
+	}
 }
 
-func builtinConsole_error(call FunctionCall) Value {
-	fmt.Fprintln(os.Stdout, formatForConsole(call.ArgumentList))
-	return Value{}
+func builtinConsole_error(otto *Otto) func(call FunctionCall) Value {
+	return func(call FunctionCall) Value {
+		otto.log.Error(argsAsAny(call.ArgumentList)...)
+		return Value{}
+	}
 }
 
 // Nothing happens.
@@ -46,6 +49,5 @@ func builtinConsole_assert(call FunctionCall) Value {
 }
 
 func (runtime *_runtime) newConsole() *_object {
-
 	return newConsoleObject(runtime)
 }
