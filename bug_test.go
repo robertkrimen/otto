@@ -774,7 +774,7 @@ func Test_issue266(t *testing.T) {
 	})
 }
 
-func Test_issue369 (t *testing.T) {
+func Test_issue369(t *testing.T) {
 	tt(t, func() {
 		test, tester := test()
 
