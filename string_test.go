@@ -316,6 +316,7 @@ func TestString_length(t *testing.T) {
 
 		test(`"abc".length`, 3)
 		test(`"uñiçode".length`, 7)
+		test(`"😋".length`, 2)
 	})
 }
 

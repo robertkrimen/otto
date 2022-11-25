@@ -151,6 +151,11 @@ func TestRegExp_exec(t *testing.T) {
             [ abc.input.length, abc.length, abc.input, abc.index, abc ];
         `, "11,1,CE\uFFFFL\uFFDDbox127,5,box1")
 
+		test(`
+        var abc = /\w{3}\d?/.exec("CE😋box127");
+        [ abc.input.length, abc.length, abc.input, abc.index, abc ];
+    `, "10,1,CE😋box127,4,box1")
+
 		test(`RegExp.prototype.exec.length`, 1)
 		test(`RegExp.prototype.exec.prototype`, "undefined")
 	})
