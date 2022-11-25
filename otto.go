@@ -239,14 +239,14 @@ type Otto struct {
 	// See "Halting Problem" for more information.
 	Interrupt chan func()
 	runtime   *_runtime
-	log       Logger
+	console   Console
 }
 
 // New will allocate a new JavaScript runtime
 func New(options ...Option) *Otto {
 	self := &Otto{
 		runtime: newContext(),
-		log:     &console{os.Stdout},
+		console: &console{os.Stdout},
 	}
 
 	for _, o := range options {

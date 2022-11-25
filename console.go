@@ -1,5 +1,51 @@
 package otto
 
+import (
+	"fmt"
+	"io"
+)
+
+type Console interface {
+	Log(v ...interface{})
+	Trace(v ...interface{})
+	Debug(v ...interface{})
+	Info(v ...interface{})
+	Warn(v ...interface{})
+	Error(v ...interface{})
+}
+
+type console struct {
+	out io.Writer
+}
+
+func (c *console) log(v ...interface{}) {
+	fmt.Fprintln(c.out, v...)
+}
+
+func (c *console) Log(v ...interface{}) {
+	c.log(v...)
+}
+
+func (c *console) Trace(v ...interface{}) {
+	c.log(v...)
+}
+
+func (c *console) Debug(v ...interface{}) {
+	c.log(v...)
+}
+
+func (c *console) Info(v ...interface{}) {
+	c.log(v...)
+}
+
+func (c *console) Warn(v ...interface{}) {
+	c.log(v...)
+}
+
+func (c *console) Error(v ...interface{}) {
+	c.log(v...)
+}
+
 // TODO use x/exp/slices
 func argsAsAny(argumentList []Value) []interface{} {
 	output := make([]interface{}, 0, len(argumentList))
@@ -9,20 +55,9 @@ func argsAsAny(argumentList []Value) []interface{} {
 	return output
 }
 
-func builtinConsole_log(otto *Otto) func(call FunctionCall) Value {
+func callWithArgs(callee func(v ...interface{})) func(call FunctionCall) Value {
 	return func(call FunctionCall) Value {
-		// println("---------")
-		// args := argsAsAny(call.ArgumentList)
-		// fmt.Printf("args %v\n", args)
-		// otto.log.Print(args...)
-		otto.log.Print(argsAsAny(call.ArgumentList)...)
-		return Value{}
-	}
-}
-
-func builtinConsole_error(otto *Otto) func(call FunctionCall) Value {
-	return func(call FunctionCall) Value {
-		otto.log.Error(argsAsAny(call.ArgumentList)...)
+		callee(argsAsAny(call.ArgumentList)...)
 		return Value{}
 	}
 }
@@ -37,10 +72,6 @@ func builtinConsole_time(call FunctionCall) Value {
 }
 
 func builtinConsole_timeEnd(call FunctionCall) Value {
-	return Value{}
-}
-
-func builtinConsole_trace(call FunctionCall) Value {
 	return Value{}
 }
 

@@ -73,7 +73,11 @@ func ExampleConsole() { //nolint: govet
 	vm := New()
 	console := map[string]interface{}{
 		"log": func(call FunctionCall) Value {
-			fmt.Println("console.log:", formatForConsole(call.ArgumentList))
+			args := make([]string, 0, len(call.ArgumentList))
+			for _, arg := range argsAsAny(call.ArgumentList) {
+				args = append(args, fmt.Sprintf("%v", arg))
+			}
+			fmt.Println("console.log:", args)
 			return UndefinedValue()
 		},
 	}
