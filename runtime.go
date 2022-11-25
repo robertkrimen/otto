@@ -292,8 +292,9 @@ func (self *_runtime) convertNumeric(v Value, t reflect.Type) reflect.Value {
 
 func fieldIndexByName(t reflect.Type, name string) []int {
 	for t.Kind() == reflect.Ptr {
-		t = reflect.ValueOf(t).Elem().Type()
+		t = t.Elem()
 	}
+
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 
@@ -301,9 +302,15 @@ func fieldIndexByName(t reflect.Type, name string) []int {
 			continue
 		}
 
-		if f.Anonymous && f.Type.Kind() == reflect.Struct {
-			if a := fieldIndexByName(f.Type, name); a != nil {
-				return append([]int{i}, a...)
+		if f.Anonymous {
+			for t.Kind() == reflect.Ptr {
+				t = t.Elem()
+			}
+
+			if f.Type.Kind() == reflect.Struct {
+				if a := fieldIndexByName(f.Type, name); a != nil {
+					return append([]int{i}, a...)
+				}
 			}
 		}
 
