@@ -298,7 +298,7 @@ func fieldIndexByName(t reflect.Type, name string) []int {
 			continue
 		}
 
-		if f.Anonymous {
+		if f.Anonymous && f.Type.Kind() == reflect.Struct {
 			if a := fieldIndexByName(f.Type, name); a != nil {
 				return append([]int{i}, a...)
 			}
