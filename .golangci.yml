@@ -1,6 +1,6 @@
 run:
   concurrency: 4
-  deadline: 5m
+  deadline: 6m
   skip-dirs:
     - terst
   skip-files:
