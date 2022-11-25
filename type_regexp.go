@@ -3,7 +3,6 @@ package otto
 import (
 	"fmt"
 	"regexp"
-	"unicode/utf8"
 
 	"github.com/robertkrimen/otto/parser"
 )
@@ -131,13 +130,8 @@ func execResultToArray(runtime *_runtime, target string, result []int) *_object 
 	}
 	matchIndex := result[0]
 	if matchIndex != 0 {
-		matchIndex = 0
-		// Find the rune index in the string, not the byte index
-		for index := 0; index < result[0]; {
-			_, size := utf8.DecodeRuneInString(target[index:])
-			matchIndex += 1
-			index += size
-		}
+		// Find the utf16 index in the string, not the byte index.
+		matchIndex = utf16Length(target[:matchIndex])
 	}
 	match := runtime.newArrayOf(valueArray)
 	match.defineProperty("input", toValue_string(target), 0111, false)

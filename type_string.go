@@ -2,6 +2,7 @@ package otto
 
 import (
 	"strconv"
+	"unicode/utf16"
 	"unicode/utf8"
 )
 
@@ -26,20 +27,22 @@ func (str _stringASCII) String() string {
 }
 
 type _stringWide struct {
-	string string
-	length int
-	runes  []rune
+	string  string
+	value16 []uint16
 }
 
 func (str _stringWide) Length() int {
-	return str.length
+	if str.value16 == nil {
+		str.value16 = utf16.Encode([]rune(str.string))
+	}
+	return len(str.value16)
 }
 
 func (str _stringWide) At(at int) rune {
-	if str.runes == nil {
-		str.runes = []rune(str.string)
+	if str.value16 == nil {
+		str.value16 = utf16.Encode([]rune(str.string))
 	}
-	return str.runes[at]
+	return rune(str.value16[at])
 }
 
 func (str _stringWide) String() string {
@@ -58,7 +61,6 @@ func _newStringObject(str string) _stringObject {
 wide:
 	return &_stringWide{
 		string: str,
-		length: utf8.RuneCountInString(str),
 	}
 }
 
