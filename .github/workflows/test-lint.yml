@@ -32,7 +32,8 @@ jobs:
         with:
           version: ${{ matrix.golangci }}
           args: "--out-${NO_FUTURE}format colored-line-number"
-          skip-cache: true
+          skip-pkg-cache: true
+          skip-build-cache: true
 
       - name: Go Build
         run: go build ./...
