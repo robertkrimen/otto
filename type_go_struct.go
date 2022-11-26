@@ -41,12 +41,12 @@ func (self _goStructObject) getValue(name string) reflect.Value {
 	}
 
 	if validGoStructName(name) {
-		// Do not reveal hidden or unexported fields
-		if field := reflect.Indirect(self.value).FieldByName(name); (field != reflect.Value{}) {
+		// Do not reveal hidden or unexported fields.
+		if field := reflect.Indirect(self.value).FieldByName(name); field.IsValid() {
 			return field
 		}
 
-		if method := self.value.MethodByName(name); (method != reflect.Value{}) {
+		if method := self.value.MethodByName(name); method.IsValid() {
 			return method
 		}
 	}
@@ -81,7 +81,7 @@ func goStructGetOwnProperty(self *_object, name string) *_property {
 	object := self.value.(*_goStructObject)
 	value := object.getValue(name)
 	if value.IsValid() {
-		return &_property{self.runtime.toValue(value.Interface()), 0110}
+		return &_property{self.runtime.toValue(value), 0110}
 	}
 
 	return objectGetOwnProperty(self, name)

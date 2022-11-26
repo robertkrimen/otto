@@ -53,26 +53,18 @@ func Test_issue13(t *testing.T) {
 			"number": 42,
 			"array":  []string{"def", "ghi"},
 		})
-		if err != nil {
-			t.Error(err)
-			t.FailNow()
-		}
+		require.NoError(t, err)
 
 		fn, err := vm.Object(`
             (function(value){
                 return ""+[value.string, value.number, value.array]
             })
         `)
-		if err != nil {
-			t.Error(err)
-			t.FailNow()
-		}
+		require.NoError(t, err)
 
 		result, err := fn.Value().Call(fn.Value(), value)
-		if err != nil {
-			t.Error(err)
-			t.FailNow()
-		}
+		require.NoError(t, err)
+
 		is(result.string(), "Xyzzy,42,def,ghi")
 
 		anything := struct {
@@ -898,4 +890,41 @@ func Test_issue390(t *testing.T) {
 	rows, err := val.ToInteger()
 	require.NoError(t, err)
 	require.Equal(t, int64(1), rows)
+}
+
+type testSetType struct {
+	String string
+	Array  [1]string
+	Slice  []string
+}
+
+func Test_issue386(t *testing.T) {
+	var msg testSetType
+	msg.String = "string"
+	msg.Slice = []string{"slice"}
+	msg.Array[0] = "array"
+
+	vm := New()
+	err := vm.Set("msg", &msg)
+	require.NoError(t, err)
+
+	tests := map[string]string{
+		"string": `
+			msg.TypeMessage = 'something';
+			msg.TypeMessage;`,
+		"array": `
+			msg.Array[0] = 'something';
+			msg.Array[0]`,
+		"slice": `
+			msg.Slice[0] = 'something';
+			msg.Slice[0]`,
+	}
+
+	for name, code := range tests {
+		t.Run(name, func(t *testing.T) {
+			val, err := vm.Run(code)
+			require.NoError(t, err)
+			require.Equal(t, "something", val.String())
+		})
+	}
 }

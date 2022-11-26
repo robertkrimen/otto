@@ -20,7 +20,7 @@ type _goArrayObject struct {
 }
 
 func _newGoArrayObject(value reflect.Value) *_goArrayObject {
-	writable := value.Kind() == reflect.Ptr // The Array is addressable (like a Slice)
+	writable := value.Kind() == reflect.Ptr || value.CanSet() // The Array is addressable (like a Slice)
 	mode := _propertyMode(0010)
 	if writable {
 		mode = 0110

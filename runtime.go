@@ -634,6 +634,11 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) (reflect.Val
 }
 
 func (self *_runtime) toValue(value interface{}) Value {
+	rv, ok := value.(reflect.Value)
+	if ok {
+		value = rv.Interface()
+	}
+
 	switch value := value.(type) {
 	case Value:
 		return value
@@ -666,6 +671,10 @@ func (self *_runtime) toValue(value interface{}) Value {
 	default:
 		{
 			value := reflect.ValueOf(value)
+			if ok && value.Kind() == rv.Kind() {
+				// Use passed in rv which may be writable.
+				value = rv
+			}
 
 			switch value.Kind() {
 			case reflect.Ptr:
