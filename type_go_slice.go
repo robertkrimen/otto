@@ -54,8 +54,7 @@ func goSliceGetOwnProperty(self *_object, name string) *_property {
 	}
 
 	// .0, .1, .2, ...
-	index := stringToArrayIndex(name)
-	if index >= 0 {
+	if index := stringToArrayIndex(name); index >= 0 {
 		value := Value{}
 		reflectValue, exists := self.value.(*_goSliceObject).getValue(index)
 		if exists {
@@ -68,7 +67,7 @@ func goSliceGetOwnProperty(self *_object, name string) *_property {
 	}
 
 	// Other methods
-	if method := self.value.(*_goSliceObject).value.MethodByName(name); (method != reflect.Value{}) {
+	if method := self.value.(*_goSliceObject).value.MethodByName(name); method.IsValid() {
 		return &_property{
 			value: self.runtime.toValue(method.Interface()),
 			mode:  0110,
@@ -106,7 +105,7 @@ func goSliceDefineOwnProperty(self *_object, name string, descriptor _property, 
 
 func goSliceDelete(self *_object, name string, throw bool) bool {
 	// length
-	if name == "length" {
+	if name == propertyLength {
 		return self.runtime.typeErrorResult(throw)
 	}
 

@@ -54,7 +54,7 @@ func goMapGetOwnProperty(self *_object, name string) *_property {
 	}
 
 	// Other methods
-	if method := self.value.(*_goMapObject).value.MethodByName(name); (method != reflect.Value{}) {
+	if method := self.value.(*_goMapObject).value.MethodByName(name); method.IsValid() {
 		return &_property{
 			value: self.runtime.toValue(method.Interface()),
 			mode:  0110,
