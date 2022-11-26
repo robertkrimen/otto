@@ -20,7 +20,6 @@ func (cmpl *_compiler) parseExpression(in ast.Expression) _nodeExpression {
 	}
 
 	switch in := in.(type) {
-
 	case *ast.ArrayLiteral:
 		out := &_nodeArrayLiteral{
 			value: make([]_nodeExpression, len(in.Value)),
@@ -190,7 +189,6 @@ func (cmpl *_compiler) parseExpression(in ast.Expression) _nodeExpression {
 			name:        in.Name,
 			initializer: cmpl.parseExpression(in.Initializer),
 		}
-
 	}
 
 	panic(fmt.Errorf("Here be dragons: cmpl.parseExpression(%T)", in))
@@ -202,7 +200,6 @@ func (cmpl *_compiler) parseStatement(in ast.Statement) _nodeStatement {
 	}
 
 	switch in := in.(type) {
-
 	case *ast.BlockStatement:
 		out := &_nodeBlockStatement{
 			list: make([]_nodeStatement, len(in.List)),
@@ -353,7 +350,6 @@ func (cmpl *_compiler) parseStatement(in ast.Statement) _nodeStatement {
 			object: cmpl.parseExpression(in.Object),
 			body:   cmpl.parseStatement(in.Body),
 		}
-
 	}
 
 	panic(fmt.Errorf("Here be dragons: cmpl.parseStatement(%T)", in))

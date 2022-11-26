@@ -42,7 +42,6 @@ var (
 )
 
 func newContext() *_runtime {
-
 	self := &_runtime{}
 
 	self.globalStash = self.newObjectStash(nil, nil)
@@ -131,7 +130,6 @@ func (runtime *_runtime) newNumber(value Value) *_object {
 }
 
 func (runtime *_runtime) newRegExp(patternValue Value, flagsValue Value) *_object {
-
 	pattern := ""
 	flags := ""
 	if object := patternValue._object(); object != nil && object.class == classRegExp {

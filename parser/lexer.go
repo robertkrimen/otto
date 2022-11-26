@@ -119,7 +119,6 @@ func isLineTerminator(chr rune) bool {
 }
 
 func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
-
 	self.implicitSemicolon = false
 
 	for {
@@ -142,7 +141,6 @@ func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
 				tkn, strict = token.IsKeyword(literal)
 
 				switch tkn {
-
 				case 0: // Not a keyword
 					if literal == "true" || literal == "false" {
 						self.insertSemicolon = true
@@ -174,7 +172,6 @@ func (self *_parser) scan() (tkn token.Token, literal string, idx file.Idx) {
 
 				default:
 					return
-
 				}
 			}
 			self.insertSemicolon = true
@@ -522,7 +519,6 @@ func (self *_parser) scanMantissa(base int) {
 }
 
 func (self *_parser) scanEscape(quote rune) {
-
 	var length, base uint32
 	switch self.chr {
 	//case '0', '1', '2', '3', '4', '5', '6', '7':
@@ -788,7 +784,6 @@ func parseStringLiteral(literal string) (string, error) {
 }
 
 func (self *_parser) scanNumericLiteral(decimalPoint bool) (token.Token, string) {
-
 	offset := self.chrOffset
 	tkn := token.NUMBER
 

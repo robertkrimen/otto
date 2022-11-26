@@ -108,7 +108,6 @@ func main() {
 	filename := ""
 
 	err := func() error {
-
 		if flag.Arg(0) == "fetch" {
 			response, err := http.Get("http://api.cdnjs.com/libraries") //nolint: noctx
 			if err != nil {
@@ -179,7 +178,6 @@ func main() {
 
 		filename = flag.Arg(0)
 		return test(filename)
-
 	}()
 	if err != nil {
 		if filename != "" {

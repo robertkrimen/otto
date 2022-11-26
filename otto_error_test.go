@@ -43,6 +43,5 @@ func TestOttoError(t *testing.T) {
             xyzzy
         `)
 		is(err, "ReferenceError: 'xyzzy' is not defined")
-
 	})
 }

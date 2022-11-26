@@ -244,7 +244,6 @@ func _objectCanPut(self *_object, name string) (canPut bool, property *_property
 
 // 8.12.5
 func objectPut(self *_object, name string, value Value, throw bool) {
-
 	if true {
 		// Shortcut...
 		//

@@ -532,7 +532,6 @@ func (self Otto) ContextSkip(limit int, skipNative bool) (ctx Context) {
 //	// value is [ 1, 2, 3, undefined, 4, 5, 6, 7, "abc" ]
 //	value, _ := vm.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")
 func (self Otto) Call(source string, this interface{}, argumentList ...interface{}) (Value, error) {
-
 	thisValue := Value{}
 
 	construct := false

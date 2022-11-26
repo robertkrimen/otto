@@ -18,7 +18,6 @@ func (self *_runtime) cmpl_evaluate_nodeProgram(node *_nodeProgram, eval bool) V
 }
 
 func (self *_runtime) cmpl_call_nodeFunction(function *_object, stash *_fnStash, node *_nodeFunctionLiteral, this Value, argumentList []Value) Value {
-
 	indexOfParameterName := make([]string, len(argumentList))
 	// function(abc, def, ghi)
 	// indexOfParameterName[0] = "abc"

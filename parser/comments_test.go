@@ -1418,7 +1418,6 @@ a = /*comment1*/new /*comment2*/ obj/*comment3*/()
 		is(checkComments((parser.comments.CommentMap)[program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.AssignExpression).Right], []string{"comment1"}, ast.LEADING), nil)
 		is(checkComments((parser.comments.CommentMap)[program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.AssignExpression).Right.(*ast.NewExpression).Callee], []string{"comment2"}, ast.LEADING), nil)
 		is(checkComments((parser.comments.CommentMap)[program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.AssignExpression).Right.(*ast.NewExpression).Callee], []string{"comment3"}, ast.TRAILING), nil)
-
 	})
 }
 
@@ -1439,6 +1438,5 @@ a = /*comment1*/new /*comment2*/ obj/*comment3*/()
 		n := program.Body[0]
 		fmt.Printf("FOUND NODE: %v, number of comments: %v\n", reflect.TypeOf(n), len(parser.comments.CommentMap[n]))
 		displayComments(parser.comments.CommentMap)
-
 	})
 }

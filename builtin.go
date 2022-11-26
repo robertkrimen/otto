@@ -287,7 +287,6 @@ func builtin_escape(input string) string {
 				)
 			}
 			index += width
-
 		} else {
 			output = append(output, input[index])
 			index += 1

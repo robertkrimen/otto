@@ -425,7 +425,6 @@ func TestParserErr(t *testing.T) {
 		}
 
 		{ // Reserved words
-
 			test("class", "(anonymous): Line 1:1 Unexpected reserved word")
 			test("abc.class = 1", nil)
 			test("var class;", "(anonymous): Line 1:5 Unexpected reserved word")
@@ -456,7 +455,6 @@ func TestParserErr(t *testing.T) {
 		}
 
 		{ // Reserved words (strict)
-
 			test(`implements`, nil)
 			test(`abc.implements = 1`, nil)
 			test(`var implements;`, nil)

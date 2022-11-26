@@ -46,6 +46,5 @@ func builtinConsole_assert(call FunctionCall) Value {
 }
 
 func (runtime *_runtime) newConsole() *_object {
-
 	return newConsoleObject(runtime)
 }

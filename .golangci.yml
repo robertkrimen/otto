@@ -1,5 +1,4 @@
 run:
-  concurrency: 4
   deadline: 6m
   skip-dirs:
     - terst
@@ -9,17 +8,9 @@ run:
 linters-settings:
   govet:
     check-shadowing: false
-  gocyclo:
-    min-complexity: 20
-  maligned:
-    suggest-new: true
-  dupl:
-    threshold: 100
   goconst:
     min-len: 2
     min-occurrences: 4
-  cyclop:
-    max-complexity: 15
 
 linters:
   enable-all: true
@@ -62,7 +53,6 @@ linters:
     - nakedret
     - nestif
     - revive
-    - whitespace
     - errorlint
     - exhaustive
     - forcetypeassert
@@ -81,8 +71,3 @@ linters:
     - dupword
     - gci
 
-issues:
-  exclude:
-    - .*Id.* should be .*ID.*
-  exclude-use-default: false
-  max-same-issues: 0

@@ -53,11 +53,9 @@ func (self *_runtime) evaluateModulo(left float64, right float64) Value {
 }
 
 func (self *_runtime) calculateBinaryExpression(operator token.Token, left Value, right Value) Value {
-
 	leftValue := left.resolve()
 
 	switch operator {
-
 	// Additive
 	case token.PLUS:
 		leftValue = toPrimitive(leftValue)
@@ -209,7 +207,6 @@ var lessThanTable [4](map[_lessThanResult]bool) = [4](map[_lessThanResult]bool){
 }
 
 func (self *_runtime) calculateComparison(comparator token.Token, left Value, right Value) bool {
-
 	// FIXME Use strictEqualityComparison?
 	// TODO This might be redundant now (with regards to evaluateComparison)
 	x := left.resolve()

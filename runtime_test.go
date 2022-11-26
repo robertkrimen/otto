@@ -307,7 +307,6 @@ func TestTryCatchError(t *testing.T) {
             }
             abc;
         `, "TypeError: 1 is not a function")
-
 	})
 }
 
@@ -548,7 +547,6 @@ func TestBinaryLogicalOperation(t *testing.T) {
             jkl = false
             result = abc && def || ghi && jkl
         `, true)
-
 	})
 }
 
