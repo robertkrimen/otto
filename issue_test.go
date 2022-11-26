@@ -928,3 +928,18 @@ func Test_issue386(t *testing.T) {
 		})
 	}
 }
+
+func Test_issue382(t *testing.T) {
+	vm := New()
+	vm.Set("panicFunc", func(call FunctionCall) Value {
+		panic("test")
+	})
+	_, err := vm.Run(`
+		try {
+			panicFunc()
+		} catch (err) {
+			console.log("panic triggered:", err)
+		}
+	`)
+	require.NoError(t, err)
+}
