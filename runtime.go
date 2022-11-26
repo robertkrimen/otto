@@ -121,7 +121,7 @@ func (self *_runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, exce
 	// throw = Something was thrown
 	// throwValue = The value of what was thrown
 	// other = Something that changes flow (return, break, continue) that is not a throw
-	// Otherwise, some sort of unknown panic happened, we'll just propagate it
+	// Otherwise, some sort of unknown panic happened, we'll just propagate it.
 	defer func() {
 		if caught := recover(); caught != nil {
 			if exception, ok := caught.(*_exception); ok {
@@ -135,13 +135,13 @@ func (self *_runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, exce
 				exception = true
 				tryValue = caught
 			default:
-				panic(caught)
+				exception = true
+				tryValue = toValue(caught)
 			}
 		}
 	}()
 
-	tryValue = inner()
-	return
+	return inner(), false
 }
 
 // toObject
