@@ -2,6 +2,7 @@ package otto
 
 import (
 	"fmt"
+	"strings"
 )
 
 func ExampleSynopsis() { //nolint: govet
@@ -77,7 +78,7 @@ func ExampleConsole() { //nolint: govet
 			for _, arg := range argsAsAny(call.ArgumentList) {
 				args = append(args, fmt.Sprintf("%v", arg))
 			}
-			fmt.Println("console.log:", args)
+			fmt.Println("console.log:", strings.Join(args, " "))
 			return UndefinedValue()
 		},
 	}
