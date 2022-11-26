@@ -23,7 +23,6 @@ func (self *_runtime) cmpl_evaluate_nodeExpression(node _nodeExpression) Value {
 	}
 
 	switch node := node.(type) {
-
 	case *_nodeArrayLiteral:
 		return self.cmpl_evaluate_nodeArrayLiteral(node)
 
@@ -102,7 +101,6 @@ func (self *_runtime) cmpl_evaluate_nodeExpression(node _nodeExpression) Value {
 }
 
 func (self *_runtime) cmpl_evaluate_nodeArrayLiteral(node *_nodeArrayLiteral) Value {
-
 	valueArray := []Value{}
 
 	for _, node := range node.value {
@@ -119,7 +117,6 @@ func (self *_runtime) cmpl_evaluate_nodeArrayLiteral(node *_nodeArrayLiteral) Va
 }
 
 func (self *_runtime) cmpl_evaluate_nodeAssignExpression(node *_nodeAssignExpression) Value {
-
 	left := self.cmpl_evaluate_nodeExpression(node.left)
 	right := self.cmpl_evaluate_nodeExpression(node.right)
 	rightValue := right.resolve()
@@ -135,7 +132,6 @@ func (self *_runtime) cmpl_evaluate_nodeAssignExpression(node *_nodeAssignExpres
 }
 
 func (self *_runtime) cmpl_evaluate_nodeBinaryExpression(node *_nodeBinaryExpression) Value {
-
 	left := self.cmpl_evaluate_nodeExpression(node.left)
 	leftValue := left.resolve()
 
@@ -159,7 +155,6 @@ func (self *_runtime) cmpl_evaluate_nodeBinaryExpression(node *_nodeBinaryExpres
 }
 
 func (self *_runtime) cmpl_evaluate_nodeBinaryExpression_comparison(node *_nodeBinaryExpression) Value {
-
 	left := self.cmpl_evaluate_nodeExpression(node.left).resolve()
 	right := self.cmpl_evaluate_nodeExpression(node.right).resolve()
 
@@ -312,7 +307,6 @@ func (self *_runtime) cmpl_evaluate_nodeNewExpression(node *_nodeNewExpression) 
 }
 
 func (self *_runtime) cmpl_evaluate_nodeObjectLiteral(node *_nodeObjectLiteral) Value {
-
 	result := self.newObject()
 
 	for _, property := range node.value {
@@ -349,7 +343,6 @@ func (self *_runtime) cmpl_evaluate_nodeSequenceExpression(node *_nodeSequenceEx
 }
 
 func (self *_runtime) cmpl_evaluate_nodeUnaryExpression(node *_nodeUnaryExpression) Value {
-
 	target := self.cmpl_evaluate_nodeExpression(node.operand)
 	switch node.operator {
 	case token.TYPEOF, token.DELETE:

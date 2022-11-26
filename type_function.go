@@ -174,7 +174,6 @@ func (self *_object) isCall() bool {
 
 func (self *_object) call(this Value, argumentList []Value, eval bool, frame _frame) Value {
 	switch fn := self.value.(type) {
-
 	case _nativeFunctionObject:
 		// Since eval is a native function, we only have to check for it here
 		if eval {
@@ -235,7 +234,6 @@ func (self *_object) call(this Value, argumentList []Value, eval bool, frame _fr
 
 func (self *_object) construct(argumentList []Value) Value {
 	switch fn := self.value.(type) {
-
 	case _nativeFunctionObject:
 		if fn.call == nil {
 			panic(self.runtime.panicTypeError("%v is not a function", toValue_object(self)))

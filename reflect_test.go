@@ -420,7 +420,6 @@ func Test_reflectMap(t *testing.T) {
 			_, exists := abc[2]
 			is(exists, false)
 		}
-
 	})
 }
 
@@ -477,7 +476,6 @@ func Test_reflectMapIterateKeys(t *testing.T) {
 			is(abc[10], "123")
 			is(abc[20], "123")
 		}
-
 	})
 }
 
@@ -640,7 +638,6 @@ func Test_reflectArray(t *testing.T) {
 
 		// common type string
 		{
-
 			test(`
                  abc = ["str1", "str2", "str3"];
                  abc;

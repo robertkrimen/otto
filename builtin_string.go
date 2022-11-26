@@ -262,7 +262,6 @@ func builtinString_replace(call FunctionCall) Value {
 				result = append(result, []byte(replacement)...)
 				lastIndex = match[1]
 			}
-
 		} else {
 			replace := []byte(replaceValue.string())
 			for _, match := range found {
@@ -373,7 +372,6 @@ func builtinString_split(call FunctionCall) Value {
 
 	RETURN:
 		return toValue_object(call.runtime.newArrayOf(valueArray))
-
 	} else {
 		separator := separatorValue.string()
 

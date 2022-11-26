@@ -245,7 +245,6 @@ func TestErrorContext(t *testing.T) {
 			is(len(err1.trace), 1)
 			is(err1.trace[0].location(), "C (file1.js:7:5)")
 		}
-
 	})
 }
 

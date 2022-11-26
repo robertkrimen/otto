@@ -765,7 +765,6 @@ func Test_issue266(t *testing.T) {
 				return a - b;
 			});
         `, "-200000000000,0,200000000000")
-
 	})
 }
 
@@ -929,7 +928,7 @@ func Test_issue386(t *testing.T) {
 	}
 }
 
-func Test_issue382(t *testing.T) {
+func Test_issue383(t *testing.T) {
 	vm := New()
 	vm.Set("panicFunc", func(call FunctionCall) Value {
 		panic("test")

@@ -13,7 +13,6 @@ type _clone struct {
 }
 
 func (in *_runtime) clone() *_runtime {
-
 	in.lck.Lock()
 	defer in.lck.Unlock()
 

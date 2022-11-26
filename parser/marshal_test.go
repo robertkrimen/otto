@@ -38,7 +38,6 @@ func marshal(name string, children ...interface{}) interface{} {
 
 func testMarshalNode(node interface{}) interface{} {
 	switch node := node.(type) {
-
 	// Expression
 
 	case *ast.ArrayLiteral:
@@ -162,7 +161,6 @@ func testMarshalNode(node interface{}) interface{} {
 
 	case *ast.VariableStatement:
 		return marshal("Var", testMarshalNode(node.List))
-
 	}
 
 	{
@@ -193,7 +191,6 @@ func testMarshal(node interface{}) string {
 
 func TestParserAST(t *testing.T) {
 	tt(t, func() {
-
 		test := func(inputOutput string) {
 			match := matchBeforeAfterSeparator.FindStringIndex(inputOutput)
 			input := strings.TrimSpace(inputOutput[0:match[0]])

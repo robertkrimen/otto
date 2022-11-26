@@ -22,7 +22,6 @@ func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
 	}
 
 	switch node := node.(type) {
-
 	case *_nodeBlockStatement:
 		labels := self.labels
 		self.labels = nil
@@ -109,7 +108,6 @@ func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
 
 	case *_nodeWithStatement:
 		return self.cmpl_evaluate_nodeWithStatement(node)
-
 	}
 
 	panic(fmt.Errorf("Here be dragons: evaluate_nodeStatement(%T)", node))
@@ -136,7 +134,6 @@ func (self *_runtime) cmpl_evaluate_nodeStatementList(list []_nodeStatement) Val
 }
 
 func (self *_runtime) cmpl_evaluate_nodeDoWhileStatement(node *_nodeDoWhileStatement) Value {
-
 	labels := append(self.labels, "")
 	self.labels = nil
 
@@ -172,7 +169,6 @@ resultBreak:
 }
 
 func (self *_runtime) cmpl_evaluate_nodeForInStatement(node *_nodeForInStatement) Value {
-
 	labels := append(self.labels, "")
 	self.labels = nil
 
@@ -235,7 +231,6 @@ func (self *_runtime) cmpl_evaluate_nodeForInStatement(node *_nodeForInStatement
 }
 
 func (self *_runtime) cmpl_evaluate_nodeForStatement(node *_nodeForStatement) Value {
-
 	labels := append(self.labels, "")
 	self.labels = nil
 
@@ -309,7 +304,6 @@ func (self *_runtime) cmpl_evaluate_nodeIfStatement(node *_nodeIfStatement) Valu
 }
 
 func (self *_runtime) cmpl_evaluate_nodeSwitchStatement(node *_nodeSwitchStatement) Value {
-
 	labels := append(self.labels, "")
 	self.labels = nil
 
@@ -388,7 +382,6 @@ func (self *_runtime) cmpl_evaluate_nodeTryStatement(node *_nodeTryStatement) Va
 }
 
 func (self *_runtime) cmpl_evaluate_nodeWhileStatement(node *_nodeWhileStatement) Value {
-
 	test := node.test
 	body := node.body
 	labels := append(self.labels, "")

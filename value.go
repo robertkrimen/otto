@@ -625,7 +625,6 @@ func (self Value) Export() (interface{}, error) {
 }
 
 func (self Value) export() interface{} {
-
 	switch self.kind {
 	case valueUndefined:
 		return nil
@@ -751,7 +750,6 @@ func (self Value) evaluateBreak(labels []string) _resultKind {
 }
 
 func (self Value) exportNative() interface{} {
-
 	switch self.kind {
 	case valueUndefined:
 		return self

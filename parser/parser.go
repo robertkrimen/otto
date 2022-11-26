@@ -213,7 +213,6 @@ func ParseFile(fileSet *file.FileSet, filename string, src interface{}, mode Mod
 //
 // The parameter list, if any, should be a comma-separated list of identifiers.
 func ParseFunction(parameterList, body string) (*ast.FunctionLiteral, error) {
-
 	src := "(function(" + parameterList + ") {\n" + body + "\n})"
 
 	parser := _newParser("", src, 1, nil)

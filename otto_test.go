@@ -913,7 +913,6 @@ func TestDotMember(t *testing.T) {
 
 func Test_stringToFloat(t *testing.T) {
 	tt(t, func() {
-
 		is(parseNumber("10e10000"), _Infinity)
 		is(parseNumber("10e10_."), _NaN)
 	})
@@ -1350,7 +1349,6 @@ func TestOttoCall_clone(t *testing.T) {
 			is(err, nil)
 			is(value, `function() { return "abc"; },function() { return "ghi"; }`)
 		}
-
 	})
 }
 

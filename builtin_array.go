@@ -389,7 +389,6 @@ func sortCompare(thisObject *_object, index0, index1 uint, compare *_object) int
 }
 
 func arraySortSwap(thisObject *_object, index0, index1 uint) {
-
 	j := struct {
 		name   string
 		exists bool

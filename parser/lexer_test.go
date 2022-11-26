@@ -381,6 +381,5 @@ Second line \
 			token.STRING, "\"\\x0G\"", 1,
 			token.EOF, "", 7,
 		)
-
 	})
 }

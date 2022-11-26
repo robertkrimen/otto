@@ -34,7 +34,6 @@ type _RegExp_parser struct {
 // If the pattern is valid, but incompatible (contains a lookahead or backreference),
 // then this function returns the transformation (a non-empty string) AND an error.
 func TransformRegExp(pattern string) (string, error) {
-
 	if pattern == "" {
 		return "", nil
 	}
@@ -142,7 +141,6 @@ func (self *_RegExp_parser) scanEscape(inClass bool) {
 
 	var length, base uint32
 	switch self.chr {
-
 	case '0', '1', '2', '3', '4', '5', '6', '7':
 		var value int64
 		size := 0

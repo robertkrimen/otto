@@ -34,7 +34,6 @@ func Test_cmpl(t *testing.T) {
 
 func TestParse_cmpl(t *testing.T) {
 	tt(t, func() {
-
 		test := func(src string) {
 			program, err := parser.ParseFile(nil, "", src, 0)
 			is(err, nil)

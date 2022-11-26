@@ -119,7 +119,6 @@ func (self *_parser) parsePrimaryExpression() ast.Expression {
 }
 
 func (self *_parser) parseRegExpLiteral() *ast.RegExpLiteral {
-
 	offset := self.chrOffset - 1 // Opening slash already gotten
 	if self.token == token.QUOTIENT_ASSIGN {
 		offset -= 1 // =
@@ -136,7 +135,6 @@ func (self *_parser) parseRegExpLiteral() *ast.RegExpLiteral {
 
 	flags := ""
 	if self.token == token.IDENTIFIER { // gim
-
 		flags = self.literal
 		self.next()
 		endOffset = self.chrOffset - 1
@@ -175,7 +173,6 @@ func (self *_parser) parseRegExpLiteral() *ast.RegExpLiteral {
 }
 
 func (self *_parser) parseVariableDeclaration(declarationList *[]*ast.VariableExpression) ast.Expression {
-
 	if self.token != token.IDENTIFIER {
 		idx := self.expect(token.IDENTIFIER)
 		self.nextStatement()
@@ -209,7 +206,6 @@ func (self *_parser) parseVariableDeclaration(declarationList *[]*ast.VariableEx
 }
 
 func (self *_parser) parseVariableDeclarationList(var_ file.Idx) []ast.Expression {
-
 	var declarationList []*ast.VariableExpression // Avoid bad expressions
 	var list []ast.Expression
 
@@ -485,7 +481,6 @@ func (self *_parser) parseNewExpression() ast.Expression {
 }
 
 func (self *_parser) parseLeftHandSideExpression() ast.Expression {
-
 	var left ast.Expression
 	if self.token == token.NEW {
 		left = self.parseNewExpression()
@@ -515,7 +510,6 @@ func (self *_parser) parseLeftHandSideExpression() ast.Expression {
 }
 
 func (self *_parser) parseLeftHandSideExpressionAllowCall() ast.Expression {
-
 	allowIn := self.scope.allowIn
 	self.scope.allowIn = true
 	defer func() {
@@ -601,7 +595,6 @@ func (self *_parser) parsePostfixExpression() ast.Expression {
 }
 
 func (self *_parser) parseUnaryExpression() ast.Expression {
-
 	switch self.token {
 	case token.PLUS, token.MINUS, token.NOT, token.BITWISE_NOT:
 		fallthrough
