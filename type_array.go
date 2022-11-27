@@ -13,7 +13,16 @@ func (runtime *_runtime) newArrayObject(length uint32) *_object {
 }
 
 func isArray(object *_object) bool {
-	return object != nil && (object.class == classArray || object.class == classGoArray)
+	if object == nil {
+		return false
+	}
+
+	switch object.class {
+	case classArray, classGoArray, classGoSlice:
+		return true
+	default:
+		return false
+	}
 }
 
 func objectLength(object *_object) uint32 {
@@ -25,7 +34,7 @@ func objectLength(object *_object) uint32 {
 		return object.get(propertyLength).value.(uint32)
 	case classString:
 		return uint32(object.get(propertyLength).value.(int))
-	case classGoArray:
+	case classGoArray, classGoSlice:
 		return uint32(object.get(propertyLength).value.(int))
 	}
 	return 0
