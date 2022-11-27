@@ -115,6 +115,12 @@ func (err Error) String() string {
 	return err.formatWithStack()
 }
 
+// GoString returns a description of the error and a trace of where the
+// error occurred. Printing with %#v will trigger this behaviour.
+func (err Error) GoString() string {
+	return err.formatWithStack()
+}
+
 func (err _error) describe(format string, in ...interface{}) string {
 	return fmt.Sprintf(format, in...)
 }
