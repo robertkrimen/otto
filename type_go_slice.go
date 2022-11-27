@@ -7,7 +7,7 @@ import (
 
 func (runtime *_runtime) newGoSliceObject(value reflect.Value) *_object {
 	self := runtime.newObject()
-	self.class = classGoArray // TODO GoSlice?
+	self.class = classGoSlice
 	self.objectClass = _classGoSlice
 	self.value = _newGoSliceObject(value)
 	return self
@@ -31,15 +31,43 @@ func (self _goSliceObject) getValue(index int64) (reflect.Value, bool) {
 	return reflect.Value{}, false
 }
 
-func (self _goSliceObject) setValue(index int64, value Value) bool {
-	indexValue, exists := self.getValue(index)
-	if !exists {
-		return false
+func (self *_goSliceObject) setLength(value Value) {
+	want, err := value.ToInteger()
+	if err != nil {
+		panic(err)
 	}
+
+	wantInt := int(want)
+	switch {
+	case wantInt == self.value.Len():
+		// No change needed.
+	case wantInt < self.value.Cap():
+		// Fits in current capacity.
+		self.value.SetLen(wantInt)
+	default:
+		// Needs expanding.
+		newSlice := reflect.MakeSlice(self.value.Type(), wantInt, wantInt)
+		reflect.Copy(newSlice, self.value)
+		self.value = newSlice
+	}
+}
+
+func (self *_goSliceObject) setValue(index int64, value Value) bool {
 	reflectValue, err := value.toReflectValue(self.value.Type().Elem().Kind())
 	if err != nil {
 		panic(err)
 	}
+
+	indexValue, exists := self.getValue(index)
+	if !exists {
+		if int64(self.value.Len()) == index {
+			// Trying to append e.g. slice.push(...), allow it.
+			self.value = reflect.Append(self.value, reflectValue)
+			return true
+		}
+		return false
+	}
+
 	indexValue.Set(reflectValue)
 	return true
 }
@@ -49,7 +77,7 @@ func goSliceGetOwnProperty(self *_object, name string) *_property {
 	if name == propertyLength {
 		return &_property{
 			value: toValue(self.value.(*_goSliceObject).value.Len()),
-			mode:  0,
+			mode:  0110,
 		}
 	}
 
@@ -93,7 +121,8 @@ func goSliceEnumerate(self *_object, all bool, each func(string) bool) {
 
 func goSliceDefineOwnProperty(self *_object, name string, descriptor _property, throw bool) bool {
 	if name == propertyLength {
-		return self.runtime.typeErrorResult(throw)
+		self.value.(*_goSliceObject).setLength(descriptor.value.(Value))
+		return true
 	} else if index := stringToArrayIndex(name); index >= 0 {
 		if self.value.(*_goSliceObject).setValue(index, descriptor.value.(Value)) {
 			return true

@@ -942,3 +942,23 @@ func Test_issue383(t *testing.T) {
 	`)
 	require.NoError(t, err)
 }
+
+func Test_issue357(t *testing.T) {
+	vm := New()
+	arr := []string{"wow", "hey"}
+	err := vm.Set("arr", arr)
+	require.NoError(t, err)
+
+	val, err := vm.Run(`
+		arr.push('another', 'more');
+		arr;
+	`)
+	require.NoError(t, err)
+	iface, err := val.Export()
+	require.NoError(t, err)
+
+	slice, ok := iface.([]string)
+	require.True(t, ok)
+
+	require.Equal(t, []string{"wow", "hey", "another", "more"}, slice)
+}

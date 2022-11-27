@@ -431,7 +431,8 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) (reflect.Val
 
 				tt := t.Elem()
 
-				if o.class == classArray {
+				switch o.class {
+				case classArray:
 					for i := int64(0); i < l; i++ {
 						p, ok := o.property[strconv.FormatInt(i, 10)]
 						if !ok {
@@ -450,7 +451,7 @@ func (self *_runtime) convertCallParameter(v Value, t reflect.Type) (reflect.Val
 
 						s.Index(int(i)).Set(ev)
 					}
-				} else if o.class == classGoArray {
+				case classGoArray, classGoSlice:
 					var gslice bool
 					switch o.value.(type) {
 					case *_goSliceObject:

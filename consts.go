@@ -4,6 +4,7 @@ const (
 	// Common classes.
 	classString   = "String"
 	classGoArray  = "GoArray"
+	classGoSlice  = "GoSlice"
 	classNumber   = "Number"
 	classDate     = "Date"
 	classArray    = "Array"
