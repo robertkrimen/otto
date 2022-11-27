@@ -64,7 +64,7 @@ func TestDate(t *testing.T) {
 		test(`abc.setFullYear(2011); abc.toUTCString()`, "Sun, 25 Sep 2011 23:38:33 UTC")
 		test(`new Date(12564504e5).toUTCString()`, "Sun, 25 Oct 2009 06:00:00 UTC")
 		test(`new Date(2009, 9, 25).toUTCString()`, "Sun, 25 Oct 2009 00:00:00 UTC")
-		test(`+(new Date(2009, 9, 25))`, 1256428800000)
+		test(`+(new Date(2009, 9, 25))`, int64(1256428800000))
 
 		format := "Mon, 2 Jan 2006 15:04:05 MST"
 
@@ -96,7 +96,7 @@ func TestDate(t *testing.T) {
 		time0 = time.Date(2010, time1.Month(), time1.Day(), time1.Hour(), time1.Minute(), time1.Second(), time1.Nanosecond(), time1.Location()).UTC()
 		test(`abc = new Date(12564504e5); abc.setFullYear(2010); abc.toUTCString()`, time0.Format(format))
 
-		test(`new Date("2001-01-01T10:01:02.000").getTime()`, 978343262000)
+		test(`new Date("2001-01-01T10:01:02.000").getTime()`, int64(978343262000))
 
 		// Date()
 		test(`typeof Date()`, "string")
@@ -126,11 +126,11 @@ func TestDate_parse(t *testing.T) {
 
 		defer mockUTC()()
 
-		test(`Date.parse("2001-01-01T10:01:02.000")`, 978343262000)
+		test(`Date.parse("2001-01-01T10:01:02.000")`, int64(978343262000))
 
-		test(`Date.parse("2006-01-02T15:04:05.000")`, 1136214245000)
+		test(`Date.parse("2006-01-02T15:04:05.000")`, int64(1136214245000))
 
-		test(`Date.parse("2006")`, 1136073600000)
+		test(`Date.parse("2006")`, int64(1136073600000))
 
 		test(`Date.parse("1970-01-16T14:36:56+00:00")`, 1348616000)
 
@@ -148,7 +148,7 @@ func TestDate_UTC(t *testing.T) {
 
 		defer mockUTC()()
 
-		test(`Date.UTC(2009, 9, 25)`, 1256428800000)
+		test(`Date.UTC(2009, 9, 25)`, int64(1256428800000))
 
 		test(`Date.UTC.length`, 7)
 	})
@@ -193,11 +193,11 @@ func TestDate_setYear(t *testing.T) {
 
 		defer mockUTC()()
 
-		test(`new Date(12564504e5).setYear(96)`, 846223200000)
+		test(`new Date(12564504e5).setYear(96)`, int64(846223200000))
 
-		test(`new Date(12564504e5).setYear(1996)`, 846223200000)
+		test(`new Date(12564504e5).setYear(1996)`, int64(846223200000))
 
-		test(`new Date(12564504e5).setYear(2000)`, 972453600000)
+		test(`new Date(12564504e5).setYear(2000)`, int64(972453600000))
 	})
 }
 
