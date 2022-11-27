@@ -43,16 +43,16 @@ func BenchmarkGoSliceHeapSort100000000(b *testing.B) {
 	benchmarkGoSliceSort(b, 100000000, "heapSort(testSlice);", jsHeapSort)
 }
 
-func BenchmarkJsArrayQuickSort10000(b *testing.B) {
-	benchmarkJsArraySort(b, 10000, "quickSort(testSlice, 0, testSlice.length-1);", jsQuickSort)
+func BenchmarkJsArrayQuickSort500(b *testing.B) {
+	benchmarkJsArraySort(b, 500, "quickSort(testSlice, 0, testSlice.length-1);", jsQuickSort)
 }
 
-func BenchmarkJsArrayMergeSort10000(b *testing.B) {
-	benchmarkJsArraySort(b, 10000, "mergeSort(testSlice);", jsMergeSort)
+func BenchmarkJsArrayMergeSort500(b *testing.B) {
+	benchmarkJsArraySort(b, 500, "mergeSort(testSlice);", jsMergeSort)
 }
 
-func BenchmarkJsArrayHeapSort10000(b *testing.B) {
-	benchmarkJsArraySort(b, 10000, "heapSort(testSlice);", jsHeapSort)
+func BenchmarkJsArrayHeapSort500(b *testing.B) {
+	benchmarkJsArraySort(b, 500, "heapSort(testSlice);", jsHeapSort)
 }
 
 func BenchmarkCryptoAES(b *testing.B) {
