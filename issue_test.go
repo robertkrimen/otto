@@ -1105,3 +1105,20 @@ func Test_issue252(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expBs, actBs)
 }
+
+func Test_issue177(t *testing.T) {
+	vm := New()
+	val, err := vm.Run(`
+		var ii = 33;
+		var ret = [3, 2, 1].reduce(
+			function(pv, cv, ci, a) {
+				return pv + cv + ci;
+			}
+		);
+		ret;
+	`)
+	require.NoError(t, err)
+	exp, err := val.Export()
+	require.NoError(t, err)
+	require.Equal(t, float64(9), exp)
+}
