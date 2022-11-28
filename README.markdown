@@ -236,10 +236,8 @@ func runUnsafe(unsafe string) {
 
     vm := otto.New()
     vm.Interrupt = make(chan func(), 1) // The buffer prevents blocking
-	watchdogCleanup := make(chan struct{})
-	defer func() {
-		close(watchdogCleanup)
-	}()
+    watchdogCleanup := make(chan struct{})
+    defer close(watchdogCleanup)
 
     go func() {
 		select {
