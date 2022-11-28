@@ -53,7 +53,40 @@ func builtinRegExp_exec(call FunctionCall) Value {
 func builtinRegExp_test(call FunctionCall) Value {
 	thisObject := call.thisObject()
 	target := call.Argument(0).string()
-	match, _ := execRegExp(thisObject, target)
+	match, result := execRegExp(thisObject, target)
+
+	if !match {
+		return toValue_bool(match)
+	}
+
+	// Match extract and assign input, $_ and $1 -> $9 on global RegExp.
+	input := toValue_string(target)
+	call.runtime.global.RegExp.defineProperty("$_", input, 0100, false)
+	call.runtime.global.RegExp.defineProperty("input", input, 0100, false)
+
+	var start int
+	n := 1
+	re := call.runtime.global.RegExp
+	for i, v := range result[2:] {
+		if i%2 == 0 {
+			start = v
+		} else {
+			re.defineProperty(fmt.Sprintf("$%d", n), toValue_string(target[start:v]), 0100, false)
+			n++
+			if n == 10 {
+				break
+			}
+		}
+	}
+
+	if n <= 9 {
+		// Erase remaining.
+		empty := toValue_string("")
+		for i := n; i <= 9; i++ {
+			re.defineProperty(fmt.Sprintf("$%d", i), empty, 0100, false)
+		}
+	}
+
 	return toValue_bool(match)
 }
 
