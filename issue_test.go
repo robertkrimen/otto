@@ -1017,3 +1017,60 @@ func Test_issue329(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, uint32(6), length)
 }
+
+func Test_issue317(t *testing.T) {
+	vm := New()
+	tests := map[string]struct {
+		input  string
+		regexp string
+		want   string
+	}{
+		"match-all": {
+			input:  "all-11-22-33-44-55-66-77-88-99-XX",
+			regexp: "(1+)-(2+)-(3+)-(4+)-(5+)-(6+)-(7+)-(8+)-(9+)-(X+)",
+			want:   "all-11-22-33-44-55-66-77-88-99-XX,11,22,33,44,55,66,77,88,99",
+		},
+		"match-partial": {
+			input:  "partial-11-22-33-44-55-66-77-88-99-XX",
+			regexp: "(1+)-(2+)-(3+)-(4+)-(5+)",
+			want:   "partial-11-22-33-44-55-66-77-88-99-XX,11,22,33,44,55,,,,",
+		},
+		"no-match": {
+			input:  "no-22-33-44-55-66-77-88-99-XX",
+			regexp: "(1+)-(2+)-(3+)-(4+)-(5+)-(6+)-(7+)-(8+)-(9+)-(X+)",
+			want:   "",
+		},
+	}
+
+	previous := ",,,,,,,,,"
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			err := vm.Set("val", tt.input)
+			require.NoError(t, err)
+
+			err = vm.Set("regexp", tt.regexp)
+			require.NoError(t, err)
+
+			val, err := vm.Run(`
+				var parts = [];
+				new RegExp(regexp).test(val);
+				parts.push(
+					RegExp.$_, RegExp.$1, RegExp.$2, RegExp.$3, RegExp.$4,
+					RegExp.$5, RegExp.$6, RegExp.$7, RegExp.$8, RegExp.$9
+				);
+				parts.join(",");
+			`)
+			require.NoError(t, err)
+
+			// If no match occurs the previous values will remain.
+			if tt.want == "" {
+				tt.want = previous
+			}
+			previous = tt.want
+
+			exp, err := val.Export()
+			require.NoError(t, err)
+			require.Equal(t, tt.want, exp)
+		})
+	}
+}
