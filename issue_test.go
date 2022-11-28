@@ -3,6 +3,7 @@ package otto
 import (
 	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"testing"
@@ -1073,4 +1074,34 @@ func Test_issue317(t *testing.T) {
 			require.Equal(t, tt.want, exp)
 		})
 	}
+}
+
+func Test_issue252(t *testing.T) {
+	in := map[string]interface{}{
+		"attr": []interface{}{"string"},
+	}
+	expected := map[string]interface{}{
+		"attr": []string{"changed"},
+	}
+
+	vm := New()
+	err := vm.Set("In", in)
+	require.NoError(t, err)
+
+	result, err := vm.Run(`(function fn() {
+		var tmp = In;
+		tmp.attr = ["changed"];
+		return tmp;
+	})()`)
+	require.NoError(t, err)
+
+	actual, err := result.Export()
+	require.NoError(t, err)
+	require.Equal(t, expected, actual)
+
+	expBs, err := json.Marshal(expected)
+	require.NoError(t, err)
+	actBs, err := json.Marshal(actual)
+	require.NoError(t, err)
+	require.Equal(t, expBs, actBs)
 }
