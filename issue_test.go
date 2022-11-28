@@ -994,3 +994,26 @@ func Test_issue302(t *testing.T) {
 		})
 	}
 }
+
+func Test_issue329(t *testing.T) {
+	vm := New()
+	val, err := vm.Run(`
+		run(c);
+		var stackLen;
+		function run(fn) {
+			try {
+				fn();
+			} catch (err) {
+				stackLen = err.stack.split(/\n/).length;
+			}
+		};
+
+		function c() { d() }
+		function d() { return 'x'.join(',') }
+		stackLen;
+	`)
+	require.NoError(t, err)
+	length, err := val.Export()
+	require.NoError(t, err)
+	require.Equal(t, uint32(6), length)
+}

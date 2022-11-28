@@ -130,7 +130,7 @@ func (self *_runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, exce
 			switch caught := caught.(type) {
 			case _error:
 				exception = true
-				tryValue = toValue_object(self.newError(caught.name, caught.messageValue(), 0))
+				tryValue = toValue_object(self.newErrorObjectError(caught))
 			case Value:
 				exception = true
 				tryValue = caught
