@@ -617,6 +617,8 @@ func TestParser(t *testing.T) {
             } while (0)
         `, nil)
 
+		test(`do do; while(0); while(0);`, nil)
+
 		test(`
             (function(){
                 try {
