@@ -645,6 +645,13 @@ func (self Value) export() interface{} {
 		case *_goStructObject:
 			return value.value.Interface()
 		case *_goMapObject:
+			iter := value.value.MapRange()
+			for iter.Next() {
+				v := iter.Value()
+				if ov, ok := v.Interface().(Value); ok {
+					value.value.SetMapIndex(iter.Key(), reflect.ValueOf(ov.export()))
+				}
+			}
 			return value.value.Interface()
 		case *_goArrayObject:
 			return value.value.Interface()
