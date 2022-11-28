@@ -15,6 +15,13 @@ const (
 	builtinDate_goTimeLayout     = "15:04:05 MST"
 )
 
+var (
+	// utcTimeZone is the time zone used for UTC calculations.
+	// It is GMT not UTC as that's what Javascript does because toUTCString is
+	// actually an alias to toGMTString.
+	utcTimeZone = Time.FixedZone("GMT", 0)
+)
+
 func builtinDate(call FunctionCall) Value {
 	date := &_dateObject{}
 	date.Set(newDateTime([]Value{}, Time.Local))
@@ -54,7 +61,7 @@ func builtinDate_toUTCString(call FunctionCall) Value {
 	if date.isNaN {
 		return toValue_string("Invalid Date")
 	}
-	return toValue_string(date.Time().Format(builtinDate_goDateTimeLayout))
+	return toValue_string(date.Time().In(utcTimeZone).Format(builtinDate_goDateTimeLayout))
 }
 
 func builtinDate_toISOString(call FunctionCall) Value {

@@ -962,3 +962,35 @@ func Test_issue357(t *testing.T) {
 
 	require.Equal(t, []string{"wow", "hey", "another", "more"}, slice)
 }
+
+func Test_issue302(t *testing.T) {
+	tests := map[string]struct {
+		code string
+		want string
+	}{
+		"underflow": {
+			code: "new Date(9223372036855).toUTCString();",
+			want: "Fri, 11 Apr 2262 23:47:16 GMT",
+		},
+		"after-2262": {
+			code: "new Date('2263-04-11T23:47:16.855Z').toUTCString();",
+			want: "Sat, 11 Apr 2263 23:47:16 GMT",
+		},
+		"before-1677": {
+			code: "new Date('1676-09-21T00:12:43.146Z').toUTCString();",
+			want: "Mon, 21 Sep 1676 00:12:43 GMT",
+		},
+	}
+
+	vm := New()
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			val, err := vm.Run(tt.code)
+			require.NoError(t, err)
+
+			exp, err := val.Export()
+			require.NoError(t, err)
+			require.Equal(t, tt.want, exp)
+		})
+	}
+}
