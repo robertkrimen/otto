@@ -247,7 +247,7 @@ func runUnsafe(unsafe string) {
             }
         case <-watchdogCleanup:
         }
-      close(vm.Interrupt)
+        close(vm.Interrupt)
     }()
 
     vm.Run(unsafe) // Here be dragons (risky code)
