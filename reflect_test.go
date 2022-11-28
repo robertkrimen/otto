@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type _abcStruct struct {
@@ -138,14 +140,16 @@ func (mno _mnoStruct) Func() string {
 }
 
 func TestReflect(t *testing.T) {
-	if true {
-		return
-	}
 	tt(t, func() {
 		// Testing dbgf
 		// These should panic
-		toValue("Xyzzy").toReflectValue(reflect.Ptr)
-		stringToReflectValue("Xyzzy", reflect.Ptr)
+		str := "test"
+		require.Panics(t, func() {
+			toValue("Xyzzy").toReflectValue(reflect.ValueOf(&str).Type())
+		})
+		require.Panics(t, func() {
+			stringToReflectValue("Xyzzy", reflect.Ptr)
+		})
 	})
 }
 
@@ -708,7 +712,7 @@ func Test_reflectMapInterface(t *testing.T) {
             `, "Nothing happens.,1,[object Object],[object Object]")
 
 			is(abc["xyz"], "pqr")
-			is(abc["ghi"], "[object Object]")
+			is(abc["ghi"], map[string]interface{}{})
 			is(abc["jkl"], float64(3.14159))
 			mno, valid := abc["mno"].(*_abcStruct)
 			is(valid, true)
