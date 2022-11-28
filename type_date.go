@@ -119,12 +119,12 @@ func epochToTime(value float64) (time Time.Time, err error) {
 	epoch := int64(epochWithMilli / 1000)
 	milli := int64(epochWithMilli) % 1000
 
-	time = Time.Unix(int64(epoch), milli*1000000).UTC()
+	time = Time.Unix(int64(epoch), milli*1000000).In(utcTimeZone)
 	return
 }
 
 func timeToEpoch(time Time.Time) float64 {
-	return float64(time.UnixNano() / (1000 * 1000))
+	return float64(time.UnixMilli())
 }
 
 func (runtime *_runtime) newDateObject(epoch float64) *_object {
@@ -207,7 +207,7 @@ func newDateTime(argumentList []Value, location *Time.Location) (epoch float64) 
 		time := Time.Date(int(year), dateToGoMonth(int(month)), int(day), int(hour), int(minute), int(second), int(millisecond)*1000*1000, location)
 		return timeToEpoch(time)
 	} else if len(argumentList) == 0 { // 0-argument
-		time := Time.Now().UTC()
+		time := Time.Now().In(utcTimeZone)
 		return timeToEpoch(time)
 	} else { // 1-argument
 		value := valueOfArrayIndex(argumentList, 0)
@@ -263,24 +263,25 @@ func dateParse(date string) (epoch float64) {
 	// YYYY-MM-DDTHH:mm:ss.sssZ
 	var time Time.Time
 	var err error
-	{
-		date := date
-		if match := matchDateTimeZone.FindStringSubmatch(date); match != nil {
-			if match[2] == "Z" {
-				date = match[1] + "+0000"
-			} else {
-				date = match[1] + match[3] + match[4]
-			}
-		}
-		for _, layout := range dateLayoutList {
-			time, err = Time.Parse(layout, date)
-			if err == nil {
-				break
-			}
+
+	if match := matchDateTimeZone.FindStringSubmatch(date); match != nil {
+		if match[2] == "Z" {
+			date = match[1] + "+0000"
+		} else {
+			date = match[1] + match[3] + match[4]
 		}
 	}
+
+	for _, layout := range dateLayoutList {
+		time, err = Time.Parse(layout, date)
+		if err == nil {
+			break
+		}
+	}
+
 	if err != nil {
 		return math.NaN()
 	}
-	return float64(time.UnixNano()) / (1000 * 1000) // UnixMilli()
+
+	return float64(time.UnixMilli())
 }
