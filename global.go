@@ -165,7 +165,6 @@ func (runtime *_runtime) newDate(epoch float64) *_object {
 }
 
 func (runtime *_runtime) newError(name string, message Value, stackFramesToPop int) *_object {
-	var self *_object
 	switch name {
 	case "EvalError":
 		return runtime.newEvalError(message)
@@ -181,7 +180,7 @@ func (runtime *_runtime) newError(name string, message Value, stackFramesToPop i
 		return runtime.newURIError(message)
 	}
 
-	self = runtime.newErrorObject(name, message, stackFramesToPop)
+	self := runtime.newErrorObject(name, message, stackFramesToPop)
 	self.prototype = runtime.global.ErrorPrototype
 	if name != "" {
 		self.defineProperty("name", toValue_string(name), 0111, false)
