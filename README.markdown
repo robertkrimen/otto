@@ -240,8 +240,8 @@ func runUnsafe(unsafe string) {
     defer close(watchdogCleanup)
 
     go func() {
-		select {
-		case <- time.After(2 * time.Second): // Stop after two seconds
+        select {
+        case <-time.After(2 * time.Second): // Stop after two seconds
             vm.Interrupt <- func() {
                 panic(halt)
             }
