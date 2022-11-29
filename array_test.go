@@ -107,7 +107,7 @@ func TestArray_toLocaleString(t *testing.T) {
 
 		test(`
             [ 3.14159, "abc", undefined, new Date(0) ].toLocaleString();
-        `, "3.14159,abc,,1970-01-01 00:00:00")
+        `, "3.142,abc,,1970-01-01 00:00:00")
 
 		test(`raise:
             [ { toLocaleString: undefined } ].toLocaleString();

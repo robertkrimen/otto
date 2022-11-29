@@ -3,6 +3,10 @@ package otto
 import (
 	"math"
 	"strconv"
+
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+	"golang.org/x/text/number"
 )
 
 // Number
@@ -96,5 +100,13 @@ func builtinNumber_isNaN(call FunctionCall) Value {
 }
 
 func builtinNumber_toLocaleString(call FunctionCall) Value {
-	return builtinNumber_toString(call)
+	value := call.thisClassObject(classNumber).primitiveValue()
+	locale := call.Argument(0)
+	lang := defaultLanguage
+	if locale.IsDefined() {
+		lang = language.MustParse(locale.string())
+	}
+
+	p := message.NewPrinter(lang)
+	return toValue_string(p.Sprintf("%v", number.Decimal(value.value)))
 }

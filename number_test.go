@@ -136,11 +136,11 @@ func TestNumber_toLocaleString(t *testing.T) {
 
 		test(`
             [
-                new Number(451).toLocaleString(),
-                new Number(451).toLocaleString(10),
-                new Number(451).toLocaleString(8)
+                new Number(4510).toLocaleString(),
+                new Number(4510).toLocaleString('en-US'),
+				new Number(4510).toLocaleString('nl-NL')
             ];
-        `, "451,451,703")
+        `, "4,510,4,510,4.510")
 	})
 }
 
