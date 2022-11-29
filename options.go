@@ -1,6 +1,6 @@
 package otto
 
-// Option is an otto option
+// Option is an Otto option.
 type Option func(*Otto)
 
 // WithConsole adds a console option to the otto instance
