@@ -93,6 +93,7 @@ func Walk(v Visitor, n Node) {
 	case *DotExpression:
 		if n != nil {
 			Walk(v, n.Left)
+			Walk(v, n.Identifier)
 		}
 	case *EmptyExpression:
 	case *EmptyStatement:
@@ -134,6 +135,7 @@ func Walk(v Visitor, n Node) {
 		}
 	case *LabelledStatement:
 		if n != nil {
+			Walk(v, n.Label)
 			Walk(v, n.Statement)
 		}
 	case *NewExpression:
