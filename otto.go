@@ -246,7 +246,7 @@ type Otto struct {
 func New(options ...Option) *Otto {
 	self := &Otto{
 		runtime: newContext(),
-		console: &console{os.Stdout},
+		console: &console{},
 	}
 
 	for _, o := range options {
