@@ -5,6 +5,7 @@ import (
 	"io"
 )
 
+// Console is implemented by type which can be used to process console output.
 type Console interface {
 	Log(v ...interface{})
 	Trace(v ...interface{})
