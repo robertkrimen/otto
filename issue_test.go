@@ -1122,3 +1122,12 @@ func Test_issue177(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, float64(9), exp)
 }
+
+func Test_issue285(t *testing.T) {
+	vm := New()
+	val, err := vm.Run(`(1451).toLocaleString('en-US')`)
+	require.NoError(t, err)
+	exp, err := val.Export()
+	require.NoError(t, err)
+	require.Equal(t, "1,451", exp)
+}
