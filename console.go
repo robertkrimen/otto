@@ -16,7 +16,6 @@ type Console interface {
 }
 
 type console struct {
-	out io.Writer
 }
 
 func (c *console) log(v ...interface{}) {
