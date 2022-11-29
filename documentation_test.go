@@ -70,7 +70,7 @@ func ExampleSynopsis() { //nolint: govet
 	// 4
 }
 
-func ExampleConsole() { //nolint: govet
+func ExampleConsole() {
 	vm := New()
 	console := map[string]interface{}{
 		"log": func(call FunctionCall) Value {
