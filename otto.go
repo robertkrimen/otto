@@ -226,7 +226,6 @@ package otto
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/robertkrimen/otto/file"
