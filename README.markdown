@@ -236,12 +236,18 @@ func runUnsafe(unsafe string) {
 
     vm := otto.New()
     vm.Interrupt = make(chan func(), 1) // The buffer prevents blocking
+    watchdogCleanup := make(chan struct{})
+    defer close(watchdogCleanup)
 
     go func() {
-        time.Sleep(2 * time.Second) // Stop after two seconds
-        vm.Interrupt <- func() {
-            panic(halt)
+        select {
+        case <-time.After(2 * time.Second): // Stop after two seconds
+            vm.Interrupt <- func() {
+                panic(halt)
+            }
+        case <-watchdogCleanup:
         }
+        close(vm.Interrupt)
     }()
 
     vm.Run(unsafe) // Here be dragons (risky code)
