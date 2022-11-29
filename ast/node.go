@@ -464,14 +464,19 @@ func (self *DotExpression) Idx1() file.Idx         { return self.Identifier.Idx1
 func (self *EmptyExpression) Idx1() file.Idx       { return self.End }
 func (self *FunctionLiteral) Idx1() file.Idx       { return self.Body.Idx1() }
 func (self *Identifier) Idx1() file.Idx            { return file.Idx(int(self.Idx) + len(self.Name)) }
-func (self *NewExpression) Idx1() file.Idx         { return self.RightParenthesis + 1 }
-func (self *NullLiteral) Idx1() file.Idx           { return file.Idx(int(self.Idx) + 4) } // "null"
-func (self *NumberLiteral) Idx1() file.Idx         { return file.Idx(int(self.Idx) + len(self.Literal)) }
-func (self *ObjectLiteral) Idx1() file.Idx         { return self.RightBrace }
-func (self *RegExpLiteral) Idx1() file.Idx         { return file.Idx(int(self.Idx) + len(self.Literal)) }
-func (self *SequenceExpression) Idx1() file.Idx    { return self.Sequence[0].Idx1() }
-func (self *StringLiteral) Idx1() file.Idx         { return file.Idx(int(self.Idx) + len(self.Literal)) }
-func (self *ThisExpression) Idx1() file.Idx        { return self.Idx + 4 }
+func (self *NewExpression) Idx1() file.Idx {
+	if self.RightParenthesis > 0 {
+		return self.RightParenthesis + 1
+	}
+	return self.Callee.Idx1()
+}
+func (self *NullLiteral) Idx1() file.Idx        { return file.Idx(int(self.Idx) + 4) } // "null"
+func (self *NumberLiteral) Idx1() file.Idx      { return file.Idx(int(self.Idx) + len(self.Literal)) }
+func (self *ObjectLiteral) Idx1() file.Idx      { return self.RightBrace }
+func (self *RegExpLiteral) Idx1() file.Idx      { return file.Idx(int(self.Idx) + len(self.Literal)) }
+func (self *SequenceExpression) Idx1() file.Idx { return self.Sequence[0].Idx1() }
+func (self *StringLiteral) Idx1() file.Idx      { return file.Idx(int(self.Idx) + len(self.Literal)) }
+func (self *ThisExpression) Idx1() file.Idx     { return self.Idx + 4 }
 func (self *UnaryExpression) Idx1() file.Idx {
 	if self.Postfix {
 		return self.Operand.Idx1() + 2 // ++ --

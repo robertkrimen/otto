@@ -10,11 +10,12 @@ import (
 )
 
 type walker struct {
-	stack     []ast.Node
-	source    string
-	shift     file.Idx
-	seen      map[ast.Node]struct{}
-	duplicate int
+	stack             []ast.Node
+	source            string
+	shift             file.Idx
+	seen              map[ast.Node]struct{}
+	duplicate         int
+	newExpressionIdx1 file.Idx
 }
 
 // push and pop below are to prove the symmetry of Enter/Exit calls
@@ -48,17 +49,23 @@ func (w *walker) Enter(n ast.Node) ast.Visitor {
 
 	w.seen[n] = struct{}{}
 
-	if id, ok := n.(*ast.Identifier); ok && id != nil {
-		idx := n.Idx0() + w.shift - 1
-		s := w.source[:idx] + "IDENT_" + w.source[idx:]
-		w.source = s
-		w.shift += 6
-	}
-	if v, ok := n.(*ast.VariableExpression); ok && v != nil {
-		idx := n.Idx0() + w.shift - 1
-		s := w.source[:idx] + "VAR_" + w.source[idx:]
-		w.source = s
-		w.shift += 4
+	switch t := n.(type) {
+	case *ast.Identifier:
+		if t != nil {
+			idx := n.Idx0() + w.shift - 1
+			s := w.source[:idx] + "IDENT_" + w.source[idx:]
+			w.source = s
+			w.shift += 6
+		}
+	case *ast.VariableExpression:
+		if t != nil {
+			idx := n.Idx0() + w.shift - 1
+			s := w.source[:idx] + "VAR_" + w.source[idx:]
+			w.source = s
+			w.shift += 4
+		}
+	case *ast.NewExpression:
+		w.newExpressionIdx1 = n.Idx1()
 	}
 
 	return w
@@ -92,4 +99,41 @@ func TestVisitorRewrite(t *testing.T) {
 	require.Equal(t, xformed, w.source)
 	require.Len(t, w.stack, 0)
 	require.Equal(t, w.duplicate, 0)
+}
+
+func Test_issue261(t *testing.T) {
+	tests := map[string]struct {
+		code string
+		want file.Idx
+	}{
+		"no-parenthesis": {
+			code: `var i = new Image;`,
+			want: 18,
+		},
+		"no-args": {
+			code: `var i = new Image();`,
+			want: 20,
+		},
+		"two-args": {
+			code: `var i = new Image(1, 2);`,
+			want: 24,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			prog, err := parser.ParseFile(nil, "", tt.code, 0)
+			require.NoError(t, err)
+
+			w := &walker{
+				source: tt.code,
+				seen:   make(map[ast.Node]struct{}),
+			}
+			ast.Walk(w, prog)
+
+			require.Equal(t, tt.want, w.newExpressionIdx1)
+			require.Len(t, w.stack, 0)
+			require.Equal(t, w.duplicate, 0)
+		})
+	}
 }
