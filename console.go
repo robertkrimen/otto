@@ -2,7 +2,7 @@ package otto
 
 import (
 	"fmt"
-	"io"
+	"os"
 )
 
 // Console is implemented by type which can be used to process console output.
