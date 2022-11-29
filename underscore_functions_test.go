@@ -82,16 +82,6 @@ func Test_underscore_functions_2(t *testing.T) {
     curly.sayHi = moe.sayHi;
     equal(curly.getName(), 'name: curly', 'unbound function is bound to current object');
     equal(curly.sayHi(), 'hi: moe', 'bound function is still bound to original object');
-
-    curly = {name : 'curly'};
-    moe = {
-      name    : 'moe',
-      getName : function() { return 'name: ' + this.name; },
-      sayHi   : function() { return 'hi: ' + this.name; }
-    };
-    _.bindAll(moe);
-    curly.sayHi = moe.sayHi;
-    equal(curly.sayHi(), 'hi: moe', 'calling bindAll with no arguments binds all functions to the object');
   });
         `)
 	})
@@ -201,7 +191,7 @@ func Test_underscore_functions_7(t *testing.T) {
 
     equal(testAfter(5, 5), 1, "after(N) should fire after being called N times");
     equal(testAfter(5, 4), 0, "after(N) should not fire unless called N times");
-    equal(testAfter(0, 0), 1, "after(0) should fire immediately");
+    equal(testAfter(0, 1), 1, "after(0) should fire immediately");
   });
         `)
 	})

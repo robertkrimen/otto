@@ -1,53 +1,9 @@
 # underscore
---
-    import "github.com/robertkrimen/otto/underscore"
 
-Package underscore contains the source for the JavaScript utility-belt library.
+[![Reference](https://pkg.go.dev/badge/github.com/robertkrimen/otto/underscore.svg)](https://pkg.go.dev/github.com/robertkrimen/otto/underscore) [![License](https://img.shields.io/badge/MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-    import (
-    	_ "github.com/robertkrimen/otto/underscore"
-    )
-    // Every Otto runtime will now include underscore
+To update the version of underscore run:
 
-http://underscorejs.org
-
-https://github.com/documentcloud/underscore
-
-By importing this package, you'll automatically load underscore every time you
-create a new Otto runtime.
-
-To prevent this behavior, you can do the following:
-
-    import (
-    	"github.com/robertkrimen/otto/underscore"
-    )
-
-    func init() {
-    	underscore.Disable()
-    }
-
-## Usage
-
-#### func  Disable
-
-```go
-func Disable()
+```shell
+go generate
 ```
-Disable underscore runtime inclusion.
-
-#### func  Enable
-
-```go
-func Enable()
-```
-Enable underscore runtime inclusion.
-
-#### func  Source
-
-```go
-func Source() string
-```
-Source returns the underscore source.
-
---
-**godocdown** http://github.com/robertkrimen/godocdown

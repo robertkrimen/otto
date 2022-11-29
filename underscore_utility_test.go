@@ -305,7 +305,7 @@ func Test_underscore_utility_11(t *testing.T) {
     strictEqual(_.result(obj, 'x'), 'x');
     strictEqual(_.result(obj, 'y'), 'x');
     strictEqual(_.result(obj, 'z'), undefined);
-    strictEqual(_.result(null, 'x'), null);
+    strictEqual(_.result(null, 'x'), undefined);
   });
         `)
 	})
@@ -320,7 +320,7 @@ func Test_underscore_utility_12(t *testing.T) {
   test('_.templateSettings.variable', function() {
     var s = '<%=data.x%>';
     var data = {x: 'x'};
-    strictEqual(_.template(s, data, {variable: 'data'}), 'x');
+    strictEqual(_.template(s, {variable: 'data'})(data), 'x');
     _.templateSettings.variable = 'data';
     strictEqual(_.template(s)(data), 'x');
   });

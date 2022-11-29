@@ -115,7 +115,7 @@ func Test_underscore_collections_2(t *testing.T) {
 
     ok(_.reduce(null, function(){}, 138) === 138, 'handles a null (with initial value) properly');
     equal(_.reduce([], function(){}, undefined), undefined, 'undefined can be passed as a special case');
-    raises(function() { _.reduce([], function(){}); }, TypeError, 'throws an error for empty arrays with no initial value');
+    equal(_.reduce([], function(){}), undefined, 'undefined is the default case');
   });
         `)
 	})
@@ -151,7 +151,7 @@ func Test_underscore_collections_3(t *testing.T) {
     ok(_.reduceRight(null, function(){}, 138) === 138, 'handles a null (with initial value) properly');
 
     equal(_.reduceRight([], function(){}, undefined), undefined, 'undefined can be passed as a special case');
-    raises(function() { _.reduceRight([], function(){}); }, TypeError, 'throws an error for empty arrays with no initial value');
+    equal(_.reduceRight([], function(){}), undefined, 'undefined for empty array and no initial value');
 
     // Assert that the correct arguments are being passed.
 
