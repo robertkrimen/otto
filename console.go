@@ -20,7 +20,7 @@ type console struct {
 }
 
 func (c *console) log(v ...interface{}) {
-	fmt.Fprintln(c.out, v...)
+	fmt.Fprintln(os.Stdout, v...)
 }
 
 func (c *console) Log(v ...interface{}) {
