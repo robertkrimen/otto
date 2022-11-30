@@ -251,8 +251,8 @@ func toUint32(value Value) uint32 {
 		return 0
 	}
 
-	// Convert to uint64 before uint32 to force correct wrapping.
-	return uint32(uint64(floatValue))
+	// Convert to int64 before uint32 to force correct wrapping.
+	return uint32(int64(floatValue))
 }
 
 // ECMA 262 - 6.0 - 7.1.8.
@@ -271,8 +271,8 @@ func toUint16(value Value) uint16 {
 		return 0
 	}
 
-	// Convert to uint64 before uint16 to force correct wrapping.
-	return uint16(uint64(floatValue))
+	// Convert to int64 before uint16 to force correct wrapping.
+	return uint16(int64(floatValue))
 }
 
 // toIntSign returns sign of a number converted to -1, 0 ,1
