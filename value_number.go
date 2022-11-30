@@ -214,91 +214,65 @@ func (value Value) number() (number _number) {
 
 // ECMA 262: 9.5
 func toInt32(value Value) int32 {
-	{
-		switch value := value.value.(type) {
-		case int8:
-			return int32(value)
-		case int16:
-			return int32(value)
-		case int32:
-			return value
-		}
+	switch value := value.value.(type) {
+	case int8:
+		return int32(value)
+	case int16:
+		return int32(value)
+	case int32:
+		return value
 	}
+
 	floatValue := value.float64()
-	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) {
+	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) || floatValue == 0 {
 		return 0
 	}
-	if floatValue == 0 { // This will work for +0 & -0
-		return 0
-	}
-	remainder := math.Mod(floatValue, float_2_32)
-	if remainder > 0 {
-		remainder = math.Floor(remainder)
-	} else {
-		remainder = math.Ceil(remainder) + float_2_32
-	}
-	if remainder > float_2_31 {
-		return int32(remainder - float_2_32)
-	}
-	return int32(remainder)
+
+	// Convert to int64 before int32 to force correct wrapping.
+	return int32(int64(floatValue))
 }
 
 func toUint32(value Value) uint32 {
-	{
-		switch value := value.value.(type) {
-		case int8:
-			return uint32(value)
-		case int16:
-			return uint32(value)
-		case uint8:
-			return uint32(value)
-		case uint16:
-			return uint32(value)
-		case uint32:
-			return value
-		}
+	switch value := value.value.(type) {
+	case int8:
+		return uint32(value)
+	case int16:
+		return uint32(value)
+	case uint8:
+		return uint32(value)
+	case uint16:
+		return uint32(value)
+	case uint32:
+		return value
 	}
+
 	floatValue := value.float64()
-	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) {
+	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) || floatValue == 0 {
 		return 0
 	}
-	if floatValue == 0 {
-		return 0
-	}
-	remainder := math.Mod(floatValue, float_2_32)
-	if remainder > 0 {
-		remainder = math.Floor(remainder)
-	} else {
-		remainder = math.Ceil(remainder) + float_2_32
-	}
-	return uint32(remainder)
+
+	// Convert to int64 before uint32 to force correct wrapping.
+	return uint32(int64(floatValue))
 }
 
+// ECMA 262 - 6.0 - 7.1.8.
 func toUint16(value Value) uint16 {
-	{
-		switch value := value.value.(type) {
-		case int8:
-			return uint16(value)
-		case uint8:
-			return uint16(value)
-		case uint16:
-			return value
-		}
+	switch value := value.value.(type) {
+	case int8:
+		return uint16(value)
+	case uint8:
+		return uint16(value)
+	case uint16:
+		return value
 	}
+
 	floatValue := value.float64()
-	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) {
+	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) || floatValue == 0 {
 		return 0
 	}
-	if floatValue == 0 {
-		return 0
-	}
-	remainder := math.Mod(floatValue, float_2_16)
-	if remainder > 0 {
-		remainder = math.Floor(remainder)
-	} else {
-		remainder = math.Ceil(remainder) + float_2_16
-	}
-	return uint16(remainder)
+
+	// Convert to int64 before uint16 to force correct wrapping.
+	return uint16(int64(floatValue))
 }
 
 // toIntSign returns sign of a number converted to -1, 0 ,1
