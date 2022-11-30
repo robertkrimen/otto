@@ -228,13 +228,15 @@ func toInt32(value Value) int32 {
 		return 0
 	}
 
-	iv := math.Floor(math.Abs(floatValue))
+	iv := math.Copysign(math.Floor(math.Abs(floatValue)), floatValue)
 	iv32 := math.Mod(iv, float_2_32)
+
 	if iv32 >= float_2_31 {
-		return int32(iv32 - float_2_32)
+		iv32 = iv32 - float_2_32
 	}
 
-	return int32(iv32)
+	// Convert to int64 before int32 to force correct wrapping.
+	return int32(int64(iv32))
 }
 
 func toUint32(value Value) uint32 {
@@ -256,10 +258,11 @@ func toUint32(value Value) uint32 {
 		return 0
 	}
 
-	iv := math.Floor(math.Abs(floatValue))
+	iv := math.Copysign(math.Floor(math.Abs(floatValue)), floatValue)
 	iv32 := math.Mod(iv, float_2_32)
 
-	return uint32(iv32)
+	// Convert to uint64 before uint32 to force correct wrapping.
+	return uint32(uint64(iv32))
 }
 
 // ECMA 262 - 6.0 - 7.1.8.
@@ -278,10 +281,11 @@ func toUint16(value Value) uint16 {
 		return 0
 	}
 
-	iv := math.Floor(math.Abs(floatValue))
+	iv := math.Copysign(math.Floor(math.Abs(floatValue)), floatValue)
 	iv16 := math.Mod(iv, float_2_16)
 
-	return uint16(iv16)
+	// Convert to uint64 before uint16 to force correct wrapping.
+	return uint16(uint64(iv16))
 }
 
 // toIntSign returns sign of a number converted to -1, 0 ,1
