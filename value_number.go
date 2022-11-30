@@ -262,6 +262,28 @@ func toUint32(value Value) uint32 {
 	return uint32(iv32)
 }
 
+// ECMA 262 - 6.0 - 7.1.8.
+func toUint16(value Value) uint16 {
+	switch value := value.value.(type) {
+	case int8:
+		return uint16(value)
+	case uint8:
+		return uint16(value)
+	case uint16:
+		return value
+	}
+
+	floatValue := value.float64()
+	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) || floatValue == 0 {
+		return 0
+	}
+
+	iv := math.Floor(math.Abs(floatValue))
+	iv16 := math.Mod(iv, float_2_16)
+
+	return uint16(iv16)
+}
+
 // toIntSign returns sign of a number converted to -1, 0 ,1
 func toIntSign(value Value) int {
 	switch value := value.value.(type) {
