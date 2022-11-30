@@ -214,91 +214,52 @@ func (value Value) number() (number _number) {
 
 // ECMA 262: 9.5
 func toInt32(value Value) int32 {
-	{
-		switch value := value.value.(type) {
-		case int8:
-			return int32(value)
-		case int16:
-			return int32(value)
-		case int32:
-			return value
-		}
+	switch value := value.value.(type) {
+	case int8:
+		return int32(value)
+	case int16:
+		return int32(value)
+	case int32:
+		return value
 	}
+
 	floatValue := value.float64()
-	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) {
+	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) || floatValue == 0 {
 		return 0
 	}
-	if floatValue == 0 { // This will work for +0 & -0
-		return 0
+
+	iv := math.Floor(math.Abs(floatValue))
+	iv32 := math.Mod(iv, float_2_32)
+	if iv32 >= float_2_31 {
+		return int32(iv32 - float_2_32)
 	}
-	remainder := math.Mod(floatValue, float_2_32)
-	if remainder > 0 {
-		remainder = math.Floor(remainder)
-	} else {
-		remainder = math.Ceil(remainder) + float_2_32
-	}
-	if remainder > float_2_31 {
-		return int32(remainder - float_2_32)
-	}
-	return int32(remainder)
+
+	return int32(iv32)
 }
 
 func toUint32(value Value) uint32 {
-	{
-		switch value := value.value.(type) {
-		case int8:
-			return uint32(value)
-		case int16:
-			return uint32(value)
-		case uint8:
-			return uint32(value)
-		case uint16:
-			return uint32(value)
-		case uint32:
-			return value
-		}
+	switch value := value.value.(type) {
+	case int8:
+		return uint32(value)
+	case int16:
+		return uint32(value)
+	case uint8:
+		return uint32(value)
+	case uint16:
+		return uint32(value)
+	case uint32:
+		return value
 	}
-	floatValue := value.float64()
-	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) {
-		return 0
-	}
-	if floatValue == 0 {
-		return 0
-	}
-	remainder := math.Mod(floatValue, float_2_32)
-	if remainder > 0 {
-		remainder = math.Floor(remainder)
-	} else {
-		remainder = math.Ceil(remainder) + float_2_32
-	}
-	return uint32(remainder)
-}
 
-func toUint16(value Value) uint16 {
-	{
-		switch value := value.value.(type) {
-		case int8:
-			return uint16(value)
-		case uint8:
-			return uint16(value)
-		case uint16:
-			return value
-		}
-	}
 	floatValue := value.float64()
-	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) {
+	if math.IsNaN(floatValue) || math.IsInf(floatValue, 0) || floatValue == 0 {
 		return 0
 	}
-	if floatValue == 0 {
-		return 0
-	}
-	remainder := math.Mod(floatValue, float_2_16)
-	if remainder > 0 {
-		remainder = math.Floor(remainder)
-	} else {
-		remainder = math.Ceil(remainder) + float_2_16
-	}
-	return uint16(remainder)
+
+	iv := math.Floor(math.Abs(floatValue))
+	iv32 := math.Mod(iv, float_2_32)
+
+	return uint32(iv32)
 }
 
 // toIntSign returns sign of a number converted to -1, 0 ,1
