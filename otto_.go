@@ -3,28 +3,28 @@ package otto
 import (
 	"fmt"
 	"regexp"
-	runtime_ "runtime"
+	goruntime "runtime"
 	"strconv"
 )
 
-var isIdentifier_Regexp *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z\$][a-zA-Z0-9\$]*$`)
+var isIdentifierRegexp *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z\$][a-zA-Z0-9\$]*$`)
 
-func isIdentifier(string_ string) bool {
-	return isIdentifier_Regexp.MatchString(string_)
+func isIdentifier(value string) bool {
+	return isIdentifierRegexp.MatchString(value)
 }
 
-func (self *_runtime) toValueArray(arguments ...interface{}) []Value {
+func (rt *runtime) toValueArray(arguments ...interface{}) []Value {
 	length := len(arguments)
 	if length == 1 {
 		if valueArray, ok := arguments[0].([]Value); ok {
 			return valueArray
 		}
-		return []Value{self.toValue(arguments[0])}
+		return []Value{rt.toValue(arguments[0])}
 	}
 
 	valueArray := make([]Value, length)
 	for index, value := range arguments {
-		valueArray[index] = self.toValue(value)
+		valueArray[index] = rt.toValue(value)
 	}
 
 	return valueArray
@@ -89,15 +89,13 @@ func valueToRangeIndex(indexValue Value, length int64, negativeIsZero bool) int6
 		if index < 0 {
 			index = 0
 		}
-	} else {
-		if index > length {
-			index = length
-		}
+	} else if index > length {
+		index = length
 	}
 	return index
 }
 
-func rangeStartEnd(array []Value, size int64, negativeIsZero bool) (start, end int64) {
+func rangeStartEnd(array []Value, size int64, negativeIsZero bool) (start, end int64) { //nolint: nonamedreturns
 	start = valueToRangeIndex(valueOfArrayIndex(array, 0), size, negativeIsZero)
 	if len(array) == 1 {
 		// If there is only the start argument, then end = size
@@ -115,14 +113,14 @@ func rangeStartEnd(array []Value, size int64, negativeIsZero bool) (start, end i
 	return
 }
 
-func rangeStartLength(source []Value, size int64) (start, length int64) {
+func rangeStartLength(source []Value, size int64) (start, length int64) { //nolint: nonamedreturns
 	start = valueToRangeIndex(valueOfArrayIndex(source, 0), size, false)
 
 	// Assume the second argument is missing or undefined
-	length = int64(size)
+	length = size
 	if len(source) == 1 {
 		// If there is only the start argument, then length = size
-		return
+		return start, length
 	}
 
 	lengthValue := valueOfArrayIndex(source, 1)
@@ -130,12 +128,12 @@ func rangeStartLength(source []Value, size int64) (start, length int64) {
 		// Which it is not, so get the value as an array index
 		length = lengthValue.number().int64
 	}
-	return
+	return start, length
 }
 
 func hereBeDragons(arguments ...interface{}) string {
-	pc, _, _, _ := runtime_.Caller(1) //nolint: dogsled
-	name := runtime_.FuncForPC(pc).Name()
+	pc, _, _, _ := goruntime.Caller(1) //nolint: dogsled
+	name := goruntime.FuncForPC(pc).Name()
 	message := fmt.Sprintf("Here be dragons -- %s", name)
 	if len(arguments) > 0 {
 		message += ": "

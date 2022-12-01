@@ -3,7 +3,6 @@ package otto
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"testing"
 	"time"
@@ -150,13 +149,15 @@ func TestCall(t *testing.T) {
 func TestRunFunctionWithSetArguments(t *testing.T) {
 	tt(t, func() {
 		vm := New()
-		vm.Run(`var sillyFunction = function(record){record.silly = true; record.answer *= -1};`)
+		_, err := vm.Run(`var sillyFunction = function(record){record.silly = true; record.answer *= -1};`)
+		require.NoError(t, err)
 		record := map[string]interface{}{"foo": "bar", "answer": 42}
 		// Set performs a conversion that allows the map to be addressed as a Javascript object
-		vm.Set("argument", record)
-		_, err := vm.Run("sillyFunction(argument)")
+		err = vm.Set("argument", record)
+		require.NoError(t, err)
+		_, err = vm.Run("sillyFunction(argument)")
+		require.NoError(t, err)
 
-		is(err, nil)
 		is(record["answer"].(float64), -42)
 		is(record["silly"].(bool), true)
 	})
@@ -165,11 +166,12 @@ func TestRunFunctionWithSetArguments(t *testing.T) {
 func TestRunFunctionWithArgumentsPassedToCall(t *testing.T) {
 	tt(t, func() {
 		vm := New()
-		vm.Run(`var sillyFunction = function(record){record.silly = true; record.answer *= -1};`)
+		_, err := vm.Run(`var sillyFunction = function(record){record.silly = true; record.answer *= -1};`)
+		require.NoError(t, err)
 		record := map[string]interface{}{"foo": "bar", "answer": 42}
-		_, err := vm.Call("sillyFunction", nil, record)
+		_, err = vm.Call("sillyFunction", nil, record)
+		require.NoError(t, err)
 
-		is(err, nil)
 		is(record["answer"].(float64), -42)
 		is(record["silly"].(bool), true)
 	})
@@ -716,7 +718,7 @@ func Test_eval(t *testing.T) {
                     return [ abc instanceof SyntaxError, abc.toString() ];
                 }
             })();
-        `, "true,SyntaxError: Unexpected token ILLEGAL")
+        `, "true,SyntaxError: (anonymous): Line 1:12 Unexpected token ILLEGAL (and 1 more errors)")
 
 		test(`
             function abc(){
@@ -814,18 +816,18 @@ func TestAPI(t *testing.T) {
         `, 16)
 		abc, _ := vm.Get("abc")
 		def, _ := vm.Get("def")
-		object := abc.Object()
-		result, _ := object.Call("xyzzy")
+		obj := abc.Object()
+		result, _ := obj.Call("xyzzy")
 		is(result, 16)
-		result, _ = object.Call("xyzzy", 1)
+		result, _ = obj.Call("xyzzy", 1)
 		is(result, 17)
-		value, _ := object.Get("xyzzy")
+		value, _ := obj.Get("xyzzy")
 		result, _ = value.Call(def)
 		is(result, 27)
 		result, _ = value.Call(def, 3)
 		is(result, 30)
-		object = value.Object() // Object xyzzy
-		result, _ = object.Value().Call(def, 3)
+		obj = value.Object() // Object xyzzy
+		result, _ = obj.Value().Call(def, 3)
 		is(result, 30)
 
 		test(`
@@ -837,35 +839,39 @@ func TestAPI(t *testing.T) {
             abc['abc'];
         `, 1)
 		abc, err := vm.Get("abc")
-		is(err, nil)
-		object = abc.Object() // Object abc
-		value, err = object.Get("abc")
-		is(err, nil)
+		require.NoError(t, err)
+		obj = abc.Object() // Object abc
+		value, err = obj.Get("abc")
+		require.NoError(t, err)
 		is(value, 1)
-		is(object.Keys(), []string{"abc", "def", "3.14159"})
+		is(obj.Keys(), []string{"abc", "def", "3.14159"})
 
 		test(`
             abc = [ 0, 1, 2, 3.14159, "abc", , ];
             abc.def = true;
         `)
 		abc, err = vm.Get("abc")
-		is(err, nil)
-		object = abc.Object() // Object abc
-		is(object.Keys(), []string{"0", "1", "2", "3", "4", "def"})
+		require.NoError(t, err)
+		obj = abc.Object() // Object abc
+		is(obj.Keys(), []string{"0", "1", "2", "3", "4", "def"})
 	})
 }
 
 func TestObjectKeys(t *testing.T) {
 	tt(t, func() {
 		vm := New()
-		vm.Eval(`var x = Object.create(null); x.a = 1`)
-		vm.Eval(`var y = Object.create(x); y.b = 2`)
+		_, err := vm.Eval(`var x = Object.create(null); x.a = 1`)
+		require.NoError(t, err)
+		_, err = vm.Eval(`var y = Object.create(x); y.b = 2`)
+		require.NoError(t, err)
 
-		o1, _ := vm.Object("x")
+		o1, err := vm.Object("x")
+		require.NoError(t, err)
 		is(o1.Keys(), []string{"a"})
 		is(o1.KeysByParent(), [][]string{{"a"}})
 
-		o2, _ := vm.Object("y")
+		o2, err := vm.Object("y")
+		require.NoError(t, err)
 		is(o2.Keys(), []string{"b"})
 		is(o2.KeysByParent(), [][]string{{"b"}, {"a"}})
 	})
@@ -913,8 +919,8 @@ func TestDotMember(t *testing.T) {
 
 func Test_stringToFloat(t *testing.T) {
 	tt(t, func() {
-		is(parseNumber("10e10000"), _Infinity)
-		is(parseNumber("10e10_."), _NaN)
+		is(parseNumber("10e10000"), infinity)
+		is(parseNumber("10e10_."), naN)
 	})
 }
 
@@ -1020,14 +1026,14 @@ func TestOttoCall(t *testing.T) {
                 return s.Val;
             }
         `)
-		is(err, nil)
+		require.NoError(t, err)
 
 		value, err := vm.Call(`abc.def`, nil, 2)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, "def: 6.14159")
 
 		value, err = vm.Call(`abc.def`, "", 2)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, "def: 5.14159")
 
 		// Do not attempt to do a ToValue on a this of nil
@@ -1036,12 +1042,12 @@ func TestOttoCall(t *testing.T) {
 		is(value, "undefined")
 
 		value, err = vm.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, "1,2,3,,4,5,6,7,abc")
 
 		s := struct{ Val int }{Val: 10}
 		value, err = vm.Call("structFunc", nil, s)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, 10)
 	})
 }
@@ -1052,7 +1058,7 @@ func TestOttoCall_new(t *testing.T) {
 
 		vm.Set("abc", func(call FunctionCall) Value {
 			value, err := call.Otto.Call(`new Object`, nil, "Nothing happens.")
-			is(err, nil)
+			require.NoError(t, err)
 			return value
 		})
 		test(`
@@ -1067,7 +1073,7 @@ func TestOttoCall_newWithBrackets(t *testing.T) {
 		test, vm := test()
 
 		_, err := vm.Run(`var a = {default: function B(x) { this.x = x; } }`)
-		is(err, nil)
+		require.NoError(t, err)
 
 		test(`(new a['default'](1)).x`, 1)
 	})
@@ -1087,9 +1093,11 @@ func TestOttoCall_throw(t *testing.T) {
 
 		vm.Set("abc", func(call FunctionCall) Value {
 			if false {
-				call.Otto.Call(`throw eval`, nil, "({ def: 3.14159 })")
+				_, err := call.Otto.Call(`throw eval`, nil, "({ def: 3.14159 })")
+				require.NoError(t, err)
 			}
-			call.Otto.Call(`throw Error`, nil, "abcdef")
+			_, err := call.Otto.Call(`throw Error`, nil, "abcdef")
+			require.NoError(t, err)
 			return Value{}
 		})
 		// TODO try { abc(); } catch (err) { error = err }
@@ -1108,7 +1116,8 @@ func TestOttoCall_throw(t *testing.T) {
         `, "true,abcdef,")
 
 		vm.Set("def", func(call FunctionCall) Value {
-			call.Otto.Call(`throw new Object`, nil, 3.14159)
+			_, err := call.Otto.Call(`throw new Object`, nil, 3.14159)
+			require.NoError(t, err)
 			return UndefinedValue()
 		})
 		test(`
@@ -1126,7 +1135,7 @@ func TestOttoCall_throw(t *testing.T) {
 func TestOttoCopy(t *testing.T) {
 	tt(t, func() {
 		vm0 := New()
-		vm0.Run(`
+		_, err := vm0.Run(`
             var abc = function() {
                 return "Xyzzy";
             };
@@ -1135,40 +1144,42 @@ func TestOttoCopy(t *testing.T) {
                 return abc() + (0 + {});
             }
         `)
+		require.NoError(t, err)
 
 		value, err := vm0.Run(`
             def();
         `)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, "Xyzzy0[object Object]")
 
 		vm1 := vm0.Copy()
 		value, err = vm1.Run(`
             def();
         `)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, "Xyzzy0[object Object]")
 
-		vm1.Run(`
+		_, err = vm1.Run(`
             abc = function() {
                 return 3.14159;
             };
         `)
+		require.NoError(t, err)
 		value, err = vm1.Run(`
             def();
         `)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, "3.141590[object Object]")
 
 		value, err = vm0.Run(`
             def();
         `)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, "Xyzzy0[object Object]")
 
 		{
 			vm0 := New()
-			vm0.Run(`
+			_, err := vm0.Run(`
                 var global = (function () {return this;}())
                 var abc = 0;
                 var vm = "vm0";
@@ -1186,31 +1197,33 @@ func TestOttoCopy(t *testing.T) {
                     };
                 })();
             `)
+			require.NoError(t, err)
 
 			value, err := vm0.Run(`
                 def();
             `)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, "vm0,0,0,1")
 
 			vm1 := vm0.Copy()
-			vm1.Set("vm", "vm1")
+			err = vm1.Set("vm", "vm1")
+			require.NoError(t, err)
 			value, err = vm1.Run(`
                 def();
             `)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, "vm1,1,1,1")
 
 			value, err = vm0.Run(`
                 def();
             `)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, "vm0,1,1,1")
 
 			value, err = vm1.Run(`
                 def();
             `)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, "vm1,2,2,1")
 		}
 	})
@@ -1227,29 +1240,29 @@ func TestOttoCall_clone(t *testing.T) {
 			is(rt.global.ArrayPrototype, "!=", nil)
 			is(rt.global.Array.runtime, rt)
 			is(rt.global.Array.prototype.runtime, rt)
-			is(rt.global.Array.get("prototype")._object().runtime, rt)
+			is(rt.global.Array.get("prototype").object().runtime, rt)
 		}
 
 		{
 			value, err := vm.Run(`[ 1, 2, 3 ].toString()`)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, "1,2,3")
 		}
 
 		{
 			value, err := vm.Run(`[ 1, 2, 3 ]`)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, "1,2,3")
-			object := value._object()
-			is(object, "!=", nil)
-			is(object.prototype, rt.global.ArrayPrototype)
+			obj := value.object()
+			is(obj, "!=", nil)
+			is(obj.prototype, rt.global.ArrayPrototype)
 
 			value, err = vm.Run(`Array.prototype`)
-			is(err, nil)
-			object = value._object()
-			is(object.runtime, rt)
-			is(object, "!=", nil)
-			is(object, rt.global.ArrayPrototype)
+			require.NoError(t, err)
+			obj = value.object()
+			is(obj.runtime, rt)
+			is(obj, "!=", nil)
+			is(obj, rt.global.ArrayPrototype)
 		}
 
 		{
@@ -1258,15 +1271,15 @@ func TestOttoCall_clone(t *testing.T) {
                 var abc = 1;
                 var def = 2;
             `)
-			is(err, nil)
+			require.NoError(t, err)
 
 			otto2 := otto1.clone()
 			value, err := otto2.Run(`abc += 1; abc;`)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 2)
 
 			value, err = otto1.Run(`abc += 4; abc;`)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 5)
 		}
 
@@ -1279,15 +1292,15 @@ func TestOttoCall_clone(t *testing.T) {
                     return abc;
                 }
             `)
-			is(err, nil)
+			require.NoError(t, err)
 
 			vm2 := vm1.clone()
 			value, err := vm2.Run(`def(1)`)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 2)
 
 			value, err = vm1.Run(`def(4)`)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 5)
 		}
 
@@ -1305,15 +1318,15 @@ func TestOttoCall_clone(t *testing.T) {
                     abc: abc
                 };
             `)
-			is(err, nil)
+			require.NoError(t, err)
 
 			otto2 := vm1.clone()
 			value, err := otto2.Run(`def.abc.jkl(1)`)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 2)
 
 			value, err = vm1.Run(`def.abc.jkl(4)`)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 5)
 		}
 
@@ -1323,30 +1336,30 @@ func TestOttoCall_clone(t *testing.T) {
                 var abc = function() { return "abc"; };
                 var def = function() { return "def"; };
             `)
-			is(err, nil)
+			require.NoError(t, err)
 
 			vm2 := vm1.clone()
 			value, err := vm2.Run(`
                 [ abc.toString(), def.toString() ];
             `)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, `function() { return "abc"; },function() { return "def"; }`)
 
 			_, err = vm2.Run(`
                 var def = function() { return "ghi"; };
             `)
-			is(err, nil)
+			require.NoError(t, err)
 
 			value, err = vm1.Run(`
                 [ abc.toString(), def.toString() ];
             `)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, `function() { return "abc"; },function() { return "def"; }`)
 
 			value, err = vm2.Run(`
                 [ abc.toString(), def.toString() ];
             `)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, `function() { return "abc"; },function() { return "ghi"; }`)
 		}
 	})
@@ -1357,57 +1370,57 @@ func TestOttoRun(t *testing.T) {
 		vm := New()
 
 		program, err := parser.ParseFile(nil, "", "", 0)
-		is(err, nil)
+		require.NoError(t, err)
 		value, err := vm.Run(program)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, UndefinedValue())
 
 		program, err = parser.ParseFile(nil, "", "2 + 2", 0)
-		is(err, nil)
+		require.NoError(t, err)
 		value, err = vm.Run(program)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, 4)
 		value, err = vm.Run(program)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, 4)
 
 		program, err = parser.ParseFile(nil, "", "var abc; if (!abc) abc = 0; abc += 2; abc;", 0)
-		is(err, nil)
+		require.NoError(t, err)
 		value, err = vm.Run(program)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, 2)
 		value, err = vm.Run(program)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, 4)
 		value, err = vm.Run(program)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, 6)
 
 		{
 			src := []byte("var abc; if (!abc) abc = 0; abc += 2; abc;")
 			value, err = vm.Run(src)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 8)
 
 			value, err = vm.Run(bytes.NewBuffer(src))
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 10)
 
 			value, err = vm.Run(io.Reader(bytes.NewBuffer(src)))
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 12)
 		}
 
 		{
 			script, err := vm.Compile("", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
-			is(err, nil)
+			require.NoError(t, err)
 
 			value, err = vm.Run(script)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 14)
 
 			value, err = vm.Run(script)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 16)
 
 			is(script.String(), "// \nvar abc; if (!abc) abc = 0; abc += 2; abc;")
@@ -1418,19 +1431,14 @@ func TestOttoRun(t *testing.T) {
 // This generates functions to be used by the test below. The arguments are
 // `src`, which is something that otto can execute, and `expected`, which is
 // what the result of executing `src` should be.
-func makeTestOttoEvalFunction(src, expected interface{}) func(c FunctionCall) Value {
+func makeTestOttoEvalFunction(t *testing.T, src, expected interface{}) func(c FunctionCall) Value {
+	t.Helper()
 	return func(c FunctionCall) Value {
 		v, err := c.Otto.Eval(src)
-		is(err, nil)
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(t, err)
 
 		i, err := v.Export()
-		is(err, nil)
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(t, err)
 
 		is(i, expected)
 
@@ -1442,13 +1450,20 @@ func TestOttoEval(t *testing.T) {
 	tt(t, func() {
 		vm := New()
 
-		vm.Set("x1", makeTestOttoEvalFunction(`a`, 1))
-		vm.Set("y1", makeTestOttoEvalFunction(`b`, "hello"))
-		vm.Set("z1", makeTestOttoEvalFunction(`c`, true))
-		vm.Set("w", makeTestOttoEvalFunction(`a = 2; b = 'what'; c = false; null`, nil))
-		vm.Set("x2", makeTestOttoEvalFunction(`a`, 2))
-		vm.Set("y2", makeTestOttoEvalFunction(`b`, "what"))
-		vm.Set("z2", makeTestOttoEvalFunction(`c`, false))
+		err := vm.Set("x1", makeTestOttoEvalFunction(t, `a`, 1))
+		require.NoError(t, err)
+		err = vm.Set("y1", makeTestOttoEvalFunction(t, `b`, "hello"))
+		require.NoError(t, err)
+		err = vm.Set("z1", makeTestOttoEvalFunction(t, `c`, true))
+		require.NoError(t, err)
+		err = vm.Set("w", makeTestOttoEvalFunction(t, `a = 2; b = 'what'; c = false; null`, nil))
+		require.NoError(t, err)
+		err = vm.Set("x2", makeTestOttoEvalFunction(t, `a`, 2))
+		require.NoError(t, err)
+		err = vm.Set("y2", makeTestOttoEvalFunction(t, `b`, "what"))
+		require.NoError(t, err)
+		err = vm.Set("z2", makeTestOttoEvalFunction(t, `c`, false))
+		require.NoError(t, err)
 
 		// note that these variables are defined in the scope of function `t`,
 		// so would not usually be available to the functions called below.
@@ -1459,7 +1474,7 @@ func TestOttoEval(t *testing.T) {
 		// technically valid, but completely insane.
 		//
 		// makes for a good test case though.
-		_, err := vm.Run(`(function t() {
+		_, err = vm.Run(`(function t() {
             var a = 1;
             var b = 'hello';
             var c = true;
@@ -1472,8 +1487,7 @@ func TestOttoEval(t *testing.T) {
             y2();
             z2();
         }())`)
-
-		is(err, nil)
+		require.NoError(t, err)
 	})
 
 	// this test makes sure that `Eval` doesn't explode if the VM doesn't have
@@ -1482,15 +1496,17 @@ func TestOttoEval(t *testing.T) {
 		vm := New()
 
 		_, err := vm.Eval("null")
-		is(err, nil)
+		require.NoError(t, err)
 
-		vm.Set("a", 1)
-		vm.Set("b", 2)
+		err = vm.Set("a", 1)
+		require.NoError(t, err)
+		err = vm.Set("b", 2)
+		require.NoError(t, err)
 
 		v, err := vm.Eval("a + b")
-		is(err, nil)
+		require.NoError(t, err)
 		r, err := v.Export()
-		is(err, nil)
+		require.NoError(t, err)
 		is(r, 3)
 	})
 }
@@ -1500,7 +1516,7 @@ func TestOttoContext(t *testing.T) {
 	builtins := []string{
 		"escape",
 		"URIError",
-		classRegExp,
+		classRegExpName,
 		"ReferenceError",
 		"parseFloat",
 		"parseInt",
@@ -1512,23 +1528,23 @@ func TestOttoContext(t *testing.T) {
 		"isNaN",
 		"unescape",
 		"decodeURI",
-		classObject,
-		classFunction,
+		classObjectName,
+		classFunctionName,
 		"RangeError",
-		classError,
+		classErrorName,
 		"get_context",
 		"eval",
-		classNumber,
+		classNumberName,
 		"Math",
 		"NaN",
-		classDate,
-		classBoolean,
+		classDateName,
+		classBooleanName,
 		"console",
 		"encodeURI",
 		"EvalError",
-		classArray,
+		classArrayName,
 		"TypeError",
-		classString,
+		classStringName,
 		"isFinite",
 		"undefined",
 	}
@@ -1536,7 +1552,7 @@ func TestOttoContext(t *testing.T) {
 	tt(t, func() {
 		vm := New()
 
-		vm.Set("get_context", func(c FunctionCall) Value {
+		err := vm.Set("get_context", func(c FunctionCall) Value {
 			ctx := c.Otto.Context()
 			is(ctx.Callee, "f1")
 			is(ctx.Filename, "<anonymous>")
@@ -1562,8 +1578,9 @@ func TestOttoContext(t *testing.T) {
 
 			return Value{}
 		})
+		require.NoError(t, err)
 
-		_, err := vm.Run(`(function t() {
+		_, err = vm.Run(`(function t() {
 			var a = 1;
 			var b = 'hello';
 			var c = true;
@@ -1591,7 +1608,7 @@ func TestOttoContext(t *testing.T) {
 			c = false;
 		}())`)
 
-		is(err, nil)
+		require.NoError(t, err)
 	})
 
 	// this test makes sure that `Context` works on global scope by default, if
@@ -1599,7 +1616,7 @@ func TestOttoContext(t *testing.T) {
 	tt(t, func() {
 		vm := New()
 
-		vm.Set("get_context", func(c FunctionCall) Value {
+		err := vm.Set("get_context", func(c FunctionCall) Value {
 			ctx := c.Otto.Context()
 			is(ctx.Callee, "")
 			is(ctx.Filename, "<anonymous>")
@@ -1612,30 +1629,32 @@ func TestOttoContext(t *testing.T) {
 
 			return Value{}
 		})
+		require.NoError(t, err)
 
-		_, err := vm.Run(`
+		_, err = vm.Run(`
 			var a = 1;
 			get_context()
 			var b = 2;
 		`)
-		is(err, nil)
+		require.NoError(t, err)
 	})
 
 	// this test makes sure variables are shadowed correctly.
 	tt(t, func() {
 		vm := New()
 
-		vm.Set("check_context", func(c FunctionCall) Value {
+		err := vm.Set("check_context", func(c FunctionCall) Value {
 			n, err := c.Argument(0).ToInteger()
-			is(err, nil)
+			require.NoError(t, err)
 
 			ctx := c.Otto.Context()
 			is(ctx.Symbols["a"], n)
 
 			return Value{}
 		})
+		require.NoError(t, err)
 
-		_, err := vm.Run(`
+		_, err = vm.Run(`
             var a = 1;
             check_context(1);
             (function() {
@@ -1650,7 +1669,7 @@ func TestOttoContext(t *testing.T) {
             }).call(null, 4);
             check_context(1);
         `)
-		is(err, nil)
+		require.NoError(t, err)
 	})
 }
 
@@ -1659,16 +1678,16 @@ func Test_objectLength(t *testing.T) {
 		_, vm := test()
 
 		value := vm.Set("abc", []string{"jkl", "mno"})
-		is(objectLength(value._object()), 2)
+		is(objectLength(value.object()), 2)
 
 		value, _ = vm.Run(`[1, 2, 3]`)
-		is(objectLength(value._object()), 3)
+		is(objectLength(value.object()), 3)
 
 		value, _ = vm.Run(`new String("abcdefghi")`)
-		is(objectLength(value._object()), 9)
+		is(objectLength(value.object()), 9)
 
 		value, _ = vm.Run(`"abcdefghi"`)
-		is(objectLength(value._object()), 0)
+		is(objectLength(value.object()), 0)
 	})
 }
 
@@ -1690,8 +1709,7 @@ func Test_stackLimit(t *testing.T) {
 		_, vm := test()
 
 		_, err := vm.Run(code)
-
-		is(err == nil, true)
+		require.NoError(t, err)
 	})
 
 	// has error
@@ -1701,8 +1719,7 @@ func Test_stackLimit(t *testing.T) {
 		vm.vm.SetStackDepthLimit(2)
 
 		_, err := vm.Run(code)
-
-		is(err == nil, false)
+		require.Error(t, err)
 	})
 
 	// has error
@@ -1712,8 +1729,7 @@ func Test_stackLimit(t *testing.T) {
 		vm.vm.SetStackDepthLimit(5)
 
 		_, err := vm.Run(code)
-
-		is(err == nil, false)
+		require.Error(t, err)
 	})
 
 	// has no error
@@ -1723,8 +1739,7 @@ func Test_stackLimit(t *testing.T) {
 		vm.vm.SetStackDepthLimit(6)
 
 		_, err := vm.Run(code)
-
-		is(err == nil, true)
+		require.NoError(t, err)
 	})
 
 	// has no error
@@ -1735,8 +1750,7 @@ func Test_stackLimit(t *testing.T) {
 		vm.vm.SetStackDepthLimit(0)
 
 		_, err := vm.Run(code)
-
-		is(err == nil, true)
+		require.NoError(t, err)
 	})
 }
 
@@ -1764,8 +1778,7 @@ func TestOttoInterrupt(t *testing.T) {
 			go func() {
 				defer func() {
 					if caught := recover(); caught != nil {
-						if caught == halt {
-							fmt.Println(caught)
+						if caught == halt { //nolint: errorlint
 							ec <- nil
 							return
 						}

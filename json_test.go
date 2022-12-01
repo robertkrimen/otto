@@ -2,15 +2,21 @@ package otto
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func BenchmarkJSON_parse(b *testing.B) {
 	vm := New()
 	for i := 0; i < b.N; i++ {
-		vm.Run(`JSON.parse("1")`)
-		vm.Run(`JSON.parse("[1,2,3]")`)
-		vm.Run(`JSON.parse('{"a":{"x":100,"y":110},"b":[10,20,30],"c":"zazazaza"}')`)
-		vm.Run(`JSON.parse("[1,2,3]", function(k, v) { return undefined })`)
+		_, err := vm.Run(`JSON.parse("1")`)
+		require.NoError(b, err)
+		_, err = vm.Run(`JSON.parse("[1,2,3]")`)
+		require.NoError(b, err)
+		_, err = vm.Run(`JSON.parse('{"a":{"x":100,"y":110},"b":[10,20,30],"c":"zazazaza"}')`)
+		require.NoError(b, err)
+		_, err = vm.Run(`JSON.parse("[1,2,3]", function(k, v) { return undefined })`)
+		require.NoError(b, err)
 	}
 }
 

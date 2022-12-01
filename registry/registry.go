@@ -1,17 +1,17 @@
-/*
-Package registry is an expirmental package to facillitate altering the otto runtime via import.
-
-This interface can change at any time.
-*/
+// Package registry is an experimental package to facilitate altering the otto runtime via import.
+//
+// This interface can change at any time.
 package registry
 
 var registry []*Entry = make([]*Entry, 0)
 
+// Entry represents a registry entry.
 type Entry struct {
 	active bool
 	source func() string
 }
 
+// newEntry returns a new Entry for source.
 func newEntry(source func() string) *Entry {
 	return &Entry{
 		active: true,
@@ -19,18 +19,22 @@ func newEntry(source func() string) *Entry {
 	}
 }
 
-func (self *Entry) Enable() {
-	self.active = true
+// Enable enables the entry.
+func (e *Entry) Enable() {
+	e.active = true
 }
 
-func (self *Entry) Disable() {
-	self.active = false
+// Disable disables the entry.
+func (e *Entry) Disable() {
+	e.active = false
 }
 
-func (self Entry) Source() string {
-	return self.source()
+// Source returns the source of the entry.
+func (e Entry) Source() string {
+	return e.source()
 }
 
+// Apply applies callback to all registry entries.
 func Apply(callback func(Entry)) {
 	for _, entry := range registry {
 		if !entry.active {
@@ -40,6 +44,7 @@ func Apply(callback func(Entry)) {
 	}
 }
 
+// Register registers a new Entry for source.
 func Register(source func() string) *Entry {
 	entry := newEntry(source)
 	registry = append(registry, entry)

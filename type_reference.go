@@ -1,6 +1,6 @@
 package otto
 
-type _reference interface {
+type referencer interface {
 	invalid() bool         // IsUnresolvableReference
 	getValue() Value       // getValue
 	putValue(Value) string // PutValue
@@ -9,86 +9,85 @@ type _reference interface {
 
 // PropertyReference
 
-type _propertyReference struct {
+type propertyReference struct {
 	name    string
 	strict  bool
-	base    *_object
-	runtime *_runtime
-	at      _at
+	base    *object
+	runtime *runtime
+	at      at
 }
 
-func newPropertyReference(rt *_runtime, base *_object, name string, strict bool, at _at) *_propertyReference {
-	return &_propertyReference{
+func newPropertyReference(rt *runtime, base *object, name string, strict bool, atv at) *propertyReference {
+	return &propertyReference{
 		runtime: rt,
 		name:    name,
 		strict:  strict,
 		base:    base,
-		at:      at,
+		at:      atv,
 	}
 }
 
-func (self *_propertyReference) invalid() bool {
-	return self.base == nil
+func (pr *propertyReference) invalid() bool {
+	return pr.base == nil
 }
 
-func (self *_propertyReference) getValue() Value {
-	if self.base == nil {
-		panic(self.runtime.panicReferenceError("'%s' is not defined", self.name, self.at))
+func (pr *propertyReference) getValue() Value {
+	if pr.base == nil {
+		panic(pr.runtime.panicReferenceError("'%s' is not defined", pr.name, pr.at))
 	}
-	return self.base.get(self.name)
+	return pr.base.get(pr.name)
 }
 
-func (self *_propertyReference) putValue(value Value) string {
-	if self.base == nil {
-		return self.name
+func (pr *propertyReference) putValue(value Value) string {
+	if pr.base == nil {
+		return pr.name
 	}
-	self.base.put(self.name, value, self.strict)
+	pr.base.put(pr.name, value, pr.strict)
 	return ""
 }
 
-func (self *_propertyReference) delete() bool {
-	if self.base == nil {
+func (pr *propertyReference) delete() bool {
+	if pr.base == nil {
 		// TODO Throw an error if strict
 		return true
 	}
-	return self.base.delete(self.name, self.strict)
+	return pr.base.delete(pr.name, pr.strict)
 }
 
-type _stashReference struct {
+type stashReference struct {
 	name   string
 	strict bool
-	base   _stash
+	base   stasher
 }
 
-func (self *_stashReference) invalid() bool {
+func (sr *stashReference) invalid() bool {
 	return false // The base (an environment) will never be nil
 }
 
-func (self *_stashReference) getValue() Value {
-	return self.base.getBinding(self.name, self.strict)
+func (sr *stashReference) getValue() Value {
+	return sr.base.getBinding(sr.name, sr.strict)
 }
 
-func (self *_stashReference) putValue(value Value) string {
-	self.base.setValue(self.name, value, self.strict)
+func (sr *stashReference) putValue(value Value) string {
+	sr.base.setValue(sr.name, value, sr.strict)
 	return ""
 }
 
-func (self *_stashReference) delete() bool {
-	if self.base == nil {
+func (sr *stashReference) delete() bool {
+	if sr.base == nil {
 		// This should never be reached, but just in case
 		return false
 	}
-	return self.base.deleteBinding(self.name)
+	return sr.base.deleteBinding(sr.name)
 }
 
-// getIdentifierReference
-
-func getIdentifierReference(runtime *_runtime, stash _stash, name string, strict bool, at _at) _reference {
+// getIdentifierReference.
+func getIdentifierReference(rt *runtime, stash stasher, name string, strict bool, atv at) referencer {
 	if stash == nil {
-		return newPropertyReference(runtime, nil, name, strict, at)
+		return newPropertyReference(rt, nil, name, strict, atv)
 	}
 	if stash.hasBinding(name) {
-		return stash.newReference(name, strict, at)
+		return stash.newReference(name, strict, atv)
 	}
-	return getIdentifierReference(runtime, stash.outer(), name, strict, at)
+	return getIdentifierReference(rt, stash.outer(), name, strict, atv)
 }

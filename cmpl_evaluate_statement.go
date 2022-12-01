@@ -2,121 +2,121 @@ package otto
 
 import (
 	"fmt"
-	"runtime"
+	goruntime "runtime"
 
 	"github.com/robertkrimen/otto/token"
 )
 
-func (self *_runtime) cmpl_evaluate_nodeStatement(node _nodeStatement) Value {
+func (rt *runtime) cmplEvaluateNodeStatement(node nodeStatement) Value {
 	// Allow interpreter interruption
 	// If the Interrupt channel is nil, then
 	// we avoid runtime.Gosched() overhead (if any)
 	// FIXME: Test this
-	if self.otto.Interrupt != nil {
-		runtime.Gosched()
+	if rt.otto.Interrupt != nil {
+		goruntime.Gosched()
 		select {
-		case value := <-self.otto.Interrupt:
+		case value := <-rt.otto.Interrupt:
 			value()
 		default:
 		}
 	}
 
 	switch node := node.(type) {
-	case *_nodeBlockStatement:
-		labels := self.labels
-		self.labels = nil
+	case *nodeBlockStatement:
+		labels := rt.labels
+		rt.labels = nil
 
-		value := self.cmpl_evaluate_nodeStatementList(node.list)
-		switch value.kind {
-		case valueResult:
-			switch value.evaluateBreak(labels) {
-			case resultBreak:
+		value := rt.cmplEvaluateNodeStatementList(node.list)
+		if value.kind == valueResult {
+			if value.evaluateBreak(labels) == resultBreak {
 				return emptyValue
 			}
 		}
 		return value
 
-	case *_nodeBranchStatement:
+	case *nodeBranchStatement:
 		target := node.label
 		switch node.branch { // FIXME Maybe node.kind? node.operator?
 		case token.BREAK:
 			return toValue(newBreakResult(target))
 		case token.CONTINUE:
 			return toValue(newContinueResult(target))
+		default:
+			panic(fmt.Errorf("unknown node branch token %T", node))
 		}
 
-	case *_nodeDebuggerStatement:
-		if self.debugger != nil {
-			self.debugger(self.otto)
+	case *nodeDebuggerStatement:
+		if rt.debugger != nil {
+			rt.debugger(rt.otto)
 		}
 		return emptyValue // Nothing happens.
 
-	case *_nodeDoWhileStatement:
-		return self.cmpl_evaluate_nodeDoWhileStatement(node)
+	case *nodeDoWhileStatement:
+		return rt.cmplEvaluateNodeDoWhileStatement(node)
 
-	case *_nodeEmptyStatement:
+	case *nodeEmptyStatement:
 		return emptyValue
 
-	case *_nodeExpressionStatement:
-		return self.cmpl_evaluate_nodeExpression(node.expression)
+	case *nodeExpressionStatement:
+		return rt.cmplEvaluateNodeExpression(node.expression)
 
-	case *_nodeForInStatement:
-		return self.cmpl_evaluate_nodeForInStatement(node)
+	case *nodeForInStatement:
+		return rt.cmplEvaluateNodeForInStatement(node)
 
-	case *_nodeForStatement:
-		return self.cmpl_evaluate_nodeForStatement(node)
+	case *nodeForStatement:
+		return rt.cmplEvaluateNodeForStatement(node)
 
-	case *_nodeIfStatement:
-		return self.cmpl_evaluate_nodeIfStatement(node)
+	case *nodeIfStatement:
+		return rt.cmplEvaluateNodeIfStatement(node)
 
-	case *_nodeLabelledStatement:
-		self.labels = append(self.labels, node.label)
+	case *nodeLabelledStatement:
+		rt.labels = append(rt.labels, node.label)
 		defer func() {
-			if len(self.labels) > 0 {
-				self.labels = self.labels[:len(self.labels)-1] // Pop the label
+			if len(rt.labels) > 0 {
+				rt.labels = rt.labels[:len(rt.labels)-1] // Pop the label
 			} else {
-				self.labels = nil
+				rt.labels = nil
 			}
 		}()
-		return self.cmpl_evaluate_nodeStatement(node.statement)
+		return rt.cmplEvaluateNodeStatement(node.statement)
 
-	case *_nodeReturnStatement:
+	case *nodeReturnStatement:
 		if node.argument != nil {
-			return toValue(newReturnResult(self.cmpl_evaluate_nodeExpression(node.argument).resolve()))
+			return toValue(newReturnResult(rt.cmplEvaluateNodeExpression(node.argument).resolve()))
 		}
 		return toValue(newReturnResult(Value{}))
 
-	case *_nodeSwitchStatement:
-		return self.cmpl_evaluate_nodeSwitchStatement(node)
+	case *nodeSwitchStatement:
+		return rt.cmplEvaluateNodeSwitchStatement(node)
 
-	case *_nodeThrowStatement:
-		value := self.cmpl_evaluate_nodeExpression(node.argument).resolve()
+	case *nodeThrowStatement:
+		value := rt.cmplEvaluateNodeExpression(node.argument).resolve()
 		panic(newException(value))
 
-	case *_nodeTryStatement:
-		return self.cmpl_evaluate_nodeTryStatement(node)
+	case *nodeTryStatement:
+		return rt.cmplEvaluateNodeTryStatement(node)
 
-	case *_nodeVariableStatement:
+	case *nodeVariableStatement:
 		// Variables are already defined, this is initialization only
 		for _, variable := range node.list {
-			self.cmpl_evaluate_nodeVariableExpression(variable.(*_nodeVariableExpression))
+			rt.cmplEvaluateNodeVariableExpression(variable.(*nodeVariableExpression))
 		}
 		return emptyValue
 
-	case *_nodeWhileStatement:
-		return self.cmpl_evaluate_nodeWhileStatement(node)
+	case *nodeWhileStatement:
+		return rt.cmplEvaluateModeWhileStatement(node)
 
-	case *_nodeWithStatement:
-		return self.cmpl_evaluate_nodeWithStatement(node)
+	case *nodeWithStatement:
+		return rt.cmplEvaluateNodeWithStatement(node)
+	default:
+		panic(fmt.Errorf("unknown node statement type %T", node))
 	}
-
-	panic(fmt.Errorf("Here be dragons: evaluate_nodeStatement(%T)", node))
 }
 
-func (self *_runtime) cmpl_evaluate_nodeStatementList(list []_nodeStatement) Value {
+func (rt *runtime) cmplEvaluateNodeStatementList(list []nodeStatement) Value {
 	var result Value
 	for _, node := range list {
-		value := self.cmpl_evaluate_nodeStatement(node)
+		value := rt.cmplEvaluateNodeStatement(node)
 		switch value.kind {
 		case valueResult:
 			return value
@@ -133,9 +133,9 @@ func (self *_runtime) cmpl_evaluate_nodeStatementList(list []_nodeStatement) Val
 	return result
 }
 
-func (self *_runtime) cmpl_evaluate_nodeDoWhileStatement(node *_nodeDoWhileStatement) Value {
-	labels := append(self.labels, "")
-	self.labels = nil
+func (rt *runtime) cmplEvaluateNodeDoWhileStatement(node *nodeDoWhileStatement) Value {
+	labels := append(rt.labels, "") //nolint: gocritic
+	rt.labels = nil
 
 	test := node.test
 
@@ -143,7 +143,7 @@ func (self *_runtime) cmpl_evaluate_nodeDoWhileStatement(node *_nodeDoWhileState
 resultBreak:
 	for {
 		for _, node := range node.body {
-			value := self.cmpl_evaluate_nodeStatement(node)
+			value := rt.cmplEvaluateNodeStatement(node)
 			switch value.kind {
 			case valueResult:
 				switch value.evaluateBreakContinue(labels) {
@@ -160,7 +160,7 @@ resultBreak:
 			}
 		}
 	resultContinue:
-		if !self.cmpl_evaluate_nodeExpression(test).resolve().bool() {
+		if !rt.cmplEvaluateNodeExpression(test).resolve().bool() {
 			// Stahp: do ... while (false)
 			break
 		}
@@ -168,11 +168,11 @@ resultBreak:
 	return result
 }
 
-func (self *_runtime) cmpl_evaluate_nodeForInStatement(node *_nodeForInStatement) Value {
-	labels := append(self.labels, "")
-	self.labels = nil
+func (rt *runtime) cmplEvaluateNodeForInStatement(node *nodeForInStatement) Value {
+	labels := append(rt.labels, "") //nolint: gocritic
+	rt.labels = nil
 
-	source := self.cmpl_evaluate_nodeExpression(node.source)
+	source := rt.cmplEvaluateNodeExpression(node.source)
 	sourceValue := source.resolve()
 
 	switch sourceValue.kind {
@@ -180,26 +180,26 @@ func (self *_runtime) cmpl_evaluate_nodeForInStatement(node *_nodeForInStatement
 		return emptyValue
 	}
 
-	sourceObject := self.toObject(sourceValue)
+	sourceObject := rt.toObject(sourceValue)
 
 	into := node.into
 	body := node.body
 
 	result := emptyValue
-	object := sourceObject
-	for object != nil {
+	obj := sourceObject
+	for obj != nil {
 		enumerateValue := emptyValue
-		object.enumerate(false, func(name string) bool {
-			into := self.cmpl_evaluate_nodeExpression(into)
+		obj.enumerate(false, func(name string) bool {
+			into := rt.cmplEvaluateNodeExpression(into)
 			// In the case of: for (var abc in def) ...
 			if into.reference() == nil {
 				identifier := into.string()
 				// TODO Should be true or false (strictness) depending on context
-				into = toValue(getIdentifierReference(self, self.scope.lexical, identifier, false, -1))
+				into = toValue(getIdentifierReference(rt, rt.scope.lexical, identifier, false, -1))
 			}
-			self.putValue(into.reference(), toValue_string(name))
+			rt.putValue(into.reference(), stringValue(name))
 			for _, node := range body {
-				value := self.cmpl_evaluate_nodeStatement(node)
+				value := rt.cmplEvaluateNodeStatement(node)
 				switch value.kind {
 				case valueResult:
 					switch value.evaluateBreakContinue(labels) {
@@ -207,7 +207,7 @@ func (self *_runtime) cmpl_evaluate_nodeForInStatement(node *_nodeForInStatement
 						enumerateValue = value
 						return false
 					case resultBreak:
-						object = nil
+						obj = nil
 						return false
 					case resultContinue:
 						return true
@@ -219,10 +219,10 @@ func (self *_runtime) cmpl_evaluate_nodeForInStatement(node *_nodeForInStatement
 			}
 			return true
 		})
-		if object == nil {
+		if obj == nil {
 			break
 		}
-		object = object.prototype
+		obj = obj.prototype
 		if !enumerateValue.isEmpty() {
 			result = enumerateValue
 		}
@@ -230,9 +230,9 @@ func (self *_runtime) cmpl_evaluate_nodeForInStatement(node *_nodeForInStatement
 	return result
 }
 
-func (self *_runtime) cmpl_evaluate_nodeForStatement(node *_nodeForStatement) Value {
-	labels := append(self.labels, "")
-	self.labels = nil
+func (rt *runtime) cmplEvaluateNodeForStatement(node *nodeForStatement) Value {
+	labels := append(rt.labels, "") //nolint: gocritic
+	rt.labels = nil
 
 	initializer := node.initializer
 	test := node.test
@@ -240,7 +240,7 @@ func (self *_runtime) cmpl_evaluate_nodeForStatement(node *_nodeForStatement) Va
 	body := node.body
 
 	if initializer != nil {
-		initialResult := self.cmpl_evaluate_nodeExpression(initializer)
+		initialResult := rt.cmplEvaluateNodeExpression(initializer)
 		initialResult.resolve() // Side-effect trigger
 	}
 
@@ -248,25 +248,25 @@ func (self *_runtime) cmpl_evaluate_nodeForStatement(node *_nodeForStatement) Va
 resultBreak:
 	for {
 		if test != nil {
-			testResult := self.cmpl_evaluate_nodeExpression(test)
+			testResult := rt.cmplEvaluateNodeExpression(test)
 			testResultValue := testResult.resolve()
-			if testResultValue.bool() == false {
+			if !testResultValue.bool() {
 				break
 			}
 		}
 
 		// this is to prevent for cycles with no body from running forever
-		if len(body) == 0 && self.otto.Interrupt != nil {
-			runtime.Gosched()
+		if len(body) == 0 && rt.otto.Interrupt != nil {
+			goruntime.Gosched()
 			select {
-			case value := <-self.otto.Interrupt:
+			case value := <-rt.otto.Interrupt:
 				value()
 			default:
 			}
 		}
 
 		for _, node := range body {
-			value := self.cmpl_evaluate_nodeStatement(node)
+			value := rt.cmplEvaluateNodeStatement(node)
 			switch value.kind {
 			case valueResult:
 				switch value.evaluateBreakContinue(labels) {
@@ -284,36 +284,36 @@ resultBreak:
 		}
 	resultContinue:
 		if update != nil {
-			updateResult := self.cmpl_evaluate_nodeExpression(update)
+			updateResult := rt.cmplEvaluateNodeExpression(update)
 			updateResult.resolve() // Side-effect trigger
 		}
 	}
 	return result
 }
 
-func (self *_runtime) cmpl_evaluate_nodeIfStatement(node *_nodeIfStatement) Value {
-	test := self.cmpl_evaluate_nodeExpression(node.test)
+func (rt *runtime) cmplEvaluateNodeIfStatement(node *nodeIfStatement) Value {
+	test := rt.cmplEvaluateNodeExpression(node.test)
 	testValue := test.resolve()
 	if testValue.bool() {
-		return self.cmpl_evaluate_nodeStatement(node.consequent)
+		return rt.cmplEvaluateNodeStatement(node.consequent)
 	} else if node.alternate != nil {
-		return self.cmpl_evaluate_nodeStatement(node.alternate)
+		return rt.cmplEvaluateNodeStatement(node.alternate)
 	}
 
 	return emptyValue
 }
 
-func (self *_runtime) cmpl_evaluate_nodeSwitchStatement(node *_nodeSwitchStatement) Value {
-	labels := append(self.labels, "")
-	self.labels = nil
+func (rt *runtime) cmplEvaluateNodeSwitchStatement(node *nodeSwitchStatement) Value {
+	labels := append(rt.labels, "") //nolint: gocritic
+	rt.labels = nil
 
-	discriminantResult := self.cmpl_evaluate_nodeExpression(node.discriminant)
-	target := node.default_
+	discriminantResult := rt.cmplEvaluateNodeExpression(node.discriminant)
+	target := node.defaultIdx
 
 	for index, clause := range node.body {
 		test := clause.test
 		if test != nil {
-			if self.calculateComparison(token.STRICT_EQUAL, discriminantResult, self.cmpl_evaluate_nodeExpression(test)) {
+			if rt.calculateComparison(token.STRICT_EQUAL, discriminantResult, rt.cmplEvaluateNodeExpression(test)) {
 				target = index
 				break
 			}
@@ -324,7 +324,7 @@ func (self *_runtime) cmpl_evaluate_nodeSwitchStatement(node *_nodeSwitchStateme
 	if target != -1 {
 		for _, clause := range node.body[target:] {
 			for _, statement := range clause.consequent {
-				value := self.cmpl_evaluate_nodeStatement(statement)
+				value := rt.cmplEvaluateNodeStatement(statement)
 				switch value.kind {
 				case valueResult:
 					switch value.evaluateBreak(labels) {
@@ -344,58 +344,58 @@ func (self *_runtime) cmpl_evaluate_nodeSwitchStatement(node *_nodeSwitchStateme
 	return result
 }
 
-func (self *_runtime) cmpl_evaluate_nodeTryStatement(node *_nodeTryStatement) Value {
-	tryCatchValue, exception := self.tryCatchEvaluate(func() Value {
-		return self.cmpl_evaluate_nodeStatement(node.body)
+func (rt *runtime) cmplEvaluateNodeTryStatement(node *nodeTryStatement) Value {
+	tryCatchValue, exep := rt.tryCatchEvaluate(func() Value {
+		return rt.cmplEvaluateNodeStatement(node.body)
 	})
 
-	if exception && node.catch != nil {
-		outer := self.scope.lexical
-		self.scope.lexical = self.newDeclarationStash(outer)
+	if exep && node.catch != nil {
+		outer := rt.scope.lexical
+		rt.scope.lexical = rt.newDeclarationStash(outer)
 		defer func() {
-			self.scope.lexical = outer
+			rt.scope.lexical = outer
 		}()
 		// TODO If necessary, convert TypeError<runtime> => TypeError
 		// That, is, such errors can be thrown despite not being JavaScript "native"
 		// strict = false
-		self.scope.lexical.setValue(node.catch.parameter, tryCatchValue, false)
+		rt.scope.lexical.setValue(node.catch.parameter, tryCatchValue, false)
 
 		// FIXME node.CatchParameter
 		// FIXME node.Catch
-		tryCatchValue, exception = self.tryCatchEvaluate(func() Value {
-			return self.cmpl_evaluate_nodeStatement(node.catch.body)
+		tryCatchValue, exep = rt.tryCatchEvaluate(func() Value {
+			return rt.cmplEvaluateNodeStatement(node.catch.body)
 		})
 	}
 
 	if node.finally != nil {
-		finallyValue := self.cmpl_evaluate_nodeStatement(node.finally)
+		finallyValue := rt.cmplEvaluateNodeStatement(node.finally)
 		if finallyValue.kind == valueResult {
 			return finallyValue
 		}
 	}
 
-	if exception {
+	if exep {
 		panic(newException(tryCatchValue))
 	}
 
 	return tryCatchValue
 }
 
-func (self *_runtime) cmpl_evaluate_nodeWhileStatement(node *_nodeWhileStatement) Value {
+func (rt *runtime) cmplEvaluateModeWhileStatement(node *nodeWhileStatement) Value {
 	test := node.test
 	body := node.body
-	labels := append(self.labels, "")
-	self.labels = nil
+	labels := append(rt.labels, "") //nolint: gocritic
+	rt.labels = nil
 
 	result := emptyValue
 resultBreakContinue:
 	for {
-		if !self.cmpl_evaluate_nodeExpression(test).resolve().bool() {
+		if !rt.cmplEvaluateNodeExpression(test).resolve().bool() {
 			// Stahp: while (false) ...
 			break
 		}
 		for _, node := range body {
-			value := self.cmpl_evaluate_nodeStatement(node)
+			value := rt.cmplEvaluateNodeStatement(node)
 			switch value.kind {
 			case valueResult:
 				switch value.evaluateBreakContinue(labels) {
@@ -415,14 +415,14 @@ resultBreakContinue:
 	return result
 }
 
-func (self *_runtime) cmpl_evaluate_nodeWithStatement(node *_nodeWithStatement) Value {
-	object := self.cmpl_evaluate_nodeExpression(node.object)
-	outer := self.scope.lexical
-	lexical := self.newObjectStash(self.toObject(object.resolve()), outer)
-	self.scope.lexical = lexical
+func (rt *runtime) cmplEvaluateNodeWithStatement(node *nodeWithStatement) Value {
+	obj := rt.cmplEvaluateNodeExpression(node.object)
+	outer := rt.scope.lexical
+	lexical := rt.newObjectStash(rt.toObject(obj.resolve()), outer)
+	rt.scope.lexical = lexical
 	defer func() {
-		self.scope.lexical = outer
+		rt.scope.lexical = outer
 	}()
 
-	return self.cmpl_evaluate_nodeStatement(node.body)
+	return rt.cmplEvaluateNodeStatement(node.body)
 }

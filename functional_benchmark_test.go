@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGoSliceQuickSort(t *testing.T) {
@@ -62,7 +64,8 @@ func BenchmarkCryptoAES(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		vm.Run(jsCryptoAES)
+		_, err := vm.Run(jsCryptoAES)
+		require.NoError(b, err)
 	}
 }
 
@@ -100,11 +103,13 @@ func testJsArraySort(t *testing.T, sortFuncCall string, sortCode string) {
 		test, vm := test()
 
 		// inject quicksort code
-		vm.Run(sortCode)
+		_, err := vm.Run(sortCode)
+		require.NoError(t, err)
 
-		vm.Run("var testSlice = [5, 3, 2, 4, 1];")
-		_, err := vm.Run(sortFuncCall)
-		is(err, nil)
+		_, err = vm.Run("var testSlice = [5, 3, 2, 4, 1];")
+		require.NoError(t, err)
+		_, err = vm.Run(sortFuncCall)
+		require.NoError(t, err)
 
 		is(test(`testSlice[0]`).export(), 1)
 		is(test(`testSlice[1]`).export(), 2)
@@ -119,19 +124,21 @@ func benchmarkGoSliceSort(b *testing.B, size int, sortFuncCall string, sortCode 
 	// generate arbitrary slice of 'size'
 	testSlice := make([]int, size)
 	for i := 0; i < size; i++ {
-		testSlice[i] = rand.Int()
+		testSlice[i] = rand.Int() //nolint: gosec
 	}
 
 	vm := New()
 
 	// inject the sorting code
-	vm.Run(sortCode)
+	_, err := vm.Run(sortCode)
+	require.NoError(b, err)
 
 	// Reset timer - everything until this point may have taken a long time
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		vm.Run(sortFuncCall)
+		_, err = vm.Run(sortFuncCall)
+		require.NoError(b, err)
 	}
 }
 
@@ -139,8 +146,8 @@ func benchmarkJsArraySort(b *testing.B, size int, sortFuncCall string, sortCode 
 	b.Helper()
 	// generate arbitrary slice of 'size'
 	testSlice := make([]string, size)
-	for i, _ := range testSlice {
-		testSlice[i] = fmt.Sprintf("%d", rand.Int())
+	for i := range testSlice {
+		testSlice[i] = fmt.Sprintf("%d", rand.Int()) //nolint: gosec
 	}
 
 	jsArrayString := "[" + strings.Join(testSlice, ",") + "]"
@@ -148,16 +155,19 @@ func benchmarkJsArraySort(b *testing.B, size int, sortFuncCall string, sortCode 
 	vm := New()
 
 	// inject the test array
-	vm.Run("testSlice = " + jsArrayString)
+	_, err := vm.Run("testSlice = " + jsArrayString)
+	require.NoError(b, err)
 
 	// inject the sorting code
-	vm.Run(sortCode)
+	_, err = vm.Run(sortCode)
+	require.NoError(b, err)
 
 	// Reset timer - everything until this point may have taken a long time
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		vm.Run(sortFuncCall)
+		_, err = vm.Run(sortFuncCall)
+		require.NoError(b, err)
 	}
 }
 

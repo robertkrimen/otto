@@ -8,11 +8,11 @@ func TestObject_(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		object := newObject(nil, "")
-		is(object != nil, true)
+		obj := newObject(nil, "")
+		is(obj != nil, true)
 
-		object.put("xyzzy", toValue("Nothing happens."), true)
-		is(object.get("xyzzy"), "Nothing happens.")
+		obj.put("xyzzy", toValue("Nothing happens."), true)
+		is(obj.get("xyzzy"), "Nothing happens.")
 
 		test(`
             var abc = Object.getOwnPropertyDescriptor(Object, "prototype");
@@ -24,10 +24,10 @@ func TestObject_(t *testing.T) {
 
 func TestStringObject(t *testing.T) {
 	tt(t, func() {
-		object := New().runtime.newStringObject(toValue("xyzzy"))
-		is(object.get("1"), "y")
-		is(object.get("10"), "undefined")
-		is(object.get("2"), "z")
+		obj := New().runtime.newStringObject(toValue("xyzzy"))
+		is(obj.get("1"), "y")
+		is(obj.get("10"), "undefined")
+		is(obj.get("2"), "z")
 	})
 }
 
@@ -623,17 +623,17 @@ func TestObjectGetterSetter(t *testing.T) {
 
 func TestProperty(t *testing.T) {
 	tt(t, func() {
-		property := _property{}
-		property.writeOn()
-		is(property.writeSet(), true)
+		prop := property{}
+		prop.writeOn()
+		is(prop.writeSet(), true)
 
-		property.writeClear()
-		is(property.writeSet(), false)
+		prop.writeClear()
+		is(prop.writeSet(), false)
 
-		property.writeOff()
-		is(property.writeSet(), true)
+		prop.writeOff()
+		is(prop.writeSet(), true)
 
-		property.writeClear()
-		is(property.writeSet(), false)
+		prop.writeClear()
+		is(prop.writeSet(), false)
 	})
 }

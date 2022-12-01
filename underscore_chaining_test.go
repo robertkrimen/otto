@@ -4,10 +4,10 @@ import (
 	"testing"
 )
 
-// map/flatten/reduce
+// map/flatten/reduce.
 func Test_underscore_chaining_0(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("map/flatten/reduce", function() {
@@ -31,10 +31,10 @@ func Test_underscore_chaining_0(t *testing.T) {
 	})
 }
 
-// select/reject/sortBy
+// select/reject/sortBy.
 func Test_underscore_chaining_1(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("select/reject/sortBy", function() {
@@ -52,10 +52,10 @@ func Test_underscore_chaining_1(t *testing.T) {
 	})
 }
 
-// select/reject/sortBy in functional style
+// select/reject/sortBy in functional style.
 func Test_underscore_chaining_2(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("select/reject/sortBy in functional style", function() {
@@ -73,10 +73,10 @@ func Test_underscore_chaining_2(t *testing.T) {
 	})
 }
 
-// reverse/concat/unshift/pop/map
+// reverse/concat/unshift/pop/map.
 func Test_underscore_chaining_3(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("reverse/concat/unshift/pop/map", function() {

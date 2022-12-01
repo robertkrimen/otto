@@ -14,7 +14,7 @@ func mockTimeLocal(location *time.Location) func() {
 	}
 }
 
-// Passing or failing should not be dependent on what time zone we're in
+// Passing or failing should not be dependent on what time zone we're in.
 func mockUTC() func() {
 	return mockTimeLocal(time.UTC)
 }
@@ -69,8 +69,6 @@ func TestDate(t *testing.T) {
 		format := "Mon, 2 Jan 2006 15:04:05 MST"
 
 		time1 := time.Unix(1256450400, 0)
-		time0 = time.Date(time1.Year(), time1.Month(), time1.Day(), time1.Hour(), time1.Minute(), time1.Second(), time1.Nanosecond(), time1.Location()).In(utcTimeZone)
-
 		time0 = time.Date(time1.Year(), time1.Month(), time1.Day(), time1.Hour(), time1.Minute(), time1.Second(), 2001*1000*1000, time1.Location()).In(utcTimeZone)
 		test(`abc = new Date(12564504e5); abc.setMilliseconds(2001); abc.toUTCString()`, time0.Format(format))
 

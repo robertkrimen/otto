@@ -1,28 +1,29 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/robertkrimen/otto"
 	"github.com/robertkrimen/otto/underscore"
 )
 
-var flag_underscore *bool = flag.Bool("underscore", true, "Load underscore into the runtime environment")
+var flagUnderscore *bool = flag.Bool("underscore", true, "Load underscore into the runtime environment")
 
 func readSource(filename string) ([]byte, error) {
 	if filename == "" || filename == "-" {
-		return ioutil.ReadAll(os.Stdin)
+		return io.ReadAll(os.Stdin)
 	}
-	return ioutil.ReadFile(filename)
+	return os.ReadFile(filename) //nolint: gosec
 }
 
 func main() {
 	flag.Parse()
 
-	if !*flag_underscore {
+	if !*flagUnderscore {
 		underscore.Disable()
 	}
 
@@ -37,11 +38,11 @@ func main() {
 		return err
 	}()
 	if err != nil {
-		switch err := err.(type) {
-		case *otto.Error:
-			fmt.Print(err.String())
-		default:
-			fmt.Println(err)
+		var oerr *otto.Error
+		if errors.As(err, &oerr) {
+			fmt.Fprint(os.Stderr, oerr.String())
+		} else {
+			fmt.Fprintln(os.Stderr, err)
 		}
 		os.Exit(64)
 	}

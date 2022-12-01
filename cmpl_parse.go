@@ -2,83 +2,84 @@ package otto
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"
 	"github.com/robertkrimen/otto/token"
 )
 
-var trueLiteral = &_nodeLiteral{value: toValue_bool(true)}
-var falseLiteral = &_nodeLiteral{value: toValue_bool(false)}
-var nullLiteral = &_nodeLiteral{value: nullValue}
-var emptyStatement = &_nodeEmptyStatement{}
+var (
+	trueLiteral    = &nodeLiteral{value: boolValue(true)}
+	falseLiteral   = &nodeLiteral{value: boolValue(false)}
+	nullLiteral    = &nodeLiteral{value: nullValue}
+	emptyStatement = &nodeEmptyStatement{}
+)
 
-func (cmpl *_compiler) parseExpression(in ast.Expression) _nodeExpression {
-	if in == nil {
+func (cmpl *compiler) parseExpression(expr ast.Expression) nodeExpression {
+	if expr == nil {
 		return nil
 	}
 
-	switch in := in.(type) {
+	switch expr := expr.(type) {
 	case *ast.ArrayLiteral:
-		out := &_nodeArrayLiteral{
-			value: make([]_nodeExpression, len(in.Value)),
+		out := &nodeArrayLiteral{
+			value: make([]nodeExpression, len(expr.Value)),
 		}
-		for i, value := range in.Value {
+		for i, value := range expr.Value {
 			out.value[i] = cmpl.parseExpression(value)
 		}
 		return out
 
 	case *ast.AssignExpression:
-		return &_nodeAssignExpression{
-			operator: in.Operator,
-			left:     cmpl.parseExpression(in.Left),
-			right:    cmpl.parseExpression(in.Right),
+		return &nodeAssignExpression{
+			operator: expr.Operator,
+			left:     cmpl.parseExpression(expr.Left),
+			right:    cmpl.parseExpression(expr.Right),
 		}
 
 	case *ast.BinaryExpression:
-		return &_nodeBinaryExpression{
-			operator:   in.Operator,
-			left:       cmpl.parseExpression(in.Left),
-			right:      cmpl.parseExpression(in.Right),
-			comparison: in.Comparison,
+		return &nodeBinaryExpression{
+			operator:   expr.Operator,
+			left:       cmpl.parseExpression(expr.Left),
+			right:      cmpl.parseExpression(expr.Right),
+			comparison: expr.Comparison,
 		}
 
 	case *ast.BooleanLiteral:
-		if in.Value {
+		if expr.Value {
 			return trueLiteral
 		}
 		return falseLiteral
 
 	case *ast.BracketExpression:
-		return &_nodeBracketExpression{
-			idx:    in.Left.Idx0(),
-			left:   cmpl.parseExpression(in.Left),
-			member: cmpl.parseExpression(in.Member),
+		return &nodeBracketExpression{
+			idx:    expr.Left.Idx0(),
+			left:   cmpl.parseExpression(expr.Left),
+			member: cmpl.parseExpression(expr.Member),
 		}
 
 	case *ast.CallExpression:
-		out := &_nodeCallExpression{
-			callee:       cmpl.parseExpression(in.Callee),
-			argumentList: make([]_nodeExpression, len(in.ArgumentList)),
+		out := &nodeCallExpression{
+			callee:       cmpl.parseExpression(expr.Callee),
+			argumentList: make([]nodeExpression, len(expr.ArgumentList)),
 		}
-		for i, value := range in.ArgumentList {
+		for i, value := range expr.ArgumentList {
 			out.argumentList[i] = cmpl.parseExpression(value)
 		}
 		return out
 
 	case *ast.ConditionalExpression:
-		return &_nodeConditionalExpression{
-			test:       cmpl.parseExpression(in.Test),
-			consequent: cmpl.parseExpression(in.Consequent),
-			alternate:  cmpl.parseExpression(in.Alternate),
+		return &nodeConditionalExpression{
+			test:       cmpl.parseExpression(expr.Test),
+			consequent: cmpl.parseExpression(expr.Consequent),
+			alternate:  cmpl.parseExpression(expr.Alternate),
 		}
 
 	case *ast.DotExpression:
-		return &_nodeDotExpression{
-			idx:        in.Left.Idx0(),
-			left:       cmpl.parseExpression(in.Left),
-			identifier: in.Identifier.Name,
+		return &nodeDotExpression{
+			idx:        expr.Left.Idx0(),
+			left:       cmpl.parseExpression(expr.Left),
+			identifier: expr.Identifier.Name,
 		}
 
 	case *ast.EmptyExpression:
@@ -86,48 +87,48 @@ func (cmpl *_compiler) parseExpression(in ast.Expression) _nodeExpression {
 
 	case *ast.FunctionLiteral:
 		name := ""
-		if in.Name != nil {
-			name = in.Name.Name
+		if expr.Name != nil {
+			name = expr.Name.Name
 		}
-		out := &_nodeFunctionLiteral{
+		out := &nodeFunctionLiteral{
 			name:   name,
-			body:   cmpl.parseStatement(in.Body),
-			source: in.Source,
+			body:   cmpl.parseStatement(expr.Body),
+			source: expr.Source,
 			file:   cmpl.file,
 		}
-		if in.ParameterList != nil {
-			list := in.ParameterList.List
+		if expr.ParameterList != nil {
+			list := expr.ParameterList.List
 			out.parameterList = make([]string, len(list))
 			for i, value := range list {
 				out.parameterList[i] = value.Name
 			}
 		}
-		for _, value := range in.DeclarationList {
+		for _, value := range expr.DeclarationList {
 			switch value := value.(type) {
 			case *ast.FunctionDeclaration:
-				out.functionList = append(out.functionList, cmpl.parseExpression(value.Function).(*_nodeFunctionLiteral))
+				out.functionList = append(out.functionList, cmpl.parseExpression(value.Function).(*nodeFunctionLiteral))
 			case *ast.VariableDeclaration:
 				for _, value := range value.List {
 					out.varList = append(out.varList, value.Name)
 				}
 			default:
-				panic(fmt.Errorf("Here be dragons: parseProgram.declaration(%T)", value))
+				panic(fmt.Sprintf("parse expression unknown function declaration type %T", value))
 			}
 		}
 		return out
 
 	case *ast.Identifier:
-		return &_nodeIdentifier{
-			idx:  in.Idx,
-			name: in.Name,
+		return &nodeIdentifier{
+			idx:  expr.Idx,
+			name: expr.Name,
 		}
 
 	case *ast.NewExpression:
-		out := &_nodeNewExpression{
-			callee:       cmpl.parseExpression(in.Callee),
-			argumentList: make([]_nodeExpression, len(in.ArgumentList)),
+		out := &nodeNewExpression{
+			callee:       cmpl.parseExpression(expr.Callee),
+			argumentList: make([]nodeExpression, len(expr.ArgumentList)),
 		}
-		for i, value := range in.ArgumentList {
+		for i, value := range expr.ArgumentList {
 			out.argumentList[i] = cmpl.parseExpression(value)
 		}
 		return out
@@ -136,16 +137,16 @@ func (cmpl *_compiler) parseExpression(in ast.Expression) _nodeExpression {
 		return nullLiteral
 
 	case *ast.NumberLiteral:
-		return &_nodeLiteral{
-			value: toValue(in.Value),
+		return &nodeLiteral{
+			value: toValue(expr.Value),
 		}
 
 	case *ast.ObjectLiteral:
-		out := &_nodeObjectLiteral{
-			value: make([]_nodeProperty, len(in.Value)),
+		out := &nodeObjectLiteral{
+			value: make([]nodeProperty, len(expr.Value)),
 		}
-		for i, value := range in.Value {
-			out.value[i] = _nodeProperty{
+		for i, value := range expr.Value {
+			out.value[i] = nodeProperty{
 				key:   value.Key,
 				kind:  value.Kind,
 				value: cmpl.parseExpression(value.Value),
@@ -154,79 +155,79 @@ func (cmpl *_compiler) parseExpression(in ast.Expression) _nodeExpression {
 		return out
 
 	case *ast.RegExpLiteral:
-		return &_nodeRegExpLiteral{
-			flags:   in.Flags,
-			pattern: in.Pattern,
+		return &nodeRegExpLiteral{
+			flags:   expr.Flags,
+			pattern: expr.Pattern,
 		}
 
 	case *ast.SequenceExpression:
-		out := &_nodeSequenceExpression{
-			sequence: make([]_nodeExpression, len(in.Sequence)),
+		out := &nodeSequenceExpression{
+			sequence: make([]nodeExpression, len(expr.Sequence)),
 		}
-		for i, value := range in.Sequence {
+		for i, value := range expr.Sequence {
 			out.sequence[i] = cmpl.parseExpression(value)
 		}
 		return out
 
 	case *ast.StringLiteral:
-		return &_nodeLiteral{
-			value: toValue_string(in.Value),
+		return &nodeLiteral{
+			value: stringValue(expr.Value),
 		}
 
 	case *ast.ThisExpression:
-		return &_nodeThisExpression{}
+		return &nodeThisExpression{}
 
 	case *ast.UnaryExpression:
-		return &_nodeUnaryExpression{
-			operator: in.Operator,
-			operand:  cmpl.parseExpression(in.Operand),
-			postfix:  in.Postfix,
+		return &nodeUnaryExpression{
+			operator: expr.Operator,
+			operand:  cmpl.parseExpression(expr.Operand),
+			postfix:  expr.Postfix,
 		}
 
 	case *ast.VariableExpression:
-		return &_nodeVariableExpression{
-			idx:         in.Idx0(),
-			name:        in.Name,
-			initializer: cmpl.parseExpression(in.Initializer),
+		return &nodeVariableExpression{
+			idx:         expr.Idx0(),
+			name:        expr.Name,
+			initializer: cmpl.parseExpression(expr.Initializer),
 		}
+	default:
+		panic(fmt.Errorf("parse expression unknown node type %T", expr))
 	}
-
-	panic(fmt.Errorf("Here be dragons: cmpl.parseExpression(%T)", in))
 }
 
-func (cmpl *_compiler) parseStatement(in ast.Statement) _nodeStatement {
-	if in == nil {
+func (cmpl *compiler) parseStatement(stmt ast.Statement) nodeStatement {
+	if stmt == nil {
 		return nil
 	}
 
-	switch in := in.(type) {
+	switch stmt := stmt.(type) {
 	case *ast.BlockStatement:
-		out := &_nodeBlockStatement{
-			list: make([]_nodeStatement, len(in.List)),
+		out := &nodeBlockStatement{
+			list: make([]nodeStatement, len(stmt.List)),
 		}
-		for i, value := range in.List {
+		for i, value := range stmt.List {
 			out.list[i] = cmpl.parseStatement(value)
 		}
 		return out
 
 	case *ast.BranchStatement:
-		out := &_nodeBranchStatement{
-			branch: in.Token,
+		out := &nodeBranchStatement{
+			branch: stmt.Token,
 		}
-		if in.Label != nil {
-			out.label = in.Label.Name
+		if stmt.Label != nil {
+			out.label = stmt.Label.Name
 		}
 		return out
 
 	case *ast.DebuggerStatement:
-		return &_nodeDebuggerStatement{}
+		return &nodeDebuggerStatement{}
 
 	case *ast.DoWhileStatement:
-		out := &_nodeDoWhileStatement{
-			test: cmpl.parseExpression(in.Test),
+		out := &nodeDoWhileStatement{
+			test: cmpl.parseExpression(stmt.Test),
 		}
-		body := cmpl.parseStatement(in.Body)
-		if block, ok := body.(*_nodeBlockStatement); ok {
+		body := cmpl.parseStatement(stmt.Body)
+		if block, ok := body.(*nodeBlockStatement); ok {
 			out.body = block.list
 		} else {
 			out.body = append(out.body, body)
@@ -237,17 +238,17 @@ func (cmpl *_compiler) parseStatement(in ast.Statement) _nodeStatement {
 		return emptyStatement
 
 	case *ast.ExpressionStatement:
-		return &_nodeExpressionStatement{
-			expression: cmpl.parseExpression(in.Expression),
+		return &nodeExpressionStatement{
+			expression: cmpl.parseExpression(stmt.Expression),
 		}
 
 	case *ast.ForInStatement:
-		out := &_nodeForInStatement{
-			into:   cmpl.parseExpression(in.Into),
-			source: cmpl.parseExpression(in.Source),
+		out := &nodeForInStatement{
+			into:   cmpl.parseExpression(stmt.Into),
+			source: cmpl.parseExpression(stmt.Source),
 		}
-		body := cmpl.parseStatement(in.Body)
-		if block, ok := body.(*_nodeBlockStatement); ok {
+		body := cmpl.parseStatement(stmt.Body)
+		if block, ok := body.(*nodeBlockStatement); ok {
 			out.body = block.list
 		} else {
 			out.body = append(out.body, body)
@@ -255,13 +256,13 @@ func (cmpl *_compiler) parseStatement(in ast.Statement) _nodeStatement {
 		return out
 
 	case *ast.ForStatement:
-		out := &_nodeForStatement{
-			initializer: cmpl.parseExpression(in.Initializer),
-			update:      cmpl.parseExpression(in.Update),
-			test:        cmpl.parseExpression(in.Test),
+		out := &nodeForStatement{
+			initializer: cmpl.parseExpression(stmt.Initializer),
+			update:      cmpl.parseExpression(stmt.Update),
+			test:        cmpl.parseExpression(stmt.Test),
 		}
-		body := cmpl.parseStatement(in.Body)
-		if block, ok := body.(*_nodeBlockStatement); ok {
+		body := cmpl.parseStatement(stmt.Body)
+		if block, ok := body.(*nodeBlockStatement); ok {
 			out.body = block.list
 		} else {
 			out.body = append(out.body, body)
@@ -272,33 +273,33 @@ func (cmpl *_compiler) parseStatement(in ast.Statement) _nodeStatement {
 		return emptyStatement
 
 	case *ast.IfStatement:
-		return &_nodeIfStatement{
-			test:       cmpl.parseExpression(in.Test),
-			consequent: cmpl.parseStatement(in.Consequent),
-			alternate:  cmpl.parseStatement(in.Alternate),
+		return &nodeIfStatement{
+			test:       cmpl.parseExpression(stmt.Test),
+			consequent: cmpl.parseStatement(stmt.Consequent),
+			alternate:  cmpl.parseStatement(stmt.Alternate),
 		}
 
 	case *ast.LabelledStatement:
-		return &_nodeLabelledStatement{
-			label:     in.Label.Name,
-			statement: cmpl.parseStatement(in.Statement),
+		return &nodeLabelledStatement{
+			label:     stmt.Label.Name,
+			statement: cmpl.parseStatement(stmt.Statement),
 		}
 
 	case *ast.ReturnStatement:
-		return &_nodeReturnStatement{
-			argument: cmpl.parseExpression(in.Argument),
+		return &nodeReturnStatement{
+			argument: cmpl.parseExpression(stmt.Argument),
 		}
 
 	case *ast.SwitchStatement:
-		out := &_nodeSwitchStatement{
-			discriminant: cmpl.parseExpression(in.Discriminant),
-			default_:     in.Default,
-			body:         make([]*_nodeCaseStatement, len(in.Body)),
+		out := &nodeSwitchStatement{
+			discriminant: cmpl.parseExpression(stmt.Discriminant),
+			defaultIdx:   stmt.Default,
+			body:         make([]*nodeCaseStatement, len(stmt.Body)),
 		}
-		for i, clause := range in.Body {
-			out.body[i] = &_nodeCaseStatement{
+		for i, clause := range stmt.Body {
+			out.body[i] = &nodeCaseStatement{
 				test:       cmpl.parseExpression(clause.Test),
-				consequent: make([]_nodeStatement, len(clause.Consequent)),
+				consequent: make([]nodeStatement, len(clause.Consequent)),
 			}
 			for j, value := range clause.Consequent {
 				out.body[i].consequent[j] = cmpl.parseStatement(value)
@@ -307,38 +308,38 @@ func (cmpl *_compiler) parseStatement(in ast.Statement) _nodeStatement {
 		return out
 
 	case *ast.ThrowStatement:
-		return &_nodeThrowStatement{
-			argument: cmpl.parseExpression(in.Argument),
+		return &nodeThrowStatement{
+			argument: cmpl.parseExpression(stmt.Argument),
 		}
 
 	case *ast.TryStatement:
-		out := &_nodeTryStatement{
-			body:    cmpl.parseStatement(in.Body),
-			finally: cmpl.parseStatement(in.Finally),
+		out := &nodeTryStatement{
+			body:    cmpl.parseStatement(stmt.Body),
+			finally: cmpl.parseStatement(stmt.Finally),
 		}
-		if in.Catch != nil {
-			out.catch = &_nodeCatchStatement{
-				parameter: in.Catch.Parameter.Name,
-				body:      cmpl.parseStatement(in.Catch.Body),
+		if stmt.Catch != nil {
+			out.catch = &nodeCatchStatement{
+				parameter: stmt.Catch.Parameter.Name,
+				body:      cmpl.parseStatement(stmt.Catch.Body),
 			}
 		}
 		return out
 
 	case *ast.VariableStatement:
-		out := &_nodeVariableStatement{
-			list: make([]_nodeExpression, len(in.List)),
+		out := &nodeVariableStatement{
+			list: make([]nodeExpression, len(stmt.List)),
 		}
-		for i, value := range in.List {
+		for i, value := range stmt.List {
 			out.list[i] = cmpl.parseExpression(value)
 		}
 		return out
 
 	case *ast.WhileStatement:
-		out := &_nodeWhileStatement{
-			test: cmpl.parseExpression(in.Test),
+		out := &nodeWhileStatement{
+			test: cmpl.parseExpression(stmt.Test),
 		}
-		body := cmpl.parseStatement(in.Body)
-		if block, ok := body.(*_nodeBlockStatement); ok {
+		body := cmpl.parseStatement(stmt.Body)
+		if block, ok := body.(*nodeBlockStatement); ok {
 			out.body = block.list
 		} else {
 			out.body = append(out.body, body)
@@ -346,307 +347,298 @@ func (cmpl *_compiler) parseStatement(in ast.Statement) _nodeStatement {
 		return out
 
 	case *ast.WithStatement:
-		return &_nodeWithStatement{
-			object: cmpl.parseExpression(in.Object),
-			body:   cmpl.parseStatement(in.Body),
+		return &nodeWithStatement{
+			object: cmpl.parseExpression(stmt.Object),
+			body:   cmpl.parseStatement(stmt.Body),
 		}
+	default:
+		panic(fmt.Sprintf("parse statement: unknown type %T", stmt))
 	}
-
-	panic(fmt.Errorf("Here be dragons: cmpl.parseStatement(%T)", in))
 }
 
-func cmpl_parse(in *ast.Program) *_nodeProgram {
-	cmpl := _compiler{
+func cmplParse(in *ast.Program) *nodeProgram {
+	cmpl := compiler{
 		program: in,
 	}
+	if cmpl.program != nil {
+		cmpl.file = cmpl.program.File
+	}
+
 	return cmpl.parse()
 }
 
-func (cmpl *_compiler) _parse(in *ast.Program) *_nodeProgram {
-	out := &_nodeProgram{
-		body: make([]_nodeStatement, len(in.Body)),
-		file: in.File,
+func (cmpl *compiler) parse() *nodeProgram {
+	out := &nodeProgram{
+		body: make([]nodeStatement, len(cmpl.program.Body)),
+		file: cmpl.program.File,
 	}
-	for i, value := range in.Body {
+	for i, value := range cmpl.program.Body {
 		out.body[i] = cmpl.parseStatement(value)
 	}
-	for _, value := range in.DeclarationList {
+	for _, value := range cmpl.program.DeclarationList {
 		switch value := value.(type) {
 		case *ast.FunctionDeclaration:
-			out.functionList = append(out.functionList, cmpl.parseExpression(value.Function).(*_nodeFunctionLiteral))
+			out.functionList = append(out.functionList, cmpl.parseExpression(value.Function).(*nodeFunctionLiteral))
 		case *ast.VariableDeclaration:
 			for _, value := range value.List {
 				out.varList = append(out.varList, value.Name)
 			}
 		default:
-			panic(fmt.Errorf("Here be dragons: cmpl.parseProgram.DeclarationList(%T)", value))
+			panic(fmt.Sprintf("Here be dragons: cmpl.parseProgram.DeclarationList(%T)", value))
 		}
 	}
 	return out
 }
 
-type _nodeProgram struct {
-	body []_nodeStatement
+type nodeProgram struct {
+	body []nodeStatement
 
 	varList      []string
-	functionList []*_nodeFunctionLiteral
-
-	variableList []_nodeDeclaration
+	functionList []*nodeFunctionLiteral
 
 	file *file.File
 }
 
-type _nodeDeclaration struct {
-	name       string
-	definition _node
-}
-
-type _node interface {
-}
+type node interface{}
 
 type (
-	_nodeExpression interface {
-		_node
-		_expressionNode()
+	nodeExpression interface {
+		node
+		expressionNode()
 	}
 
-	_nodeArrayLiteral struct {
-		value []_nodeExpression
+	nodeArrayLiteral struct {
+		value []nodeExpression
 	}
 
-	_nodeAssignExpression struct {
+	nodeAssignExpression struct {
 		operator token.Token
-		left     _nodeExpression
-		right    _nodeExpression
+		left     nodeExpression
+		right    nodeExpression
 	}
 
-	_nodeBinaryExpression struct {
+	nodeBinaryExpression struct {
 		operator   token.Token
-		left       _nodeExpression
-		right      _nodeExpression
+		left       nodeExpression
+		right      nodeExpression
 		comparison bool
 	}
 
-	_nodeBracketExpression struct {
+	nodeBracketExpression struct {
 		idx    file.Idx
-		left   _nodeExpression
-		member _nodeExpression
+		left   nodeExpression
+		member nodeExpression
 	}
 
-	_nodeCallExpression struct {
-		callee       _nodeExpression
-		argumentList []_nodeExpression
+	nodeCallExpression struct {
+		callee       nodeExpression
+		argumentList []nodeExpression
 	}
 
-	_nodeConditionalExpression struct {
-		test       _nodeExpression
-		consequent _nodeExpression
-		alternate  _nodeExpression
+	nodeConditionalExpression struct {
+		test       nodeExpression
+		consequent nodeExpression
+		alternate  nodeExpression
 	}
 
-	_nodeDotExpression struct {
+	nodeDotExpression struct {
 		idx        file.Idx
-		left       _nodeExpression
+		left       nodeExpression
 		identifier string
 	}
 
-	_nodeFunctionLiteral struct {
+	nodeFunctionLiteral struct {
 		name          string
-		body          _nodeStatement
+		body          nodeStatement
 		source        string
 		parameterList []string
 		varList       []string
-		functionList  []*_nodeFunctionLiteral
+		functionList  []*nodeFunctionLiteral
 		file          *file.File
 	}
 
-	_nodeIdentifier struct {
+	nodeIdentifier struct {
 		idx  file.Idx
 		name string
 	}
 
-	_nodeLiteral struct {
+	nodeLiteral struct {
 		value Value
 	}
 
-	_nodeNewExpression struct {
-		callee       _nodeExpression
-		argumentList []_nodeExpression
+	nodeNewExpression struct {
+		callee       nodeExpression
+		argumentList []nodeExpression
 	}
 
-	_nodeObjectLiteral struct {
-		value []_nodeProperty
+	nodeObjectLiteral struct {
+		value []nodeProperty
 	}
 
-	_nodeProperty struct {
+	nodeProperty struct {
 		key   string
 		kind  string
-		value _nodeExpression
+		value nodeExpression
 	}
 
-	_nodeRegExpLiteral struct {
+	nodeRegExpLiteral struct {
 		flags   string
 		pattern string // Value?
-		regexp  *regexp.Regexp
 	}
 
-	_nodeSequenceExpression struct {
-		sequence []_nodeExpression
+	nodeSequenceExpression struct {
+		sequence []nodeExpression
 	}
 
-	_nodeThisExpression struct {
-	}
+	nodeThisExpression struct{}
 
-	_nodeUnaryExpression struct {
+	nodeUnaryExpression struct {
 		operator token.Token
-		operand  _nodeExpression
+		operand  nodeExpression
 		postfix  bool
 	}
 
-	_nodeVariableExpression struct {
+	nodeVariableExpression struct {
 		idx         file.Idx
 		name        string
-		initializer _nodeExpression
+		initializer nodeExpression
 	}
 )
 
 type (
-	_nodeStatement interface {
-		_node
-		_statementNode()
+	nodeStatement interface {
+		node
+		statementNode()
 	}
 
-	_nodeBlockStatement struct {
-		list []_nodeStatement
+	nodeBlockStatement struct {
+		list []nodeStatement
 	}
 
-	_nodeBranchStatement struct {
+	nodeBranchStatement struct {
 		branch token.Token
 		label  string
 	}
 
-	_nodeCaseStatement struct {
-		test       _nodeExpression
-		consequent []_nodeStatement
+	nodeCaseStatement struct {
+		test       nodeExpression
+		consequent []nodeStatement
 	}
 
-	_nodeCatchStatement struct {
+	nodeCatchStatement struct {
 		parameter string
-		body      _nodeStatement
+		body      nodeStatement
 	}
 
-	_nodeDebuggerStatement struct {
+	nodeDebuggerStatement struct{}
+
+	nodeDoWhileStatement struct {
+		test nodeExpression
+		body []nodeStatement
 	}
 
-	_nodeDoWhileStatement struct {
-		test _nodeExpression
-		body []_nodeStatement
+	nodeEmptyStatement struct{}
+
+	nodeExpressionStatement struct {
+		expression nodeExpression
 	}
 
-	_nodeEmptyStatement struct {
+	nodeForInStatement struct {
+		into   nodeExpression
+		source nodeExpression
+		body   []nodeStatement
 	}
 
-	_nodeExpressionStatement struct {
-		expression _nodeExpression
+	nodeForStatement struct {
+		initializer nodeExpression
+		update      nodeExpression
+		test        nodeExpression
+		body        []nodeStatement
 	}
 
-	_nodeForInStatement struct {
-		into   _nodeExpression
-		source _nodeExpression
-		body   []_nodeStatement
+	nodeIfStatement struct {
+		test       nodeExpression
+		consequent nodeStatement
+		alternate  nodeStatement
 	}
 
-	_nodeForStatement struct {
-		initializer _nodeExpression
-		update      _nodeExpression
-		test        _nodeExpression
-		body        []_nodeStatement
-	}
-
-	_nodeIfStatement struct {
-		test       _nodeExpression
-		consequent _nodeStatement
-		alternate  _nodeStatement
-	}
-
-	_nodeLabelledStatement struct {
+	nodeLabelledStatement struct {
 		label     string
-		statement _nodeStatement
+		statement nodeStatement
 	}
 
-	_nodeReturnStatement struct {
-		argument _nodeExpression
+	nodeReturnStatement struct {
+		argument nodeExpression
 	}
 
-	_nodeSwitchStatement struct {
-		discriminant _nodeExpression
-		default_     int
-		body         []*_nodeCaseStatement
+	nodeSwitchStatement struct {
+		discriminant nodeExpression
+		defaultIdx   int
+		body         []*nodeCaseStatement
 	}
 
-	_nodeThrowStatement struct {
-		argument _nodeExpression
+	nodeThrowStatement struct {
+		argument nodeExpression
 	}
 
-	_nodeTryStatement struct {
-		body    _nodeStatement
-		catch   *_nodeCatchStatement
-		finally _nodeStatement
+	nodeTryStatement struct {
+		body    nodeStatement
+		catch   *nodeCatchStatement
+		finally nodeStatement
 	}
 
-	_nodeVariableStatement struct {
-		list []_nodeExpression
+	nodeVariableStatement struct {
+		list []nodeExpression
 	}
 
-	_nodeWhileStatement struct {
-		test _nodeExpression
-		body []_nodeStatement
+	nodeWhileStatement struct {
+		test nodeExpression
+		body []nodeStatement
 	}
 
-	_nodeWithStatement struct {
-		object _nodeExpression
-		body   _nodeStatement
+	nodeWithStatement struct {
+		object nodeExpression
+		body   nodeStatement
 	}
 )
 
-// _expressionNode
+// expressionNode.
+func (*nodeArrayLiteral) expressionNode()          {}
+func (*nodeAssignExpression) expressionNode()      {}
+func (*nodeBinaryExpression) expressionNode()      {}
+func (*nodeBracketExpression) expressionNode()     {}
+func (*nodeCallExpression) expressionNode()        {}
+func (*nodeConditionalExpression) expressionNode() {}
+func (*nodeDotExpression) expressionNode()         {}
+func (*nodeFunctionLiteral) expressionNode()       {}
+func (*nodeIdentifier) expressionNode()            {}
+func (*nodeLiteral) expressionNode()               {}
+func (*nodeNewExpression) expressionNode()         {}
+func (*nodeObjectLiteral) expressionNode()         {}
+func (*nodeRegExpLiteral) expressionNode()         {}
+func (*nodeSequenceExpression) expressionNode()    {}
+func (*nodeThisExpression) expressionNode()        {}
+func (*nodeUnaryExpression) expressionNode()       {}
+func (*nodeVariableExpression) expressionNode()    {}
 
-func (*_nodeArrayLiteral) _expressionNode()          {}
-func (*_nodeAssignExpression) _expressionNode()      {}
-func (*_nodeBinaryExpression) _expressionNode()      {}
-func (*_nodeBracketExpression) _expressionNode()     {}
-func (*_nodeCallExpression) _expressionNode()        {}
-func (*_nodeConditionalExpression) _expressionNode() {}
-func (*_nodeDotExpression) _expressionNode()         {}
-func (*_nodeFunctionLiteral) _expressionNode()       {}
-func (*_nodeIdentifier) _expressionNode()            {}
-func (*_nodeLiteral) _expressionNode()               {}
-func (*_nodeNewExpression) _expressionNode()         {}
-func (*_nodeObjectLiteral) _expressionNode()         {}
-func (*_nodeRegExpLiteral) _expressionNode()         {}
-func (*_nodeSequenceExpression) _expressionNode()    {}
-func (*_nodeThisExpression) _expressionNode()        {}
-func (*_nodeUnaryExpression) _expressionNode()       {}
-func (*_nodeVariableExpression) _expressionNode()    {}
+// statementNode
 
-// _statementNode
-
-func (*_nodeBlockStatement) _statementNode()      {}
-func (*_nodeBranchStatement) _statementNode()     {}
-func (*_nodeCaseStatement) _statementNode()       {}
-func (*_nodeCatchStatement) _statementNode()      {}
-func (*_nodeDebuggerStatement) _statementNode()   {}
-func (*_nodeDoWhileStatement) _statementNode()    {}
-func (*_nodeEmptyStatement) _statementNode()      {}
-func (*_nodeExpressionStatement) _statementNode() {}
-func (*_nodeForInStatement) _statementNode()      {}
-func (*_nodeForStatement) _statementNode()        {}
-func (*_nodeIfStatement) _statementNode()         {}
-func (*_nodeLabelledStatement) _statementNode()   {}
-func (*_nodeReturnStatement) _statementNode()     {}
-func (*_nodeSwitchStatement) _statementNode()     {}
-func (*_nodeThrowStatement) _statementNode()      {}
-func (*_nodeTryStatement) _statementNode()        {}
-func (*_nodeVariableStatement) _statementNode()   {}
-func (*_nodeWhileStatement) _statementNode()      {}
-func (*_nodeWithStatement) _statementNode()       {}
+func (*nodeBlockStatement) statementNode()      {}
+func (*nodeBranchStatement) statementNode()     {}
+func (*nodeCaseStatement) statementNode()       {}
+func (*nodeCatchStatement) statementNode()      {}
+func (*nodeDebuggerStatement) statementNode()   {}
+func (*nodeDoWhileStatement) statementNode()    {}
+func (*nodeEmptyStatement) statementNode()      {}
+func (*nodeExpressionStatement) statementNode() {}
+func (*nodeForInStatement) statementNode()      {}
+func (*nodeForStatement) statementNode()        {}
+func (*nodeIfStatement) statementNode()         {}
+func (*nodeLabelledStatement) statementNode()   {}
+func (*nodeReturnStatement) statementNode()     {}
+func (*nodeSwitchStatement) statementNode()     {}
+func (*nodeThrowStatement) statementNode()      {}
+func (*nodeTryStatement) statementNode()        {}
+func (*nodeVariableStatement) statementNode()   {}
+func (*nodeWhileStatement) statementNode()      {}
+func (*nodeWithStatement) statementNode()       {}

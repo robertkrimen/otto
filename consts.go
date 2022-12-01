@@ -2,17 +2,17 @@ package otto
 
 const (
 	// Common classes.
-	classString   = "String"
-	classGoArray  = "GoArray"
-	classGoSlice  = "GoSlice"
-	classNumber   = "Number"
-	classDate     = "Date"
-	classArray    = "Array"
-	classFunction = "Function"
-	classObject   = "Object"
-	classRegExp   = "RegExp"
-	classBoolean  = "Boolean"
-	classError    = "Error"
+	classStringName   = "String"
+	classGoArrayName  = "GoArray"
+	classGoSliceName  = "GoSlice"
+	classNumberName   = "Number"
+	classDateName     = "Date"
+	classArrayName    = "Array"
+	classFunctionName = "Function"
+	classObjectName   = "Object"
+	classRegExpName   = "RegExp"
+	classBooleanName  = "Boolean"
+	classErrorName    = "Error"
 
 	// Common properties.
 	propertyLength = "length"

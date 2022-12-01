@@ -7,7 +7,7 @@ import (
 // #750 - Return _ instance.
 func Test_underscore_utility_0(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("#750 - Return _ instance.", 2, function() {
@@ -19,10 +19,10 @@ func Test_underscore_utility_0(t *testing.T) {
 	})
 }
 
-// identity
+// identity.
 func Test_underscore_utility_1(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("identity", function() {
@@ -33,10 +33,10 @@ func Test_underscore_utility_1(t *testing.T) {
 	})
 }
 
-// random
+// random.
 func Test_underscore_utility_2(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("random", function() {
@@ -56,10 +56,10 @@ func Test_underscore_utility_2(t *testing.T) {
 	})
 }
 
-// uniqueId
+// uniqueId.
 func Test_underscore_utility_3(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("uniqueId", function() {
@@ -71,10 +71,10 @@ func Test_underscore_utility_3(t *testing.T) {
 	})
 }
 
-// times
+// times.
 func Test_underscore_utility_4(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("times", function() {
@@ -92,10 +92,10 @@ func Test_underscore_utility_4(t *testing.T) {
 	})
 }
 
-// mixin
+// mixin.
 func Test_underscore_utility_5(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("mixin", function() {
@@ -111,10 +111,10 @@ func Test_underscore_utility_5(t *testing.T) {
 	})
 }
 
-// _.escape
+// _.escape.
 func Test_underscore_utility_6(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("_.escape", function() {
@@ -126,10 +126,10 @@ func Test_underscore_utility_6(t *testing.T) {
 	})
 }
 
-// _.unescape
+// _.unescape.
 func Test_underscore_utility_7(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("_.unescape", function() {
@@ -143,10 +143,10 @@ func Test_underscore_utility_7(t *testing.T) {
 	})
 }
 
-// template
+// template.
 func Test_underscore_utility_8(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("template", function() {
@@ -261,10 +261,10 @@ func Test_underscore_utility_8(t *testing.T) {
 	})
 }
 
-// _.template provides the generated function source, when a SyntaxError occurs
+// _.template provides the generated function source, when a SyntaxError occurs.
 func Test_underscore_utility_9(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('_.template provides the generated function source, when a SyntaxError occurs', function() {
@@ -279,10 +279,10 @@ func Test_underscore_utility_9(t *testing.T) {
 	})
 }
 
-// _.template handles \\u2028 & \\u2029
+// _.template handles \\u2028 & \\u2029.
 func Test_underscore_utility_10(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('_.template handles \\u2028 & \\u2029', function() {
@@ -293,10 +293,10 @@ func Test_underscore_utility_10(t *testing.T) {
 	})
 }
 
-// result calls functions and returns primitives
+// result calls functions and returns primitives.
 func Test_underscore_utility_11(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('result calls functions and returns primitives', function() {
@@ -311,10 +311,10 @@ func Test_underscore_utility_11(t *testing.T) {
 	})
 }
 
-// _.templateSettings.variable
+// _.templateSettings.variable.
 func Test_underscore_utility_12(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('_.templateSettings.variable', function() {
@@ -331,7 +331,7 @@ func Test_underscore_utility_12(t *testing.T) {
 // #547 - _.templateSettings is unchanged by custom settings.
 func Test_underscore_utility_13(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('#547 - _.templateSettings is unchanged by custom settings.', function() {
@@ -346,7 +346,7 @@ func Test_underscore_utility_13(t *testing.T) {
 // #556 - undefined template variables.
 func Test_underscore_utility_14(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('#556 - undefined template variables.', function() {
@@ -373,7 +373,7 @@ func Test_underscore_utility_14(t *testing.T) {
 // interpolate evaluates code only once.
 func Test_underscore_utility_15(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('interpolate evaluates code only once.', 2, function() {
@@ -392,7 +392,7 @@ func Test_underscore_utility_15(t *testing.T) {
 // #746 - _.template settings are not modified.
 func Test_underscore_utility_16(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('#746 - _.template settings are not modified.', 1, function() {
@@ -407,7 +407,7 @@ func Test_underscore_utility_16(t *testing.T) {
 // #779 - delimeters are applied to unescaped text.
 func Test_underscore_utility_17(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('#779 - delimeters are applied to unescaped text.', 1, function() {

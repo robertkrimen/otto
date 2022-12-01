@@ -3,56 +3,55 @@
 /*
 Package dbg is a println/printf/log-debugging utility library.
 
-    import (
-        Dbg "github.com/robertkrimen/dbg"
-    )
+	import (
+	    Dbg "github.com/robertkrimen/dbg"
+	)
 
-    dbg, dbgf := Dbg.New()
+	dbg, dbgf := Dbg.New()
 
-    dbg("Emit some debug stuff", []byte{120, 121, 122, 122, 121}, math.Pi)
-    # "2013/01/28 16:50:03 Emit some debug stuff [120 121 122 122 121] 3.141592653589793"
+	dbg("Emit some debug stuff", []byte{120, 121, 122, 122, 121}, math.Pi)
+	# "2013/01/28 16:50:03 Emit some debug stuff [120 121 122 122 121] 3.141592653589793"
 
-    dbgf("With a %s formatting %.2f", "little", math.Pi)
-    # "2013/01/28 16:51:55 With a little formatting (3.14)"
+	dbgf("With a %s formatting %.2f", "little", math.Pi)
+	# "2013/01/28 16:51:55 With a little formatting (3.14)"
 
-    dbgf("%/fatal//A fatal debug statement: should not be here")
-    # "A fatal debug statement: should not be here"
-    # ...and then, os.Exit(1)
+	dbgf("%/fatal//A fatal debug statement: should not be here")
+	# "A fatal debug statement: should not be here"
+	# ...and then, os.Exit(1)
 
-    dbgf("%/panic//Can also panic %s", "this")
-    # "Can also panic this"
-    # ...as a panic, equivalent to: panic("Can also panic this")
+	dbgf("%/panic//Can also panic %s", "this")
+	# "Can also panic this"
+	# ...as a panic, equivalent to: panic("Can also panic this")
 
-    dbgf("Any %s arguments without a corresponding %%", "extra", "are treated like arguments to dbg()")
-    # "2013/01/28 17:14:40 Any extra arguments (without a corresponding %) are treated like arguments to dbg()"
+	dbgf("Any %s arguments without a corresponding %%", "extra", "are treated like arguments to dbg()")
+	# "2013/01/28 17:14:40 Any extra arguments (without a corresponding %) are treated like arguments to dbg()"
 
-    dbgf("%d %d", 1, 2, 3, 4, 5)
-    # "2013/01/28 17:16:32 Another example: 1 2 3 4 5"
+	dbgf("%d %d", 1, 2, 3, 4, 5)
+	# "2013/01/28 17:16:32 Another example: 1 2 3 4 5"
 
-    dbgf("%@: Include the function name for a little context (via %s)", "%@")
-    # "2013... github.com/robertkrimen/dbg.TestSynopsis: Include the function name for a little context (via %@)"
+	dbgf("%@: Include the function name for a little context (via %s)", "%@")
+	# "2013... github.com/robertkrimen/dbg.TestSynopsis: Include the function name for a little context (via %@)"
 
 By default, dbg uses log (log.Println, log.Printf, log.Panic, etc.) for output.
 However, you can also provide your own output destination by invoking dbg.New with
 a customization function:
 
-    import (
-        "bytes"
-        Dbg "github.com/robertkrimen/dbg"
-        "os"
-    )
+	import (
+	    "bytes"
+	    Dbg "github.com/robertkrimen/dbg"
+	    "os"
+	)
 
-    # dbg to os.Stderr
-    dbg, dbgf := Dbg.New(func(dbgr *Dbgr) {
-        dbgr.SetOutput(os.Stderr)
-    })
+	# dbg to os.Stderr
+	dbg, dbgf := Dbg.New(func(dbgr *Dbgr) {
+	    dbgr.SetOutput(os.Stderr)
+	})
 
-    # A slightly contrived example:
-    var buffer bytes.Buffer
-    dbg, dbgf := New(func(dbgr *Dbgr) {
-        dbgr.SetOutput(&buffer)
-    })
-
+	# A slightly contrived example:
+	var buffer bytes.Buffer
+	dbg, dbgf := New(func(dbgr *Dbgr) {
+	    dbgr.SetOutput(&buffer)
+	})
 */
 package dbg
 
@@ -63,7 +62,7 @@ import (
 	"log"
 	"os"
 	"regexp"
-	"runtime"
+	goruntime "runtime"
 	"strings"
 	"unicode"
 )
@@ -130,30 +129,28 @@ func parseFormat(format string) (frmt _frmt) {
 }
 
 type Dbgr struct {
-	emit _emit
+	emit emit
 }
 
 type DbgFunction func(values ...interface{})
 
 func NewDbgr() *Dbgr {
-	self := &Dbgr{}
-	return self
+	return &Dbgr{}
 }
 
 /*
 New will create and return a pair of debugging functions. You can customize where
 they output to by passing in an (optional) customization function:
 
-    import (
-        Dbg "github.com/robertkrimen/dbg"
-        "os"
-    )
+	import (
+	    Dbg "github.com/robertkrimen/dbg"
+	    "os"
+	)
 
-    # dbg to os.Stderr
-    dbg, dbgf := Dbg.New(func(dbgr *Dbgr) {
-        dbgr.SetOutput(os.Stderr)
-    })
-
+	# dbg to os.Stderr
+	dbg, dbgf := Dbg.New(func(dbgr *Dbgr) {
+	    dbgr.SetOutput(os.Stderr)
+	})
 */
 func New(options ...interface{}) (dbg DbgFunction, dbgf DbgFunction) {
 	dbgr := NewDbgr()
@@ -165,26 +162,25 @@ func New(options ...interface{}) (dbg DbgFunction, dbgf DbgFunction) {
 	return dbgr.DbgDbgf()
 }
 
-func (self Dbgr) Dbg(values ...interface{}) {
-	self.getEmit().emit(_frmt{}, "", values...)
+func (d Dbgr) Dbg(values ...interface{}) {
+	d.getEmit().emit(_frmt{}, "", values...)
 }
 
-func (self Dbgr) Dbgf(values ...interface{}) {
-	self.dbgf(values...)
+func (d Dbgr) Dbgf(values ...interface{}) {
+	d.dbgf(values...)
 }
 
-func (self Dbgr) DbgDbgf() (dbg DbgFunction, dbgf DbgFunction) {
+func (d Dbgr) DbgDbgf() (dbg DbgFunction, dbgf DbgFunction) {
 	dbg = func(vl ...interface{}) {
-		self.Dbg(vl...)
+		d.Dbg(vl...)
 	}
 	dbgf = func(vl ...interface{}) {
-		self.dbgf(vl...)
+		d.dbgf(vl...)
 	}
 	return dbg, dbgf // Redundant, but...
 }
 
-func (self Dbgr) dbgf(values ...interface{}) {
-
+func (d Dbgr) dbgf(values ...interface{}) {
 	var frmt _frmt
 	if len(values) > 0 {
 		tmp := fmt.Sprint(values[0])
@@ -192,7 +188,7 @@ func (self Dbgr) dbgf(values ...interface{}) {
 		values = values[1:]
 	}
 
-	buffer_f := bytes.Buffer{}
+	buf := bytes.Buffer{}
 	format := frmt.format
 	end := len(format)
 	for at := 0; at < end; {
@@ -201,7 +197,7 @@ func (self Dbgr) dbgf(values ...interface{}) {
 			at++
 		}
 		if at > last {
-			buffer_f.WriteString(format[last:at])
+			buf.WriteString(format[last:at])
 		}
 		if at >= end {
 			break
@@ -211,100 +207,97 @@ func (self Dbgr) dbgf(values ...interface{}) {
 		// format[at] == ?
 		if format[at] == '@' {
 			depth := 2
-			pc, _, _, _ := runtime.Caller(depth)
-			name := runtime.FuncForPC(pc).Name()
-			buffer_f.WriteString(name)
+			pc, _, _, _ := goruntime.Caller(depth)
+			name := goruntime.FuncForPC(pc).Name()
+			buf.WriteString(name)
 		} else {
-			buffer_f.WriteString(format[at-1 : at+1])
+			buf.WriteString(format[at-1 : at+1])
 		}
 		at++
 	}
 
-	//values_f := append([]interface{}{}, values[0:frmt.operandCount]...)
-	values_f := values[0:frmt.operandCount]
-	values_dbg := values[frmt.operandCount:]
-	if len(values_dbg) > 0 {
+	//valuesF := append([]interface{}{}, values[0:frmt.operandCount]...)
+	valuesF := values[0:frmt.operandCount]
+	valuesDbg := values[frmt.operandCount:]
+	if len(valuesDbg) > 0 {
 		// Adjust frmt.format:
 		// (%v instead of %s because: frmt.check)
-		{
-			tmp := format
-			if len(tmp) > 0 {
-				if unicode.IsSpace(rune(tmp[len(tmp)-1])) {
-					buffer_f.WriteString("%v")
-				} else {
-					buffer_f.WriteString(" %v")
-				}
-			} else if frmt.check {
-				// Performing a check, so no output
+		tmp := format
+		if len(tmp) > 0 {
+			if unicode.IsSpace(rune(tmp[len(tmp)-1])) {
+				buf.WriteString("%v")
 			} else {
-				buffer_f.WriteString("%v")
+				buf.WriteString(" %v")
 			}
+		} else if frmt.check {
+			// Performing a check, so no output
+		} else {
+			buf.WriteString("%v")
 		}
 
-		// Adjust values_f:
+		// Adjust valuesF:
 		if !frmt.check {
 			tmp := []string{}
-			for _, value := range values_dbg {
+			for _, value := range valuesDbg {
 				tmp = append(tmp, fmt.Sprintf("%v", value))
 			}
-			// First, make a copy of values_f, so we avoid overwriting values_dbg when appending
-			values_f = append([]interface{}{}, values_f...)
-			values_f = append(values_f, strings.Join(tmp, " "))
+			// First, make a copy of valuesF, so we avoid overwriting valuesDbg when appending
+			valuesF = append([]interface{}{}, valuesF...)
+			valuesF = append(valuesF, strings.Join(tmp, " "))
 		}
 	}
 
-	format = buffer_f.String()
+	format = buf.String()
 	if frmt.check {
 		// We do not actually emit to the log, but panic if
 		// a non-nil value is detected (e.g. a non-nil error)
-		for _, value := range values_dbg {
+		for _, value := range valuesDbg {
 			if value != nil {
 				if format == "" {
 					panic(value)
 				} else {
-					panic(fmt.Sprintf(format, append(values_f, value)...))
+					panic(fmt.Sprintf(format, append(valuesF, value)...))
 				}
 			}
 		}
 	} else {
-		self.getEmit().emit(frmt, format, values_f...)
+		d.getEmit().emit(frmt, format, valuesF...)
 	}
 }
 
 // Idiot-proof &Dbgr{}, etc.
-func (self *Dbgr) getEmit() _emit {
-	if self.emit == nil {
-		self.emit = standardEmit()
+func (d *Dbgr) getEmit() emit {
+	if d.emit == nil {
+		d.emit = standardEmit()
 	}
-	return self.emit
+	return d.emit
 }
 
 // SetOutput will accept the following as a destination for output:
 //
-//      *log.Logger         Print*/Panic*/Fatal* of the logger
-//      io.Writer           -
-//      nil                 Reset to the default output (os.Stderr)
-//      "log"               Print*/Panic*/Fatal* via the "log" package
-//
-func (self *Dbgr) SetOutput(output interface{}) {
+//	*log.Logger         Print*/Panic*/Fatal* of the logger
+//	io.Writer           -
+//	nil                 Reset to the default output (os.Stderr)
+//	"log"               Print*/Panic*/Fatal* via the "log" package
+func (d *Dbgr) SetOutput(output interface{}) {
 	if output == nil {
-		self.emit = standardEmit()
+		d.emit = standardEmit()
 		return
 	}
 	switch output := output.(type) {
 	case *log.Logger:
-		self.emit = _emitLogger{
+		d.emit = emitLogger{
 			logger: output,
 		}
 		return
 	case io.Writer:
-		self.emit = _emitWriter{
+		d.emit = emitWriter{
 			writer: output,
 		}
 		return
 	case string:
 		if output == "log" {
-			self.emit = _emitLog{}
+			d.emit = emitLog{}
 			return
 		}
 	}
@@ -315,8 +308,8 @@ func (self *Dbgr) SetOutput(output interface{}) {
 // = emit = //
 // ======== //
 
-func standardEmit() _emit {
-	return _emitWriter{
+func standardEmit() emit {
+	return emitWriter{
 		writer: os.Stderr,
 	}
 }
@@ -329,50 +322,50 @@ func ln(tmp string) string {
 	return tmp
 }
 
-type _emit interface {
+type emit interface {
 	emit(_frmt, string, ...interface{})
 }
 
-type _emitWriter struct {
+type emitWriter struct {
 	writer io.Writer
 }
 
-func (self _emitWriter) emit(frmt _frmt, format string, values ...interface{}) {
+func (ew emitWriter) emit(frmt _frmt, format string, values ...interface{}) {
 	if format == "" {
-		fmt.Fprintln(self.writer, values...)
+		fmt.Fprintln(ew.writer, values...)
 	} else {
 		if frmt.panic {
 			panic(fmt.Sprintf(format, values...))
 		}
-		fmt.Fprintf(self.writer, ln(format), values...)
+		fmt.Fprintf(ew.writer, ln(format), values...)
 		if frmt.fatal {
 			os.Exit(1)
 		}
 	}
 }
 
-type _emitLogger struct {
+type emitLogger struct {
 	logger *log.Logger
 }
 
-func (self _emitLogger) emit(frmt _frmt, format string, values ...interface{}) {
+func (el emitLogger) emit(frmt _frmt, format string, values ...interface{}) {
 	if format == "" {
-		self.logger.Println(values...)
+		el.logger.Println(values...)
 	} else {
 		if frmt.panic {
-			self.logger.Panicf(format, values...)
+			el.logger.Panicf(format, values...)
 		} else if frmt.fatal {
-			self.logger.Fatalf(format, values...)
+			el.logger.Fatalf(format, values...)
 		} else {
-			self.logger.Printf(format, values...)
+			el.logger.Printf(format, values...)
 		}
 	}
 }
 
-type _emitLog struct {
+type emitLog struct {
 }
 
-func (self _emitLog) emit(frmt _frmt, format string, values ...interface{}) {
+func (el emitLog) emit(frmt _frmt, format string, values ...interface{}) {
 	if format == "" {
 		log.Println(values...)
 	} else {

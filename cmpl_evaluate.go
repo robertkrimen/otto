@@ -4,20 +4,18 @@ import (
 	"strconv"
 )
 
-func (self *_runtime) cmpl_evaluate_nodeProgram(node *_nodeProgram, eval bool) Value {
+func (rt *runtime) cmplEvaluateNodeProgram(node *nodeProgram, eval bool) Value {
 	if !eval {
-		self.enterGlobalScope()
-		defer func() {
-			self.leaveScope()
-		}()
+		rt.enterGlobalScope()
+		defer rt.leaveScope()
 	}
-	self.cmpl_functionDeclaration(node.functionList)
-	self.cmpl_variableDeclaration(node.varList)
-	self.scope.frame.file = node.file
-	return self.cmpl_evaluate_nodeStatementList(node.body)
+	rt.cmplFunctionDeclaration(node.functionList)
+	rt.cmplVariableDeclaration(node.varList)
+	rt.scope.frame.file = node.file
+	return rt.cmplEvaluateNodeStatementList(node.body)
 }
 
-func (self *_runtime) cmpl_call_nodeFunction(function *_object, stash *_fnStash, node *_nodeFunctionLiteral, this Value, argumentList []Value) Value {
+func (rt *runtime) cmplCallNodeFunction(function *object, stash *fnStash, node *nodeFunctionLiteral, argumentList []Value) Value {
 	indexOfParameterName := make([]string, len(argumentList))
 	// function(abc, def, ghi)
 	// indexOfParameterName[0] = "abc"
@@ -36,28 +34,28 @@ func (self *_runtime) cmpl_call_nodeFunction(function *_object, stash *_fnStash,
 			indexOfParameterName[index] = name
 		}
 		// strict = false
-		self.scope.lexical.setValue(name, value, false)
+		rt.scope.lexical.setValue(name, value, false)
 	}
 
 	if !argumentsFound {
-		arguments := self.newArgumentsObject(indexOfParameterName, stash, len(argumentList))
-		arguments.defineProperty("callee", toValue_object(function), 0101, false)
+		arguments := rt.newArgumentsObject(indexOfParameterName, stash, len(argumentList))
+		arguments.defineProperty("callee", objectValue(function), 0o101, false)
 		stash.arguments = arguments
 		// strict = false
-		self.scope.lexical.setValue("arguments", toValue_object(arguments), false)
-		for index, _ := range argumentList {
+		rt.scope.lexical.setValue("arguments", objectValue(arguments), false)
+		for index := range argumentList {
 			if index < len(node.parameterList) {
 				continue
 			}
 			indexAsString := strconv.FormatInt(int64(index), 10)
-			arguments.defineProperty(indexAsString, argumentList[index], 0111, false)
+			arguments.defineProperty(indexAsString, argumentList[index], 0o111, false)
 		}
 	}
 
-	self.cmpl_functionDeclaration(node.functionList)
-	self.cmpl_variableDeclaration(node.varList)
+	rt.cmplFunctionDeclaration(node.functionList)
+	rt.cmplVariableDeclaration(node.varList)
 
-	result := self.cmpl_evaluate_nodeStatement(node.body)
+	result := rt.cmplEvaluateNodeStatement(node.body)
 	if result.kind == valueResult {
 		return result
 	}
@@ -65,16 +63,16 @@ func (self *_runtime) cmpl_call_nodeFunction(function *_object, stash *_fnStash,
 	return Value{}
 }
 
-func (self *_runtime) cmpl_functionDeclaration(list []*_nodeFunctionLiteral) {
-	executionContext := self.scope
+func (rt *runtime) cmplFunctionDeclaration(list []*nodeFunctionLiteral) {
+	executionContext := rt.scope
 	eval := executionContext.eval
 	stash := executionContext.variable
 
 	for _, function := range list {
 		name := function.name
-		value := self.cmpl_evaluate_nodeExpression(function)
+		value := rt.cmplEvaluateNodeExpression(function)
 		if !stash.hasBinding(name) {
-			stash.createBinding(name, eval == true, value)
+			stash.createBinding(name, eval, value)
 		} else {
 			// TODO 10.5.5.e
 			stash.setBinding(name, value, false) // TODO strict
@@ -82,14 +80,14 @@ func (self *_runtime) cmpl_functionDeclaration(list []*_nodeFunctionLiteral) {
 	}
 }
 
-func (self *_runtime) cmpl_variableDeclaration(list []string) {
-	executionContext := self.scope
+func (rt *runtime) cmplVariableDeclaration(list []string) {
+	executionContext := rt.scope
 	eval := executionContext.eval
 	stash := executionContext.variable
 
 	for _, name := range list {
 		if !stash.hasBinding(name) {
-			stash.createBinding(name, eval == true, Value{}) // TODO strict?
+			stash.createBinding(name, eval, Value{}) // TODO strict?
 		}
 	}
 }

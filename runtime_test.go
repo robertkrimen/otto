@@ -3,6 +3,8 @@ package otto
 import (
 	"math"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 // FIXME terst, Review tests
@@ -314,12 +316,12 @@ func TestPositiveNegativeZero(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`1/0`, _Infinity)
-		test(`1/-0`, -_Infinity)
+		test(`1/0`, infinity)
+		test(`1/-0`, -infinity)
 		test(`
             abc = -0
             1/abc
-        `, -_Infinity)
+        `, -infinity)
 	})
 }
 
@@ -341,10 +343,10 @@ func TestComparison(t *testing.T) {
 
 		test("0 == 1", false)
 
-		is(negativeZero(), -0)
-		is(positiveZero(), 0)
-		is(math.Signbit(negativeZero()), true)
-		is(positiveZero() == negativeZero(), true)
+		is(negativeZero, -0)
+		is(positiveZero, 0)
+		is(math.Signbit(negativeZero), true)
+		is(positiveZero == negativeZero, true)
 
 		test("1 == 1", true)
 
@@ -748,17 +750,20 @@ func TestEvaluationOrder(t *testing.T) {
 func TestClone(t *testing.T) {
 	tt(t, func() {
 		vm1 := New()
-		vm1.Run(`
+		_, err := vm1.Run(`
             var abc = 1;
         `)
+		require.NoError(t, err)
 
 		vm2 := vm1.clone()
-		vm1.Run(`
+		_, err = vm1.Run(`
             abc += 2;
         `)
-		vm2.Run(`
+		require.NoError(t, err)
+		_, err = vm2.Run(`
             abc += 4;
         `)
+		require.NoError(t, err)
 
 		is(vm1.getValue("abc"), 3)
 		is(vm2.getValue("abc"), 5)
@@ -776,7 +781,7 @@ func Test_debugger(t *testing.T) {
 		})
 
 		_, err := vm.Run(`debugger`)
-		is(err, nil)
+		require.NoError(t, err)
 		is(called, true)
 	})
 
@@ -790,7 +795,7 @@ func Test_debugger(t *testing.T) {
 		})
 
 		_, err := vm.Run(`null`)
-		is(err, nil)
+		require.NoError(t, err)
 		is(called, false)
 	})
 
@@ -798,7 +803,7 @@ func Test_debugger(t *testing.T) {
 		vm := New()
 
 		_, err := vm.Run(`debugger`)
-		is(err, nil)
+		require.NoError(t, err)
 	})
 }
 
@@ -808,9 +813,9 @@ func Test_random(t *testing.T) {
 		vm.SetRandomSource(func() float64 { return 1 })
 
 		r, err := vm.Run(`Math.random()`)
-		is(err, nil)
+		require.NoError(t, err)
 		f, err := r.ToFloat()
-		is(err, nil)
+		require.NoError(t, err)
 		is(f, 1)
 	})
 
@@ -818,14 +823,14 @@ func Test_random(t *testing.T) {
 		vm := New()
 
 		r1, err := vm.Run(`Math.random()`)
-		is(err, nil)
+		require.NoError(t, err)
 		f1, err := r1.ToFloat()
-		is(err, nil)
+		require.NoError(t, err)
 
 		r2, err := vm.Run(`Math.random()`)
-		is(err, nil)
+		require.NoError(t, err)
 		f2, err := r2.ToFloat()
-		is(err, nil)
+		require.NoError(t, err)
 
 		is(f1 == f2, false)
 	})
@@ -848,10 +853,12 @@ func Test_stringArray(t *testing.T) {
 	}
 	tt(t, func() {
 		vm := New()
-		vm.Set("getStrings", getStrings)
-		vm.Set("concatStrings", concatStrings)
+		err := vm.Set("getStrings", getStrings)
+		require.NoError(t, err)
+		err = vm.Set("concatStrings", concatStrings)
+		require.NoError(t, err)
 		r1, err := vm.Run(`var a = getStrings(); concatStrings(a)`)
-		is(err, nil)
+		require.NoError(t, err)
 		is(r1, "these are strings")
 	})
 }

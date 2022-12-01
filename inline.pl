@@ -29,11 +29,11 @@ import (
     "math"
 )
 
-func _newContext(runtime *_runtime) {
+func _newContext(rt *_runtime) {
 @{[ join "\n", $self->newContext() ]}
 }
 
-func newConsoleObject(runtime *_runtime) *_object {
+func newConsoleObject(rt *_runtime) *_object {
 @{[ join "\n", $self->newConsoleObject() ]}
 }
 _END_
@@ -643,9 +643,9 @@ sub newContext {
             my $propertyOrder = $self->propertyOrder(@propertyMap);
             $propertyOrder =~ s/^propertyOrder: //;
             return
-            "runtime.globalObject.property =",
+            "rt.globalObject.property =",
             @propertyMap,
-            "runtime.globalObject.propertyOrder =",
+            "rt.globalObject.propertyOrder =",
             $propertyOrder,
             ;
         }),
@@ -667,7 +667,7 @@ sub block {
     while (@input) {
         local $_ = shift @input;
         if (m/^\./) {
-            $_ = "runtime.global$_";
+            $_ = "rt.global$_";
         }
         if (m/ :?=$/) {
             $_ .= shift @input;
@@ -713,7 +713,7 @@ sub globalDeclare {
     my @got;
     while (@_) {
         my $name = shift;
-        push @got, $self->property($name, $self->objectValue("runtime.global.$name"), "0101"),
+        push @got, $self->property($name, $self->objectValue("rt.global.$name"), "0101"),
     }
     return @got;
 }
@@ -741,10 +741,10 @@ sub globalObject {
 
     return trim <<_END_;
 &_object{
-    runtime: runtime,
+    runtime: rt,
     class: "$name",
     objectClass: _classObject,
-    prototype: runtime.global.ObjectPrototype,
+    prototype: rt.global.ObjectPrototype,
     extensible: true,
     $propertyMap
 }
@@ -758,7 +758,7 @@ sub globalFunction {
 
     my $builtin = "builtin${name}";
     my $builtinNew = "builtinNew${name}";
-    my $prototype = "runtime.global.${name}Prototype";
+    my $prototype = "rt.global.${name}Prototype";
     my $propertyMap = "";
     unshift @_,
         $self->property("length", $self->numberValue($length), "0"),
@@ -773,15 +773,15 @@ sub globalFunction {
 
     push @postblock, $self->statement(
         "$prototype.property[\"constructor\"] =",
-        $self->property(undef, $self->objectValue("runtime.global.${name}"), "0101"),
+        $self->property(undef, $self->objectValue("rt.global.${name}"), "0101"),
     );
 
     return trim <<_END_;
 &_object{
-    runtime: runtime,
+    runtime: rt,
     class: "Function",
     objectClass: _classObject,
-    prototype: runtime.global.FunctionPrototype,
+    prototype: rt.global.FunctionPrototype,
     extensible: true,
     value: @{[ $self->nativeFunctionOf($name, $builtin, $builtinNew) ]},
     $propertyMap
@@ -814,7 +814,7 @@ sub globalPrototype {
     }
 
     if ($prototype =~ m/^\./) {
-        $prototype = "runtime.global$prototype";
+        $prototype = "rt.global$prototype";
     }
 
     my $propertyMap = "";
@@ -826,7 +826,7 @@ sub globalPrototype {
 
     return trim <<_END_;
 &_object{
-    runtime: runtime,
+    runtime: rt,
     class: "$class",
     objectClass: $classObject,
     prototype: $prototype,
@@ -867,10 +867,10 @@ sub newFunction {
     push @preblock, $self->statement(
         "$label := @{[ trim <<_END_ ]}",
 &_object{
-    runtime: runtime,
+    runtime: rt,
     class: "Function",
     objectClass: _classObject,
-    prototype: runtime.global.FunctionPrototype,
+    prototype: rt.global.FunctionPrototype,
     extensible: true,
     property: @{[ join "\n", $self->propertyMap(@propertyMap) ]},
     $propertyOrder
@@ -890,10 +890,10 @@ sub newObject {
 
     return trim <<_END_;
 &_object{
-    runtime: runtime,
+    runtime: rt,
     class: "Object",
     objectClass: _classObject,
-    prototype: runtime.global.ObjectPrototype,
+    prototype: rt.global.ObjectPrototype,
     extensible: true,
     property: $propertyMap,
     $propertyOrder,
@@ -915,10 +915,10 @@ sub newPrototypeObject {
 
     return trim <<_END_;
 &_object{
-    runtime: runtime,
+    runtime: rt,
     class: "$class",
     objectClass: $objectClass,
-    prototype: runtime.global.ObjectPrototype,
+    prototype: rt.global.ObjectPrototype,
     extensible: true,
     property: $propertyMap,
     $propertyOrder,

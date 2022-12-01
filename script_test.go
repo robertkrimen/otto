@@ -2,6 +2,8 @@ package otto
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestScript(t *testing.T) {
@@ -9,52 +11,53 @@ func TestScript(t *testing.T) {
 		vm := New()
 
 		script, err := vm.Compile("xyzzy", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
-		is(err, nil)
+		require.NoError(t, err)
 
 		str := script.String()
 		is(str, "// xyzzy\nvar abc; if (!abc) abc = 0; abc += 2; abc;")
 
 		value, err := vm.Run(script)
-		is(err, nil)
+		require.NoError(t, err)
 		is(value, 2)
 
+		// TODO(steve): Fix the underlying issues as to why this returns early.
 		if true {
 			return
 		}
 
 		tmp, err := script.marshalBinary()
-		is(err, nil)
+		require.NoError(t, err)
 		is(len(tmp), 1228)
 
 		{
 			script := &Script{}
 			err = script.unmarshalBinary(tmp)
-			is(err, nil)
+			require.NoError(t, err)
 
 			is(script.String(), str)
 
 			value, err = vm.Run(script)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 4)
 
 			tmp, err = script.marshalBinary()
-			is(err, nil)
+			require.NoError(t, err)
 			is(len(tmp), 1228)
 		}
 
 		{
 			script := &Script{}
 			err = script.unmarshalBinary(tmp)
-			is(err, nil)
+			require.NoError(t, err)
 
 			is(script.String(), str)
 
 			value, err := vm.Run(script)
-			is(err, nil)
+			require.NoError(t, err)
 			is(value, 6)
 
 			tmp, err = script.marshalBinary()
-			is(err, nil)
+			require.NoError(t, err)
 			is(len(tmp), 1228)
 		}
 
@@ -80,15 +83,16 @@ func TestScript(t *testing.T) {
 func TestFunctionCall_CallerLocation(t *testing.T) {
 	tt(t, func() {
 		vm := New()
-		vm.Set("loc", func(call FunctionCall) Value {
+		err := vm.Set("loc", func(call FunctionCall) Value {
 			return toValue(call.CallerLocation())
 		})
+		require.NoError(t, err)
 		script, err := vm.Compile("somefile.js", `var where = loc();`)
-		is(err, nil)
+		require.NoError(t, err)
 		_, err = vm.Run(script)
-		is(err, nil)
+		require.NoError(t, err)
 		where, err := vm.Get("where")
-		is(err, nil)
+		require.NoError(t, err)
 		is(where, "somefile.js:1:13")
 	})
 }

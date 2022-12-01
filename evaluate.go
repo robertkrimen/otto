@@ -8,12 +8,12 @@ import (
 	"github.com/robertkrimen/otto/token"
 )
 
-func (self *_runtime) evaluateMultiply(left float64, right float64) Value {
+func (rt *runtime) evaluateMultiply(left float64, right float64) Value { //nolint: unused
 	// TODO 11.5.1
 	return Value{}
 }
 
-func (self *_runtime) evaluateDivide(left float64, right float64) Value {
+func (rt *runtime) evaluateDivide(left float64, right float64) Value {
 	if math.IsNaN(left) || math.IsNaN(right) {
 		return NaNValue()
 	}
@@ -26,61 +26,57 @@ func (self *_runtime) evaluateDivide(left float64, right float64) Value {
 	if math.IsInf(left, 0) {
 		if math.Signbit(left) == math.Signbit(right) {
 			return positiveInfinityValue()
-		} else {
-			return negativeInfinityValue()
 		}
+		return negativeInfinityValue()
 	}
 	if math.IsInf(right, 0) {
 		if math.Signbit(left) == math.Signbit(right) {
 			return positiveZeroValue()
-		} else {
-			return negativeZeroValue()
 		}
+		return negativeZeroValue()
 	}
 	if right == 0 {
 		if math.Signbit(left) == math.Signbit(right) {
 			return positiveInfinityValue()
-		} else {
-			return negativeInfinityValue()
 		}
+		return negativeInfinityValue()
 	}
-	return toValue_float64(left / right)
+	return float64Value(left / right)
 }
 
-func (self *_runtime) evaluateModulo(left float64, right float64) Value {
+func (rt *runtime) evaluateModulo(left float64, right float64) Value { //nolint: unused
 	// TODO 11.5.3
 	return Value{}
 }
 
-func (self *_runtime) calculateBinaryExpression(operator token.Token, left Value, right Value) Value {
+func (rt *runtime) calculateBinaryExpression(operator token.Token, left Value, right Value) Value {
 	leftValue := left.resolve()
 
 	switch operator {
 	// Additive
 	case token.PLUS:
-		leftValue = toPrimitive(leftValue)
+		leftValue = toPrimitiveValue(leftValue)
 		rightValue := right.resolve()
-		rightValue = toPrimitive(rightValue)
+		rightValue = toPrimitiveValue(rightValue)
 
 		if leftValue.IsString() || rightValue.IsString() {
-			return toValue_string(strings.Join([]string{leftValue.string(), rightValue.string()}, ""))
-		} else {
-			return toValue_float64(leftValue.float64() + rightValue.float64())
+			return stringValue(strings.Join([]string{leftValue.string(), rightValue.string()}, ""))
 		}
+		return float64Value(leftValue.float64() + rightValue.float64())
 	case token.MINUS:
 		rightValue := right.resolve()
-		return toValue_float64(leftValue.float64() - rightValue.float64())
+		return float64Value(leftValue.float64() - rightValue.float64())
 
 		// Multiplicative
 	case token.MULTIPLY:
 		rightValue := right.resolve()
-		return toValue_float64(leftValue.float64() * rightValue.float64())
+		return float64Value(leftValue.float64() * rightValue.float64())
 	case token.SLASH:
 		rightValue := right.resolve()
-		return self.evaluateDivide(leftValue.float64(), rightValue.float64())
+		return rt.evaluateDivide(leftValue.float64(), rightValue.float64())
 	case token.REMAINDER:
 		rightValue := right.resolve()
-		return toValue_float64(math.Mod(leftValue.float64(), rightValue.float64()))
+		return float64Value(math.Mod(leftValue.float64(), rightValue.float64()))
 
 		// Logical
 	case token.LOGICAL_AND:
@@ -88,65 +84,65 @@ func (self *_runtime) calculateBinaryExpression(operator token.Token, left Value
 		if !left {
 			return falseValue
 		}
-		return toValue_bool(right.resolve().bool())
+		return boolValue(right.resolve().bool())
 	case token.LOGICAL_OR:
 		left := leftValue.bool()
 		if left {
 			return trueValue
 		}
-		return toValue_bool(right.resolve().bool())
+		return boolValue(right.resolve().bool())
 
 		// Bitwise
 	case token.AND:
 		rightValue := right.resolve()
-		return toValue_int32(toInt32(leftValue) & toInt32(rightValue))
+		return int32Value(toInt32(leftValue) & toInt32(rightValue))
 	case token.OR:
 		rightValue := right.resolve()
-		return toValue_int32(toInt32(leftValue) | toInt32(rightValue))
+		return int32Value(toInt32(leftValue) | toInt32(rightValue))
 	case token.EXCLUSIVE_OR:
 		rightValue := right.resolve()
-		return toValue_int32(toInt32(leftValue) ^ toInt32(rightValue))
+		return int32Value(toInt32(leftValue) ^ toInt32(rightValue))
 
 		// Shift
 		// (Masking of 0x1f is to restrict the shift to a maximum of 31 places)
 	case token.SHIFT_LEFT:
 		rightValue := right.resolve()
-		return toValue_int32(toInt32(leftValue) << (toUint32(rightValue) & 0x1f))
+		return int32Value(toInt32(leftValue) << (toUint32(rightValue) & 0x1f))
 	case token.SHIFT_RIGHT:
 		rightValue := right.resolve()
-		return toValue_int32(toInt32(leftValue) >> (toUint32(rightValue) & 0x1f))
+		return int32Value(toInt32(leftValue) >> (toUint32(rightValue) & 0x1f))
 	case token.UNSIGNED_SHIFT_RIGHT:
 		rightValue := right.resolve()
 		// Shifting an unsigned integer is a logical shift
-		return toValue_uint32(toUint32(leftValue) >> (toUint32(rightValue) & 0x1f))
+		return uint32Value(toUint32(leftValue) >> (toUint32(rightValue) & 0x1f))
 
 	case token.INSTANCEOF:
 		rightValue := right.resolve()
 		if !rightValue.IsObject() {
-			panic(self.panicTypeError("Expecting a function in instanceof check, but got: %v", rightValue))
+			panic(rt.panicTypeError("Expecting a function in instanceof check, but got: %v", rightValue))
 		}
-		return toValue_bool(rightValue._object().hasInstance(leftValue))
+		return boolValue(rightValue.object().hasInstance(leftValue))
 
 	case token.IN:
 		rightValue := right.resolve()
 		if !rightValue.IsObject() {
-			panic(self.panicTypeError())
+			panic(rt.panicTypeError())
 		}
-		return toValue_bool(rightValue._object().hasProperty(leftValue.string()))
+		return boolValue(rightValue.object().hasProperty(leftValue.string()))
 	}
 
 	panic(hereBeDragons(operator))
 }
 
-type _lessThanResult int
+type lessThanResult int
 
 const (
-	lessThanFalse _lessThanResult = iota
+	lessThanFalse lessThanResult = iota
 	lessThanTrue
 	lessThanUndefined
 )
 
-func calculateLessThan(left Value, right Value, leftFirst bool) _lessThanResult {
+func calculateLessThan(left Value, right Value, leftFirst bool) lessThanResult {
 	var x, y Value
 	if leftFirst {
 		x = toNumberPrimitive(left)
@@ -175,46 +171,46 @@ func calculateLessThan(left Value, right Value, leftFirst bool) _lessThanResult 
 	return lessThanFalse
 }
 
-// FIXME Probably a map is not the most efficient way to do this
-var lessThanTable [4](map[_lessThanResult]bool) = [4](map[_lessThanResult]bool){
+// FIXME Probably a map is not the most efficient way to do this.
+var lessThanTable [4](map[lessThanResult]bool) = [4](map[lessThanResult]bool){
 	// <
-	map[_lessThanResult]bool{
+	map[lessThanResult]bool{
 		lessThanFalse:     false,
 		lessThanTrue:      true,
 		lessThanUndefined: false,
 	},
 
 	// >
-	map[_lessThanResult]bool{
+	map[lessThanResult]bool{
 		lessThanFalse:     false,
 		lessThanTrue:      true,
 		lessThanUndefined: false,
 	},
 
 	// <=
-	map[_lessThanResult]bool{
+	map[lessThanResult]bool{
 		lessThanFalse:     true,
 		lessThanTrue:      false,
 		lessThanUndefined: false,
 	},
 
 	// >=
-	map[_lessThanResult]bool{
+	map[lessThanResult]bool{
 		lessThanFalse:     true,
 		lessThanTrue:      false,
 		lessThanUndefined: false,
 	},
 }
 
-func (self *_runtime) calculateComparison(comparator token.Token, left Value, right Value) bool {
+func (rt *runtime) calculateComparison(comparator token.Token, left Value, right Value) bool {
 	// FIXME Use strictEqualityComparison?
 	// TODO This might be redundant now (with regards to evaluateComparison)
 	x := left.resolve()
 	y := right.resolve()
 
-	kindEqualKind := false
+	var kindEqualKind bool
+	var negate bool
 	result := true
-	negate := false
 
 	switch comparator {
 	case token.LESS:
@@ -238,27 +234,28 @@ func (self *_runtime) calculateComparison(comparator token.Token, left Value, ri
 		negate = true
 		fallthrough
 	case token.EQUAL:
-		if x.kind == y.kind {
+		switch {
+		case x.kind == y.kind:
 			kindEqualKind = true
-		} else if x.kind <= valueNull && y.kind <= valueNull {
+		case x.kind <= valueNull && y.kind <= valueNull:
 			result = true
-		} else if x.kind <= valueNull || y.kind <= valueNull {
+		case x.kind <= valueNull || y.kind <= valueNull:
 			result = false
-		} else if x.kind <= valueString && y.kind <= valueString {
+		case x.kind <= valueString && y.kind <= valueString:
 			result = x.float64() == y.float64()
-		} else if x.kind == valueBoolean {
-			result = self.calculateComparison(token.EQUAL, toValue_float64(x.float64()), y)
-		} else if y.kind == valueBoolean {
-			result = self.calculateComparison(token.EQUAL, x, toValue_float64(y.float64()))
-		} else if x.kind == valueObject {
-			result = self.calculateComparison(token.EQUAL, toPrimitive(x), y)
-		} else if y.kind == valueObject {
-			result = self.calculateComparison(token.EQUAL, x, toPrimitive(y))
-		} else {
-			panic(hereBeDragons("Unable to test for equality: %v ==? %v", x, y))
+		case x.kind == valueBoolean:
+			result = rt.calculateComparison(token.EQUAL, float64Value(x.float64()), y)
+		case y.kind == valueBoolean:
+			result = rt.calculateComparison(token.EQUAL, x, float64Value(y.float64()))
+		case x.kind == valueObject:
+			result = rt.calculateComparison(token.EQUAL, toPrimitiveValue(x), y)
+		case y.kind == valueObject:
+			result = rt.calculateComparison(token.EQUAL, x, toPrimitiveValue(y))
+		default:
+			panic(fmt.Sprintf("unknown types for equal: %v ==? %v", x, y))
 		}
 	default:
-		panic(fmt.Errorf("Unknown comparator %s", comparator.String()))
+		panic(fmt.Sprintf("unknown comparator %s", comparator.String()))
 	}
 
 	if kindEqualKind {
@@ -278,7 +275,7 @@ func (self *_runtime) calculateComparison(comparator token.Token, left Value, ri
 		case valueBoolean:
 			result = x.bool() == y.bool()
 		case valueObject:
-			result = x._object() == y._object()
+			result = x.object() == y.object()
 		default:
 			goto ERROR
 		}

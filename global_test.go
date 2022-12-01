@@ -14,15 +14,15 @@ func TestGlobal(t *testing.T) {
 		runtime := vm.vm.runtime
 
 		{
-			call := func(object interface{}, src string, argumentList ...interface{}) Value {
+			call := func(obj interface{}, src string, argumentList ...interface{}) Value {
 				var tgt *Object
-				switch object := object.(type) {
+				switch obj := obj.(type) {
 				case Value:
-					tgt = object.Object()
+					tgt = obj.Object()
 				case *Object:
-					tgt = object
-				case *_object:
-					tgt = toValue_object(object).Object()
+					tgt = obj
+				case *object:
+					tgt = objectValue(obj).Object()
 				default:
 					panic("Here be dragons.")
 				}
@@ -33,35 +33,32 @@ func TestGlobal(t *testing.T) {
 
 			// FIXME enterGlobalScope
 			if false {
-				value := runtime.scope.lexical.getBinding(classObject, false)._object().call(UndefinedValue(), []Value{toValue(runtime.newObject())}, false, nativeFrame)
+				value := runtime.scope.lexical.getBinding(classObjectName, false).object().call(UndefinedValue(), []Value{toValue(runtime.newObject())}, false, nativeFrame)
 				is(value.IsObject(), true)
 				is(value, "[object Object]")
-				is(value._object().prototype == runtime.global.ObjectPrototype, true)
-				is(value._object().prototype == runtime.global.Object.get("prototype")._object(), true)
-				is(value._object().get("toString"), "function toString() { [native code] }")
+				is(value.object().prototype == runtime.global.ObjectPrototype, true)
+				is(value.object().prototype == runtime.global.Object.get("prototype").object(), true)
+				is(value.object().get("toString"), "function toString() { [native code] }")
 				is(call(value.Object(), "hasOwnProperty", "hasOwnProperty"), false)
 
-				is(call(value._object().get("toString")._object().prototype, "toString"), "function () { [native code] }") // TODO Is this right?
-				is(value._object().get("toString")._object().get("toString"), "function toString() { [native code] }")
-				is(value._object().get("toString")._object().get("toString")._object(), "function toString() { [native code] }")
+				is(call(value.object().get("toString").object().prototype, "toString"), "function () { [native code] }") // TODO Is this right?
+				is(value.object().get("toString").object().get("toString"), "function toString() { [native code] }")
+				is(value.object().get("toString").object().get("toString").object(), "function toString() { [native code] }")
 
-				is(call(value._object(), "propertyIsEnumerable", "isPrototypeOf"), false)
-				value._object().put("xyzzy", toValue_string("Nothing happens."), false)
+				is(call(value.object(), "propertyIsEnumerable", "isPrototypeOf"), false)
+				value.object().put("xyzzy", stringValue("Nothing happens."), false)
 				is(call(value, "propertyIsEnumerable", "isPrototypeOf"), false)
 				is(call(value, "propertyIsEnumerable", "xyzzy"), true)
-				is(value._object().get("xyzzy"), "Nothing happens.")
+				is(value.object().get("xyzzy"), "Nothing happens.")
 
-				is(call(runtime.scope.lexical.getBinding(classObject, false), "isPrototypeOf", value), false)
-				is(call(runtime.scope.lexical.getBinding(classObject, false)._object().get("prototype"), "isPrototypeOf", value), true)
-				is(call(runtime.scope.lexical.getBinding(classFunction, false), "isPrototypeOf", value), false)
+				is(call(runtime.scope.lexical.getBinding(classObjectName, false), "isPrototypeOf", value), false)
+				is(call(runtime.scope.lexical.getBinding(classObjectName, false).object().get("prototype"), "isPrototypeOf", value), true)
+				is(call(runtime.scope.lexical.getBinding(classFunctionName, false), "isPrototypeOf", value), false)
 
-				is(runtime.newObject().prototype == runtime.global.Object.get("prototype")._object(), true)
+				is(runtime.newObject().prototype == runtime.global.Object.get("prototype").object(), true)
 
-				abc := runtime.newBoolean(toValue_bool(true))
-				is(toValue_object(abc), "true") // TODO Call primitive?
-
-				//def := runtime.localGet(classBoolean)._object().Construct(UndefinedValue(), []Value{})
-				//is(def, "false") // TODO Call primitive?
+				abc := runtime.newBoolean(boolValue(true))
+				is(objectValue(abc), "true") // TODO Call primitive?
 			}
 		}
 
@@ -208,7 +205,7 @@ func Test_parseInt(t *testing.T) {
 		test(`parseInt(" 11\n")`, 11)
 		test(`parseInt(" 11\n", 16)`, 17)
 
-		test(`parseInt("Xyzzy")`, _NaN)
+		test(`parseInt("Xyzzy")`, naN)
 
 		test(`parseInt(" 0x11\n", 16)`, 17)
 		test(`parseInt("0x0aXyzzy", 16)`, 10)
@@ -233,16 +230,16 @@ func Test_parseFloat(t *testing.T) {
 		test(`parseFloat(" 11\n", 16)`, 11)
 		test(`parseFloat("11.1")`, 11.1)
 
-		test(`parseFloat("Xyzzy")`, _NaN)
+		test(`parseFloat("Xyzzy")`, naN)
 
 		test(`parseFloat(" 0x11\n", 16)`, 0)
 		test(`parseFloat("0x0a")`, 0)
 		test(`parseFloat("0x0aXyzzy")`, 0)
-		test(`parseFloat("Infinity")`, _Infinity)
-		test(`parseFloat("infinity")`, _NaN)
+		test(`parseFloat("Infinity")`, infinity)
+		test(`parseFloat("infinity")`, naN)
 		test(`parseFloat("0x")`, 0)
 		test(`parseFloat("11x")`, 11)
-		test(`parseFloat("Infinity1")`, _Infinity)
+		test(`parseFloat("Infinity1")`, infinity)
 
 		test(`parseFloat.length === 1`, true)
 		test(`parseFloat.prototype === undefined`, true)

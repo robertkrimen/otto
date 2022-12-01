@@ -1,78 +1,78 @@
 package otto
 
-type _object struct {
-	runtime *_runtime
+type object struct {
+	runtime *runtime
 
 	class       string
-	objectClass *_objectClass
+	objectClass *objectClass
 	value       interface{}
 
-	prototype  *_object
+	prototype  *object
 	extensible bool
 
-	property      map[string]_property
+	property      map[string]property
 	propertyOrder []string
 }
 
-func newObject(runtime *_runtime, class string) *_object {
-	self := &_object{
-		runtime:     runtime,
+func newObject(rt *runtime, class string) *object {
+	o := &object{
+		runtime:     rt,
 		class:       class,
-		objectClass: _classObject,
-		property:    make(map[string]_property),
+		objectClass: classObject,
+		property:    make(map[string]property),
 		extensible:  true,
 	}
-	return self
+	return o
 }
 
 // 8.12
 
-// 8.12.1
-func (self *_object) getOwnProperty(name string) *_property {
-	return self.objectClass.getOwnProperty(self, name)
+// 8.12.1.
+func (o *object) getOwnProperty(name string) *property {
+	return o.objectClass.getOwnProperty(o, name)
 }
 
-// 8.12.2
-func (self *_object) getProperty(name string) *_property {
-	return self.objectClass.getProperty(self, name)
+// 8.12.2.
+func (o *object) getProperty(name string) *property {
+	return o.objectClass.getProperty(o, name)
 }
 
-// 8.12.3
-func (self *_object) get(name string) Value {
-	return self.objectClass.get(self, name)
+// 8.12.3.
+func (o *object) get(name string) Value {
+	return o.objectClass.get(o, name)
 }
 
-// 8.12.4
-func (self *_object) canPut(name string) bool {
-	return self.objectClass.canPut(self, name)
+// 8.12.4.
+func (o *object) canPut(name string) bool {
+	return o.objectClass.canPut(o, name)
 }
 
-// 8.12.5
-func (self *_object) put(name string, value Value, throw bool) {
-	self.objectClass.put(self, name, value, throw)
+// 8.12.5.
+func (o *object) put(name string, value Value, throw bool) {
+	o.objectClass.put(o, name, value, throw)
 }
 
-// 8.12.6
-func (self *_object) hasProperty(name string) bool {
-	return self.objectClass.hasProperty(self, name)
+// 8.12.6.
+func (o *object) hasProperty(name string) bool {
+	return o.objectClass.hasProperty(o, name)
 }
 
-func (self *_object) hasOwnProperty(name string) bool {
-	return self.objectClass.hasOwnProperty(self, name)
+func (o *object) hasOwnProperty(name string) bool {
+	return o.objectClass.hasOwnProperty(o, name)
 }
 
-type _defaultValueHint int
+type defaultValueHint int
 
 const (
-	defaultValueNoHint _defaultValueHint = iota
+	defaultValueNoHint defaultValueHint = iota
 	defaultValueHintString
 	defaultValueHintNumber
 )
 
-// 8.12.8
-func (self *_object) DefaultValue(hint _defaultValueHint) Value {
+// 8.12.8.
+func (o *object) DefaultValue(hint defaultValueHint) Value {
 	if hint == defaultValueNoHint {
-		if self.class == classDate {
+		if o.class == classDateName {
 			// Date exception
 			hint = defaultValueHintString
 		} else {
@@ -84,72 +84,67 @@ func (self *_object) DefaultValue(hint _defaultValueHint) Value {
 		methodSequence = []string{"toString", "valueOf"}
 	}
 	for _, methodName := range methodSequence {
-		method := self.get(methodName)
+		method := o.get(methodName)
 		// FIXME This is redundant...
 		if method.isCallable() {
-			result := method._object().call(toValue_object(self), nil, false, nativeFrame)
+			result := method.object().call(objectValue(o), nil, false, nativeFrame)
 			if result.IsPrimitive() {
 				return result
 			}
 		}
 	}
 
-	panic(self.runtime.panicTypeError())
+	panic(o.runtime.panicTypeError())
 }
 
-func (self *_object) String() string {
-	return self.DefaultValue(defaultValueHintString).string()
+func (o *object) String() string {
+	return o.DefaultValue(defaultValueHintString).string()
 }
 
-func (self *_object) defineProperty(name string, value Value, mode _propertyMode, throw bool) bool {
-	return self.defineOwnProperty(name, _property{value, mode}, throw)
+func (o *object) defineProperty(name string, value Value, mode propertyMode, throw bool) bool { //nolint: unparam
+	return o.defineOwnProperty(name, property{value, mode}, throw)
 }
 
-// 8.12.9
-func (self *_object) defineOwnProperty(name string, descriptor _property, throw bool) bool {
-	return self.objectClass.defineOwnProperty(self, name, descriptor, throw)
+// 8.12.9.
+func (o *object) defineOwnProperty(name string, descriptor property, throw bool) bool {
+	return o.objectClass.defineOwnProperty(o, name, descriptor, throw)
 }
 
-func (self *_object) delete(name string, throw bool) bool {
-	return self.objectClass.delete(self, name, throw)
+func (o *object) delete(name string, throw bool) bool {
+	return o.objectClass.delete(o, name, throw)
 }
 
-func (self *_object) enumerate(all bool, each func(string) bool) {
-	self.objectClass.enumerate(self, all, each)
+func (o *object) enumerate(all bool, each func(string) bool) {
+	o.objectClass.enumerate(o, all, each)
 }
 
-func (self *_object) _exists(name string) bool {
-	_, exists := self.property[name]
-	return exists
+func (o *object) readProperty(name string) (property, bool) {
+	prop, exists := o.property[name]
+	return prop, exists
 }
 
-func (self *_object) _read(name string) (_property, bool) {
-	property, exists := self.property[name]
-	return property, exists
-}
-
-func (self *_object) _write(name string, value interface{}, mode _propertyMode) {
+func (o *object) writeProperty(name string, value interface{}, mode propertyMode) {
 	if value == nil {
 		value = Value{}
 	}
-	_, exists := self.property[name]
-	self.property[name] = _property{value, mode}
-	if !exists {
-		self.propertyOrder = append(self.propertyOrder, name)
+	if _, exists := o.property[name]; !exists {
+		o.propertyOrder = append(o.propertyOrder, name)
 	}
+	o.property[name] = property{value, mode}
 }
 
-func (self *_object) _delete(name string) {
-	_, exists := self.property[name]
-	delete(self.property, name)
-	if exists {
-		for index, property := range self.propertyOrder {
-			if name == property {
-				if index == len(self.propertyOrder)-1 {
-					self.propertyOrder = self.propertyOrder[:index]
-				} else {
-					self.propertyOrder = append(self.propertyOrder[:index], self.propertyOrder[index+1:]...)
-				}
+func (o *object) deleteProperty(name string) {
+	if _, exists := o.property[name]; !exists {
+		return
+	}
+
+	delete(o.property, name)
+	for index, prop := range o.propertyOrder {
+		if name == prop {
+			if index == len(o.propertyOrder)-1 {
+				o.propertyOrder = o.propertyOrder[:index]
+			} else {
+				o.propertyOrder = append(o.propertyOrder[:index], o.propertyOrder[index+1:]...)
 			}
 		}
 	}

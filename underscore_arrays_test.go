@@ -4,10 +4,10 @@ import (
 	"testing"
 )
 
-// first
+// first.
 func Test_underscore_arrays_0(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("first", function() {
@@ -29,10 +29,10 @@ func Test_underscore_arrays_0(t *testing.T) {
 	})
 }
 
-// rest
+// rest.
 func Test_underscore_arrays_1(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("rest", function() {
@@ -51,10 +51,10 @@ func Test_underscore_arrays_1(t *testing.T) {
 	})
 }
 
-// initial
+// initial.
 func Test_underscore_arrays_2(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("initial", function() {
@@ -69,10 +69,10 @@ func Test_underscore_arrays_2(t *testing.T) {
 	})
 }
 
-// last
+// last.
 func Test_underscore_arrays_3(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("last", function() {
@@ -91,10 +91,10 @@ func Test_underscore_arrays_3(t *testing.T) {
 	})
 }
 
-// compact
+// compact.
 func Test_underscore_arrays_4(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("compact", function() {
@@ -106,10 +106,10 @@ func Test_underscore_arrays_4(t *testing.T) {
 	})
 }
 
-// flatten
+// flatten.
 func Test_underscore_arrays_5(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("flatten", function() {
@@ -123,10 +123,10 @@ func Test_underscore_arrays_5(t *testing.T) {
 	})
 }
 
-// without
+// without.
 func Test_underscore_arrays_6(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("without", function() {
@@ -143,10 +143,10 @@ func Test_underscore_arrays_6(t *testing.T) {
 	})
 }
 
-// uniq
+// uniq.
 func Test_underscore_arrays_7(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("uniq", function() {
@@ -173,10 +173,10 @@ func Test_underscore_arrays_7(t *testing.T) {
 	})
 }
 
-// intersection
+// intersection.
 func Test_underscore_arrays_8(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("intersection", function() {
@@ -190,10 +190,10 @@ func Test_underscore_arrays_8(t *testing.T) {
 	})
 }
 
-// union
+// union.
 func Test_underscore_arrays_9(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("union", function() {
@@ -207,10 +207,10 @@ func Test_underscore_arrays_9(t *testing.T) {
 	})
 }
 
-// difference
+// difference.
 func Test_underscore_arrays_10(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("difference", function() {
@@ -224,10 +224,10 @@ func Test_underscore_arrays_10(t *testing.T) {
 	})
 }
 
-// zip
+// zip.
 func Test_underscore_arrays_11(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('zip', function() {
@@ -239,10 +239,10 @@ func Test_underscore_arrays_11(t *testing.T) {
 	})
 }
 
-// object
+// object.
 func Test_underscore_arrays_12(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('object', function() {
@@ -263,10 +263,10 @@ func Test_underscore_arrays_12(t *testing.T) {
 	})
 }
 
-// indexOf
+// indexOf.
 func Test_underscore_arrays_13(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("indexOf", function() {
@@ -297,10 +297,10 @@ func Test_underscore_arrays_13(t *testing.T) {
 	})
 }
 
-// lastIndexOf
+// lastIndexOf.
 func Test_underscore_arrays_14(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("lastIndexOf", function() {
@@ -323,10 +323,10 @@ func Test_underscore_arrays_14(t *testing.T) {
 	})
 }
 
-// range
+// range.
 func Test_underscore_arrays_15(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("range", function() {

@@ -7,23 +7,21 @@ import (
 	Time "time"
 )
 
-type _dateObject struct {
+type dateObject struct {
 	time  Time.Time // Time from the "time" package, a cached version of time
 	epoch int64
 	value Value
 	isNaN bool
 }
 
-var (
-	invalidDateObject = _dateObject{
-		time:  Time.Time{},
-		epoch: -1,
-		value: NaNValue(),
-		isNaN: true,
-	}
-)
+var invalidDateObject = dateObject{
+	time:  Time.Time{},
+	epoch: -1,
+	value: NaNValue(),
+	isNaN: true,
+}
 
-type _ecmaTime struct {
+type ecmaTime struct {
 	year        int
 	month       int
 	day         int
@@ -34,8 +32,8 @@ type _ecmaTime struct {
 	location    *Time.Location // Basically, either local or UTC
 }
 
-func ecmaTime(goTime Time.Time) _ecmaTime {
-	return _ecmaTime{
+func newEcmaTime(goTime Time.Time) ecmaTime {
+	return ecmaTime{
 		goTime.Year(),
 		dateFromGoMonth(goTime.Month()),
 		goTime.Day(),
@@ -47,58 +45,58 @@ func ecmaTime(goTime Time.Time) _ecmaTime {
 	}
 }
 
-func (self *_ecmaTime) goTime() Time.Time {
+func (t *ecmaTime) goTime() Time.Time {
 	return Time.Date(
-		self.year,
-		dateToGoMonth(self.month),
-		self.day,
-		self.hour,
-		self.minute,
-		self.second,
-		self.millisecond*(100*100*100),
-		self.location,
+		t.year,
+		dateToGoMonth(t.month),
+		t.day,
+		t.hour,
+		t.minute,
+		t.second,
+		t.millisecond*(100*100*100),
+		t.location,
 	)
 }
 
-func (self *_dateObject) Time() Time.Time {
-	return self.time
+func (d *dateObject) Time() Time.Time {
+	return d.time
 }
 
-func (self *_dateObject) Epoch() int64 {
-	return self.epoch
+func (d *dateObject) Epoch() int64 {
+	return d.epoch
 }
 
-func (self *_dateObject) Value() Value {
-	return self.value
+func (d *dateObject) Value() Value {
+	return d.value
 }
 
-// FIXME A date should only be in the range of -100,000,000 to +100,000,000 (1970): 15.9.1.1
-func (self *_dateObject) SetNaN() {
-	self.time = Time.Time{}
-	self.epoch = -1
-	self.value = NaNValue()
-	self.isNaN = true
+// FIXME A date should only be in the range of -100,000,000 to +100,000,000 (1970): 15.9.1.1.
+func (d *dateObject) SetNaN() {
+	d.time = Time.Time{}
+	d.epoch = -1
+	d.value = NaNValue()
+	d.isNaN = true
 }
 
-func (self *_dateObject) SetTime(time Time.Time) {
-	self.Set(timeToEpoch(time))
+func (d *dateObject) SetTime(time Time.Time) {
+	d.Set(timeToEpoch(time))
 }
 
-func (self *_dateObject) Set(epoch float64) {
+func (d *dateObject) Set(epoch float64) {
 	// epoch
-	self.epoch = epochToInteger(epoch)
+	d.epoch = epochToInteger(epoch)
 
 	// time
 	time, err := epochToTime(epoch)
-	self.time = time // Is either a valid time, or the zero-value for time.Time
+	d.time = time // Is either a valid time, or the zero-value for time.Time
 
 	// value & isNaN
 	if err != nil {
-		self.isNaN = true
-		self.epoch = -1
-		self.value = NaNValue()
+		d.isNaN = true
+		d.epoch = -1
+		d.value = NaNValue()
 	} else {
-		self.value = toValue_int64(self.epoch)
+		d.value = int64Value(d.epoch)
 	}
 }
 
@@ -109,48 +107,46 @@ func epochToInteger(value float64) int64 {
 	return int64(math.Ceil(value))
 }
 
-func epochToTime(value float64) (time Time.Time, err error) {
+func epochToTime(value float64) (Time.Time, error) {
 	epochWithMilli := value
 	if math.IsNaN(epochWithMilli) || math.IsInf(epochWithMilli, 0) {
-		err = fmt.Errorf("Invalid time %v", value)
-		return
+		return Time.Time{}, fmt.Errorf("invalid time %v", value)
 	}
 
 	epoch := int64(epochWithMilli / 1000)
 	milli := int64(epochWithMilli) % 1000
 
-	time = Time.Unix(int64(epoch), milli*1000000).In(utcTimeZone)
-	return
+	return Time.Unix(epoch, milli*1000000).In(utcTimeZone), nil
 }
 
 func timeToEpoch(time Time.Time) float64 {
 	return float64(time.UnixMilli())
 }
 
-func (runtime *_runtime) newDateObject(epoch float64) *_object {
-	self := runtime.newObject()
-	self.class = classDate
+func (rt *runtime) newDateObject(epoch float64) *object {
+	obj := rt.newObject()
+	obj.class = classDateName
 
 	// FIXME This is ugly...
-	date := _dateObject{}
+	date := dateObject{}
 	date.Set(epoch)
-	self.value = date
-	return self
+	obj.value = date
+	return obj
 }
 
-func (self *_object) dateValue() _dateObject {
-	value, _ := self.value.(_dateObject)
+func (o *object) dateValue() dateObject {
+	value, _ := o.value.(dateObject)
 	return value
 }
 
-func dateObjectOf(rt *_runtime, _dateObject *_object) _dateObject {
-	if _dateObject == nil || _dateObject.class != classDate {
+func dateObjectOf(rt *runtime, date *object) dateObject {
+	if date == nil || date.class != classDateName {
 		panic(rt.panicTypeError())
 	}
-	return _dateObject.dateValue()
+	return date.dateValue()
 }
 
-// JavaScript is 0-based, Go is 1-based (15.9.1.4)
+// JavaScript is 0-based, Go is 1-based (15.9.1.4).
 func dateToGoMonth(month int) Time.Month {
 	return Time.Month(month + 1)
 }
@@ -163,7 +159,8 @@ func dateFromGoDay(day Time.Weekday) int {
 	return int(day)
 }
 
-func newDateTime(argumentList []Value, location *Time.Location) (epoch float64) {
+// newDateTime returns the epoch of date contained in argumentList for location.
+func newDateTime(argumentList []Value, location *Time.Location) float64 {
 	pick := func(index int, default_ float64) (float64, bool) {
 		if index >= len(argumentList) {
 			return default_, false
@@ -175,29 +172,41 @@ func newDateTime(argumentList []Value, location *Time.Location) (epoch float64) 
 		return value, false
 	}
 
-	if len(argumentList) >= 2 { // 2-argument, 3-argument, ...
+	switch len(argumentList) {
+	case 0: // 0-argument
+		time := Time.Now().In(utcTimeZone)
+		return timeToEpoch(time)
+	case 1: // 1-argument
+		value := valueOfArrayIndex(argumentList, 0)
+		value = toPrimitiveValue(value)
+		if value.IsString() {
+			return dateParse(value.string())
+		}
+
+		return value.float64()
+	default: // 2-argument, 3-argument, ...
 		var year, month, day, hour, minute, second, millisecond float64
 		var invalid bool
 		if year, invalid = pick(0, 1900.0); invalid {
-			goto INVALID
+			return math.NaN()
 		}
 		if month, invalid = pick(1, 0.0); invalid {
-			goto INVALID
+			return math.NaN()
 		}
 		if day, invalid = pick(2, 1.0); invalid {
-			goto INVALID
+			return math.NaN()
 		}
 		if hour, invalid = pick(3, 0.0); invalid {
-			goto INVALID
+			return math.NaN()
 		}
 		if minute, invalid = pick(4, 0.0); invalid {
-			goto INVALID
+			return math.NaN()
 		}
 		if second, invalid = pick(5, 0.0); invalid {
-			goto INVALID
+			return math.NaN()
 		}
 		if millisecond, invalid = pick(6, 0.0); invalid {
-			goto INVALID
+			return math.NaN()
 		}
 
 		if year >= 0 && year <= 99 {
@@ -206,22 +215,7 @@ func newDateTime(argumentList []Value, location *Time.Location) (epoch float64) 
 
 		time := Time.Date(int(year), dateToGoMonth(int(month)), int(day), int(hour), int(minute), int(second), int(millisecond)*1000*1000, location)
 		return timeToEpoch(time)
-	} else if len(argumentList) == 0 { // 0-argument
-		time := Time.Now().In(utcTimeZone)
-		return timeToEpoch(time)
-	} else { // 1-argument
-		value := valueOfArrayIndex(argumentList, 0)
-		value = toPrimitive(value)
-		if value.IsString() {
-			return dateParse(value.string())
-		}
-
-		return value.float64()
 	}
-
-INVALID:
-	epoch = math.NaN()
-	return
 }
 
 var (
@@ -259,7 +253,8 @@ var (
 	matchDateTimeZone = regexp.MustCompile(`^(.*)(?:(Z)|([\+\-]\d{2}):(\d{2}))$`)
 )
 
-func dateParse(date string) (epoch float64) {
+// dateParse returns the epoch of the parsed date.
+func dateParse(date string) float64 {
 	// YYYY-MM-DDTHH:mm:ss.sssZ
 	var time Time.Time
 	var err error

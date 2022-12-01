@@ -5,27 +5,26 @@ Package terst is a terse (terst = test + terse), easy-to-use testing library for
 
 terst is compatible with (and works via) the standard testing package: http://golang.org/pkg/testing
 
-    var is = terst.Is
+	var is = terst.Is
 
-    func Test(t *testing.T) {
-        terst.Terst(t, func() {
-            is("abc", "abc")
+	func Test(t *testing.T) {
+	    terst.Terst(t, func() {
+	        is("abc", "abc")
 
-            is(1, ">", 0)
+	        is(1, ">", 0)
 
-            var abc []int
-            is(abc, nil)
-        }
-    }
+	        var abc []int
+	        is(abc, nil)
+	    }
+	}
 
 Do not import terst directly, instead use `terst-import` to copy it into your testing environment:
 
 https://github.com/robertkrimen/terst/tree/master/terst-import
 
-    $ go get github.com/robertkrimen/terst/terst-import
+	$ go get github.com/robertkrimen/terst/terst-import
 
-    $ terst-import
-
+	$ terst-import
 */
 package terst
 
@@ -36,7 +35,7 @@ import (
 	"math/big"
 	"reflect"
 	"regexp"
-	"runtime"
+	goruntime "runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -49,38 +48,37 @@ import (
 // a comparator, that changes how the comparison is made.  The following
 // comparators are available:
 //
-//      ==      # got == expect (default)
-//      !=      # got != expect
+//	==      # got == expect (default)
+//	!=      # got != expect
 //
-//      >       # got > expect (float32, uint, uint16, int, int64, ...)
-//      >=      # got >= expect
-//      <       # got < expect
-//      <=      # got <= expect
+//	>       # got > expect (float32, uint, uint16, int, int64, ...)
+//	>=      # got >= expect
+//	<       # got < expect
+//	<=      # got <= expect
 //
-//      =~      # regexp.MustCompile(expect).Match{String}(got)
-//      !~      # !regexp.MustCompile(expect).Match{String}(got)
+//	=~      # regexp.MustCompile(expect).Match{String}(got)
+//	!~      # !regexp.MustCompile(expect).Match{String}(got)
 //
 // Basic usage with the default comparator (==):
 //
-//      Is(<got>, <expect>)
+//	Is(<got>, <expect>)
 //
 // Specifying a different comparator:
 //
-//      Is(<got>, <comparator>, <expect>)
+//	Is(<got>, <comparator>, <expect>)
 //
 // A simple comparison:
 //
-//      Is(2 + 2, 4)
+//	Is(2 + 2, 4)
 //
 // A bit trickier:
 //
-//      Is(1, ">", 0)
-//      Is(2 + 2, "!=", 5)
-//      Is("Nothing happens.", "=~", `ing(\s+)happens\.$`)
+//	Is(1, ">", 0)
+//	Is(2 + 2, "!=", 5)
+//	Is("Nothing happens.", "=~", `ing(\s+)happens\.$`)
 //
 // Is should only be called under a Terst(t, ...) call. For a standalone version,
 // use IsErr. If no scope is found and the comparison is false, then Is will panic the error.
-//
 func Is(arguments ...interface{}) bool {
 	err := IsErr(arguments...)
 	if err != nil {
@@ -117,9 +115,9 @@ func registerScope(pc uintptr, scope *_scope) {
 	registry.table[pc] = scope
 }
 
-func scope() *_scope {
-	scope, _ := findScope()
-	return scope
+func getScope() *_scope {
+	s, _ := findScope()
+	return s
 }
 
 func floatCompare(a float64, b float64) int {
@@ -144,15 +142,11 @@ func bigUint(value uint64) *big.Int {
 	return big.NewInt(0).SetUint64(value)
 }
 
-type _toString interface {
-	String() string
-}
-
 func toString(value interface{}) (string, error) {
 	switch value := value.(type) {
 	case string:
 		return value, nil
-	case _toString:
+	case fmt.Stringer:
 		return value.String(), nil
 	case error:
 		return value.Error(), nil
@@ -232,33 +226,31 @@ func bigIntPromote(value reflect.Value) (*big.Int, error) {
 }
 
 func compareOther(got, expect interface{}) (int, error) {
-	{
-		switch expect.(type) {
-		case float32, float64:
-			return compareNumber(got, expect)
-		case uint, uint8, uint16, uint32, uint64:
-			return compareNumber(got, expect)
-		case int, int8, int16, int32, int64:
-			return compareNumber(got, expect)
-		case string:
-			var err error
-			got, err = toString(got)
-			if err != nil {
-				return 0, err
-			}
-		case nil:
-			got := reflect.ValueOf(got)
-			switch got.Kind() {
-			case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Slice, reflect.Interface:
-				if got.IsNil() {
-					return 0, nil
-				}
-				return -1, nil
-			case reflect.Invalid: // reflect.Invalid: var abc interface{} = nil
+	switch expect.(type) {
+	case float32, float64:
+		return compareNumber(got, expect)
+	case uint, uint8, uint16, uint32, uint64:
+		return compareNumber(got, expect)
+	case int, int8, int16, int32, int64:
+		return compareNumber(got, expect)
+	case string:
+		var err error
+		got, err = toString(got)
+		if err != nil {
+			return 0, err
+		}
+	case nil:
+		got := reflect.ValueOf(got)
+		switch got.Kind() {
+		case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Slice, reflect.Interface:
+			if got.IsNil() {
 				return 0, nil
 			}
-			return 0, errInvalid
+			return -1, nil
+		case reflect.Invalid: // reflect.Invalid: var abc interface{} = nil
+			return 0, nil
 		}
+		return 0, errInvalid
 	}
 
 	if reflect.ValueOf(got).Type() != reflect.ValueOf(expect).Type() {
@@ -272,36 +264,32 @@ func compareOther(got, expect interface{}) (int, error) {
 }
 
 func compareNumber(got, expect interface{}) (int, error) {
-	{
-		got := reflect.ValueOf(got)
-		k0 := got.Kind()
-		expect := reflect.ValueOf(expect)
-		k1 := expect.Kind()
-		if reflect.Float32 <= k0 && k0 <= reflect.Float64 ||
-			reflect.Float32 <= k1 && k1 <= reflect.Float64 {
-			got, err := floatPromote(got)
-			if err != nil {
-				return 0, err
-			}
-			expect, err := floatPromote(expect)
-			if err != nil {
-				return 0, err
-			}
-			return floatCompare(got, expect), nil
-		} else {
-			got, err := bigIntPromote(got)
-			if err != nil {
-				return 0, err
-			}
-			expect, err := bigIntPromote(expect)
-			if err != nil {
-				return 0, err
-			}
-			return got.Cmp(expect), nil
+	gotRv := reflect.ValueOf(got)
+	gotKind := gotRv.Kind()
+	expectRv := reflect.ValueOf(expect)
+	expectKind := expectRv.Kind()
+	if reflect.Float32 <= gotKind && gotKind <= reflect.Float64 ||
+		reflect.Float32 <= expectKind && expectKind <= reflect.Float64 {
+		got, err := floatPromote(gotRv)
+		if err != nil {
+			return 0, err
 		}
+		expect, err := floatPromote(expectRv)
+		if err != nil {
+			return 0, err
+		}
+		return floatCompare(got, expect), nil
 	}
 
-	return 0, errInvalid
+	goBigInt, err := bigIntPromote(gotRv)
+	if err != nil {
+		return 0, err
+	}
+	expectBigInt, err := bigIntPromote(expectRv)
+	if err != nil {
+		return 0, err
+	}
+	return goBigInt.Cmp(expectBigInt), nil
 }
 
 // IsErr compares two values (got & expect) and returns nil if the comparison is true, an ErrFail if
@@ -310,9 +298,8 @@ func compareNumber(got, expect interface{}) (int, error) {
 //
 // Is & IsErr are similar but different:
 //
-//      Is(...)     // Should only be called within a Terst(...) call
-//      IsErr(...)  // A standalone comparator, the same as Is, just without the automatic reporting
-//
+//	Is(...)     // Should only be called within a Terst(...) call
+//	IsErr(...)  // A standalone comparator, the same as Is, just without the automatic reporting
 func IsErr(arguments ...interface{}) error {
 	var got, expect interface{}
 	comparator := "=="
@@ -417,64 +404,63 @@ func typeKindString(value interface{}) string {
 	return fmt.Sprintf(" (%T=%s)", value, kind)
 }
 
-func (scope *_scope) reset() {
-	scope.name = ""
-	scope.output = scope.output[:0]
-	scope.start = time.Time{}
-	scope.duration = 0
+func (s *_scope) reset() {
+	s.name = ""
+	s.output = s.output[:0]
+	s.start = time.Time{}
+	s.duration = 0
 }
 
 // Terst creates a testing scope, where Is can be called and errors will be reported
 // according to the top-level location of the comparison, and not where the Is call
 // actually takes place. For example:
 //
-//      func test(value int) {
-//          Is(value, 5) // <--- This failure is reported below.
-//      }
+//	func test(value int) {
+//	    Is(value, 5) // <--- This failure is reported below.
+//	}
 //
-//      Terst(t, func(){
+//	Terst(t, func(){
 //
-//          Is(2, ">", 3) // <--- An error is reported here.
+//	    Is(2, ">", 3) // <--- An error is reported here.
 //
-//          test(5) // <--- An error is reported here.
+//	    test(5) // <--- An error is reported here.
 //
-//      })
-//
+//	})
 func Terst(t *testing.T, arguments ...func()) {
-	scope := &_scope{
+	curScope := &_scope{
 		t: t,
 	}
 
-	pc, _, _, ok := runtime.Caller(1) // TODO Associate with the Test... func
+	pc, _, _, ok := goruntime.Caller(1) // TODO Associate with the Test... func
 	if !ok {
 		panic("Here be dragons.")
 	}
 
-	_, scope.testFunc = findTestFunc()
+	_, curScope.testFunc = findTestFunc()
 
-	registerScope(pc, scope)
+	registerScope(pc, curScope)
 
 	for _, fn := range arguments {
 		func() {
-			scope.reset()
-			name := scope.testFunc.Name()
-			index := strings.LastIndex(scope.testFunc.Name(), ".")
+			curScope.reset()
+			name := curScope.testFunc.Name()
+			index := strings.LastIndex(curScope.testFunc.Name(), ".")
 			if index >= 0 {
 				name = name[index+1:] + "(Terst)"
 			} else {
 				name = "(Terst)"
 			}
 			name = "(Terst)"
-			scope.name = name
-			scope.start = time.Now()
+			curScope.name = name
+			curScope.start = time.Now()
 			defer func() {
-				scope.duration = time.Now().Sub(scope.start)
+				curScope.duration = time.Now().Sub(curScope.start)
 				if err := recover(); err != nil {
-					scope.t.Fail()
-					scope.report()
+					curScope.t.Fail()
+					curScope.report()
 					panic(err)
 				}
-				scope.report()
+				curScope.report()
 			}()
 			fn()
 		}()
@@ -482,24 +468,24 @@ func Terst(t *testing.T, arguments ...func()) {
 }
 
 // From "testing"
-func (scope *_scope) report() {
+func (s *_scope) report() {
 	format := "~~~ %s: (Terst)\n%s"
-	if scope.t.Failed() {
-		fmt.Printf(format, "FAIL", scope.output)
-	} else if testing.Verbose() && len(scope.output) > 0 {
-		fmt.Printf(format, "PASS", scope.output)
+	if s.t.Failed() {
+		fmt.Printf(format, "FAIL", s.output)
+	} else if testing.Verbose() && len(s.output) > 0 {
+		fmt.Printf(format, "PASS", s.output)
 	}
 }
 
-func (scope *_scope) log(call _entry, str string) {
-	scope.mu.Lock()
-	defer scope.mu.Unlock()
-	scope.output = append(scope.output, decorate(call, str)...)
+func (s *_scope) log(call entry, str string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.output = append(s.output, decorate(call, str)...)
 }
 
 // decorate prefixes the string with the file and line of the call site
 // and inserts the final newline if needed and indentation tabs for formascing.
-func decorate(call _entry, s string) string {
+func decorate(call entry, s string) string {
 
 	file, line := call.File, call.Line
 	if call.PC > 0 {
@@ -532,52 +518,52 @@ func decorate(call _entry, s string) string {
 	return buf.String()
 }
 
-func findScope() (*_scope, _entry) {
+func findScope() (*_scope, entry) {
 	registry.lock.RLock()
 	defer registry.lock.RUnlock()
 	table := registry.table
 	depth := 2 // Starting depth
-	call := _entry{}
+	call := entry{}
 	for {
-		pc, _, _, ok := runtime.Caller(depth)
+		pc, _, _, ok := goruntime.Caller(depth)
 		if !ok {
 			break
 		}
-		if scope, exists := table[pc]; exists {
-			pc, file, line, _ := runtime.Caller(depth - 3) // Terst(...) + func(){}() + fn() => ???()
+		if s, exists := table[pc]; exists {
+			pc, file, line, _ := goruntime.Caller(depth - 3) // Terst(...) + func(){}() + fn() => ???()
 			call.PC = pc
 			call.File = file
 			call.Line = line
-			return scope, call
+			return s, call
 		}
 		depth++
 	}
-	return nil, _entry{}
+	return nil, entry{}
 }
 
 // Call is a reference to a line immediately under a Terst testing scope.
 type Call struct {
 	scope *_scope
-	entry _entry
+	entry entry
 }
 
 // Caller will search the stack, looking for a Terst testing scope. If a scope
 // is found, then Caller returns a Call for logging errors, accessing testing.T, etc.
 // If no scope is found, Caller returns nil.
 func Caller() *Call {
-	scope, entry := findScope()
-	if scope == nil {
+	curScope, entry := findScope()
+	if curScope == nil {
 		return nil
 	}
 	return &Call{
-		scope: scope,
+		scope: curScope,
 		entry: entry,
 	}
 }
 
 // TestFunc returns the *runtime.Func entry for the top-level Test...(t testing.T)
 // function.
-func (cl *Call) TestFunc() *runtime.Func {
+func (cl *Call) TestFunc() *goruntime.Func {
 	return cl.scope.testFunc
 }
 
@@ -622,7 +608,7 @@ func (cl *Call) Skipf(format string, arguments ...interface{}) {
 
 type _scope struct {
 	t        *testing.T
-	testFunc *runtime.Func
+	testFunc *goruntime.Func
 	name     string
 	mu       sync.RWMutex
 	output   []byte
@@ -630,25 +616,25 @@ type _scope struct {
 	duration time.Duration
 }
 
-type _entry struct {
+type entry struct {
 	PC   uintptr
 	File string
 	Line int
-	Func *runtime.Func
+	Func *goruntime.Func
 }
 
-func _findFunc(match string) (_entry, *runtime.Func) {
+func findFunc(match string) (entry, *goruntime.Func) {
 	depth := 2 // Starting depth
 	for {
-		pc, file, line, ok := runtime.Caller(depth)
+		pc, file, line, ok := goruntime.Caller(depth)
 		if !ok {
 			break
 		}
-		fn := runtime.FuncForPC(pc)
+		fn := goruntime.FuncForPC(pc)
 		name := fn.Name()
 		if index := strings.LastIndex(name, match); index >= 0 {
 			// Assume we have an instance of TestXyzzy in a _test file
-			return _entry{
+			return entry{
 				PC:   pc,
 				File: file,
 				Line: line,
@@ -657,13 +643,13 @@ func _findFunc(match string) (_entry, *runtime.Func) {
 		}
 		depth++
 	}
-	return _entry{}, nil
+	return entry{}, nil
 }
 
-func findTestFunc() (_entry, *runtime.Func) {
-	return _findFunc(".Test")
+func findTestFunc() (entry, *goruntime.Func) {
+	return findFunc(".Test")
 }
 
-func findTerstFunc() (_entry, *runtime.Func) {
-	return _findFunc(".Terst")
+func findTerstFunc() (entry, *goruntime.Func) {
+	return findFunc(".Terst")
 }

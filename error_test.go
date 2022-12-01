@@ -1,7 +1,10 @@
 package otto
 
 import (
+	"errors"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestError(t *testing.T) {
@@ -61,6 +64,13 @@ func Test_catchPanic(t *testing.T) {
 	})
 }
 
+func asError(t *testing.T, err error) *Error {
+	t.Helper()
+	var oerr *Error
+	require.True(t, errors.As(err, &oerr))
+	return oerr
+}
+
 func TestErrorContext(t *testing.T) {
 	tt(t, func() {
 		vm := New()
@@ -69,7 +79,7 @@ func TestErrorContext(t *testing.T) {
             undefined();
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "'undefined' is not a function")
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:2:13")
@@ -79,7 +89,7 @@ func TestErrorContext(t *testing.T) {
             ({}).abc();
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "'abc' is not a function")
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:2:14")
@@ -89,7 +99,7 @@ func TestErrorContext(t *testing.T) {
             ("abc").abc();
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "'abc' is not a function")
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:2:14")
@@ -100,7 +110,7 @@ func TestErrorContext(t *testing.T) {
             ghi();
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "'ghi' is not a function")
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:3:13")
@@ -116,7 +126,7 @@ func TestErrorContext(t *testing.T) {
             abc();
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "'undefined' is not a function")
 			is(len(err.trace), 3)
 			is(err.trace[0].location(), "def (<anonymous>:3:17)")
@@ -131,7 +141,7 @@ func TestErrorContext(t *testing.T) {
             abc();
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "'xyz' is not defined")
 			is(len(err.trace), 2)
 			is(err.trace[0].location(), "abc (<anonymous>:3:17)")
@@ -142,7 +152,7 @@ func TestErrorContext(t *testing.T) {
             mno + 1;
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "'mno' is not defined")
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:2:13")
@@ -152,7 +162,7 @@ func TestErrorContext(t *testing.T) {
             eval("xyz();");
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "'xyz' is not defined")
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:1:1")
@@ -163,7 +173,7 @@ func TestErrorContext(t *testing.T) {
             eval("xyzzy();");
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "'xyzzy' is not a function")
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:1:1")
@@ -173,7 +183,7 @@ func TestErrorContext(t *testing.T) {
             throw Error("xyzzy");
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "xyzzy")
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:2:19")
@@ -183,7 +193,7 @@ func TestErrorContext(t *testing.T) {
             throw new Error("xyzzy");
         `)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "xyzzy")
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:2:23")
@@ -219,7 +229,7 @@ func TestErrorContext(t *testing.T) {
 
 		_, err = vm.Run(script3)
 		{
-			err := err.(*Error)
+			err := asError(t, err)
 			is(err.message, "test")
 			is(len(err.trace), 3)
 			is(err.trace[0].location(), "A (file1.js:2:15)")
@@ -230,7 +240,7 @@ func TestErrorContext(t *testing.T) {
 		{
 			f, _ := vm.Get("B")
 			_, err := f.Call(UndefinedValue())
-			err1 := err.(*Error)
+			err1 := asError(t, err)
 			is(err1.message, "test")
 			is(len(err1.trace), 2)
 			is(err1.trace[0].location(), "A (file1.js:2:15)")
@@ -240,7 +250,7 @@ func TestErrorContext(t *testing.T) {
 		{
 			f, _ := vm.Get("C")
 			_, err := f.Call(UndefinedValue())
-			err1 := err.(*Error)
+			err1 := asError(t, err)
 			is(err1.message, "Cannot access member 'prop' of null")
 			is(len(err1.trace), 1)
 			is(err1.trace[0].location(), "C (file1.js:7:5)")
@@ -252,49 +262,40 @@ func TestMakeCustomErrorReturn(t *testing.T) {
 	tt(t, func() {
 		vm := New()
 
-		vm.Set("A", func(c FunctionCall) Value {
+		err := vm.Set("A", func(c FunctionCall) Value {
 			return vm.MakeCustomError("CarrotError", "carrots is life, carrots is love")
 		})
+		require.NoError(t, err)
 
-		s, _ := vm.Compile("test.js", `
+		s, err := vm.Compile("test.js", `
 			function B() { return A(); }
 			function C() { return B(); }
 			function D() { return C(); }
 		`)
+		require.NoError(t, err)
 
-		if _, err := vm.Run(s); err != nil {
-			panic(err)
-		}
+		_, err = vm.Run(s)
+		require.NoError(t, err)
 
 		v, err := vm.Call("D", nil)
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(t, err)
 
-		is(v.Class(), classError)
+		is(v.Class(), classErrorName)
 
 		name, err := v.Object().Get("name")
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(t, err)
 		is(name.String(), "CarrotError")
 
 		message, err := v.Object().Get("message")
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(t, err)
 		is(message.String(), "carrots is life, carrots is love")
 
 		str, err := v.Object().Call("toString")
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(t, err)
 		is(str, "CarrotError: carrots is life, carrots is love")
 
 		i, err := v.Export()
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(t, err)
 		t.Logf("%#v\n", i)
 	})
 }
@@ -303,29 +304,25 @@ func TestMakeCustomError(t *testing.T) {
 	tt(t, func() {
 		vm := New()
 
-		vm.Set("A", func(c FunctionCall) Value {
+		err := vm.Set("A", func(c FunctionCall) Value {
 			panic(vm.MakeCustomError("CarrotError", "carrots is life, carrots is love"))
 		})
+		require.NoError(t, err)
 
-		s, _ := vm.Compile("test.js", `
+		s, err := vm.Compile("test.js", `
 			function B() { A(); }
 			function C() { B(); }
 			function D() { C(); }
 		`)
+		require.NoError(t, err)
 
-		if _, err := vm.Run(s); err != nil {
-			panic(err)
-		}
+		_, err = vm.Run(s)
+		require.NoError(t, err)
 
-		_, err := vm.Call("D", nil)
-		if err == nil {
-			panic("error should not be nil")
-		}
+		_, err = vm.Call("D", nil)
+		require.EqualError(t, err, "CarrotError: carrots is life, carrots is love")
 
-		is(err.Error(), "CarrotError: carrots is life, carrots is love")
-
-		er := err.(*Error)
-
+		er := asError(t, err)
 		is(er.name, "CarrotError")
 		is(er.message, "carrots is life, carrots is love")
 	})
@@ -337,9 +334,7 @@ func TestMakeCustomErrorFreshVM(t *testing.T) {
 		e := vm.MakeCustomError("CarrotError", "carrots is life, carrots is love")
 
 		str, err := e.ToString()
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(t, err)
 
 		is(str, "CarrotError: carrots is life, carrots is love")
 	})
@@ -349,29 +344,25 @@ func TestMakeTypeError(t *testing.T) {
 	tt(t, func() {
 		vm := New()
 
-		vm.Set("A", func(c FunctionCall) Value {
+		err := vm.Set("A", func(c FunctionCall) Value {
 			panic(vm.MakeTypeError("these aren't my glasses"))
 		})
+		require.NoError(t, err)
 
-		s, _ := vm.Compile("test.js", `
+		s, err := vm.Compile("test.js", `
 			function B() { A(); }
 			function C() { B(); }
 			function D() { C(); }
 		`)
+		require.NoError(t, err)
 
-		if _, err := vm.Run(s); err != nil {
-			panic(err)
-		}
+		_, err = vm.Run(s)
+		require.NoError(t, err)
 
-		_, err := vm.Call("D", nil)
-		if err == nil {
-			panic("error should not be nil")
-		}
+		_, err = vm.Call("D", nil)
+		require.EqualError(t, err, "TypeError: these aren't my glasses")
 
-		is(err.Error(), "TypeError: these aren't my glasses")
-
-		er := err.(*Error)
-
+		er := asError(t, err)
 		is(er.name, "TypeError")
 		is(er.message, "these aren't my glasses")
 	})
@@ -381,29 +372,25 @@ func TestMakeRangeError(t *testing.T) {
 	tt(t, func() {
 		vm := New()
 
-		vm.Set("A", func(c FunctionCall) Value {
+		err := vm.Set("A", func(c FunctionCall) Value {
 			panic(vm.MakeRangeError("too many"))
 		})
+		require.NoError(t, err)
 
-		s, _ := vm.Compile("test.js", `
+		s, err := vm.Compile("test.js", `
 			function B() { A(); }
 			function C() { B(); }
 			function D() { C(); }
 		`)
+		require.NoError(t, err)
 
-		if _, err := vm.Run(s); err != nil {
-			panic(err)
-		}
+		_, err = vm.Run(s)
+		require.NoError(t, err)
 
-		_, err := vm.Call("D", nil)
-		if err == nil {
-			panic("error should not be nil")
-		}
+		_, err = vm.Call("D", nil)
+		require.EqualError(t, err, "RangeError: too many")
 
-		is(err.Error(), "RangeError: too many")
-
-		er := err.(*Error)
-
+		er := asError(t, err)
 		is(er.name, "RangeError")
 		is(er.message, "too many")
 	})
@@ -413,29 +400,25 @@ func TestMakeSyntaxError(t *testing.T) {
 	tt(t, func() {
 		vm := New()
 
-		vm.Set("A", func(c FunctionCall) Value {
+		err := vm.Set("A", func(c FunctionCall) Value {
 			panic(vm.MakeSyntaxError("i think you meant \"you're\""))
 		})
+		require.NoError(t, err)
 
-		s, _ := vm.Compile("test.js", `
+		s, err := vm.Compile("test.js", `
 			function B() { A(); }
 			function C() { B(); }
 			function D() { C(); }
 		`)
+		require.NoError(t, err)
 
-		if _, err := vm.Run(s); err != nil {
-			panic(err)
-		}
+		_, err = vm.Run(s)
+		require.NoError(t, err)
 
-		_, err := vm.Call("D", nil)
-		if err == nil {
-			panic("error should not be nil")
-		}
+		_, err = vm.Call("D", nil)
+		require.EqualError(t, err, "SyntaxError: i think you meant \"you're\"")
 
-		is(err.Error(), "SyntaxError: i think you meant \"you're\"")
-
-		er := err.(*Error)
-
+		er := asError(t, err)
 		is(er.name, "SyntaxError")
 		is(er.message, "i think you meant \"you're\"")
 	})
@@ -456,14 +439,10 @@ func TestErrorStackProperty(t *testing.T) {
 
 			s;
 		`)
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(t, err)
 
 		v, err := vm.Run(s)
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(t, err)
 
 		is(v.String(), "TypeError: uh oh\n    at A (test.js:2:29)\n    at B (test.js:3:26)\n    at C (test.js:4:26)\n    at test.js:8:10\n")
 	})

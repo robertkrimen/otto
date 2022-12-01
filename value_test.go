@@ -23,11 +23,6 @@ func TestValue(t *testing.T) {
 func TestObject(t *testing.T) {
 	tt(t, func() {
 		is(emptyValue.isEmpty(), true)
-		//is(newObject().Value(), "[object]")
-		//is(newBooleanObject(false).Value(), "false")
-		//is(newFunctionObject(nil).Value(), "[function]")
-		//is(newNumberObject(1).Value(), "1")
-		//is(newStringObject("Hello, World.").Value(), "Hello, World.")
 	})
 }
 
@@ -95,7 +90,7 @@ func TestToBoolean(t *testing.T) {
 		is("xyzzy", true)
 		is(1, true)
 		is(0, false)
-		//is(toValue(newObject()), true)
+
 		is(UndefinedValue(), false)
 		is(NullValue(), false)
 		is([]uint16{}, false)
@@ -115,7 +110,6 @@ func TestToFloat(t *testing.T) {
 			is(1, 1)
 			is(0, 0)
 			is(NullValue(), 0)
-			//is(newObjectValue(), math.NaN())
 		}
 		is(math.IsNaN(UndefinedValue().float64()), true)
 	})
@@ -268,14 +262,14 @@ func TestExport(t *testing.T) {
 			3.1459,
 			[]interface{}{true, false, 0, 3.1459, "abc"},
 			map[string]interface{}{
-				classBoolean: true,
-				classNumber:  3.1459,
-				classString:  "abc",
-				classArray:   []interface{}{false, 0, "", nil},
-				classObject: map[string]interface{}{
-					classBoolean: false,
-					classNumber:  0,
-					classString:  "def",
+				classBooleanName: true,
+				classNumberName:  3.1459,
+				classStringName:  "abc",
+				classArrayName:   []interface{}{false, 0, "", nil},
+				classObjectName: map[string]interface{}{
+					classBooleanName: false,
+					classNumberName:  0,
+					classStringName:  "def",
 				},
 			},
 		}

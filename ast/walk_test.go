@@ -30,8 +30,7 @@ func (w *walker) pop(n ast.Node) {
 		panic("pop of empty stack")
 	}
 
-	toPop := w.stack[size-1]
-	if toPop != n {
+	if toPop := w.stack[size-1]; toPop != n {
 		panic("pop: nodes do not equal")
 	}
 

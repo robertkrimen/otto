@@ -4,10 +4,10 @@ import (
 	"testing"
 )
 
-// each
+// each.
 func Test_underscore_collections_0(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("each", function() {
@@ -42,10 +42,10 @@ func Test_underscore_collections_0(t *testing.T) {
 	})
 }
 
-// map
+// map.
 func Test_underscore_collections_1(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('map', function() {
@@ -82,10 +82,10 @@ func Test_underscore_collections_1(t *testing.T) {
 	})
 }
 
-// reduce
+// reduce.
 func Test_underscore_collections_2(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('reduce', function() {
@@ -111,7 +111,7 @@ func Test_underscore_collections_2(t *testing.T) {
     } catch (ex) {
       ifnull = ex;
     }
-    ok(ifnull instanceof TypeError, 'handles a null (without inital value) properly');
+    ok(ifnull instanceof TypeError, 'handles a null (without initial value) properly');
 
     ok(_.reduce(null, function(){}, 138) === 138, 'handles a null (with initial value) properly');
     equal(_.reduce([], function(){}, undefined), undefined, 'undefined can be passed as a special case');
@@ -121,10 +121,10 @@ func Test_underscore_collections_2(t *testing.T) {
 	})
 }
 
-// reduceRight
+// reduceRight.
 func Test_underscore_collections_3(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('reduceRight', function() {
@@ -143,7 +143,7 @@ func Test_underscore_collections_3(t *testing.T) {
     } catch (ex) {
       ifnull = ex;
     }
-    ok(ifnull instanceof TypeError, 'handles a null (without inital value) properly');
+    ok(ifnull instanceof TypeError, 'handles a null (without initial value) properly');
 
     var sum = _.reduceRight({a: 1, b: 2, c: 3}, function(sum, num){ return sum + num; });
     equal(sum, 6, 'default initial value on object');
@@ -190,10 +190,10 @@ func Test_underscore_collections_3(t *testing.T) {
 	})
 }
 
-// find
+// find.
 func Test_underscore_collections_4(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('find', function() {
@@ -205,10 +205,10 @@ func Test_underscore_collections_4(t *testing.T) {
 	})
 }
 
-// detect
+// detect.
 func Test_underscore_collections_5(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('detect', function() {
@@ -219,10 +219,10 @@ func Test_underscore_collections_5(t *testing.T) {
 	})
 }
 
-// select
+// select.
 func Test_underscore_collections_6(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('select', function() {
@@ -236,10 +236,10 @@ func Test_underscore_collections_6(t *testing.T) {
 	})
 }
 
-// reject
+// reject.
 func Test_underscore_collections_7(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('reject', function() {
@@ -258,10 +258,10 @@ func Test_underscore_collections_7(t *testing.T) {
 	})
 }
 
-// all
+// all.
 func Test_underscore_collections_8(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('all', function() {
@@ -279,10 +279,10 @@ func Test_underscore_collections_8(t *testing.T) {
 	})
 }
 
-// any
+// any.
 func Test_underscore_collections_9(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('any', function() {
@@ -304,10 +304,10 @@ func Test_underscore_collections_9(t *testing.T) {
 	})
 }
 
-// include
+// include.
 func Test_underscore_collections_10(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('include', function() {
@@ -320,10 +320,10 @@ func Test_underscore_collections_10(t *testing.T) {
 	})
 }
 
-// invoke
+// invoke.
 func Test_underscore_collections_11(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('invoke', function() {
@@ -336,10 +336,10 @@ func Test_underscore_collections_11(t *testing.T) {
 	})
 }
 
-// invoke w/ function reference
+// invoke w/ function reference.
 func Test_underscore_collections_12(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('invoke w/ function reference', function() {
@@ -352,10 +352,10 @@ func Test_underscore_collections_12(t *testing.T) {
 	})
 }
 
-// invoke when strings have a call method
+// invoke when strings have a call method.
 func Test_underscore_collections_13(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('invoke when strings have a call method', function() {
@@ -375,10 +375,10 @@ func Test_underscore_collections_13(t *testing.T) {
 	})
 }
 
-// pluck
+// pluck.
 func Test_underscore_collections_14(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('pluck', function() {
@@ -389,10 +389,10 @@ func Test_underscore_collections_14(t *testing.T) {
 	})
 }
 
-// where
+// where.
 func Test_underscore_collections_15(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('where', function() {
@@ -408,10 +408,10 @@ func Test_underscore_collections_15(t *testing.T) {
 	})
 }
 
-// findWhere
+// findWhere.
 func Test_underscore_collections_16(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('findWhere', function() {
@@ -425,10 +425,10 @@ func Test_underscore_collections_16(t *testing.T) {
 	})
 }
 
-// max
+// max.
 func Test_underscore_collections_17(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('max', function() {
@@ -450,10 +450,10 @@ func Test_underscore_collections_17(t *testing.T) {
 	})
 }
 
-// min
+// min.
 func Test_underscore_collections_18(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('min', function() {
@@ -479,10 +479,10 @@ func Test_underscore_collections_18(t *testing.T) {
 	})
 }
 
-// sortBy
+// sortBy.
 func Test_underscore_collections_19(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('sortBy', function() {
@@ -524,10 +524,10 @@ func Test_underscore_collections_19(t *testing.T) {
 	})
 }
 
-// groupBy
+// groupBy.
 func Test_underscore_collections_20(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('groupBy', function() {
@@ -562,10 +562,10 @@ func Test_underscore_collections_20(t *testing.T) {
 	})
 }
 
-// countBy
+// countBy.
 func Test_underscore_collections_21(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('countBy', function() {
@@ -600,10 +600,10 @@ func Test_underscore_collections_21(t *testing.T) {
 	})
 }
 
-// sortedIndex
+// sortedIndex.
 func Test_underscore_collections_22(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('sortedIndex', function() {
@@ -627,10 +627,10 @@ func Test_underscore_collections_22(t *testing.T) {
 	})
 }
 
-// shuffle
+// shuffle.
 func Test_underscore_collections_23(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('shuffle', function() {
@@ -643,10 +643,10 @@ func Test_underscore_collections_23(t *testing.T) {
 	})
 }
 
-// toArray
+// toArray.
 func Test_underscore_collections_24(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('toArray', function() {
@@ -673,10 +673,10 @@ func Test_underscore_collections_24(t *testing.T) {
 	})
 }
 
-// size
+// size.
 func Test_underscore_collections_25(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test('size', function() {

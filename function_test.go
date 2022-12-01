@@ -28,7 +28,7 @@ func TestFunction_new(t *testing.T) {
 
 		test(`raise:
             new Function({});
-        `, "SyntaxError: Unexpected identifier")
+        `, "SyntaxError: (anonymous): Line 2:9 Unexpected identifier")
 
 		test(`
             var abc = Function("def, ghi", "jkl", "return def+ghi+jkl");
@@ -54,14 +54,14 @@ func TestFunction_new(t *testing.T) {
             var def = "return this";
             var ghi = new Function(abc, def);
             ghi;
-        `, "SyntaxError: Unexpected token ;")
+        `, "SyntaxError: (anonymous): Line 1:12 Unexpected token ;")
 
 		test(`raise:
             var abc;
             var def = "return true";
             var ghi = new Function(null, def);
             ghi;
-        `, "SyntaxError: Unexpected token null")
+        `, "SyntaxError: (anonymous): Line 1:11 Unexpected token null")
 	})
 }
 

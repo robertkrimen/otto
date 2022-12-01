@@ -4,24 +4,24 @@ import (
 	"encoding/json"
 )
 
-type _objectClass struct {
-	getOwnProperty    func(*_object, string) *_property
-	getProperty       func(*_object, string) *_property
-	get               func(*_object, string) Value
-	canPut            func(*_object, string) bool
-	put               func(*_object, string, Value, bool)
-	hasProperty       func(*_object, string) bool
-	hasOwnProperty    func(*_object, string) bool
-	defineOwnProperty func(*_object, string, _property, bool) bool
-	delete            func(*_object, string, bool) bool
-	enumerate         func(*_object, bool, func(string) bool)
-	clone             func(*_object, *_object, *_clone) *_object
-	marshalJSON       func(*_object) json.Marshaler
+type objectClass struct {
+	getOwnProperty    func(*object, string) *property
+	getProperty       func(*object, string) *property
+	get               func(*object, string) Value
+	canPut            func(*object, string) bool
+	put               func(*object, string, Value, bool)
+	hasProperty       func(*object, string) bool
+	hasOwnProperty    func(*object, string) bool
+	defineOwnProperty func(*object, string, property, bool) bool
+	delete            func(*object, string, bool) bool
+	enumerate         func(*object, bool, func(string) bool)
+	clone             func(*object, *object, *cloner) *object
+	marshalJSON       func(*object) json.Marshaler
 }
 
-func objectEnumerate(self *_object, all bool, each func(string) bool) {
-	for _, name := range self.propertyOrder {
-		if all || self.property[name].enumerable() {
+func objectEnumerate(obj *object, all bool, each func(string) bool) {
+	for _, name := range obj.propertyOrder {
+		if all || obj.property[name].enumerable() {
 			if !each(name) {
 				return
 			}
@@ -29,20 +29,17 @@ func objectEnumerate(self *_object, all bool, each func(string) bool) {
 	}
 }
 
-var (
-	_classObject,
-	_classArray,
-	_classString,
-	_classArguments,
-	_classGoStruct,
-	_classGoMap,
-	_classGoArray,
-	_classGoSlice,
-	_ *_objectClass
-)
+var classObject,
+	classArray,
+	classString,
+	classArguments,
+	classGoStruct,
+	classGoMap,
+	classGoArray,
+	classGoSlice *objectClass
 
 func init() {
-	_classObject = &_objectClass{
+	classObject = &objectClass{
 		objectGetOwnProperty,
 		objectGetProperty,
 		objectGet,
@@ -57,7 +54,7 @@ func init() {
 		nil,
 	}
 
-	_classArray = &_objectClass{
+	classArray = &objectClass{
 		objectGetOwnProperty,
 		objectGetProperty,
 		objectGet,
@@ -72,7 +69,7 @@ func init() {
 		nil,
 	}
 
-	_classString = &_objectClass{
+	classString = &objectClass{
 		stringGetOwnProperty,
 		objectGetProperty,
 		objectGet,
@@ -87,7 +84,7 @@ func init() {
 		nil,
 	}
 
-	_classArguments = &_objectClass{
+	classArguments = &objectClass{
 		argumentsGetOwnProperty,
 		objectGetProperty,
 		argumentsGet,
@@ -102,7 +99,7 @@ func init() {
 		nil,
 	}
 
-	_classGoStruct = &_objectClass{
+	classGoStruct = &objectClass{
 		goStructGetOwnProperty,
 		objectGetProperty,
 		objectGet,
@@ -117,7 +114,7 @@ func init() {
 		goStructMarshalJSON,
 	}
 
-	_classGoMap = &_objectClass{
+	classGoMap = &objectClass{
 		goMapGetOwnProperty,
 		objectGetProperty,
 		objectGet,
@@ -132,7 +129,7 @@ func init() {
 		nil,
 	}
 
-	_classGoArray = &_objectClass{
+	classGoArray = &objectClass{
 		goArrayGetOwnProperty,
 		objectGetProperty,
 		objectGet,
@@ -147,7 +144,7 @@ func init() {
 		nil,
 	}
 
-	_classGoSlice = &_objectClass{
+	classGoSlice = &objectClass{
 		goSliceGetOwnProperty,
 		objectGetProperty,
 		objectGet,
@@ -165,85 +162,84 @@ func init() {
 
 // Allons-y
 
-// 8.12.1
-func objectGetOwnProperty(self *_object, name string) *_property {
-	// Return a _copy_ of the property
-	property, exists := self._read(name)
+// 8.12.1.
+func objectGetOwnProperty(obj *object, name string) *property {
+	// Return a _copy_ of the prop
+	prop, exists := obj.readProperty(name)
 	if !exists {
 		return nil
 	}
-	return &property
+	return &prop
 }
 
-// 8.12.2
-func objectGetProperty(self *_object, name string) *_property {
-	property := self.getOwnProperty(name)
-	if property != nil {
-		return property
+// 8.12.2.
+func objectGetProperty(obj *object, name string) *property {
+	prop := obj.getOwnProperty(name)
+	if prop != nil {
+		return prop
 	}
-	if self.prototype != nil {
-		return self.prototype.getProperty(name)
+	if obj.prototype != nil {
+		return obj.prototype.getProperty(name)
 	}
 	return nil
 }
 
-// 8.12.3
-func objectGet(self *_object, name string) Value {
-	property := self.getProperty(name)
-	if property != nil {
-		return property.get(self)
+// 8.12.3.
+func objectGet(obj *object, name string) Value {
+	if prop := obj.getProperty(name); prop != nil {
+		return prop.get(obj)
 	}
 	return Value{}
 }
 
-// 8.12.4
-func objectCanPut(self *_object, name string) bool {
-	canPut, _, _ := _objectCanPut(self, name)
+// 8.12.4.
+func objectCanPut(obj *object, name string) bool {
+	canPut, _, _ := objectCanPutDetails(obj, name)
 	return canPut
 }
 
-func _objectCanPut(self *_object, name string) (canPut bool, property *_property, setter *_object) {
-	property = self.getOwnProperty(name)
-	if property != nil {
-		switch propertyValue := property.value.(type) {
+func objectCanPutDetails(obj *object, name string) (canPut bool, prop *property, setter *object) { //nolint: nonamedreturns
+	prop = obj.getOwnProperty(name)
+	if prop != nil {
+		switch propertyValue := prop.value.(type) {
 		case Value:
-			canPut = property.writable()
+			canPut = prop.writable()
 			return
-		case _propertyGetSet:
+		case propertyGetSet:
 			setter = propertyValue[1]
 			canPut = setter != nil
 			return
 		default:
-			panic(self.runtime.panicTypeError())
+			panic(obj.runtime.panicTypeError())
 		}
 	}
 
-	if self.prototype == nil {
-		return self.extensible, nil, nil
+	if obj.prototype == nil {
+		return obj.extensible, nil, nil
 	}
 
-	property = self.prototype.getProperty(name)
-	if property == nil {
-		return self.extensible, nil, nil
+	prop = obj.prototype.getProperty(name)
+	if prop == nil {
+		return obj.extensible, nil, nil
 	}
 
-	switch propertyValue := property.value.(type) {
+	switch propertyValue := prop.value.(type) {
 	case Value:
-		if !self.extensible {
+		if !obj.extensible {
 			return false, nil, nil
 		}
-		return property.writable(), nil, nil
-	case _propertyGetSet:
+		return prop.writable(), nil, nil
+	case propertyGetSet:
 		setter = propertyValue[1]
 		canPut = setter != nil
 		return
 	default:
-		panic(self.runtime.panicTypeError())
+		panic(obj.runtime.panicTypeError())
 	}
 }
 
-// 8.12.5
-func objectPut(self *_object, name string, value Value, throw bool) {
+// 8.12.5.
+func objectPut(obj *object, name string, value Value, throw bool) {
 	if true {
 		// Shortcut...
 		//
@@ -253,16 +249,17 @@ func objectPut(self *_object, name string, value Value, throw bool) {
 		// If that were to no longer be the case, we would have to have
 		// something to detect that here, so that we do not use an
 		// incompatible canPut routine
-		canPut, property, setter := _objectCanPut(self, name)
-		if !canPut {
-			self.runtime.typeErrorResult(throw)
-		} else if setter != nil {
-			setter.call(toValue(self), []Value{value}, false, nativeFrame)
-		} else if property != nil {
-			property.value = value
-			self.defineOwnProperty(name, *property, throw)
-		} else {
-			self.defineProperty(name, value, 0111, throw)
+		canPut, prop, setter := objectCanPutDetails(obj, name)
+		switch {
+		case !canPut:
+			obj.runtime.typeErrorResult(throw)
+		case setter != nil:
+			setter.call(toValue(obj), []Value{value}, false, nativeFrame)
+		case prop != nil:
+			prop.value = value
+			obj.defineOwnProperty(name, *prop, throw)
+		default:
+			obj.defineProperty(name, value, 0o111, throw)
 		}
 		return
 	}
@@ -270,221 +267,224 @@ func objectPut(self *_object, name string, value Value, throw bool) {
 	// The long way...
 	//
 	// Right now, code should never get here, see above
-	if !self.canPut(name) {
-		self.runtime.typeErrorResult(throw)
+	if !obj.canPut(name) {
+		obj.runtime.typeErrorResult(throw)
 		return
 	}
 
-	property := self.getOwnProperty(name)
-	if property == nil {
-		property = self.getProperty(name)
-		if property != nil {
-			if getSet, isAccessor := property.value.(_propertyGetSet); isAccessor {
-				getSet[1].call(toValue(self), []Value{value}, false, nativeFrame)
+	prop := obj.getOwnProperty(name)
+	if prop == nil {
+		prop = obj.getProperty(name)
+		if prop != nil {
+			if getSet, isAccessor := prop.value.(propertyGetSet); isAccessor {
+				getSet[1].call(toValue(obj), []Value{value}, false, nativeFrame)
 				return
 			}
 		}
-		self.defineProperty(name, value, 0111, throw)
+		obj.defineProperty(name, value, 0o111, throw)
 	} else {
-		switch propertyValue := property.value.(type) {
+		switch propertyValue := prop.value.(type) {
 		case Value:
-			property.value = value
-			self.defineOwnProperty(name, *property, throw)
-		case _propertyGetSet:
+			prop.value = value
+			obj.defineOwnProperty(name, *prop, throw)
+		case propertyGetSet:
 			if propertyValue[1] != nil {
-				propertyValue[1].call(toValue(self), []Value{value}, false, nativeFrame)
+				propertyValue[1].call(toValue(obj), []Value{value}, false, nativeFrame)
 				return
 			}
 			if throw {
-				panic(self.runtime.panicTypeError())
+				panic(obj.runtime.panicTypeError())
 			}
 		default:
-			panic(self.runtime.panicTypeError())
+			panic(obj.runtime.panicTypeError())
 		}
 	}
 }
 
-// 8.12.6
-func objectHasProperty(self *_object, name string) bool {
-	return self.getProperty(name) != nil
+// 8.12.6.
+func objectHasProperty(obj *object, name string) bool {
+	return obj.getProperty(name) != nil
 }
 
-func objectHasOwnProperty(self *_object, name string) bool {
-	return self.getOwnProperty(name) != nil
+func objectHasOwnProperty(obj *object, name string) bool {
+	return obj.getOwnProperty(name) != nil
 }
 
-// 8.12.9
-func objectDefineOwnProperty(self *_object, name string, descriptor _property, throw bool) bool {
-	property, exists := self._read(name)
-	{
-		if !exists {
-			if !self.extensible {
-				goto Reject
-			}
-			if newGetSet, isAccessor := descriptor.value.(_propertyGetSet); isAccessor {
-				if newGetSet[0] == &_nilGetSetObject {
-					newGetSet[0] = nil
-				}
-				if newGetSet[1] == &_nilGetSetObject {
-					newGetSet[1] = nil
-				}
-				descriptor.value = newGetSet
-			}
-			self._write(name, descriptor.value, descriptor.mode)
-			return true
+// 8.12.9.
+func objectDefineOwnProperty(obj *object, name string, descriptor property, throw bool) bool {
+	reject := func() bool {
+		if throw {
+			panic(obj.runtime.panicTypeError())
 		}
-		if descriptor.isEmpty() {
-			return true
-		}
+		return false
+	}
 
-		// TODO Per 8.12.9.6 - We should shortcut here (returning true) if
-		// the current and new (define) properties are the same
-
-		configurable := property.configurable()
-		if !configurable {
-			if descriptor.configurable() {
-				goto Reject
-			}
-			// Test that, if enumerable is set on the property descriptor, then it should
-			// be the same as the existing property
-			if descriptor.enumerateSet() && descriptor.enumerable() != property.enumerable() {
-				goto Reject
-			}
+	prop, exists := obj.readProperty(name)
+	if !exists {
+		if !obj.extensible {
+			return reject()
 		}
-		value, isDataDescriptor := property.value.(Value)
-		getSet, _ := property.value.(_propertyGetSet)
-		if descriptor.isGenericDescriptor() {
-			// GenericDescriptor
-		} else if isDataDescriptor != descriptor.isDataDescriptor() {
-			// DataDescriptor <=> AccessorDescriptor
-			if !configurable {
-				goto Reject
-			}
-		} else if isDataDescriptor && descriptor.isDataDescriptor() {
-			// DataDescriptor <=> DataDescriptor
-			if !configurable {
-				if !property.writable() && descriptor.writable() {
-					goto Reject
-				}
-				if !property.writable() {
-					if descriptor.value != nil && !sameValue(value, descriptor.value.(Value)) {
-						goto Reject
-					}
-				}
-			}
-		} else {
-			// AccessorDescriptor <=> AccessorDescriptor
-			newGetSet, _ := descriptor.value.(_propertyGetSet)
-			presentGet, presentSet := true, true
-			if newGetSet[0] == &_nilGetSetObject {
-				// Present, but nil
+		if newGetSet, isAccessor := descriptor.value.(propertyGetSet); isAccessor {
+			if newGetSet[0] == &nilGetSetObject {
 				newGetSet[0] = nil
-			} else if newGetSet[0] == nil {
-				// Missing, not even nil
-				newGetSet[0] = getSet[0]
-				presentGet = false
 			}
-			if newGetSet[1] == &_nilGetSetObject {
-				// Present, but nil
+			if newGetSet[1] == &nilGetSetObject {
 				newGetSet[1] = nil
-			} else if newGetSet[1] == nil {
-				// Missing, not even nil
-				newGetSet[1] = getSet[1]
-				presentSet = false
-			}
-			if !configurable {
-				if (presentGet && (getSet[0] != newGetSet[0])) || (presentSet && (getSet[1] != newGetSet[1])) {
-					goto Reject
-				}
 			}
 			descriptor.value = newGetSet
 		}
-		{
-			// This section will preserve attributes of
-			// the original property, if necessary
-			value1 := descriptor.value
-			if value1 == nil {
-				value1 = property.value
-			} else if newGetSet, isAccessor := descriptor.value.(_propertyGetSet); isAccessor {
-				if newGetSet[0] == &_nilGetSetObject {
-					newGetSet[0] = nil
-				}
-				if newGetSet[1] == &_nilGetSetObject {
-					newGetSet[1] = nil
-				}
-				value1 = newGetSet
-			}
-			mode1 := descriptor.mode
-			if mode1&0222 != 0 {
-				// TODO Factor this out into somewhere testable
-				// (Maybe put into switch ...)
-				mode0 := property.mode
-				if mode1&0200 != 0 {
-					if descriptor.isDataDescriptor() {
-						mode1 &= ^0200 // Turn off "writable" missing
-						mode1 |= (mode0 & 0100)
-					}
-				}
-				if mode1&020 != 0 {
-					mode1 |= (mode0 & 010)
-				}
-				if mode1&02 != 0 {
-					mode1 |= (mode0 & 01)
-				}
-				mode1 &= 0311 // 0311 to preserve the non-setting on "writable"
-			}
-			self._write(name, value1, mode1)
+		obj.writeProperty(name, descriptor.value, descriptor.mode)
+		return true
+	}
+
+	if descriptor.isEmpty() {
+		return true
+	}
+
+	// TODO Per 8.12.9.6 - We should shortcut here (returning true) if
+	// the current and new (define) properties are the same
+
+	configurable := prop.configurable()
+	if !configurable {
+		if descriptor.configurable() {
+			return reject()
 		}
-		return true
+		// Test that, if enumerable is set on the property descriptor, then it should
+		// be the same as the existing property
+		if descriptor.enumerateSet() && descriptor.enumerable() != prop.enumerable() {
+			return reject()
+		}
 	}
-Reject:
-	if throw {
-		panic(self.runtime.panicTypeError())
+
+	value, isDataDescriptor := prop.value.(Value)
+	getSet, _ := prop.value.(propertyGetSet)
+	switch {
+	case descriptor.isGenericDescriptor():
+		// GenericDescriptor
+	case isDataDescriptor != descriptor.isDataDescriptor():
+		// DataDescriptor <=> AccessorDescriptor
+		if !configurable {
+			return reject()
+		}
+	case isDataDescriptor && descriptor.isDataDescriptor():
+		// DataDescriptor <=> DataDescriptor
+		if !configurable {
+			if !prop.writable() && descriptor.writable() {
+				return reject()
+			}
+			if !prop.writable() {
+				if descriptor.value != nil && !sameValue(value, descriptor.value.(Value)) {
+					return reject()
+				}
+			}
+		}
+	default:
+		// AccessorDescriptor <=> AccessorDescriptor
+		newGetSet, _ := descriptor.value.(propertyGetSet)
+		presentGet, presentSet := true, true
+		if newGetSet[0] == &nilGetSetObject {
+			// Present, but nil
+			newGetSet[0] = nil
+		} else if newGetSet[0] == nil {
+			// Missing, not even nil
+			newGetSet[0] = getSet[0]
+			presentGet = false
+		}
+		if newGetSet[1] == &nilGetSetObject {
+			// Present, but nil
+			newGetSet[1] = nil
+		} else if newGetSet[1] == nil {
+			// Missing, not even nil
+			newGetSet[1] = getSet[1]
+			presentSet = false
+		}
+		if !configurable {
+			if (presentGet && (getSet[0] != newGetSet[0])) || (presentSet && (getSet[1] != newGetSet[1])) {
+				return reject()
+			}
+		}
+		descriptor.value = newGetSet
 	}
-	return false
+
+	// This section will preserve attributes of
+	// the original property, if necessary
+	value1 := descriptor.value
+	if value1 == nil {
+		value1 = prop.value
+	} else if newGetSet, isAccessor := descriptor.value.(propertyGetSet); isAccessor {
+		if newGetSet[0] == &nilGetSetObject {
+			newGetSet[0] = nil
+		}
+		if newGetSet[1] == &nilGetSetObject {
+			newGetSet[1] = nil
+		}
+		value1 = newGetSet
+	}
+	mode1 := descriptor.mode
+	if mode1&0o222 != 0 {
+		// TODO Factor this out into somewhere testable
+		// (Maybe put into switch ...)
+		mode0 := prop.mode
+		if mode1&0o200 != 0 {
+			if descriptor.isDataDescriptor() {
+				mode1 &= ^0o200 // Turn off "writable" missing
+				mode1 |= (mode0 & 0o100)
+			}
+		}
+		if mode1&0o20 != 0 {
+			mode1 |= (mode0 & 0o10)
+		}
+		if mode1&0o2 != 0 {
+			mode1 |= (mode0 & 0o1)
+		}
+		mode1 &= 0o311 // 0311 to preserve the non-setting on "writable"
+	}
+	obj.writeProperty(name, value1, mode1)
+
+	return true
 }
 
-func objectDelete(self *_object, name string, throw bool) bool {
-	property_ := self.getOwnProperty(name)
-	if property_ == nil {
+func objectDelete(obj *object, name string, throw bool) bool {
+	prop := obj.getOwnProperty(name)
+	if prop == nil {
 		return true
 	}
-	if property_.configurable() {
-		self._delete(name)
+	if prop.configurable() {
+		obj.deleteProperty(name)
 		return true
 	}
-	return self.runtime.typeErrorResult(throw)
+	return obj.runtime.typeErrorResult(throw)
 }
 
-func objectClone(in *_object, out *_object, clone *_clone) *_object {
+func objectClone(in *object, out *object, clone *cloner) *object {
 	*out = *in
 
 	out.runtime = clone.runtime
 	if out.prototype != nil {
 		out.prototype = clone.object(in.prototype)
 	}
-	out.property = make(map[string]_property, len(in.property))
+	out.property = make(map[string]property, len(in.property))
 	out.propertyOrder = make([]string, len(in.propertyOrder))
 	copy(out.propertyOrder, in.propertyOrder)
-	for index, property := range in.property {
-		out.property[index] = clone.property(property)
+	for index, prop := range in.property {
+		out.property[index] = clone.property(prop)
 	}
 
 	switch value := in.value.(type) {
-	case _nativeFunctionObject:
+	case nativeFunctionObject:
 		out.value = value
-	case _bindFunctionObject:
-		out.value = _bindFunctionObject{
+	case bindFunctionObject:
+		out.value = bindFunctionObject{
 			target:       clone.object(value.target),
 			this:         clone.value(value.this),
 			argumentList: clone.valueArray(value.argumentList),
 		}
-	case _nodeFunctionObject:
-		out.value = _nodeFunctionObject{
+	case nodeFunctionObject:
+		out.value = nodeFunctionObject{
 			node:  value.node,
 			stash: clone.stash(value.stash),
 		}
-	case _argumentsObject:
+	case argumentsObject:
 		out.value = value.clone(clone)
 	}
 

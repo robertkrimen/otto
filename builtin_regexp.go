@@ -9,22 +9,22 @@ import (
 func builtinRegExp(call FunctionCall) Value {
 	pattern := call.Argument(0)
 	flags := call.Argument(1)
-	if object := pattern._object(); object != nil {
-		if object.class == classRegExp && flags.IsUndefined() {
+	if obj := pattern.object(); obj != nil {
+		if obj.class == classRegExpName && flags.IsUndefined() {
 			return pattern
 		}
 	}
-	return toValue_object(call.runtime.newRegExp(pattern, flags))
+	return objectValue(call.runtime.newRegExp(pattern, flags))
 }
 
-func builtinNewRegExp(self *_object, argumentList []Value) Value {
-	return toValue_object(self.runtime.newRegExp(
+func builtinNewRegExp(obj *object, argumentList []Value) Value {
+	return objectValue(obj.runtime.newRegExp(
 		valueOfArrayIndex(argumentList, 0),
 		valueOfArrayIndex(argumentList, 1),
 	))
 }
 
-func builtinRegExp_toString(call FunctionCall) Value {
+func builtinRegExpToString(call FunctionCall) Value {
 	thisObject := call.thisObject()
 	source := thisObject.get("source").string()
 	flags := []byte{}
@@ -37,32 +37,32 @@ func builtinRegExp_toString(call FunctionCall) Value {
 	if thisObject.get("multiline").bool() {
 		flags = append(flags, 'm')
 	}
-	return toValue_string(fmt.Sprintf("/%s/%s", source, flags))
+	return stringValue(fmt.Sprintf("/%s/%s", source, flags))
 }
 
-func builtinRegExp_exec(call FunctionCall) Value {
+func builtinRegExpExec(call FunctionCall) Value {
 	thisObject := call.thisObject()
 	target := call.Argument(0).string()
 	match, result := execRegExp(thisObject, target)
 	if !match {
 		return nullValue
 	}
-	return toValue_object(execResultToArray(call.runtime, target, result))
+	return objectValue(execResultToArray(call.runtime, target, result))
 }
 
-func builtinRegExp_test(call FunctionCall) Value {
+func builtinRegExpTest(call FunctionCall) Value {
 	thisObject := call.thisObject()
 	target := call.Argument(0).string()
 	match, result := execRegExp(thisObject, target)
 
 	if !match {
-		return toValue_bool(match)
+		return boolValue(match)
 	}
 
 	// Match extract and assign input, $_ and $1 -> $9 on global RegExp.
-	input := toValue_string(target)
-	call.runtime.global.RegExp.defineProperty("$_", input, 0100, false)
-	call.runtime.global.RegExp.defineProperty("input", input, 0100, false)
+	input := stringValue(target)
+	call.runtime.global.RegExp.defineProperty("$_", input, 0o100, false)
+	call.runtime.global.RegExp.defineProperty("input", input, 0o100, false)
 
 	var start int
 	n := 1
@@ -71,7 +71,7 @@ func builtinRegExp_test(call FunctionCall) Value {
 		if i%2 == 0 {
 			start = v
 		} else {
-			re.defineProperty(fmt.Sprintf("$%d", n), toValue_string(target[start:v]), 0100, false)
+			re.defineProperty(fmt.Sprintf("$%d", n), stringValue(target[start:v]), 0o100, false)
 			n++
 			if n == 10 {
 				break
@@ -81,16 +81,16 @@ func builtinRegExp_test(call FunctionCall) Value {
 
 	if n <= 9 {
 		// Erase remaining.
-		empty := toValue_string("")
+		empty := stringValue("")
 		for i := n; i <= 9; i++ {
-			re.defineProperty(fmt.Sprintf("$%d", i), empty, 0100, false)
+			re.defineProperty(fmt.Sprintf("$%d", i), empty, 0o100, false)
 		}
 	}
 
-	return toValue_bool(match)
+	return boolValue(match)
 }
 
-func builtinRegExp_compile(call FunctionCall) Value {
+func builtinRegExpCompile(call FunctionCall) Value {
 	// This (useless) function is deprecated, but is here to provide some
 	// semblance of compatibility.
 	// Caveat emptor: it may not be around for long.

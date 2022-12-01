@@ -2,6 +2,8 @@ package otto
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestString(t *testing.T) {
@@ -51,7 +53,7 @@ func TestString_charCodeAt(t *testing.T) {
             def = "xyzzy".charCodeAt(11)
         `)
 		test("abc", 120)
-		test("def", _NaN)
+		test("def", naN)
 	})
 }
 
@@ -275,25 +277,25 @@ func TestString_split(t *testing.T) {
 
 func BenchmarkString_splitWithString(b *testing.B) {
 	vm := New()
-	vm.Set("data", "Lorem ipsum dolor sit amet, blandit nec elit. Ridiculus tortor wisi fusce vivamus")
-	s, _ := vm.Compile("test.js", `data.split(" ")`)
+	err := vm.Set("data", "Lorem ipsum dolor sit amet, blandit nec elit. Ridiculous tortor wisi fusce vivamus")
+	require.NoError(b, err)
+	s, err := vm.Compile("test.js", `data.split(" ")`)
+	require.NoError(b, err)
 	for i := 0; i < b.N; i++ {
-		_, e := vm.Run(s)
-		if e != nil {
-			b.Error(e.Error())
-		}
+		_, err = vm.Run(s)
+		require.NoError(b, err)
 	}
 }
 
 func BenchmarkString_splitWithRegex(b *testing.B) {
 	vm := New()
-	vm.Set("data", "Lorem ipsum dolor sit amet, blandit nec elit. Ridiculus tortor wisi fusce vivamus")
-	s, _ := vm.Compile("test.js", `data.split(/ /)`)
+	err := vm.Set("data", "Lorem ipsum dolor sit amet, blandit nec elit. Ridiculous tortor wisi fusce vivamus")
+	require.NoError(b, err)
+	s, err := vm.Compile("test.js", `data.split(/ /)`)
+	require.NoError(b, err)
 	for i := 0; i < b.N; i++ {
-		_, e := vm.Run(s)
-		if e != nil {
-			b.Error(e.Error())
-		}
+		_, err = vm.Run(s)
+		require.NoError(b, err)
 	}
 }
 

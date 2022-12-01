@@ -4,158 +4,157 @@ import (
 	"fmt"
 )
 
-type _clone struct {
-	runtime      *_runtime
-	_object      map[*_object]*_object
-	_objectStash map[*_objectStash]*_objectStash
-	_dclStash    map[*_dclStash]*_dclStash
-	_fnStash     map[*_fnStash]*_fnStash
+type cloner struct {
+	runtime     *runtime
+	obj         map[*object]*object
+	objectstash map[*objectStash]*objectStash
+	dclstash    map[*dclStash]*dclStash
+	fnstash     map[*fnStash]*fnStash
 }
 
-func (in *_runtime) clone() *_runtime {
-	in.lck.Lock()
-	defer in.lck.Unlock()
+func (rt *runtime) clone() *runtime {
+	rt.lck.Lock()
+	defer rt.lck.Unlock()
 
-	out := &_runtime{
-		debugger:   in.debugger,
-		random:     in.random,
-		stackLimit: in.stackLimit,
-		traceLimit: in.traceLimit,
+	out := &runtime{
+		debugger:   rt.debugger,
+		random:     rt.random,
+		stackLimit: rt.stackLimit,
+		traceLimit: rt.traceLimit,
 	}
 
-	clone := _clone{
-		runtime:      out,
-		_object:      make(map[*_object]*_object),
-		_objectStash: make(map[*_objectStash]*_objectStash),
-		_dclStash:    make(map[*_dclStash]*_dclStash),
-		_fnStash:     make(map[*_fnStash]*_fnStash),
+	c := cloner{
+		runtime:     out,
+		obj:         make(map[*object]*object),
+		objectstash: make(map[*objectStash]*objectStash),
+		dclstash:    make(map[*dclStash]*dclStash),
+		fnstash:     make(map[*fnStash]*fnStash),
 	}
 
-	globalObject := clone.object(in.globalObject)
+	globalObject := c.object(rt.globalObject)
 	out.globalStash = out.newObjectStash(globalObject, nil)
 	out.globalObject = globalObject
-	out.global = _global{
-		clone.object(in.global.Object),
-		clone.object(in.global.Function),
-		clone.object(in.global.Array),
-		clone.object(in.global.String),
-		clone.object(in.global.Boolean),
-		clone.object(in.global.Number),
-		clone.object(in.global.Math),
-		clone.object(in.global.Date),
-		clone.object(in.global.RegExp),
-		clone.object(in.global.Error),
-		clone.object(in.global.EvalError),
-		clone.object(in.global.TypeError),
-		clone.object(in.global.RangeError),
-		clone.object(in.global.ReferenceError),
-		clone.object(in.global.SyntaxError),
-		clone.object(in.global.URIError),
-		clone.object(in.global.JSON),
+	out.global = global{
+		c.object(rt.global.Object),
+		c.object(rt.global.Function),
+		c.object(rt.global.Array),
+		c.object(rt.global.String),
+		c.object(rt.global.Boolean),
+		c.object(rt.global.Number),
+		c.object(rt.global.Math),
+		c.object(rt.global.Date),
+		c.object(rt.global.RegExp),
+		c.object(rt.global.Error),
+		c.object(rt.global.EvalError),
+		c.object(rt.global.TypeError),
+		c.object(rt.global.RangeError),
+		c.object(rt.global.ReferenceError),
+		c.object(rt.global.SyntaxError),
+		c.object(rt.global.URIError),
+		c.object(rt.global.JSON),
 
-		clone.object(in.global.ObjectPrototype),
-		clone.object(in.global.FunctionPrototype),
-		clone.object(in.global.ArrayPrototype),
-		clone.object(in.global.StringPrototype),
-		clone.object(in.global.BooleanPrototype),
-		clone.object(in.global.NumberPrototype),
-		clone.object(in.global.DatePrototype),
-		clone.object(in.global.RegExpPrototype),
-		clone.object(in.global.ErrorPrototype),
-		clone.object(in.global.EvalErrorPrototype),
-		clone.object(in.global.TypeErrorPrototype),
-		clone.object(in.global.RangeErrorPrototype),
-		clone.object(in.global.ReferenceErrorPrototype),
-		clone.object(in.global.SyntaxErrorPrototype),
-		clone.object(in.global.URIErrorPrototype),
+		c.object(rt.global.ObjectPrototype),
+		c.object(rt.global.FunctionPrototype),
+		c.object(rt.global.ArrayPrototype),
+		c.object(rt.global.StringPrototype),
+		c.object(rt.global.BooleanPrototype),
+		c.object(rt.global.NumberPrototype),
+		c.object(rt.global.DatePrototype),
+		c.object(rt.global.RegExpPrototype),
+		c.object(rt.global.ErrorPrototype),
+		c.object(rt.global.EvalErrorPrototype),
+		c.object(rt.global.TypeErrorPrototype),
+		c.object(rt.global.RangeErrorPrototype),
+		c.object(rt.global.ReferenceErrorPrototype),
+		c.object(rt.global.SyntaxErrorPrototype),
+		c.object(rt.global.URIErrorPrototype),
 	}
 
-	out.eval = out.globalObject.property["eval"].value.(Value).value.(*_object)
+	out.eval = out.globalObject.property["eval"].value.(Value).value.(*object)
 	out.globalObject.prototype = out.global.ObjectPrototype
 
 	// Not sure if this is necessary, but give some help to the GC
-	clone.runtime = nil
-	clone._object = nil
-	clone._objectStash = nil
-	clone._dclStash = nil
-	clone._fnStash = nil
+	c.runtime = nil
+	c.obj = nil
+	c.objectstash = nil
+	c.dclstash = nil
+	c.fnstash = nil
 
 	return out
 }
 
-func (clone *_clone) object(in *_object) *_object {
-	if out, exists := clone._object[in]; exists {
+func (c *cloner) object(in *object) *object {
+	if out, exists := c.obj[in]; exists {
 		return out
 	}
-	out := &_object{}
-	clone._object[in] = out
-	return in.objectClass.clone(in, out, clone)
+	out := &object{}
+	c.obj[in] = out
+	return in.objectClass.clone(in, out, c)
 }
 
-func (clone *_clone) dclStash(in *_dclStash) (*_dclStash, bool) {
-	if out, exists := clone._dclStash[in]; exists {
+func (c *cloner) dclStash(in *dclStash) (*dclStash, bool) {
+	if out, exists := c.dclstash[in]; exists {
 		return out, true
 	}
-	out := &_dclStash{}
-	clone._dclStash[in] = out
+	out := &dclStash{}
+	c.dclstash[in] = out
 	return out, false
 }
 
-func (clone *_clone) objectStash(in *_objectStash) (*_objectStash, bool) {
-	if out, exists := clone._objectStash[in]; exists {
+func (c *cloner) objectStash(in *objectStash) (*objectStash, bool) {
+	if out, exists := c.objectstash[in]; exists {
 		return out, true
 	}
-	out := &_objectStash{}
-	clone._objectStash[in] = out
+	out := &objectStash{}
+	c.objectstash[in] = out
 	return out, false
 }
 
-func (clone *_clone) fnStash(in *_fnStash) (*_fnStash, bool) {
-	if out, exists := clone._fnStash[in]; exists {
+func (c *cloner) fnStash(in *fnStash) (*fnStash, bool) {
+	if out, exists := c.fnstash[in]; exists {
 		return out, true
 	}
-	out := &_fnStash{}
-	clone._fnStash[in] = out
+	out := &fnStash{}
+	c.fnstash[in] = out
 	return out, false
 }
 
-func (clone *_clone) value(in Value) Value {
+func (c *cloner) value(in Value) Value {
 	out := in
-	switch value := in.value.(type) {
-	case *_object:
-		out.value = clone.object(value)
+	if value, ok := in.value.(*object); ok {
+		out.value = c.object(value)
 	}
 	return out
 }
 
-func (clone *_clone) valueArray(in []Value) []Value {
+func (c *cloner) valueArray(in []Value) []Value {
 	out := make([]Value, len(in))
 	for index, value := range in {
-		out[index] = clone.value(value)
+		out[index] = c.value(value)
 	}
 	return out
 }
 
-func (clone *_clone) stash(in _stash) _stash {
+func (c *cloner) stash(in stasher) stasher {
 	if in == nil {
 		return nil
 	}
-	return in.clone(clone)
+	return in.clone(c)
 }
 
-func (clone *_clone) property(in _property) _property {
+func (c *cloner) property(in property) property {
 	out := in
 
 	switch value := in.value.(type) {
 	case Value:
-		out.value = clone.value(value)
-	case _propertyGetSet:
-		p := _propertyGetSet{}
+		out.value = c.value(value)
+	case propertyGetSet:
+		p := propertyGetSet{}
 		if value[0] != nil {
-			p[0] = clone.object(value[0])
+			p[0] = c.object(value[0])
 		}
 		if value[1] != nil {
-			p[1] = clone.object(value[1])
+			p[1] = c.object(value[1])
 		}
 		out.value = p
 	default:
@@ -165,8 +164,8 @@ func (clone *_clone) property(in _property) _property {
 	return out
 }
 
-func (clone *_clone) dclProperty(in _dclProperty) _dclProperty {
+func (c *cloner) dclProperty(in dclProperty) dclProperty {
 	out := in
-	out.value = clone.value(in.value)
+	out.value = c.value(in.value)
 	return out
 }

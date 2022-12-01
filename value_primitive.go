@@ -1,19 +1,20 @@
 package otto
 
 func toNumberPrimitive(value Value) Value {
-	return _toPrimitive(value, defaultValueHintNumber)
+	return toPrimitive(value, defaultValueHintNumber)
 }
 
-func toPrimitive(value Value) Value {
-	return _toPrimitive(value, defaultValueNoHint)
+func toPrimitiveValue(value Value) Value {
+	return toPrimitive(value, defaultValueNoHint)
 }
 
-func _toPrimitive(value Value, hint _defaultValueHint) Value {
+func toPrimitive(value Value, hint defaultValueHint) Value {
 	switch value.kind {
 	case valueNull, valueUndefined, valueNumber, valueString, valueBoolean:
 		return value
 	case valueObject:
-		return value._object().DefaultValue(hint)
+		return value.object().DefaultValue(hint)
+	default:
+		panic(hereBeDragons(value.kind, value))
 	}
-	panic(hereBeDragons(value.kind, value))
 }

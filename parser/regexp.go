@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-type _RegExp_parser struct {
+type regExpParser struct { //nolint: maligned
 	str    string
 	length int
 
@@ -40,7 +40,7 @@ func TransformRegExp(pattern string) (string, error) {
 
 	// TODO If without \, if without (?=, (?!, then another shortcut
 
-	parser := _RegExp_parser{
+	parser := regExpParser{
 		str:      pattern,
 		length:   len(pattern),
 		goRegexp: bytes.NewBuffer(make([]byte, 0, 3*len(pattern)/2)),
@@ -59,109 +59,109 @@ func TransformRegExp(pattern string) (string, error) {
 	return parser.goRegexp.String(), err
 }
 
-func (self *_RegExp_parser) scan() {
-	for self.chr != -1 {
-		switch self.chr {
+func (p *regExpParser) scan() {
+	for p.chr != -1 {
+		switch p.chr {
 		case '\\':
-			self.read()
-			self.scanEscape(false)
+			p.read()
+			p.scanEscape(false)
 		case '(':
-			self.pass()
-			self.scanGroup()
+			p.pass()
+			p.scanGroup()
 		case '[':
-			self.pass()
-			self.scanBracket()
+			p.pass()
+			p.scanBracket()
 		case ')':
-			self.error(-1, "Unmatched ')'")
-			self.invalid = true
-			self.pass()
+			p.error(-1, "Unmatched ')'")
+			p.invalid = true
+			p.pass()
 		default:
-			self.pass()
+			p.pass()
 		}
 	}
 }
 
 // (...)
-func (self *_RegExp_parser) scanGroup() {
-	str := self.str[self.chrOffset:]
+func (p *regExpParser) scanGroup() {
+	str := p.str[p.chrOffset:]
 	if len(str) > 1 { // A possibility of (?= or (?!
 		if str[0] == '?' {
 			if str[1] == '=' || str[1] == '!' {
-				self.error(-1, "re2: Invalid (%s) <lookahead>", self.str[self.chrOffset:self.chrOffset+2])
+				p.error(-1, "re2: Invalid (%s) <lookahead>", p.str[p.chrOffset:p.chrOffset+2])
 			}
 		}
 	}
-	for self.chr != -1 && self.chr != ')' {
-		switch self.chr {
+	for p.chr != -1 && p.chr != ')' {
+		switch p.chr {
 		case '\\':
-			self.read()
-			self.scanEscape(false)
+			p.read()
+			p.scanEscape(false)
 		case '(':
-			self.pass()
-			self.scanGroup()
+			p.pass()
+			p.scanGroup()
 		case '[':
-			self.pass()
-			self.scanBracket()
+			p.pass()
+			p.scanBracket()
 		default:
-			self.pass()
+			p.pass()
 			continue
 		}
 	}
-	if self.chr != ')' {
-		self.error(-1, "Unterminated group")
-		self.invalid = true
+	if p.chr != ')' {
+		p.error(-1, "Unterminated group")
+		p.invalid = true
 		return
 	}
-	self.pass()
+	p.pass()
 }
 
-// [...]
-func (self *_RegExp_parser) scanBracket() {
-	for self.chr != -1 {
-		if self.chr == ']' {
+// [...].
+func (p *regExpParser) scanBracket() {
+	for p.chr != -1 {
+		if p.chr == ']' {
 			break
-		} else if self.chr == '\\' {
-			self.read()
-			self.scanEscape(true)
+		} else if p.chr == '\\' {
+			p.read()
+			p.scanEscape(true)
 			continue
 		}
-		self.pass()
+		p.pass()
 	}
-	if self.chr != ']' {
-		self.error(-1, "Unterminated character class")
-		self.invalid = true
+	if p.chr != ']' {
+		p.error(-1, "Unterminated character class")
+		p.invalid = true
 		return
 	}
-	self.pass()
+	p.pass()
 }
 
 // \...
-func (self *_RegExp_parser) scanEscape(inClass bool) {
-	offset := self.chrOffset
+func (p *regExpParser) scanEscape(inClass bool) {
+	offset := p.chrOffset
 
 	var length, base uint32
-	switch self.chr {
+	switch p.chr {
 	case '0', '1', '2', '3', '4', '5', '6', '7':
 		var value int64
 		size := 0
 		for {
-			digit := int64(digitValue(self.chr))
+			digit := int64(digitValue(p.chr))
 			if digit >= 8 {
 				// Not a valid digit
 				break
 			}
 			value = value*8 + digit
-			self.read()
-			size += 1
+			p.read()
+			size++
 		}
 		if size == 1 { // The number of characters read
-			_, err := self.goRegexp.Write([]byte{'\\', byte(value) + '0'})
+			_, err := p.goRegexp.Write([]byte{'\\', byte(value) + '0'})
 			if err != nil {
-				self.errors = append(self.errors, err)
+				p.errors = append(p.errors, err)
 			}
 			if value != 0 {
 				// An invalid backreference
-				self.error(-1, "re2: Invalid \\%d <backreference>", value)
+				p.error(-1, "re2: Invalid \\%d <backreference>", value)
 			}
 			return
 		}
@@ -172,49 +172,49 @@ func (self *_RegExp_parser) scanEscape(inClass bool) {
 			tmp = tmp[0:3]
 		}
 		tmp = strconv.AppendInt(tmp, value, 16)
-		_, err := self.goRegexp.Write(tmp)
+		_, err := p.goRegexp.Write(tmp)
 		if err != nil {
-			self.errors = append(self.errors, err)
+			p.errors = append(p.errors, err)
 		}
 		return
 
 	case '8', '9':
 		size := 0
 		for {
-			digit := digitValue(self.chr)
+			digit := digitValue(p.chr)
 			if digit >= 10 {
 				// Not a valid digit
 				break
 			}
-			self.read()
-			size += 1
+			p.read()
+			size++
 		}
-		err := self.goRegexp.WriteByte('\\')
+		err := p.goRegexp.WriteByte('\\')
 		if err != nil {
-			self.errors = append(self.errors, err)
+			p.errors = append(p.errors, err)
 		}
-		_, err = self.goRegexp.WriteString(self.str[offset:self.chrOffset])
+		_, err = p.goRegexp.WriteString(p.str[offset:p.chrOffset])
 		if err != nil {
-			self.errors = append(self.errors, err)
+			p.errors = append(p.errors, err)
 		}
-		self.error(-1, "re2: Invalid \\%s <backreference>", self.str[offset:self.chrOffset])
+		p.error(-1, "re2: Invalid \\%s <backreference>", p.str[offset:p.chrOffset])
 		return
 
 	case 'x':
-		self.read()
+		p.read()
 		length, base = 2, 16
 
 	case 'u':
-		self.read()
+		p.read()
 		length, base = 4, 16
 
 	case 'b':
 		if inClass {
-			_, err := self.goRegexp.Write([]byte{'\\', 'x', '0', '8'})
+			_, err := p.goRegexp.Write([]byte{'\\', 'x', '0', '8'})
 			if err != nil {
-				self.errors = append(self.errors, err)
+				p.errors = append(p.errors, err)
 			}
-			self.read()
+			p.read()
 			return
 		}
 		fallthrough
@@ -231,24 +231,25 @@ func (self *_RegExp_parser) scanEscape(inClass bool) {
 		fallthrough
 
 	case 'f', 'n', 'r', 't', 'v':
-		err := self.goRegexp.WriteByte('\\')
+		err := p.goRegexp.WriteByte('\\')
 		if err != nil {
-			self.errors = append(self.errors, err)
+			p.errors = append(p.errors, err)
 		}
-		self.pass()
+		p.pass()
 		return
 
 	case 'c':
-		self.read()
+		p.read()
 		var value int64
-		if 'a' <= self.chr && self.chr <= 'z' {
-			value = int64(self.chr) - 'a' + 1
-		} else if 'A' <= self.chr && self.chr <= 'Z' {
-			value = int64(self.chr) - 'A' + 1
-		} else {
-			err := self.goRegexp.WriteByte('c')
+		switch {
+		case 'a' <= p.chr && p.chr <= 'z':
+			value = int64(p.chr) - 'a' + 1
+		case 'A' <= p.chr && p.chr <= 'Z':
+			value = int64(p.chr) - 'A' + 1
+		default:
+			err := p.goRegexp.WriteByte('c')
 			if err != nil {
-				self.errors = append(self.errors, err)
+				p.errors = append(p.errors, err)
 			}
 			return
 		}
@@ -259,98 +260,93 @@ func (self *_RegExp_parser) scanEscape(inClass bool) {
 			tmp = tmp[0:3]
 		}
 		tmp = strconv.AppendInt(tmp, value, 16)
-		_, err := self.goRegexp.Write(tmp)
+		_, err := p.goRegexp.Write(tmp)
 		if err != nil {
-			self.errors = append(self.errors, err)
+			p.errors = append(p.errors, err)
 		}
-		self.read()
+		p.read()
 		return
 
 	default:
 		// $ is an identifier character, so we have to have
 		// a special case for it here
-		if self.chr == '$' || !isIdentifierPart(self.chr) {
+		if p.chr == '$' || !isIdentifierPart(p.chr) {
 			// A non-identifier character needs escaping
-			err := self.goRegexp.WriteByte('\\')
+			err := p.goRegexp.WriteByte('\\')
 			if err != nil {
-				self.errors = append(self.errors, err)
+				p.errors = append(p.errors, err)
 			}
-		} else {
+		} else { //nolint: staticcheck
 			// Unescape the character for re2
 		}
-		self.pass()
+		p.pass()
 		return
 	}
 
 	// Otherwise, we're a \u.... or \x...
-	valueOffset := self.chrOffset
+	valueOffset := p.chrOffset
 
 	var value uint32
-	{
-		length := length
-		for ; length > 0; length-- {
-			digit := uint32(digitValue(self.chr))
-			if digit >= base {
-				// Not a valid digit
-				goto skip
-			}
-			value = value*base + digit
-			self.read()
+	for length := length; length > 0; length-- {
+		digit := uint32(digitValue(p.chr))
+		if digit >= base {
+			// Not a valid digit
+			goto skip
 		}
+		value = value*base + digit
+		p.read()
 	}
 
-	if length == 4 {
-		_, err := self.goRegexp.Write([]byte{
+	switch length {
+	case 4:
+		if _, err := p.goRegexp.Write([]byte{
 			'\\',
 			'x',
 			'{',
-			self.str[valueOffset+0],
-			self.str[valueOffset+1],
-			self.str[valueOffset+2],
-			self.str[valueOffset+3],
+			p.str[valueOffset+0],
+			p.str[valueOffset+1],
+			p.str[valueOffset+2],
+			p.str[valueOffset+3],
 			'}',
-		})
-		if err != nil {
-			self.errors = append(self.errors, err)
+		}); err != nil {
+			p.errors = append(p.errors, err)
 		}
-	} else if length == 2 {
-		_, err := self.goRegexp.Write([]byte{
+	case 2:
+		if _, err := p.goRegexp.Write([]byte{
 			'\\',
 			'x',
-			self.str[valueOffset+0],
-			self.str[valueOffset+1],
-		})
-		if err != nil {
-			self.errors = append(self.errors, err)
+			p.str[valueOffset+0],
+			p.str[valueOffset+1],
+		}); err != nil {
+			p.errors = append(p.errors, err)
 		}
-	} else {
+	default:
 		// Should never, ever get here...
-		self.error(-1, "re2: Illegal branch in scanEscape")
+		p.error(-1, "re2: Illegal branch in scanEscape")
 		goto skip
 	}
 
 	return
 
 skip:
-	_, err := self.goRegexp.WriteString(self.str[offset:self.chrOffset])
+	_, err := p.goRegexp.WriteString(p.str[offset:p.chrOffset])
 	if err != nil {
-		self.errors = append(self.errors, err)
+		p.errors = append(p.errors, err)
 	}
 }
 
-func (self *_RegExp_parser) pass() {
-	if self.chr != -1 {
-		_, err := self.goRegexp.WriteRune(self.chr)
+func (p *regExpParser) pass() {
+	if p.chr != -1 {
+		_, err := p.goRegexp.WriteRune(p.chr)
 		if err != nil {
-			self.errors = append(self.errors, err)
+			p.errors = append(p.errors, err)
 		}
 	}
-	self.read()
+	p.read()
 }
 
 // TODO Better error reporting, use the offset, etc.
-func (self *_RegExp_parser) error(offset int, msg string, msgValues ...interface{}) error {
+func (p *regExpParser) error(offset int, msg string, msgValues ...interface{}) { //nolint: unparam
 	err := fmt.Errorf(msg, msgValues...)
-	self.errors = append(self.errors, err)
-	return err
+	p.errors = append(p.errors, err)
 }

@@ -77,29 +77,29 @@ func newTester() *_tester {
 	}
 }
 
-func (self *_tester) Get(name string) (Value, error) {
-	return self.vm.Get(name)
+func (te *_tester) Get(name string) (Value, error) {
+	return te.vm.Get(name)
 }
 
-func (self *_tester) Set(name string, value interface{}) Value {
-	err := self.vm.Set(name, value)
+func (te *_tester) Set(name string, value interface{}) Value {
+	err := te.vm.Set(name, value)
 	is(err, nil)
 	if err != nil {
 		terst.Caller().T().FailNow()
 	}
-	return self.vm.getValue(name)
+	return te.vm.getValue(name)
 }
 
-func (self *_tester) Run(src interface{}) (Value, error) {
-	return self.vm.Run(src)
+func (te *_tester) Run(src interface{}) (Value, error) {
+	return te.vm.Run(src)
 }
 
-func (self *_tester) test(name string, expect ...interface{}) Value {
-	vm := self.vm
+func (te *_tester) test(name string, expect ...interface{}) Value {
+	vm := te.vm
 	raise := false
 	defer func() {
 		if caught := recover(); caught != nil {
-			if exception, ok := caught.(*_exception); ok {
+			if exception, ok := caught.(*exception); ok {
 				caught = exception.eject()
 			}
 			if raise {
@@ -124,7 +124,7 @@ func (self *_tester) test(name string, expect ...interface{}) Value {
 			source = source[6:]
 			source = strings.TrimLeft(source, " ")
 		}
-		value, err = vm.runtime.cmpl_run(source, nil)
+		value, err = vm.runtime.cmplRun(source, nil)
 		if err != nil {
 			panic(err)
 		}

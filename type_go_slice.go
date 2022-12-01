@@ -5,33 +5,32 @@ import (
 	"strconv"
 )
 
-func (runtime *_runtime) newGoSliceObject(value reflect.Value) *_object {
-	self := runtime.newObject()
-	self.class = classGoSlice
-	self.objectClass = _classGoSlice
-	self.value = _newGoSliceObject(value)
-	return self
+func (rt *runtime) newGoSliceObject(value reflect.Value) *object {
+	o := rt.newObject()
+	o.class = classGoSliceName
+	o.objectClass = classGoSlice
+	o.value = newGoSliceObject(value)
+	return o
 }
 
-type _goSliceObject struct {
+type goSliceObject struct {
 	value reflect.Value
 }
 
-func _newGoSliceObject(value reflect.Value) *_goSliceObject {
-	self := &_goSliceObject{
+func newGoSliceObject(value reflect.Value) *goSliceObject {
+	return &goSliceObject{
 		value: value,
 	}
-	return self
 }
 
-func (self _goSliceObject) getValue(index int64) (reflect.Value, bool) {
-	if index < int64(self.value.Len()) {
-		return self.value.Index(int(index)), true
+func (o goSliceObject) getValue(index int64) (reflect.Value, bool) {
+	if index < int64(o.value.Len()) {
+		return o.value.Index(int(index)), true
 	}
 	return reflect.Value{}, false
 }
 
-func (self *_goSliceObject) setLength(value Value) {
+func (o *goSliceObject) setLength(value Value) {
 	want, err := value.ToInteger()
 	if err != nil {
 		panic(err)
@@ -39,30 +38,30 @@ func (self *_goSliceObject) setLength(value Value) {
 
 	wantInt := int(want)
 	switch {
-	case wantInt == self.value.Len():
+	case wantInt == o.value.Len():
 		// No change needed.
-	case wantInt < self.value.Cap():
+	case wantInt < o.value.Cap():
 		// Fits in current capacity.
-		self.value.SetLen(wantInt)
+		o.value.SetLen(wantInt)
 	default:
 		// Needs expanding.
-		newSlice := reflect.MakeSlice(self.value.Type(), wantInt, wantInt)
-		reflect.Copy(newSlice, self.value)
-		self.value = newSlice
+		newSlice := reflect.MakeSlice(o.value.Type(), wantInt, wantInt)
+		reflect.Copy(newSlice, o.value)
+		o.value = newSlice
 	}
 }
 
-func (self *_goSliceObject) setValue(index int64, value Value) bool {
-	reflectValue, err := value.toReflectValue(self.value.Type().Elem())
+func (o *goSliceObject) setValue(index int64, value Value) bool {
+	reflectValue, err := value.toReflectValue(o.value.Type().Elem())
 	if err != nil {
 		panic(err)
 	}
 
-	indexValue, exists := self.getValue(index)
+	indexValue, exists := o.getValue(index)
 	if !exists {
-		if int64(self.value.Len()) == index {
+		if int64(o.value.Len()) == index {
 			// Trying to append e.g. slice.push(...), allow it.
-			self.value = reflect.Append(self.value, reflectValue)
+			o.value = reflect.Append(o.value, reflectValue)
 			return true
 		}
 		return false
@@ -72,83 +71,83 @@ func (self *_goSliceObject) setValue(index int64, value Value) bool {
 	return true
 }
 
-func goSliceGetOwnProperty(self *_object, name string) *_property {
+func goSliceGetOwnProperty(obj *object, name string) *property {
 	// length
 	if name == propertyLength {
-		return &_property{
-			value: toValue(self.value.(*_goSliceObject).value.Len()),
-			mode:  0110,
+		return &property{
+			value: toValue(obj.value.(*goSliceObject).value.Len()),
+			mode:  0o110,
 		}
 	}
 
 	// .0, .1, .2, ...
 	if index := stringToArrayIndex(name); index >= 0 {
 		value := Value{}
-		reflectValue, exists := self.value.(*_goSliceObject).getValue(index)
+		reflectValue, exists := obj.value.(*goSliceObject).getValue(index)
 		if exists {
-			value = self.runtime.toValue(reflectValue.Interface())
+			value = obj.runtime.toValue(reflectValue.Interface())
 		}
-		return &_property{
+		return &property{
 			value: value,
-			mode:  0110,
+			mode:  0o110,
 		}
 	}
 
 	// Other methods
-	if method := self.value.(*_goSliceObject).value.MethodByName(name); method.IsValid() {
-		return &_property{
-			value: self.runtime.toValue(method.Interface()),
-			mode:  0110,
+	if method := obj.value.(*goSliceObject).value.MethodByName(name); method.IsValid() {
+		return &property{
+			value: obj.runtime.toValue(method.Interface()),
+			mode:  0o110,
 		}
 	}
 
-	return objectGetOwnProperty(self, name)
+	return objectGetOwnProperty(obj, name)
 }
 
-func goSliceEnumerate(self *_object, all bool, each func(string) bool) {
-	object := self.value.(*_goSliceObject)
+func goSliceEnumerate(obj *object, all bool, each func(string) bool) {
+	goObj := obj.value.(*goSliceObject)
 	// .0, .1, .2, ...
 
-	for index, length := 0, object.value.Len(); index < length; index++ {
+	for index, length := 0, goObj.value.Len(); index < length; index++ {
 		name := strconv.FormatInt(int64(index), 10)
 		if !each(name) {
 			return
 		}
 	}
 
-	objectEnumerate(self, all, each)
+	objectEnumerate(obj, all, each)
 }
 
-func goSliceDefineOwnProperty(self *_object, name string, descriptor _property, throw bool) bool {
+func goSliceDefineOwnProperty(obj *object, name string, descriptor property, throw bool) bool {
 	if name == propertyLength {
-		self.value.(*_goSliceObject).setLength(descriptor.value.(Value))
+		obj.value.(*goSliceObject).setLength(descriptor.value.(Value))
 		return true
 	} else if index := stringToArrayIndex(name); index >= 0 {
-		if self.value.(*_goSliceObject).setValue(index, descriptor.value.(Value)) {
+		if obj.value.(*goSliceObject).setValue(index, descriptor.value.(Value)) {
 			return true
 		}
-		return self.runtime.typeErrorResult(throw)
+		return obj.runtime.typeErrorResult(throw)
 	}
-	return objectDefineOwnProperty(self, name, descriptor, throw)
+	return objectDefineOwnProperty(obj, name, descriptor, throw)
 }
 
-func goSliceDelete(self *_object, name string, throw bool) bool {
+func goSliceDelete(obj *object, name string, throw bool) bool {
 	// length
 	if name == propertyLength {
-		return self.runtime.typeErrorResult(throw)
+		return obj.runtime.typeErrorResult(throw)
 	}
 
 	// .0, .1, .2, ...
 	index := stringToArrayIndex(name)
 	if index >= 0 {
-		object := self.value.(*_goSliceObject)
-		indexValue, exists := object.getValue(index)
+		goObj := obj.value.(*goSliceObject)
+		indexValue, exists := goObj.getValue(index)
 		if exists {
-			indexValue.Set(reflect.Zero(object.value.Type().Elem()))
+			indexValue.Set(reflect.Zero(goObj.value.Type().Elem()))
 			return true
 		}
-		return self.runtime.typeErrorResult(throw)
+		return obj.runtime.typeErrorResult(throw)
 	}
 
-	return self.delete(name, throw)
+	return obj.delete(name, throw)
 }

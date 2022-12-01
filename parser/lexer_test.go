@@ -8,13 +8,15 @@ import (
 	"github.com/robertkrimen/otto/token"
 )
 
-var tt = terst.Terst
-var is = terst.Is
+var (
+	tt = terst.Terst
+	is = terst.Is
+)
 
 func TestLexer(t *testing.T) {
 	tt(t, func() {
 		setup := func(src string) *_parser {
-			parser := _newParser("", src, 1, nil)
+			parser := newParser("", src, 1, nil)
 			return parser
 		}
 
