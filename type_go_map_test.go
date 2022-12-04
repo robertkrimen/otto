@@ -17,7 +17,7 @@ func (s GoMapTest) Join() string {
 	// All of this is meant to ensure that the test is predictable.
 	keys := make([]string, len(s))
 	i := 0
-	for key, _ := range s {
+	for key := range s {
 		keys[i] = key
 		i++
 	}

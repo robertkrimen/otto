@@ -14,37 +14,33 @@ func formatForConsole(argumentList []Value) string {
 	return strings.Join(output, " ")
 }
 
-func builtinConsole_log(call FunctionCall) Value {
+func builtinConsoleLog(call FunctionCall) Value {
 	fmt.Fprintln(os.Stdout, formatForConsole(call.ArgumentList))
 	return Value{}
 }
 
-func builtinConsole_error(call FunctionCall) Value {
+func builtinConsoleError(call FunctionCall) Value {
 	fmt.Fprintln(os.Stdout, formatForConsole(call.ArgumentList))
 	return Value{}
 }
 
 // Nothing happens.
-func builtinConsole_dir(call FunctionCall) Value {
+func builtinConsoleDir(call FunctionCall) Value {
 	return Value{}
 }
 
-func builtinConsole_time(call FunctionCall) Value {
+func builtinConsoleTime(call FunctionCall) Value {
 	return Value{}
 }
 
-func builtinConsole_timeEnd(call FunctionCall) Value {
+func builtinConsoleTimeEnd(call FunctionCall) Value {
 	return Value{}
 }
 
-func builtinConsole_trace(call FunctionCall) Value {
+func builtinConsoleTrace(call FunctionCall) Value {
 	return Value{}
 }
 
-func builtinConsole_assert(call FunctionCall) Value {
+func builtinConsoleAssert(call FunctionCall) Value {
 	return Value{}
-}
-
-func (runtime *_runtime) newConsole() *_object {
-	return newConsoleObject(runtime)
 }

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/robertkrimen/otto/ast"
+	"github.com/stretchr/testify/require"
 )
 
 func marshal(name string, children ...interface{}) interface{} {
@@ -21,18 +22,18 @@ func marshal(name string, children ...interface{}) interface{} {
 			name: children[0],
 		}
 	}
-	map_ := map[string]interface{}{}
+	ret := map[string]interface{}{}
 	length := len(children) / 2
 	for i := 0; i < length; i++ {
 		name := children[i*2].(string)
 		value := children[i*2+1]
-		map_[name] = value
+		ret[name] = value
 	}
 	if name == "" {
-		return map_
+		return ret
 	}
 	return map[string]interface{}{
-		name: map_,
+		name: ret,
 	}
 }
 
@@ -130,14 +131,14 @@ func testMarshalNode(node interface{}) interface{} {
 		return marshal("Identifier", node.Name)
 
 	case *ast.IfStatement:
-		if_ := marshal("",
+		ret := marshal("",
 			"Test", testMarshalNode(node.Test),
 			"Consequent", testMarshalNode(node.Consequent),
 		).(map[string]interface{})
 		if node.Alternate != nil {
-			if_["Alternate"] = testMarshalNode(node.Alternate)
+			ret["Alternate"] = testMarshalNode(node.Alternate)
 		}
-		return marshal("If", if_)
+		return marshal("If", ret)
 
 	case *ast.LabelledStatement:
 		return marshal("Label",
@@ -199,8 +200,10 @@ func TestParserAST(t *testing.T) {
 			is(err, nil)
 			haveOutput := testMarshal(program)
 			tmp0, tmp1 := bytes.Buffer{}, bytes.Buffer{}
-			json.Indent(&tmp0, []byte(haveOutput), "\t\t", "   ")
-			json.Indent(&tmp1, []byte(wantOutput), "\t\t", "   ")
+			err = json.Indent(&tmp0, []byte(haveOutput), "\t\t", "   ")
+			require.NoError(t, err)
+			err = json.Indent(&tmp1, []byte(wantOutput), "\t\t", "   ")
+			require.NoError(t, err)
 			is("\n\t\t"+tmp0.String(), "\n\t\t"+tmp1.String())
 		}
 

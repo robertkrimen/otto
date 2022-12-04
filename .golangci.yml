@@ -4,6 +4,7 @@ run:
     - terst
   skip-files:
     - dbg/dbg.go
+    - token/token_const.go
 
 linters-settings:
   govet:
@@ -11,25 +12,17 @@ linters-settings:
   goconst:
     min-len: 2
     min-occurrences: 4
+  revive:
+    enable-all-rules: false
+    rules:
+    - name: var-naming
+      disabled: true
 
 linters:
   enable-all: true
   disable:
     - dupl
-    - gas
-    - errcheck
-    - gofmt
-    - gosimple
-    - interfacer
-    - megacheck
-    - maligned
-    - structcheck
-    - staticcheck
-    - unconvert
-    - unparam
-    - varcheck
     - lll
-    - prealloc
     - gochecknoglobals
     - gochecknoinits
     - scopelint
@@ -39,35 +32,23 @@ linters:
     - goerr113
     - wsl
     - nlreturn
-    - tagliatelle
     - gomnd
     - paralleltest
     - wrapcheck
     - testpackage
-    - golint
-    - gofumpt
-    - forbidigo
     - gocognit
-    - gocritic
-    - godot
-    - nakedret
     - nestif
-    - revive
-    - errorlint
     - exhaustive
     - forcetypeassert
-    - ifshort
-    - stylecheck
     - gocyclo
-    - misspell
     - cyclop
     - varnamelen
-    - nonamedreturns
     - maintidx
     - ireturn
     - exhaustruct
     - nosnakecase
-    - deadcode
     - dupword
-    - gci
 
+issues:
+  exclude-use-default: false
+  max-same-issues: 0

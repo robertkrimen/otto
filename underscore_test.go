@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/robertkrimen/otto/terst"
@@ -11,31 +12,32 @@ func init() {
 	underscore.Disable()
 }
 
-// A persistent handle for the underscore tester
-// We do not run underscore tests in parallel, so it is okay to stash globally
-// (Maybe use sync.Pool in the future...)
-var tester_ *_tester
+var (
+	// A persistent handle for the underscore tester
+	// We do not run underscore tests in parallel, so it is okay to stash globally.
+	tester *_tester
+	once   sync.Once
+)
 
-// A tester for underscore: test_ => test(underscore) :)
-func test_(arguments ...interface{}) (func(string, ...interface{}) Value, *_tester) {
-	tester := tester_
-	if tester == nil {
+// A tester for underscore: underscoreTest => test(underscore) :).
+func underscoreTest() func(string, ...interface{}) Value {
+	setTester := func() {
 		tester = newTester()
 		tester.underscore() // Load underscore and testing shim, etc.
-		tester_ = tester
 	}
+	once.Do(setTester)
 
-	return tester.test, tester
+	return tester.test
 }
 
-func (self *_tester) underscore() {
-	vm := self.vm
+func (te *_tester) underscore() {
+	vm := te.vm
 	_, err := vm.Run(underscore.Source())
 	if err != nil {
 		panic(err)
 	}
 
-	vm.Set("assert", func(call FunctionCall) Value {
+	err = vm.Set("assert", func(call FunctionCall) Value {
 		if !call.Argument(0).bool() {
 			message := "Assertion failed"
 			if len(call.ArgumentList) > 1 {
@@ -48,8 +50,11 @@ func (self *_tester) underscore() {
 		}
 		return trueValue
 	})
+	if err != nil {
+		panic(err)
+	}
 
-	vm.Run(`
+	_, err = vm.Run(`
         var templateSettings;
 
         function _setup() {
@@ -136,11 +141,14 @@ func (self *_tester) underscore() {
             assert(_.isEqual(a, b), emit)
         }
     `)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func Test_underscore(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
             _.map([1, 2, 3], function(value){

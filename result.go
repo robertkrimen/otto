@@ -1,28 +1,28 @@
 package otto
 
-type _resultKind int
+type resultKind int
 
 const (
-	_ _resultKind = iota
+	_ resultKind = iota
 	resultReturn
 	resultBreak
 	resultContinue
 )
 
-type _result struct {
-	kind   _resultKind
+type result struct {
+	kind   resultKind
 	value  Value
 	target string
 }
 
-func newReturnResult(value Value) _result {
-	return _result{resultReturn, value, ""}
+func newReturnResult(value Value) result {
+	return result{resultReturn, value, ""}
 }
 
-func newContinueResult(target string) _result {
-	return _result{resultContinue, emptyValue, target}
+func newContinueResult(target string) result {
+	return result{resultContinue, emptyValue, target}
 }
 
-func newBreakResult(target string) _result {
-	return _result{resultBreak, emptyValue, target}
+func newBreakResult(target string) result {
+	return result{resultBreak, emptyValue, target}
 }

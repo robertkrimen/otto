@@ -4,10 +4,10 @@ import (
 	"testing"
 )
 
-// bind
+// bind.
 func Test_underscore_functions_0(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("bind", function() {
@@ -48,10 +48,10 @@ func Test_underscore_functions_0(t *testing.T) {
 	})
 }
 
-// partial
+// partial.
 func Test_underscore_functions_1(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("partial", function() {
@@ -65,10 +65,10 @@ func Test_underscore_functions_1(t *testing.T) {
 	})
 }
 
-// bindAll
+// bindAll.
 func Test_underscore_functions_2(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("bindAll", function() {
@@ -87,10 +87,10 @@ func Test_underscore_functions_2(t *testing.T) {
 	})
 }
 
-// memoize
+// memoize.
 func Test_underscore_functions_3(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("memoize", function() {
@@ -112,10 +112,10 @@ func Test_underscore_functions_3(t *testing.T) {
 	})
 }
 
-// once
+// once.
 func Test_underscore_functions_4(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("once", function() {
@@ -129,10 +129,10 @@ func Test_underscore_functions_4(t *testing.T) {
 	})
 }
 
-// wrap
+// wrap.
 func Test_underscore_functions_5(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("wrap", function() {
@@ -154,10 +154,10 @@ func Test_underscore_functions_5(t *testing.T) {
 	})
 }
 
-// compose
+// compose.
 func Test_underscore_functions_6(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("compose", function() {
@@ -173,10 +173,10 @@ func Test_underscore_functions_6(t *testing.T) {
 	})
 }
 
-// after
+// after.
 func Test_underscore_functions_7(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("after", function() {

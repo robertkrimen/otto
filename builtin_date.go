@@ -9,114 +9,111 @@ import (
 
 const (
 	// TODO Be like V8?
-	// builtinDate_goDateTimeLayout = "Mon Jan 2 2006 15:04:05 GMT-0700 (MST)"
-	builtinDate_goDateTimeLayout = Time.RFC1123 // "Mon, 02 Jan 2006 15:04:05 MST"
-	builtinDate_goDateLayout     = "Mon, 02 Jan 2006"
-	builtinDate_goTimeLayout     = "15:04:05 MST"
+	// builtinDateDateTimeLayout = "Mon Jan 2 2006 15:04:05 GMT-0700 (MST)".
+	builtinDateDateTimeLayout = Time.RFC1123 // "Mon, 02 Jan 2006 15:04:05 MST"
+	builtinDateDateLayout     = "Mon, 02 Jan 2006"
+	builtinDateTimeLayout     = "15:04:05 MST"
 )
 
-var (
-	// utcTimeZone is the time zone used for UTC calculations.
-	// It is GMT not UTC as that's what Javascript does because toUTCString is
-	// actually an alias to toGMTString.
-	utcTimeZone = Time.FixedZone("GMT", 0)
-)
+// utcTimeZone is the time zone used for UTC calculations.
+// It is GMT not UTC as that's what Javascript does because toUTCString is
+// actually an alias to toGMTString.
+var utcTimeZone = Time.FixedZone("GMT", 0)
 
 func builtinDate(call FunctionCall) Value {
-	date := &_dateObject{}
+	date := &dateObject{}
 	date.Set(newDateTime([]Value{}, Time.Local))
-	return toValue_string(date.Time().Format(builtinDate_goDateTimeLayout))
+	return stringValue(date.Time().Format(builtinDateDateTimeLayout))
 }
 
-func builtinNewDate(self *_object, argumentList []Value) Value {
-	return toValue_object(self.runtime.newDate(newDateTime(argumentList, Time.Local)))
+func builtinNewDate(obj *object, argumentList []Value) Value {
+	return objectValue(obj.runtime.newDate(newDateTime(argumentList, Time.Local)))
 }
 
-func builtinDate_toString(call FunctionCall) Value {
+func builtinDateToString(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
-		return toValue_string("Invalid Date")
+		return stringValue("Invalid Date")
 	}
-	return toValue_string(date.Time().Local().Format(builtinDate_goDateTimeLayout))
+	return stringValue(date.Time().Local().Format(builtinDateDateTimeLayout))
 }
 
-func builtinDate_toDateString(call FunctionCall) Value {
+func builtinDateToDateString(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
-		return toValue_string("Invalid Date")
+		return stringValue("Invalid Date")
 	}
-	return toValue_string(date.Time().Local().Format(builtinDate_goDateLayout))
+	return stringValue(date.Time().Local().Format(builtinDateDateLayout))
 }
 
-func builtinDate_toTimeString(call FunctionCall) Value {
+func builtinDateToTimeString(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
-		return toValue_string("Invalid Date")
+		return stringValue("Invalid Date")
 	}
-	return toValue_string(date.Time().Local().Format(builtinDate_goTimeLayout))
+	return stringValue(date.Time().Local().Format(builtinDateTimeLayout))
 }
 
-func builtinDate_toUTCString(call FunctionCall) Value {
+func builtinDateToUTCString(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
-		return toValue_string("Invalid Date")
+		return stringValue("Invalid Date")
 	}
-	return toValue_string(date.Time().In(utcTimeZone).Format(builtinDate_goDateTimeLayout))
+	return stringValue(date.Time().In(utcTimeZone).Format(builtinDateDateTimeLayout))
 }
 
-func builtinDate_toISOString(call FunctionCall) Value {
+func builtinDateToISOString(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
-		return toValue_string("Invalid Date")
+		return stringValue("Invalid Date")
 	}
-	return toValue_string(date.Time().Format("2006-01-02T15:04:05.000Z"))
+	return stringValue(date.Time().Format("2006-01-02T15:04:05.000Z"))
 }
 
-func builtinDate_toJSON(call FunctionCall) Value {
-	object := call.thisObject()
-	value := object.DefaultValue(defaultValueHintNumber) // FIXME object.primitiveNumberValue
-	{                                                    // FIXME value.isFinite
-		value := value.float64()
-		if math.IsNaN(value) || math.IsInf(value, 0) {
-			return nullValue
-		}
+func builtinDateToJSON(call FunctionCall) Value {
+	obj := call.thisObject()
+	value := obj.DefaultValue(defaultValueHintNumber) // FIXME object.primitiveNumberValue
+	// FIXME fv.isFinite
+	if fv := value.float64(); math.IsNaN(fv) || math.IsInf(fv, 0) {
+		return nullValue
 	}
-	toISOString := object.get("toISOString")
+
+	toISOString := obj.get("toISOString")
 	if !toISOString.isCallable() {
 		// FIXME
 		panic(call.runtime.panicTypeError())
 	}
-	return toISOString.call(call.runtime, toValue_object(object), []Value{})
+	return toISOString.call(call.runtime, objectValue(obj), []Value{})
 }
 
-func builtinDate_toGMTString(call FunctionCall) Value {
+func builtinDateToGMTString(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
-		return toValue_string("Invalid Date")
+		return stringValue("Invalid Date")
 	}
-	return toValue_string(date.Time().Format("Mon, 02 Jan 2006 15:04:05 GMT"))
+	return stringValue(date.Time().Format("Mon, 02 Jan 2006 15:04:05 GMT"))
 }
 
-func builtinDate_getTime(call FunctionCall) Value {
+func builtinDateGetTime(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
 	// We do this (convert away from a float) so the user
 	// does not get something back in exponential notation
-	return toValue_int64(int64(date.Epoch()))
+	return int64Value(date.Epoch())
 }
 
-func builtinDate_setTime(call FunctionCall) Value {
-	object := call.thisObject()
+func builtinDateSetTime(call FunctionCall) Value {
+	obj := call.thisObject()
 	date := dateObjectOf(call.runtime, call.thisObject())
 	date.Set(call.Argument(0).float64())
-	object.value = date
+	obj.value = date
 	return date.Value()
 }
 
-func _builtinDate_beforeSet(call FunctionCall, argumentLimit int, timeLocal bool) (*_object, *_dateObject, *_ecmaTime, []int) {
-	object := call.thisObject()
+func builtinDateBeforeSet(call FunctionCall, argumentLimit int, timeLocal bool) (*object, *dateObject, *ecmaTime, []int) {
+	obj := call.thisObject()
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return nil, nil, nil, nil
@@ -127,7 +124,7 @@ func _builtinDate_beforeSet(call FunctionCall, argumentLimit int, timeLocal bool
 	}
 
 	if argumentLimit == 0 {
-		object.value = invalidDateObject
+		obj.value = invalidDateObject
 		return nil, nil, nil, nil
 	}
 
@@ -138,7 +135,7 @@ func _builtinDate_beforeSet(call FunctionCall, argumentLimit int, timeLocal bool
 		switch nm.kind {
 		case numberInteger, numberFloat:
 		default:
-			object.value = invalidDateObject
+			obj.value = invalidDateObject
 			return nil, nil, nil, nil
 		}
 		valueList[index] = int(nm.int64)
@@ -147,52 +144,52 @@ func _builtinDate_beforeSet(call FunctionCall, argumentLimit int, timeLocal bool
 	if timeLocal {
 		baseTime = baseTime.Local()
 	}
-	ecmaTime := ecmaTime(baseTime)
-	return object, &date, &ecmaTime, valueList
+	ecmaTime := newEcmaTime(baseTime)
+	return obj, &date, &ecmaTime, valueList
 }
 
-func builtinDate_parse(call FunctionCall) Value {
+func builtinDateParse(call FunctionCall) Value {
 	date := call.Argument(0).string()
-	return toValue_float64(dateParse(date))
+	return float64Value(dateParse(date))
 }
 
-func builtinDate_UTC(call FunctionCall) Value {
-	return toValue_float64(newDateTime(call.ArgumentList, Time.UTC))
+func builtinDateUTC(call FunctionCall) Value {
+	return float64Value(newDateTime(call.ArgumentList, Time.UTC))
 }
 
-func builtinDate_now(call FunctionCall) Value {
+func builtinDateNow(call FunctionCall) Value {
 	call.ArgumentList = []Value(nil)
-	return builtinDate_UTC(call)
+	return builtinDateUTC(call)
 }
 
-// This is a placeholder
-func builtinDate_toLocaleString(call FunctionCall) Value {
+// This is a placeholder.
+func builtinDateToLocaleString(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
-		return toValue_string("Invalid Date")
+		return stringValue("Invalid Date")
 	}
-	return toValue_string(date.Time().Local().Format("2006-01-02 15:04:05"))
+	return stringValue(date.Time().Local().Format("2006-01-02 15:04:05"))
 }
 
-// This is a placeholder
-func builtinDate_toLocaleDateString(call FunctionCall) Value {
+// This is a placeholder.
+func builtinDateToLocaleDateString(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
-		return toValue_string("Invalid Date")
+		return stringValue("Invalid Date")
 	}
-	return toValue_string(date.Time().Local().Format("2006-01-02"))
+	return stringValue(date.Time().Local().Format("2006-01-02"))
 }
 
-// This is a placeholder
-func builtinDate_toLocaleTimeString(call FunctionCall) Value {
+// This is a placeholder.
+func builtinDateToLocaleTimeString(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
-		return toValue_string("Invalid Date")
+		return stringValue("Invalid Date")
 	}
-	return toValue_string(date.Time().Local().Format("15:04:05"))
+	return stringValue(date.Time().Local().Format("15:04:05"))
 }
 
-func builtinDate_valueOf(call FunctionCall) Value {
+func builtinDateValueOf(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
@@ -200,148 +197,148 @@ func builtinDate_valueOf(call FunctionCall) Value {
 	return date.Value()
 }
 
-func builtinDate_getYear(call FunctionCall) Value {
+func builtinDateGetYear(call FunctionCall) Value {
 	// Will throw a TypeError is ThisObject is nil or
 	// does not have Class of "Date"
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Local().Year() - 1900)
+	return intValue(date.Time().Local().Year() - 1900)
 }
 
-func builtinDate_getFullYear(call FunctionCall) Value {
+func builtinDateGetFullYear(call FunctionCall) Value {
 	// Will throw a TypeError is ThisObject is nil or
 	// does not have Class of "Date"
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Local().Year())
+	return intValue(date.Time().Local().Year())
 }
 
-func builtinDate_getUTCFullYear(call FunctionCall) Value {
+func builtinDateGetUTCFullYear(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Year())
+	return intValue(date.Time().Year())
 }
 
-func builtinDate_getMonth(call FunctionCall) Value {
+func builtinDateGetMonth(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(dateFromGoMonth(date.Time().Local().Month()))
+	return intValue(dateFromGoMonth(date.Time().Local().Month()))
 }
 
-func builtinDate_getUTCMonth(call FunctionCall) Value {
+func builtinDateGetUTCMonth(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(dateFromGoMonth(date.Time().Month()))
+	return intValue(dateFromGoMonth(date.Time().Month()))
 }
 
-func builtinDate_getDate(call FunctionCall) Value {
+func builtinDateGetDate(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Local().Day())
+	return intValue(date.Time().Local().Day())
 }
 
-func builtinDate_getUTCDate(call FunctionCall) Value {
+func builtinDateGetUTCDate(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Day())
+	return intValue(date.Time().Day())
 }
 
-func builtinDate_getDay(call FunctionCall) Value {
+func builtinDateGetDay(call FunctionCall) Value {
 	// Actually day of the week
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(dateFromGoDay(date.Time().Local().Weekday()))
+	return intValue(dateFromGoDay(date.Time().Local().Weekday()))
 }
 
-func builtinDate_getUTCDay(call FunctionCall) Value {
+func builtinDateGetUTCDay(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(dateFromGoDay(date.Time().Weekday()))
+	return intValue(dateFromGoDay(date.Time().Weekday()))
 }
 
-func builtinDate_getHours(call FunctionCall) Value {
+func builtinDateGetHours(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Local().Hour())
+	return intValue(date.Time().Local().Hour())
 }
 
-func builtinDate_getUTCHours(call FunctionCall) Value {
+func builtinDateGetUTCHours(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Hour())
+	return intValue(date.Time().Hour())
 }
 
-func builtinDate_getMinutes(call FunctionCall) Value {
+func builtinDateGetMinutes(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Local().Minute())
+	return intValue(date.Time().Local().Minute())
 }
 
-func builtinDate_getUTCMinutes(call FunctionCall) Value {
+func builtinDateGetUTCMinutes(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Minute())
+	return intValue(date.Time().Minute())
 }
 
-func builtinDate_getSeconds(call FunctionCall) Value {
+func builtinDateGetSeconds(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Local().Second())
+	return intValue(date.Time().Local().Second())
 }
 
-func builtinDate_getUTCSeconds(call FunctionCall) Value {
+func builtinDateGetUTCSeconds(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Second())
+	return intValue(date.Time().Second())
 }
 
-func builtinDate_getMilliseconds(call FunctionCall) Value {
+func builtinDateGetMilliseconds(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Local().Nanosecond() / (100 * 100 * 100))
+	return intValue(date.Time().Local().Nanosecond() / (100 * 100 * 100))
 }
 
-func builtinDate_getUTCMilliseconds(call FunctionCall) Value {
+func builtinDateGetUTCMilliseconds(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
 	}
-	return toValue_int(date.Time().Nanosecond() / (100 * 100 * 100))
+	return intValue(date.Time().Nanosecond() / (100 * 100 * 100))
 }
 
-func builtinDate_getTimezoneOffset(call FunctionCall) Value {
+func builtinDateGetTimezoneOffset(call FunctionCall) Value {
 	date := dateObjectOf(call.runtime, call.thisObject())
 	if date.isNaN {
 		return NaNValue()
@@ -358,11 +355,11 @@ func builtinDate_getTimezoneOffset(call FunctionCall) Value {
 		timeLocal.Nanosecond(),
 		Time.UTC,
 	)
-	return toValue_float64(date.Time().Sub(timeLocalAsUTC).Seconds() / 60)
+	return float64Value(date.Time().Sub(timeLocalAsUTC).Seconds() / 60)
 }
 
-func builtinDate_setMilliseconds(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 1, true)
+func builtinDateSetMilliseconds(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 1, true)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -370,12 +367,12 @@ func builtinDate_setMilliseconds(call FunctionCall) Value {
 	ecmaTime.millisecond = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setUTCMilliseconds(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 1, false)
+func builtinDateSetUTCMilliseconds(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 1, false)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -383,12 +380,12 @@ func builtinDate_setUTCMilliseconds(call FunctionCall) Value {
 	ecmaTime.millisecond = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setSeconds(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 2, true)
+func builtinDateSetSeconds(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 2, true)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -399,12 +396,12 @@ func builtinDate_setSeconds(call FunctionCall) Value {
 	ecmaTime.second = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setUTCSeconds(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 2, false)
+func builtinDateSetUTCSeconds(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 2, false)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -415,12 +412,12 @@ func builtinDate_setUTCSeconds(call FunctionCall) Value {
 	ecmaTime.second = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setMinutes(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 3, true)
+func builtinDateSetMinutes(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 3, true)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -434,12 +431,12 @@ func builtinDate_setMinutes(call FunctionCall) Value {
 	ecmaTime.minute = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setUTCMinutes(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 3, false)
+func builtinDateSetUTCMinutes(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 3, false)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -453,58 +450,58 @@ func builtinDate_setUTCMinutes(call FunctionCall) Value {
 	ecmaTime.minute = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setHours(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 4, true)
+func builtinDateSetHours(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 4, true)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
 
-	if len(value) > 3 {
+	switch {
+	case len(value) > 3:
 		ecmaTime.millisecond = value[3]
+		fallthrough
+	case len(value) > 2:
 		ecmaTime.second = value[2]
-		ecmaTime.minute = value[1]
-	} else if len(value) > 2 {
-		ecmaTime.second = value[2]
-		ecmaTime.minute = value[1]
-	} else if len(value) > 1 {
+		fallthrough
+	case len(value) > 1:
 		ecmaTime.minute = value[1]
 	}
 	ecmaTime.hour = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setUTCHours(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 4, false)
+func builtinDateSetUTCHours(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 4, false)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
 
-	if len(value) > 3 {
+	switch {
+	case len(value) > 3:
 		ecmaTime.millisecond = value[3]
+		fallthrough
+	case len(value) > 2:
 		ecmaTime.second = value[2]
-		ecmaTime.minute = value[1]
-	} else if len(value) > 2 {
-		ecmaTime.second = value[2]
-		ecmaTime.minute = value[1]
-	} else if len(value) > 1 {
+		fallthrough
+	case len(value) > 1:
 		ecmaTime.minute = value[1]
 	}
 	ecmaTime.hour = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setDate(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 1, true)
+func builtinDateSetDate(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 1, true)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -512,12 +509,12 @@ func builtinDate_setDate(call FunctionCall) Value {
 	ecmaTime.day = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setUTCDate(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 1, false)
+func builtinDateSetUTCDate(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 1, false)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -525,12 +522,12 @@ func builtinDate_setUTCDate(call FunctionCall) Value {
 	ecmaTime.day = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setMonth(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 2, true)
+func builtinDateSetMonth(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 2, true)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -541,12 +538,12 @@ func builtinDate_setMonth(call FunctionCall) Value {
 	ecmaTime.month = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setUTCMonth(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 2, false)
+func builtinDateSetUTCMonth(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 2, false)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -557,12 +554,12 @@ func builtinDate_setUTCMonth(call FunctionCall) Value {
 	ecmaTime.month = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setYear(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 1, true)
+func builtinDateSetYear(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 1, true)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -574,12 +571,12 @@ func builtinDate_setYear(call FunctionCall) Value {
 	ecmaTime.year = year
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setFullYear(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 3, true)
+func builtinDateSetFullYear(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 3, true)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -593,12 +590,12 @@ func builtinDate_setFullYear(call FunctionCall) Value {
 	ecmaTime.year = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 
-func builtinDate_setUTCFullYear(call FunctionCall) Value {
-	object, date, ecmaTime, value := _builtinDate_beforeSet(call, 3, false)
+func builtinDateSetUTCFullYear(call FunctionCall) Value {
+	obj, date, ecmaTime, value := builtinDateBeforeSet(call, 3, false)
 	if ecmaTime == nil {
 		return NaNValue()
 	}
@@ -612,7 +609,7 @@ func builtinDate_setUTCFullYear(call FunctionCall) Value {
 	ecmaTime.year = value[0]
 
 	date.SetTime(ecmaTime.goTime())
-	object.value = *date
+	obj.value = *date
 	return date.Value()
 }
 

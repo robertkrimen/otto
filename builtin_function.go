@@ -11,11 +11,11 @@ import (
 // Function
 
 func builtinFunction(call FunctionCall) Value {
-	return toValue_object(builtinNewFunctionNative(call.runtime, call.ArgumentList))
+	return objectValue(builtinNewFunctionNative(call.runtime, call.ArgumentList))
 }
 
-func builtinNewFunction(self *_object, argumentList []Value) Value {
-	return toValue_object(builtinNewFunctionNative(self.runtime, argumentList))
+func builtinNewFunction(obj *object, argumentList []Value) Value {
+	return objectValue(builtinNewFunctionNative(obj.runtime, argumentList))
 }
 
 func argumentList2parameterList(argumentList []Value) []string {
@@ -29,10 +29,9 @@ func argumentList2parameterList(argumentList []Value) []string {
 	return parameterList
 }
 
-func builtinNewFunctionNative(runtime *_runtime, argumentList []Value) *_object {
+func builtinNewFunctionNative(rt *runtime, argumentList []Value) *object {
 	var parameterList, body string
-	count := len(argumentList)
-	if count > 0 {
+	if count := len(argumentList); count > 0 {
 		tmp := make([]string, 0, count-1)
 		for _, value := range argumentList[0 : count-1] {
 			tmp = append(tmp, value.string())
@@ -43,35 +42,35 @@ func builtinNewFunctionNative(runtime *_runtime, argumentList []Value) *_object 
 
 	// FIXME
 	function, err := parser.ParseFunction(parameterList, body)
-	runtime.parseThrow(err) // Will panic/throw appropriately
-	cmpl := _compiler{}
-	cmpl_function := cmpl.parseExpression(function)
+	rt.parseThrow(err) // Will panic/throw appropriately
+	cmpl := compiler{}
+	cmplFunction := cmpl.parseExpression(function)
 
-	return runtime.newNodeFunction(cmpl_function.(*_nodeFunctionLiteral), runtime.globalStash)
+	return rt.newNodeFunction(cmplFunction.(*nodeFunctionLiteral), rt.globalStash)
 }
 
-func builtinFunction_toString(call FunctionCall) Value {
-	object := call.thisClassObject(classFunction) // Should throw a TypeError unless Function
-	switch fn := object.value.(type) {
-	case _nativeFunctionObject:
-		return toValue_string(fmt.Sprintf("function %s() { [native code] }", fn.name))
-	case _nodeFunctionObject:
-		return toValue_string(fn.node.source)
-	case _bindFunctionObject:
-		return toValue_string("function () { [native code] }")
+func builtinFunctionToString(call FunctionCall) Value {
+	obj := call.thisClassObject(classFunctionName) // Should throw a TypeError unless Function
+	switch fn := obj.value.(type) {
+	case nativeFunctionObject:
+		return stringValue(fmt.Sprintf("function %s() { [native code] }", fn.name))
+	case nodeFunctionObject:
+		return stringValue(fn.node.source)
+	case bindFunctionObject:
+		return stringValue("function () { [native code] }")
 	}
 
 	panic(call.runtime.panicTypeError("Function.toString()"))
 }
 
-func builtinFunction_apply(call FunctionCall) Value {
+func builtinFunctionApply(call FunctionCall) Value {
 	if !call.This.isCallable() {
 		panic(call.runtime.panicTypeError())
 	}
 	this := call.Argument(0)
 	if this.IsUndefined() {
 		// FIXME Not ECMA5
-		this = toValue_object(call.runtime.globalObject)
+		this = objectValue(call.runtime.globalObject)
 	}
 	argumentList := call.Argument(1)
 	switch argumentList.kind {
@@ -82,7 +81,7 @@ func builtinFunction_apply(call FunctionCall) Value {
 		panic(call.runtime.panicTypeError())
 	}
 
-	arrayObject := argumentList._object()
+	arrayObject := argumentList.object()
 	thisObject := call.thisObject()
 	length := int64(toUint32(arrayObject.get(propertyLength)))
 	valueArray := make([]Value, length)
@@ -92,7 +91,7 @@ func builtinFunction_apply(call FunctionCall) Value {
 	return thisObject.call(this, valueArray, false, nativeFrame)
 }
 
-func builtinFunction_call(call FunctionCall) Value {
+func builtinFunctionCall(call FunctionCall) Value {
 	if !call.This.isCallable() {
 		panic(call.runtime.panicTypeError())
 	}
@@ -100,7 +99,7 @@ func builtinFunction_call(call FunctionCall) Value {
 	this := call.Argument(0)
 	if this.IsUndefined() {
 		// FIXME Not ECMA5
-		this = toValue_object(call.runtime.globalObject)
+		this = objectValue(call.runtime.globalObject)
 	}
 	if len(call.ArgumentList) >= 1 {
 		return thisObject.call(this, call.ArgumentList[1:], false, nativeFrame)
@@ -108,19 +107,19 @@ func builtinFunction_call(call FunctionCall) Value {
 	return thisObject.call(this, nil, false, nativeFrame)
 }
 
-func builtinFunction_bind(call FunctionCall) Value {
+func builtinFunctionBind(call FunctionCall) Value {
 	target := call.This
 	if !target.isCallable() {
 		panic(call.runtime.panicTypeError())
 	}
-	targetObject := target._object()
+	targetObject := target.object()
 
 	this := call.Argument(0)
 	argumentList := call.slice(1)
 	if this.IsUndefined() {
 		// FIXME Do this elsewhere?
-		this = toValue_object(call.runtime.globalObject)
+		this = objectValue(call.runtime.globalObject)
 	}
 
-	return toValue_object(call.runtime.newBoundFunction(targetObject, this, argumentList))
+	return objectValue(call.runtime.newBoundFunction(targetObject, this, argumentList))
 }

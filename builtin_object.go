@@ -10,36 +10,36 @@ func builtinObject(call FunctionCall) Value {
 	value := call.Argument(0)
 	switch value.kind {
 	case valueUndefined, valueNull:
-		return toValue_object(call.runtime.newObject())
+		return objectValue(call.runtime.newObject())
 	}
 
-	return toValue_object(call.runtime.toObject(value))
+	return objectValue(call.runtime.toObject(value))
 }
 
-func builtinNewObject(self *_object, argumentList []Value) Value {
+func builtinNewObject(obj *object, argumentList []Value) Value {
 	value := valueOfArrayIndex(argumentList, 0)
 	switch value.kind {
 	case valueNull, valueUndefined:
 	case valueNumber, valueString, valueBoolean:
-		return toValue_object(self.runtime.toObject(value))
+		return objectValue(obj.runtime.toObject(value))
 	case valueObject:
 		return value
 	default:
 	}
-	return toValue_object(self.runtime.newObject())
+	return objectValue(obj.runtime.newObject())
 }
 
-func builtinObject_valueOf(call FunctionCall) Value {
-	return toValue_object(call.thisObject())
+func builtinObjectValueOf(call FunctionCall) Value {
+	return objectValue(call.thisObject())
 }
 
-func builtinObject_hasOwnProperty(call FunctionCall) Value {
+func builtinObjectHasOwnProperty(call FunctionCall) Value {
 	propertyName := call.Argument(0).string()
 	thisObject := call.thisObject()
-	return toValue_bool(thisObject.hasOwnProperty(propertyName))
+	return boolValue(thisObject.hasOwnProperty(propertyName))
 }
 
-func builtinObject_isPrototypeOf(call FunctionCall) Value {
+func builtinObjectIsPrototypeOf(call FunctionCall) Value {
 	value := call.Argument(0)
 	if !value.IsObject() {
 		return falseValue
@@ -55,29 +55,30 @@ func builtinObject_isPrototypeOf(call FunctionCall) Value {
 	return falseValue
 }
 
-func builtinObject_propertyIsEnumerable(call FunctionCall) Value {
+func builtinObjectPropertyIsEnumerable(call FunctionCall) Value {
 	propertyName := call.Argument(0).string()
 	thisObject := call.thisObject()
-	property := thisObject.getOwnProperty(propertyName)
-	if property != nil && property.enumerable() {
+	prop := thisObject.getOwnProperty(propertyName)
+	if prop != nil && prop.enumerable() {
 		return trueValue
 	}
 	return falseValue
 }
 
-func builtinObject_toString(call FunctionCall) Value {
+func builtinObjectToString(call FunctionCall) Value {
 	var result string
-	if call.This.IsUndefined() {
+	switch {
+	case call.This.IsUndefined():
 		result = "[object Undefined]"
-	} else if call.This.IsNull() {
+	case call.This.IsNull():
 		result = "[object Null]"
-	} else {
+	default:
 		result = fmt.Sprintf("[object %s]", call.thisObject().class)
 	}
-	return toValue_string(result)
+	return stringValue(result)
 }
 
-func builtinObject_toLocaleString(call FunctionCall) Value {
+func builtinObjectToLocaleString(call FunctionCall) Value {
 	toString := call.thisObject().get("toString")
 	if !toString.isCallable() {
 		panic(call.runtime.panicTypeError())
@@ -85,205 +86,205 @@ func builtinObject_toLocaleString(call FunctionCall) Value {
 	return toString.call(call.runtime, call.This)
 }
 
-func builtinObject_getPrototypeOf(call FunctionCall) Value {
-	objectValue := call.Argument(0)
-	object := objectValue._object()
-	if object == nil {
+func builtinObjectGetPrototypeOf(call FunctionCall) Value {
+	val := call.Argument(0)
+	obj := val.object()
+	if obj == nil {
 		panic(call.runtime.panicTypeError())
 	}
 
-	if object.prototype == nil {
+	if obj.prototype == nil {
 		return nullValue
 	}
 
-	return toValue_object(object.prototype)
+	return objectValue(obj.prototype)
 }
 
-func builtinObject_getOwnPropertyDescriptor(call FunctionCall) Value {
-	objectValue := call.Argument(0)
-	object := objectValue._object()
-	if object == nil {
+func builtinObjectGetOwnPropertyDescriptor(call FunctionCall) Value {
+	val := call.Argument(0)
+	obj := val.object()
+	if obj == nil {
 		panic(call.runtime.panicTypeError())
 	}
 
 	name := call.Argument(1).string()
-	descriptor := object.getOwnProperty(name)
+	descriptor := obj.getOwnProperty(name)
 	if descriptor == nil {
 		return Value{}
 	}
-	return toValue_object(call.runtime.fromPropertyDescriptor(*descriptor))
+	return objectValue(call.runtime.fromPropertyDescriptor(*descriptor))
 }
 
-func builtinObject_defineProperty(call FunctionCall) Value {
-	objectValue := call.Argument(0)
-	object := objectValue._object()
-	if object == nil {
+func builtinObjectDefineProperty(call FunctionCall) Value {
+	val := call.Argument(0)
+	obj := val.object()
+	if obj == nil {
 		panic(call.runtime.panicTypeError())
 	}
 	name := call.Argument(1).string()
 	descriptor := toPropertyDescriptor(call.runtime, call.Argument(2))
-	object.defineOwnProperty(name, descriptor, true)
-	return objectValue
+	obj.defineOwnProperty(name, descriptor, true)
+	return val
 }
 
-func builtinObject_defineProperties(call FunctionCall) Value {
-	objectValue := call.Argument(0)
-	object := objectValue._object()
-	if object == nil {
+func builtinObjectDefineProperties(call FunctionCall) Value {
+	val := call.Argument(0)
+	obj := val.object()
+	if obj == nil {
 		panic(call.runtime.panicTypeError())
 	}
 
 	properties := call.runtime.toObject(call.Argument(1))
 	properties.enumerate(false, func(name string) bool {
 		descriptor := toPropertyDescriptor(call.runtime, properties.get(name))
-		object.defineOwnProperty(name, descriptor, true)
+		obj.defineOwnProperty(name, descriptor, true)
 		return true
 	})
 
-	return objectValue
+	return val
 }
 
-func builtinObject_create(call FunctionCall) Value {
+func builtinObjectCreate(call FunctionCall) Value {
 	prototypeValue := call.Argument(0)
 	if !prototypeValue.IsNull() && !prototypeValue.IsObject() {
 		panic(call.runtime.panicTypeError())
 	}
 
-	object := call.runtime.newObject()
-	object.prototype = prototypeValue._object()
+	obj := call.runtime.newObject()
+	obj.prototype = prototypeValue.object()
 
 	propertiesValue := call.Argument(1)
 	if propertiesValue.IsDefined() {
 		properties := call.runtime.toObject(propertiesValue)
 		properties.enumerate(false, func(name string) bool {
 			descriptor := toPropertyDescriptor(call.runtime, properties.get(name))
-			object.defineOwnProperty(name, descriptor, true)
+			obj.defineOwnProperty(name, descriptor, true)
 			return true
 		})
 	}
 
-	return toValue_object(object)
+	return objectValue(obj)
 }
 
-func builtinObject_isExtensible(call FunctionCall) Value {
-	object := call.Argument(0)
-	if object := object._object(); object != nil {
-		return toValue_bool(object.extensible)
+func builtinObjectIsExtensible(call FunctionCall) Value {
+	val := call.Argument(0)
+	if obj := val.object(); obj != nil {
+		return boolValue(obj.extensible)
 	}
 	panic(call.runtime.panicTypeError())
 }
 
-func builtinObject_preventExtensions(call FunctionCall) Value {
-	object := call.Argument(0)
-	if object := object._object(); object != nil {
-		object.extensible = false
+func builtinObjectPreventExtensions(call FunctionCall) Value {
+	val := call.Argument(0)
+	if obj := val.object(); obj != nil {
+		obj.extensible = false
 	} else {
 		panic(call.runtime.panicTypeError())
 	}
-	return object
+	return val
 }
 
-func builtinObject_isSealed(call FunctionCall) Value {
-	object := call.Argument(0)
-	if object := object._object(); object != nil {
-		if object.extensible {
-			return toValue_bool(false)
+func builtinObjectIsSealed(call FunctionCall) Value {
+	val := call.Argument(0)
+	if obj := val.object(); obj != nil {
+		if obj.extensible {
+			return boolValue(false)
 		}
 		result := true
-		object.enumerate(true, func(name string) bool {
-			property := object.getProperty(name)
-			if property.configurable() {
+		obj.enumerate(true, func(name string) bool {
+			prop := obj.getProperty(name)
+			if prop.configurable() {
 				result = false
 			}
 			return true
 		})
-		return toValue_bool(result)
+		return boolValue(result)
 	}
 	panic(call.runtime.panicTypeError())
 }
 
-func builtinObject_seal(call FunctionCall) Value {
-	object := call.Argument(0)
-	if object := object._object(); object != nil {
-		object.enumerate(true, func(name string) bool {
-			if property := object.getOwnProperty(name); nil != property && property.configurable() {
-				property.configureOff()
-				object.defineOwnProperty(name, *property, true)
+func builtinObjectSeal(call FunctionCall) Value {
+	val := call.Argument(0)
+	if obj := val.object(); obj != nil {
+		obj.enumerate(true, func(name string) bool {
+			if prop := obj.getOwnProperty(name); nil != prop && prop.configurable() {
+				prop.configureOff()
+				obj.defineOwnProperty(name, *prop, true)
 			}
 			return true
 		})
-		object.extensible = false
+		obj.extensible = false
 	} else {
 		panic(call.runtime.panicTypeError())
 	}
-	return object
+	return val
 }
 
-func builtinObject_isFrozen(call FunctionCall) Value {
-	object := call.Argument(0)
-	if object := object._object(); object != nil {
-		if object.extensible {
-			return toValue_bool(false)
+func builtinObjectIsFrozen(call FunctionCall) Value {
+	val := call.Argument(0)
+	if obj := val.object(); obj != nil {
+		if obj.extensible {
+			return boolValue(false)
 		}
 		result := true
-		object.enumerate(true, func(name string) bool {
-			property := object.getProperty(name)
-			if property.configurable() || property.writable() {
+		obj.enumerate(true, func(name string) bool {
+			prop := obj.getProperty(name)
+			if prop.configurable() || prop.writable() {
 				result = false
 			}
 			return true
 		})
-		return toValue_bool(result)
+		return boolValue(result)
 	}
 	panic(call.runtime.panicTypeError())
 }
 
-func builtinObject_freeze(call FunctionCall) Value {
-	object := call.Argument(0)
-	if object := object._object(); object != nil {
-		object.enumerate(true, func(name string) bool {
-			if property, update := object.getOwnProperty(name), false; nil != property {
-				if property.isDataDescriptor() && property.writable() {
-					property.writeOff()
+func builtinObjectFreeze(call FunctionCall) Value {
+	val := call.Argument(0)
+	if obj := val.object(); obj != nil {
+		obj.enumerate(true, func(name string) bool {
+			if prop, update := obj.getOwnProperty(name), false; nil != prop {
+				if prop.isDataDescriptor() && prop.writable() {
+					prop.writeOff()
 					update = true
 				}
-				if property.configurable() {
-					property.configureOff()
+				if prop.configurable() {
+					prop.configureOff()
 					update = true
 				}
 				if update {
-					object.defineOwnProperty(name, *property, true)
+					obj.defineOwnProperty(name, *prop, true)
 				}
 			}
 			return true
 		})
-		object.extensible = false
+		obj.extensible = false
 	} else {
 		panic(call.runtime.panicTypeError())
 	}
-	return object
+	return val
 }
 
-func builtinObject_keys(call FunctionCall) Value {
-	if object, keys := call.Argument(0)._object(), []Value(nil); nil != object {
-		object.enumerate(false, func(name string) bool {
-			keys = append(keys, toValue_string(name))
+func builtinObjectKeys(call FunctionCall) Value {
+	if obj, keys := call.Argument(0).object(), []Value(nil); nil != obj {
+		obj.enumerate(false, func(name string) bool {
+			keys = append(keys, stringValue(name))
 			return true
 		})
-		return toValue_object(call.runtime.newArrayOf(keys))
+		return objectValue(call.runtime.newArrayOf(keys))
 	}
 	panic(call.runtime.panicTypeError())
 }
 
-func builtinObject_getOwnPropertyNames(call FunctionCall) Value {
-	if object, propertyNames := call.Argument(0)._object(), []Value(nil); nil != object {
-		object.enumerate(true, func(name string) bool {
-			if object.hasOwnProperty(name) {
-				propertyNames = append(propertyNames, toValue_string(name))
+func builtinObjectGetOwnPropertyNames(call FunctionCall) Value {
+	if obj, propertyNames := call.Argument(0).object(), []Value(nil); nil != obj {
+		obj.enumerate(true, func(name string) bool {
+			if obj.hasOwnProperty(name) {
+				propertyNames = append(propertyNames, stringValue(name))
 			}
 			return true
 		})
-		return toValue_object(call.runtime.newArrayOf(propertyNames))
+		return objectValue(call.runtime.newArrayOf(propertyNames))
 	}
 	panic(call.runtime.panicTypeError())
 }

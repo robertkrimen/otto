@@ -1,28 +1,34 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"regexp"
 	"strings"
 	"sync"
 	"text/tabwriter"
+	"time"
 
 	"github.com/robertkrimen/otto"
 	"github.com/robertkrimen/otto/parser"
 )
 
-var flag_test *bool = flag.Bool("test", false, "")
-var flag_report *bool = flag.Bool("report", false, "")
+var (
+	flagTest   *bool = flag.Bool("test", false, "")
+	flagTeport *bool = flag.Bool("report", false, "")
+)
 
-var match_ReferenceError_not_defined = regexp.MustCompile(`^ReferenceError: \S+ is not defined$`)
-var match_lookahead = regexp.MustCompile(`Invalid regular expression: re2: Invalid \(\?[=!]\) <lookahead>`)
-var match_backreference = regexp.MustCompile(`Invalid regular expression: re2: Invalid \\\d <backreference>`)
-var match_TypeError_undefined = regexp.MustCompile(`^TypeError: Cannot access member '[^']+' of undefined$`)
+var (
+	matchReferenceErrorNotDefined = regexp.MustCompile(`^ReferenceError: \S+ is not defined$`)
+	matchLookahead                = regexp.MustCompile(`Invalid regular expression: re2: Invalid \(\?[=!]\) <lookahead>`)
+	matchBackreference            = regexp.MustCompile(`Invalid regular expression: re2: Invalid \\\d <backreference>`)
+	matchTypeErrorUndefined       = regexp.MustCompile(`^TypeError: Cannot access member '[^']+' of undefined$`)
+)
 
 var target = map[string]string{
 	"test-angular-bindonce.js": "fail",  // (anonymous): Line 1:944 Unexpected token ( (and 40 more errors)
@@ -41,49 +47,66 @@ var target = map[string]string{
 // http://cdnjs.com/
 // http://api.cdnjs.com/libraries
 
-func fetch(name, location string) error {
-	response, err := http.Get(location) //nolint: noctx
-	if err != nil {
-		return err
-	}
-	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
+type libraries struct {
+	Results []library `json:"results"`
+}
 
-	if !strings.HasSuffix(location, ".js") {
+type library struct {
+	Name   string `json:"name"`
+	Latest string `json:"latest"`
+}
+
+func (l library) fetch() error {
+	if !strings.HasSuffix(l.Latest, ".js") {
 		return nil
 	}
 
-	filename := "test-" + name + ".js"
-	fmt.Println(filename, len(body))
-	return ioutil.WriteFile(filename, body, 0644)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*20)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, l.Latest, nil)
+	if err != nil {
+		return fmt.Errorf("request library %q: %w", l.Name, err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("get library %q: %w", l.Name, err)
+	}
+	defer resp.Body.Close() //nolint: errcheck
+
+	f, err := os.Create("test-" + l.Name + ".js")
+	if err != nil {
+		return fmt.Errorf("create library %q: %w", l.Name, err)
+	}
+
+	if _, err = io.Copy(f, resp.Body); err != nil {
+		return fmt.Errorf("write library %q: %w", l.Name, err)
+	}
+
+	return nil
 }
 
 func test(filename string) error {
-	script, err := ioutil.ReadFile(filename)
+	script, err := os.ReadFile(filename) //nolint: gosec
 	if err != nil {
 		return err
 	}
 
-	if !*flag_report {
+	if !*flagTeport {
 		fmt.Fprintln(os.Stdout, filename, len(script))
 	}
 
 	parse := false
-	option := target[filename]
-
-	if option != "parse" {
+	if target[filename] != "parse" {
 		vm := otto.New()
-		_, err = vm.Run(string(script))
-		if err != nil {
+		if _, err = vm.Run(string(script)); err != nil {
 			value := err.Error()
 			switch {
-			case match_ReferenceError_not_defined.MatchString(value):
-			case match_TypeError_undefined.MatchString(value):
-			case match_lookahead.MatchString(value):
-			case match_backreference.MatchString(value):
+			case matchReferenceErrorNotDefined.MatchString(value),
+				matchTypeErrorUndefined.MatchString(value),
+				matchLookahead.MatchString(value),
+				matchBackreference.MatchString(value):
 			default:
 				return err
 			}
@@ -102,78 +125,88 @@ func test(filename string) error {
 	return nil
 }
 
+func fetchAll() error {
+	resp, err := http.Get("http://api.cdnjs.com/libraries") //nolint: noctx
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close() //nolint: errcheck
+
+	var libs libraries
+	dec := json.NewDecoder(resp.Body)
+	if err := dec.Decode(&libs); err != nil {
+		return fmt.Errorf("json decode: %w", err)
+	}
+
+	var wg sync.WaitGroup
+	errs := make(chan error, 5)
+	for _, lib := range libs.Results {
+		wg.Add(1)
+		go func(lib library) {
+			defer wg.Done()
+			errs <- lib.fetch()
+		}(lib)
+	}
+
+	defer func() {
+		wg.Wait()
+		close(errs)
+	}()
+
+	for err := range errs {
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func report() error {
+	files, err := os.ReadDir(".")
+	if err != nil {
+		return fmt.Errorf("read dir: %w", err)
+	}
+
+	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 0, '\t', 0)
+	fmt.Fprintln(writer, "", "\t| Status")
+	fmt.Fprintln(writer, "---", "\t| ---")
+	for _, file := range files {
+		filename := file.Name()
+		if !strings.HasPrefix(filename, "test-") {
+			continue
+		}
+		err := test(filename)
+		option := target[filename]
+		name := strings.TrimPrefix(strings.TrimSuffix(filename, ".js"), "test-")
+		if err != nil {
+			fmt.Fprintln(writer, name, "\t| fail")
+			continue
+		}
+
+		switch option {
+		case "":
+			fmt.Fprintln(writer, name, "\t| pass")
+		case "parse":
+			fmt.Fprintln(writer, name, "\t| pass (parse)")
+		case "re2":
+			fmt.Fprintln(writer, name, "\t| unknown (re2)")
+		}
+	}
+	return writer.Flush()
+}
+
 func main() {
 	flag.Parse()
 
-	filename := ""
-
+	var filename string
 	err := func() error {
 		if flag.Arg(0) == "fetch" {
-			response, err := http.Get("http://api.cdnjs.com/libraries") //nolint: noctx
-			if err != nil {
-				return err
-			}
-			defer response.Body.Close()
-			body, err := ioutil.ReadAll(response.Body)
-			if err != nil {
-				return err
-			}
-
-			var tmp map[string]interface{}
-
-			err = json.Unmarshal(body, &tmp)
-			if err != nil {
-				return err
-			}
-
-			var wg sync.WaitGroup
-
-			for _, value := range tmp["results"].([]interface{}) {
-				wg.Add(1)
-				library := value.(map[string]interface{})
-				go func() {
-					defer wg.Done()
-					fetch(library["name"].(string), library["latest"].(string))
-				}()
-			}
-
-			wg.Wait()
-
-			return nil
+			return fetchAll()
 		}
 
-		if *flag_report {
-			files, err := ioutil.ReadDir(".")
-			if err != nil {
-				return err
-			}
-			writer := tabwriter.NewWriter(os.Stdout, 0, 8, 0, '\t', 0)
-			fmt.Fprintln(writer, "", "\t| Status")
-			fmt.Fprintln(writer, "---", "\t| ---")
-			for _, file := range files {
-				filename := file.Name()
-				if !strings.HasPrefix(filename, "test-") {
-					continue
-				}
-				err := test(filename)
-				option := target[filename]
-				name := strings.TrimPrefix(strings.TrimSuffix(filename, ".js"), "test-")
-				if err == nil {
-					switch option {
-					case "":
-						fmt.Fprintln(writer, name, "\t| pass")
-					case "parse":
-						fmt.Fprintln(writer, name, "\t| pass (parse)")
-					case "re2":
-						fmt.Fprintln(writer, name, "\t| unknown (re2)")
-						continue
-					}
-				} else {
-					fmt.Fprintln(writer, name, "\t| fail")
-				}
-			}
-			writer.Flush()
-			return nil
+		if *flagTeport {
+			return report()
 		}
 
 		filename = flag.Arg(0)
@@ -181,7 +214,7 @@ func main() {
 	}()
 	if err != nil {
 		if filename != "" {
-			if *flag_test && target[filename] == "fail" {
+			if *flagTest && target[filename] == "fail" {
 				goto exit
 			}
 			fmt.Fprintf(os.Stderr, "%s: %s\n", filename, err.Error())

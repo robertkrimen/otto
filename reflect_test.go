@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type _abcStruct struct {
+type abcStruct struct {
 	Abc bool
 	Def int
 	Ghi string
@@ -21,91 +21,90 @@ type _abcStruct struct {
 	Pqr map[string]int8
 }
 
-func (abc _abcStruct) String() string {
+func (abc abcStruct) String() string {
 	return abc.Ghi
 }
 
-func (abc *_abcStruct) FuncPointer() string {
+func (abc *abcStruct) FuncPointer() string {
 	return "abc"
 }
 
-func (abc _abcStruct) Func() {
-	return
+func (abc abcStruct) Func() {
 }
 
-func (abc _abcStruct) FuncReturn1() string {
+func (abc abcStruct) FuncReturn1() string {
 	return "abc"
 }
 
-func (abc _abcStruct) FuncReturn2() (string, error) {
+func (abc abcStruct) FuncReturn2() (string, error) {
 	return "def", nil
 }
 
-func (abc _abcStruct) Func1Return1(a string) string {
+func (abc abcStruct) Func1Return1(a string) string {
 	return a
 }
 
-func (abc _abcStruct) Func2Return1(x, y string) string {
+func (abc abcStruct) Func2Return1(x, y string) string {
 	return x + y
 }
 
-func (abc _abcStruct) FuncEllipsis(xyz ...string) int {
+func (abc abcStruct) FuncEllipsis(xyz ...string) int {
 	return len(xyz)
 }
 
-func (abc _abcStruct) FuncReturnStruct() _mnoStruct {
+func (abc abcStruct) FuncReturnStruct() _mnoStruct {
 	return _mnoStruct{}
 }
 
-func (abs _abcStruct) Func1Int(i int) int {
+func (abc abcStruct) Func1Int(i int) int {
 	return i + 1
 }
 
-func (abs _abcStruct) Func1Int8(i int8) int8 {
+func (abc abcStruct) Func1Int8(i int8) int8 {
 	return i + 1
 }
 
-func (abs _abcStruct) Func1Int16(i int16) int16 {
+func (abc abcStruct) Func1Int16(i int16) int16 {
 	return i + 1
 }
 
-func (abs _abcStruct) Func1Int32(i int32) int32 {
+func (abc abcStruct) Func1Int32(i int32) int32 {
 	return i + 1
 }
 
-func (abs _abcStruct) Func1Int64(i int64) int64 {
+func (abc abcStruct) Func1Int64(i int64) int64 {
 	return i + 1
 }
 
-func (abs _abcStruct) Func1Uint(i uint) uint {
+func (abc abcStruct) Func1Uint(i uint) uint {
 	return i + 1
 }
 
-func (abs _abcStruct) Func1Uint8(i uint8) uint8 {
+func (abc abcStruct) Func1Uint8(i uint8) uint8 {
 	return i + 1
 }
 
-func (abs _abcStruct) Func1Uint16(i uint16) uint16 {
+func (abc abcStruct) Func1Uint16(i uint16) uint16 {
 	return i + 1
 }
 
-func (abs _abcStruct) Func1Uint32(i uint32) uint32 {
+func (abc abcStruct) Func1Uint32(i uint32) uint32 {
 	return i + 1
 }
 
-func (abs _abcStruct) Func1Uint64(i uint64) uint64 {
+func (abc abcStruct) Func1Uint64(i uint64) uint64 {
 	return i + 1
 }
 
-func (abs _abcStruct) Func2Int(i, j int) int {
+func (abc abcStruct) Func2Int(i, j int) int {
 	return i + j
 }
 
-func (abs _abcStruct) Func2StringInt(s string, i int) string {
+func (abc abcStruct) Func2StringInt(s string, i int) string {
 	return fmt.Sprintf("%v:%v", s, i)
 }
 
-func (abs _abcStruct) Func1IntVariadic(a ...int) int {
+func (abc abcStruct) Func1IntVariadic(a ...int) int {
 	t := 0
 	for _, i := range a {
 		t += i
@@ -113,7 +112,7 @@ func (abs _abcStruct) Func1IntVariadic(a ...int) int {
 	return t
 }
 
-func (abs _abcStruct) Func2IntVariadic(s string, a ...int) string {
+func (abc abcStruct) Func2IntVariadic(s string, a ...int) string {
 	t := 0
 	for _, i := range a {
 		t += i
@@ -121,7 +120,7 @@ func (abs _abcStruct) Func2IntVariadic(s string, a ...int) string {
 	return fmt.Sprintf("%v:%v", s, t)
 }
 
-func (abs _abcStruct) Func2IntArrayVariadic(s string, a ...[]int) string {
+func (abc abcStruct) Func2IntArrayVariadic(s string, a ...[]int) string {
 	t := 0
 	for _, i := range a {
 		for _, j := range i {
@@ -145,10 +144,12 @@ func TestReflect(t *testing.T) {
 		// These should panic
 		str := "test"
 		require.Panics(t, func() {
-			toValue("Xyzzy").toReflectValue(reflect.ValueOf(&str).Type())
+			_, err := toValue("Xyzzy").toReflectValue(reflect.ValueOf(&str).Type())
+			require.NoError(t, err)
 		})
 		require.Panics(t, func() {
-			stringToReflectValue("Xyzzy", reflect.Ptr)
+			_, err := stringToReflectValue("Xyzzy", reflect.Ptr)
+			require.NoError(t, err)
 		})
 	})
 }
@@ -159,7 +160,7 @@ func Test_reflectStruct(t *testing.T) {
 
 		// _abcStruct
 		{
-			abc := &_abcStruct{}
+			abc := &abcStruct{}
 			vm.Set("abc", abc)
 
 			test(`
@@ -173,7 +174,7 @@ func Test_reflectStruct(t *testing.T) {
                 [ abc.Abc, abc.Ghi ];
             `, "true,Nothing happens.")
 
-			*abc = _abcStruct{}
+			*abc = abcStruct{}
 
 			test(`
                 [ abc.Abc, abc.Ghi ];
@@ -699,7 +700,7 @@ func Test_reflectMapInterface(t *testing.T) {
 				"jkl":   "jkl",
 			}
 			vm.Set("abc", abc)
-			vm.Set("mno", &_abcStruct{})
+			vm.Set("mno", &abcStruct{})
 
 			test(`
                 abc.xyz = "pqr";
@@ -714,7 +715,7 @@ func Test_reflectMapInterface(t *testing.T) {
 			is(abc["xyz"], "pqr")
 			is(abc["ghi"], map[string]interface{}{})
 			is(abc["jkl"], float64(3.14159))
-			mno, valid := abc["mno"].(*_abcStruct)
+			mno, valid := abc["mno"].(*abcStruct)
 			is(valid, true)
 			is(mno.Abc, true)
 			is(mno.Ghi, "Something happens.")
@@ -727,7 +728,7 @@ func TestPassthrough(t *testing.T) {
 		test, vm := test()
 
 		{
-			abc := &_abcStruct{
+			abc := &abcStruct{
 				Mno: _mnoStruct{
 					Ghi: "<Mno.Ghi>",
 				},
@@ -762,13 +763,13 @@ func TestPassthrough(t *testing.T) {
 	})
 }
 
-type TestDynamicFunctionReturningInterface_MyStruct1 struct{} //nolint: errname
+type TestDynamicFunctionReturningInterfaceMyStruct1 struct{} //nolint: errname
 
-func (m *TestDynamicFunctionReturningInterface_MyStruct1) Error() string { return "MyStruct1" }
+func (m *TestDynamicFunctionReturningInterfaceMyStruct1) Error() string { return "MyStruct1" }
 
-type TestDynamicFunctionReturningInterface_MyStruct2 struct{} //nolint: errname
+type TestDynamicFunctionReturningInterfaceMyStruct2 struct{} //nolint: errname
 
-func (m *TestDynamicFunctionReturningInterface_MyStruct2) Error() string { return "MyStruct2" }
+func (m *TestDynamicFunctionReturningInterfaceMyStruct2) Error() string { return "MyStruct2" }
 
 func TestDynamicFunctionReturningInterface(t *testing.T) {
 	tt(t, func() {
@@ -777,8 +778,8 @@ func TestDynamicFunctionReturningInterface(t *testing.T) {
 		var l []func() error
 
 		vm.Set("r", func(cb func() error) { l = append(l, cb) })
-		vm.Set("e1", func() error { return &TestDynamicFunctionReturningInterface_MyStruct1{} })
-		vm.Set("e2", func() error { return &TestDynamicFunctionReturningInterface_MyStruct2{} })
+		vm.Set("e1", func() error { return &TestDynamicFunctionReturningInterfaceMyStruct1{} })
+		vm.Set("e2", func() error { return &TestDynamicFunctionReturningInterfaceMyStruct2{} })
 		vm.Set("e3", func() error { return nil })
 
 		test("r(function() { return e1(); })", UndefinedValue())
@@ -848,9 +849,9 @@ func TestStructCallParameterConversion(t *testing.T) {
 	})
 }
 
-type TestTextUnmarshallerCallParameterConversion_MyStruct struct{}
+type TestTextUnmarshallerCallParameterConversionMyStruct struct{}
 
-func (m *TestTextUnmarshallerCallParameterConversion_MyStruct) UnmarshalText(b []byte) error {
+func (m *TestTextUnmarshallerCallParameterConversionMyStruct) UnmarshalText(b []byte) error {
 	if string(b) == "good" {
 		return nil
 	}
@@ -862,7 +863,7 @@ func TestTextUnmarshallerCallParameterConversion(t *testing.T) {
 	tt(t, func() {
 		test, vm := test()
 
-		vm.Set("f", func(t TestTextUnmarshallerCallParameterConversion_MyStruct) bool { return true })
+		vm.Set("f", func(t TestTextUnmarshallerCallParameterConversionMyStruct) bool { return true })
 
 		// success
 		test("f('good')", true)
@@ -900,7 +901,8 @@ func TestJSONRawMessageCallParameterConversion(t *testing.T) {
 	} {
 		t.Run(e.c, func(t *testing.T) {
 			vm := New()
-			vm.Set("f", func(m json.RawMessage) json.RawMessage { return m })
+			err := vm.Set("f", func(m json.RawMessage) json.RawMessage { return m })
+			require.NoError(t, err)
 			r, err := vm.Run(e.c)
 			if err != nil {
 				if !e.e {

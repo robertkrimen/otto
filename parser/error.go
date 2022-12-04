@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	err_UnexpectedToken      = "Unexpected token %v"
-	err_UnexpectedEndOfInput = "Unexpected end of input"
+	errUnexpectedToken      = "Unexpected token %v"
+	errUnexpectedEndOfInput = "Unexpected end of input"
 )
 
 //    UnexpectedNumber:  'Unexpected number',
@@ -20,7 +20,7 @@ const (
 //    NewlineAfterThrow:  'Illegal newline after throw',
 //    InvalidRegExp: 'Invalid regular expression',
 //    UnterminatedRegExp:  'Invalid regular expression: missing /',
-//    InvalidLHSInAssignment:  'Invalid left-hand side in assignment',
+//    InvalidLHSInAssignment:  'invalid left-hand side in assignment',
 //    InvalidLHSInForIn:  'Invalid left-hand side in for-in',
 //    MultipleDefaultsInSwitch: 'More than one default clause in switch statement',
 //    NoCatchOrFinally:  'Missing catch or finally after try',
@@ -55,27 +55,27 @@ type Error struct {
 
 // FIXME Should this be "SyntaxError"?
 
-func (self Error) Error() string {
-	filename := self.Position.Filename
+func (e Error) Error() string {
+	filename := e.Position.Filename
 	if filename == "" {
 		filename = "(anonymous)"
 	}
 	return fmt.Sprintf("%s: Line %d:%d %s",
 		filename,
-		self.Position.Line,
-		self.Position.Column,
-		self.Message,
+		e.Position.Line,
+		e.Position.Column,
+		e.Message,
 	)
 }
 
-func (self *_parser) error(place interface{}, msg string, msgValues ...interface{}) *Error {
+func (p *_parser) error(place interface{}, msg string, msgValues ...interface{}) {
 	var idx file.Idx
 	switch place := place.(type) {
 	case int:
-		idx = self.idxOf(place)
+		idx = p.idxOf(place)
 	case file.Idx:
 		if place == 0 {
-			idx = self.idxOf(self.chrOffset)
+			idx = p.idxOf(p.chrOffset)
 		} else {
 			idx = place
 		}
@@ -83,57 +83,69 @@ func (self *_parser) error(place interface{}, msg string, msgValues ...interface
 		panic(fmt.Errorf("error(%T, ...)", place))
 	}
 
-	position := self.position(idx)
+	position := p.position(idx)
 	msg = fmt.Sprintf(msg, msgValues...)
-	self.errors.Add(position, msg)
-	return self.errors[len(self.errors)-1]
+	p.errors.Add(position, msg)
 }
 
-func (self *_parser) errorUnexpected(idx file.Idx, chr rune) error {
+func (p *_parser) errorUnexpected(idx file.Idx, chr rune) {
 	if chr == -1 {
-		return self.error(idx, err_UnexpectedEndOfInput)
+		p.error(idx, errUnexpectedEndOfInput)
+		return
 	}
-	return self.error(idx, err_UnexpectedToken, token.ILLEGAL)
+	p.error(idx, errUnexpectedToken, token.ILLEGAL)
 }
 
-func (self *_parser) errorUnexpectedToken(tkn token.Token) error {
-	switch tkn {
-	case token.EOF:
-		return self.error(file.Idx(0), err_UnexpectedEndOfInput)
+func (p *_parser) errorUnexpectedToken(tkn token.Token) {
+	if tkn == token.EOF {
+		p.error(file.Idx(0), errUnexpectedEndOfInput)
+		return
 	}
 	value := tkn.String()
 	switch tkn {
 	case token.BOOLEAN, token.NULL:
-		value = self.literal
+		p.error(p.idx, errUnexpectedToken, p.literal)
 	case token.IDENTIFIER:
-		return self.error(self.idx, "Unexpected identifier")
+		p.error(p.idx, "Unexpected identifier")
 	case token.KEYWORD:
 		// TODO Might be a future reserved word
-		return self.error(self.idx, "Unexpected reserved word")
+		p.error(p.idx, "Unexpected reserved word")
 	case token.NUMBER:
-		return self.error(self.idx, "Unexpected number")
+		p.error(p.idx, "Unexpected number")
 	case token.STRING:
-		return self.error(self.idx, "Unexpected string")
+		p.error(p.idx, "Unexpected string")
+	default:
+		p.error(p.idx, errUnexpectedToken, value)
 	}
-	return self.error(self.idx, err_UnexpectedToken, value)
 }
 
 // ErrorList is a list of *Errors.
 type ErrorList []*Error //nolint: errname
 
 // Add adds an Error with given position and message to an ErrorList.
-func (self *ErrorList) Add(position file.Position, msg string) {
-	*self = append(*self, &Error{position, msg})
+func (el *ErrorList) Add(position file.Position, msg string) {
+	*el = append(*el, &Error{position, msg})
 }
 
 // Reset resets an ErrorList to no errors.
-func (self *ErrorList) Reset() { *self = (*self)[0:0] }
+func (el *ErrorList) Reset() {
+	*el = (*el)[0:0]
+}
 
-func (self ErrorList) Len() int      { return len(self) }
-func (self ErrorList) Swap(i, j int) { self[i], self[j] = self[j], self[i] }
-func (self ErrorList) Less(i, j int) bool {
-	x := &self[i].Position
-	y := &self[j].Position
+// Len implement sort.Interface.
+func (el *ErrorList) Len() int {
+	return len(*el)
+}
+
+// Swap implement sort.Interface.
+func (el *ErrorList) Swap(i, j int) {
+	(*el)[i], (*el)[j] = (*el)[j], (*el)[i]
+}
+
+// Less implement sort.Interface.
+func (el *ErrorList) Less(i, j int) bool {
+	x := (*el)[i].Position
+	y := (*el)[j].Position
 	if x.Filename < y.Filename {
 		return true
 	}
@@ -148,26 +160,28 @@ func (self ErrorList) Less(i, j int) bool {
 	return false
 }
 
-func (self ErrorList) Sort() {
-	sort.Sort(self)
+// Sort sorts el.
+func (el *ErrorList) Sort() {
+	sort.Sort(el)
 }
 
 // Error implements the Error interface.
-func (self ErrorList) Error() string {
-	switch len(self) {
+func (el *ErrorList) Error() string {
+	switch len(*el) {
 	case 0:
 		return "no errors"
 	case 1:
-		return self[0].Error()
+		return (*el)[0].Error()
+	default:
+		return fmt.Sprintf("%s (and %d more errors)", (*el)[0].Error(), len(*el)-1)
 	}
-	return fmt.Sprintf("%s (and %d more errors)", self[0].Error(), len(self)-1)
 }
 
 // Err returns an error equivalent to this ErrorList.
 // If the list is empty, Err returns nil.
-func (self ErrorList) Err() error {
-	if len(self) == 0 {
+func (el *ErrorList) Err() error {
+	if len(*el) == 0 {
 		return nil
 	}
-	return self
+	return el
 }

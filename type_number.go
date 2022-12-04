@@ -1,5 +1,5 @@
 package otto
 
-func (runtime *_runtime) newNumberObject(value Value) *_object {
-	return runtime.newPrimitiveObject(classNumber, value.numberValue())
+func (rt *runtime) newNumberObject(value Value) *object {
+	return rt.newPrimitiveObject(classNumberName, value.numberValue())
 }

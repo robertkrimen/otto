@@ -23,7 +23,7 @@
 package underscore
 
 import (
-	_ "embed"
+	_ "embed" // Embed underscore.
 
 	"github.com/robertkrimen/otto/registry"
 )

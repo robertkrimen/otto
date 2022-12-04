@@ -2,58 +2,105 @@ package otto
 
 import (
 	"fmt"
+	"os"
 )
 
 func ExampleSynopsis() { //nolint: govet
 	vm := New()
-	vm.Run(`
+	_, err := vm.Run(`
         abc = 2 + 2;
         console.log("The value of abc is " + abc); // 4
     `)
-
-	value, _ := vm.Get("abc")
-	{
-		value, _ := value.ToInteger()
-		fmt.Println(value)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
 	}
 
-	vm.Set("def", 11)
-	vm.Run(`
+	value, err := vm.Get("abc")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+
+	iv, err := value.ToInteger()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+	fmt.Println(iv)
+
+	err = vm.Set("def", 11)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+	_, err = vm.Run(`
         console.log("The value of def is " + def);
     `)
-
-	vm.Set("xyzzy", "Nothing happens.")
-	vm.Run(`
-        console.log(xyzzy.length);
-    `)
-
-	value, _ = vm.Run("xyzzy.length")
-	{
-		value, _ := value.ToInteger()
-		fmt.Println(value)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
 	}
 
-	value, err := vm.Run("abcdefghijlmnopqrstuvwxyz.length")
-	fmt.Println(value)
-	fmt.Println(err)
+	err = vm.Set("xyzzy", "Nothing happens.")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+	_, err = vm.Run(`
+        console.log(xyzzy.length);
+    `)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 
-	vm.Set("sayHello", func(call FunctionCall) Value {
+	value, err = vm.Run("xyzzy.length")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+
+	iv, err = value.ToInteger()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+	fmt.Println(iv)
+
+	value, err = vm.Run("abcdefghijlmnopqrstuvwxyz.length")
+	fmt.Println(value)
+	fmt.Println(err) // Expected error.
+
+	err = vm.Set("sayHello", func(call FunctionCall) Value {
 		fmt.Printf("Hello, %s.\n", call.Argument(0).String())
 		return UndefinedValue()
 	})
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 
-	vm.Set("twoPlus", func(call FunctionCall) Value {
+	err = vm.Set("twoPlus", func(call FunctionCall) Value {
 		right, _ := call.Argument(0).ToInteger()
 		result, _ := vm.ToValue(2 + right)
 		return result
 	})
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 
-	value, _ = vm.Run(`
+	value, err = vm.Run(`
         sayHello("Xyzzy");
         sayHello();
 
         result = twoPlus(2.0);
     `)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 	fmt.Println(value)
 
 	// Output:

@@ -93,25 +93,25 @@ func TestString_substr(t *testing.T) {
 
 func Test_builtin_escape(t *testing.T) {
 	tt(t, func() {
-		is(builtin_escape("abc"), "abc")
+		is(builtinEscape("abc"), "abc")
 
-		is(builtin_escape("="), "%3D")
+		is(builtinEscape("="), "%3D")
 
-		is(builtin_escape("abc=%+32"), "abc%3D%25+32")
+		is(builtinEscape("abc=%+32"), "abc%3D%25+32")
 
-		is(builtin_escape("世界"), "%u4E16%u754C")
+		is(builtinEscape("世界"), "%u4E16%u754C")
 	})
 }
 
 func Test_builtin_unescape(t *testing.T) {
 	tt(t, func() {
-		is(builtin_unescape("abc"), "abc")
+		is(builtinUnescape("abc"), "abc")
 
-		is(builtin_unescape("=%3D"), "==")
+		is(builtinUnescape("=%3D"), "==")
 
-		is(builtin_unescape("abc%3D%25+32"), "abc=%+32")
+		is(builtinUnescape("abc%3D%25+32"), "abc=%+32")
 
-		is(builtin_unescape("%u4E16%u754C"), "世界")
+		is(builtinUnescape("%u4E16%u754C"), "世界")
 	})
 }
 

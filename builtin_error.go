@@ -5,20 +5,20 @@ import (
 )
 
 func builtinError(call FunctionCall) Value {
-	return toValue_object(call.runtime.newError(classError, call.Argument(0), 1))
+	return objectValue(call.runtime.newError(classErrorName, call.Argument(0), 1))
 }
 
-func builtinNewError(self *_object, argumentList []Value) Value {
-	return toValue_object(self.runtime.newError(classError, valueOfArrayIndex(argumentList, 0), 0))
+func builtinNewError(obj *object, argumentList []Value) Value {
+	return objectValue(obj.runtime.newError(classErrorName, valueOfArrayIndex(argumentList, 0), 0))
 }
 
-func builtinError_toString(call FunctionCall) Value {
+func builtinErrorToString(call FunctionCall) Value {
 	thisObject := call.thisObject()
 	if thisObject == nil {
 		panic(call.runtime.panicTypeError())
 	}
 
-	name := classError
+	name := classErrorName
 	nameValue := thisObject.get("name")
 	if nameValue.IsDefined() {
 		name = nameValue.string()
@@ -31,96 +31,96 @@ func builtinError_toString(call FunctionCall) Value {
 	}
 
 	if len(name) == 0 {
-		return toValue_string(message)
+		return stringValue(message)
 	}
 
 	if len(message) == 0 {
-		return toValue_string(name)
+		return stringValue(name)
 	}
 
-	return toValue_string(fmt.Sprintf("%s: %s", name, message))
+	return stringValue(fmt.Sprintf("%s: %s", name, message))
 }
 
-func (runtime *_runtime) newEvalError(message Value) *_object {
-	self := runtime.newErrorObject("EvalError", message, 0)
-	self.prototype = runtime.global.EvalErrorPrototype
-	return self
+func (rt *runtime) newEvalError(message Value) *object {
+	o := rt.newErrorObject("EvalError", message, 0)
+	o.prototype = rt.global.EvalErrorPrototype
+	return o
 }
 
 func builtinEvalError(call FunctionCall) Value {
-	return toValue_object(call.runtime.newEvalError(call.Argument(0)))
+	return objectValue(call.runtime.newEvalError(call.Argument(0)))
 }
 
-func builtinNewEvalError(self *_object, argumentList []Value) Value {
-	return toValue_object(self.runtime.newEvalError(valueOfArrayIndex(argumentList, 0)))
+func builtinNewEvalError(obj *object, argumentList []Value) Value {
+	return objectValue(obj.runtime.newEvalError(valueOfArrayIndex(argumentList, 0)))
 }
 
-func (runtime *_runtime) newTypeError(message Value) *_object {
-	self := runtime.newErrorObject("TypeError", message, 0)
-	self.prototype = runtime.global.TypeErrorPrototype
-	return self
+func (rt *runtime) newTypeError(message Value) *object {
+	o := rt.newErrorObject("TypeError", message, 0)
+	o.prototype = rt.global.TypeErrorPrototype
+	return o
 }
 
 func builtinTypeError(call FunctionCall) Value {
-	return toValue_object(call.runtime.newTypeError(call.Argument(0)))
+	return objectValue(call.runtime.newTypeError(call.Argument(0)))
 }
 
-func builtinNewTypeError(self *_object, argumentList []Value) Value {
-	return toValue_object(self.runtime.newTypeError(valueOfArrayIndex(argumentList, 0)))
+func builtinNewTypeError(obj *object, argumentList []Value) Value {
+	return objectValue(obj.runtime.newTypeError(valueOfArrayIndex(argumentList, 0)))
 }
 
-func (runtime *_runtime) newRangeError(message Value) *_object {
-	self := runtime.newErrorObject("RangeError", message, 0)
-	self.prototype = runtime.global.RangeErrorPrototype
-	return self
+func (rt *runtime) newRangeError(message Value) *object {
+	o := rt.newErrorObject("RangeError", message, 0)
+	o.prototype = rt.global.RangeErrorPrototype
+	return o
 }
 
 func builtinRangeError(call FunctionCall) Value {
-	return toValue_object(call.runtime.newRangeError(call.Argument(0)))
+	return objectValue(call.runtime.newRangeError(call.Argument(0)))
 }
 
-func builtinNewRangeError(self *_object, argumentList []Value) Value {
-	return toValue_object(self.runtime.newRangeError(valueOfArrayIndex(argumentList, 0)))
+func builtinNewRangeError(obj *object, argumentList []Value) Value {
+	return objectValue(obj.runtime.newRangeError(valueOfArrayIndex(argumentList, 0)))
 }
 
-func (runtime *_runtime) newURIError(message Value) *_object {
-	self := runtime.newErrorObject("URIError", message, 0)
-	self.prototype = runtime.global.URIErrorPrototype
-	return self
+func (rt *runtime) newURIError(message Value) *object {
+	o := rt.newErrorObject("URIError", message, 0)
+	o.prototype = rt.global.URIErrorPrototype
+	return o
 }
 
-func (runtime *_runtime) newReferenceError(message Value) *_object {
-	self := runtime.newErrorObject("ReferenceError", message, 0)
-	self.prototype = runtime.global.ReferenceErrorPrototype
-	return self
+func (rt *runtime) newReferenceError(message Value) *object {
+	o := rt.newErrorObject("ReferenceError", message, 0)
+	o.prototype = rt.global.ReferenceErrorPrototype
+	return o
 }
 
 func builtinReferenceError(call FunctionCall) Value {
-	return toValue_object(call.runtime.newReferenceError(call.Argument(0)))
+	return objectValue(call.runtime.newReferenceError(call.Argument(0)))
 }
 
-func builtinNewReferenceError(self *_object, argumentList []Value) Value {
-	return toValue_object(self.runtime.newReferenceError(valueOfArrayIndex(argumentList, 0)))
+func builtinNewReferenceError(obj *object, argumentList []Value) Value {
+	return objectValue(obj.runtime.newReferenceError(valueOfArrayIndex(argumentList, 0)))
 }
 
-func (runtime *_runtime) newSyntaxError(message Value) *_object {
-	self := runtime.newErrorObject("SyntaxError", message, 0)
-	self.prototype = runtime.global.SyntaxErrorPrototype
-	return self
+func (rt *runtime) newSyntaxError(message Value) *object {
+	o := rt.newErrorObject("SyntaxError", message, 0)
+	o.prototype = rt.global.SyntaxErrorPrototype
+	return o
 }
 
 func builtinSyntaxError(call FunctionCall) Value {
-	return toValue_object(call.runtime.newSyntaxError(call.Argument(0)))
+	return objectValue(call.runtime.newSyntaxError(call.Argument(0)))
 }
 
-func builtinNewSyntaxError(self *_object, argumentList []Value) Value {
-	return toValue_object(self.runtime.newSyntaxError(valueOfArrayIndex(argumentList, 0)))
+func builtinNewSyntaxError(obj *object, argumentList []Value) Value {
+	return objectValue(obj.runtime.newSyntaxError(valueOfArrayIndex(argumentList, 0)))
 }
 
 func builtinURIError(call FunctionCall) Value {
-	return toValue_object(call.runtime.newURIError(call.Argument(0)))
+	return objectValue(call.runtime.newURIError(call.Argument(0)))
 }
 
-func builtinNewURIError(self *_object, argumentList []Value) Value {
-	return toValue_object(self.runtime.newURIError(valueOfArrayIndex(argumentList, 0)))
+func builtinNewURIError(obj *object, argumentList []Value) Value {
+	return objectValue(obj.runtime.newURIError(valueOfArrayIndex(argumentList, 0)))
 }

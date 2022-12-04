@@ -6,6 +6,7 @@ import (
 	"errors"
 )
 
+// ErrVersion is an error which represents a version mismatch.
 var ErrVersion = errors.New("version mismatch")
 
 var scriptVersion = "2014-04-13/1"
@@ -14,7 +15,7 @@ var scriptVersion = "2014-04-13/1"
 // Passing a Script value to a run method will evaluate the JavaScript.
 type Script struct {
 	version  string
-	program  *_nodeProgram
+	program  *nodeProgram
 	filename string
 	src      string
 }
@@ -24,23 +25,22 @@ type Script struct {
 //
 //	script, err := vm.Compile("", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
 //	vm.Run(script)
-func (self *Otto) Compile(filename string, src interface{}) (*Script, error) {
-	return self.CompileWithSourceMap(filename, src, nil)
+func (o *Otto) Compile(filename string, src interface{}) (*Script, error) {
+	return o.CompileWithSourceMap(filename, src, nil)
 }
 
 // CompileWithSourceMap does the same thing as Compile, but with the obvious
 // difference of applying a source map.
-func (self *Otto) CompileWithSourceMap(filename string, src, sm interface{}) (*Script, error) {
-	program, err := self.runtime.parse(filename, src, sm)
+func (o *Otto) CompileWithSourceMap(filename string, src, sm interface{}) (*Script, error) {
+	program, err := o.runtime.parse(filename, src, sm)
 	if err != nil {
 		return nil, err
 	}
 
-	cmpl_program := cmpl_parse(program)
-
+	node := cmplParse(program)
 	script := &Script{
 		version:  scriptVersion,
-		program:  cmpl_program,
+		program:  node,
 		filename: filename,
 		src:      program.File.Source(),
 	}
@@ -48,30 +48,30 @@ func (self *Otto) CompileWithSourceMap(filename string, src, sm interface{}) (*S
 	return script, nil
 }
 
-func (self *Script) String() string {
-	return "// " + self.filename + "\n" + self.src
+func (s *Script) String() string {
+	return "// " + s.filename + "\n" + s.src
 }
 
 // MarshalBinary will marshal a script into a binary form. A marshalled script
 // that is later unmarshalled can be executed on the same version of the otto runtime.
 //
 // The binary format can change at any time and should be considered unspecified and opaque.
-func (self *Script) marshalBinary() ([]byte, error) {
+func (s *Script) marshalBinary() ([]byte, error) {
 	var bfr bytes.Buffer
 	encoder := gob.NewEncoder(&bfr)
-	err := encoder.Encode(self.version)
+	err := encoder.Encode(s.version)
 	if err != nil {
 		return nil, err
 	}
-	err = encoder.Encode(self.program)
+	err = encoder.Encode(s.program)
 	if err != nil {
 		return nil, err
 	}
-	err = encoder.Encode(self.filename)
+	err = encoder.Encode(s.filename)
 	if err != nil {
 		return nil, err
 	}
-	err = encoder.Encode(self.src)
+	err = encoder.Encode(s.src)
 	if err != nil {
 		return nil, err
 	}
@@ -83,27 +83,27 @@ func (self *Script) marshalBinary() ([]byte, error) {
 // will return an error.
 //
 // The binary format can change at any time and should be considered unspecified and opaque.
-func (self *Script) unmarshalBinary(data []byte) (err error) {
+func (s *Script) unmarshalBinary(data []byte) (err error) { //nolint: nonamedreturns
 	decoder := gob.NewDecoder(bytes.NewReader(data))
 	defer func() {
 		if err != nil {
-			self.version = ""
-			self.program = nil
-			self.filename = ""
-			self.src = ""
+			s.version = ""
+			s.program = nil
+			s.filename = ""
+			s.src = ""
 		}
 	}()
-	if err = decoder.Decode(&self.version); err != nil {
+	if err = decoder.Decode(&s.version); err != nil {
 		return err
 	}
-	if self.version != scriptVersion {
+	if s.version != scriptVersion {
 		return ErrVersion
 	}
-	if err = decoder.Decode(&self.program); err != nil {
+	if err = decoder.Decode(&s.program); err != nil {
 		return err
 	}
-	if err = decoder.Decode(&self.filename); err != nil {
+	if err = decoder.Decode(&s.filename); err != nil {
 		return err
 	}
-	return decoder.Decode(&self.src)
+	return decoder.Decode(&s.src)
 }

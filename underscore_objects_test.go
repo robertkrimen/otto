@@ -4,10 +4,10 @@ import (
 	"testing"
 )
 
-// keys
+// keys.
 func Test_underscore_objects_0(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("keys", function() {
@@ -25,10 +25,10 @@ func Test_underscore_objects_0(t *testing.T) {
 	})
 }
 
-// values
+// values.
 func Test_underscore_objects_1(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("values", function() {
@@ -39,10 +39,10 @@ func Test_underscore_objects_1(t *testing.T) {
 	})
 }
 
-// pairs
+// pairs.
 func Test_underscore_objects_2(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("pairs", function() {
@@ -53,10 +53,10 @@ func Test_underscore_objects_2(t *testing.T) {
 	})
 }
 
-// invert
+// invert.
 func Test_underscore_objects_3(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("invert", function() {
@@ -71,10 +71,10 @@ func Test_underscore_objects_3(t *testing.T) {
 	})
 }
 
-// functions
+// functions.
 func Test_underscore_objects_4(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("functions", function() {
@@ -89,10 +89,10 @@ func Test_underscore_objects_4(t *testing.T) {
 	})
 }
 
-// extend
+// extend.
 func Test_underscore_objects_5(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("extend", function() {
@@ -118,10 +118,10 @@ func Test_underscore_objects_5(t *testing.T) {
 	})
 }
 
-// pick
+// pick.
 func Test_underscore_objects_6(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("pick", function() {
@@ -141,10 +141,10 @@ func Test_underscore_objects_6(t *testing.T) {
 	})
 }
 
-// omit
+// omit.
 func Test_underscore_objects_7(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("omit", function() {
@@ -164,10 +164,10 @@ func Test_underscore_objects_7(t *testing.T) {
 	})
 }
 
-// defaults
+// defaults.
 func Test_underscore_objects_8(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("defaults", function() {
@@ -195,10 +195,10 @@ func Test_underscore_objects_8(t *testing.T) {
 	})
 }
 
-// clone
+// clone.
 func Test_underscore_objects_9(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("clone", function() {
@@ -220,10 +220,10 @@ func Test_underscore_objects_9(t *testing.T) {
 	})
 }
 
-// isEqual
+// isEqual.
 func Test_underscore_objects_10(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isEqual", function() {
@@ -464,10 +464,10 @@ func Test_underscore_objects_10(t *testing.T) {
 	})
 }
 
-// isEmpty
+// isEmpty.
 func Test_underscore_objects_11(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isEmpty", function() {
@@ -489,7 +489,7 @@ func Test_underscore_objects_11(t *testing.T) {
 	})
 }
 
-// isElement
+// isElement.
 func Test_underscore_objects_12(t *testing.T) {
 	// TEST: ReferenceError: $ is not defined
 	if true {
@@ -497,7 +497,7 @@ func Test_underscore_objects_12(t *testing.T) {
 	}
 
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isElement", function() {
@@ -509,10 +509,10 @@ func Test_underscore_objects_12(t *testing.T) {
 	})
 }
 
-// isArguments
+// isArguments.
 func Test_underscore_objects_13(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isArguments", function() {
@@ -531,10 +531,10 @@ func Test_underscore_objects_13(t *testing.T) {
 	})
 }
 
-// isObject
+// isObject.
 func Test_underscore_objects_14(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isObject", function() {
@@ -557,10 +557,10 @@ func Test_underscore_objects_14(t *testing.T) {
 	})
 }
 
-// isArray
+// isArray.
 func Test_underscore_objects_15(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isArray", function() {
@@ -574,7 +574,7 @@ func Test_underscore_objects_15(t *testing.T) {
 	})
 }
 
-// isString
+// isString.
 func Test_underscore_objects_16(t *testing.T) {
 	// TEST: ReferenceError: document is not defined
 	if true {
@@ -582,7 +582,7 @@ func Test_underscore_objects_16(t *testing.T) {
 	}
 
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isString", function() {
@@ -596,10 +596,10 @@ func Test_underscore_objects_16(t *testing.T) {
 	})
 }
 
-// isNumber
+// isNumber.
 func Test_underscore_objects_17(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isNumber", function() {
@@ -618,10 +618,10 @@ func Test_underscore_objects_17(t *testing.T) {
 	})
 }
 
-// isBoolean
+// isBoolean.
 func Test_underscore_objects_18(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isBoolean", function() {
@@ -643,10 +643,10 @@ func Test_underscore_objects_18(t *testing.T) {
 	})
 }
 
-// isFunction
+// isFunction.
 func Test_underscore_objects_19(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isFunction", function() {
@@ -661,10 +661,10 @@ func Test_underscore_objects_19(t *testing.T) {
 	})
 }
 
-// isDate
+// isDate.
 func Test_underscore_objects_20(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isDate", function() {
@@ -679,10 +679,10 @@ func Test_underscore_objects_20(t *testing.T) {
 	})
 }
 
-// isRegExp
+// isRegExp.
 func Test_underscore_objects_21(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isRegExp", function() {
@@ -696,10 +696,10 @@ func Test_underscore_objects_21(t *testing.T) {
 	})
 }
 
-// isFinite
+// isFinite.
 func Test_underscore_objects_22(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isFinite", function() {
@@ -721,10 +721,10 @@ func Test_underscore_objects_22(t *testing.T) {
 	})
 }
 
-// isNaN
+// isNaN.
 func Test_underscore_objects_23(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isNaN", function() {
@@ -741,10 +741,10 @@ func Test_underscore_objects_23(t *testing.T) {
 	})
 }
 
-// isNull
+// isNull.
 func Test_underscore_objects_24(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isNull", function() {
@@ -759,10 +759,10 @@ func Test_underscore_objects_24(t *testing.T) {
 	})
 }
 
-// isUndefined
+// isUndefined.
 func Test_underscore_objects_25(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("isUndefined", function() {
@@ -780,10 +780,10 @@ func Test_underscore_objects_25(t *testing.T) {
 	})
 }
 
-// tap
+// tap.
 func Test_underscore_objects_26(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("tap", function() {
@@ -804,10 +804,10 @@ func Test_underscore_objects_26(t *testing.T) {
 	})
 }
 
-// has
+// has.
 func Test_underscore_objects_27(t *testing.T) {
 	tt(t, func() {
-		test, _ := test_()
+		test := underscoreTest()
 
 		test(`
   test("has", function () {

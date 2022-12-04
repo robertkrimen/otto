@@ -2,6 +2,7 @@
 package repl
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -100,7 +101,7 @@ func RunWithOptions(vm *otto.Otto, options Options) error {
 	for {
 		l, err := rl.Readline()
 		if err != nil {
-			if err == readline.ErrInterrupt {
+			if errors.Is(err, readline.ErrInterrupt) {
 				if d != nil {
 					d = nil
 
@@ -132,13 +133,20 @@ func RunWithOptions(vm *otto.Otto, options Options) error {
 
 			v, err := vm.Eval(s)
 			if err != nil {
-				if oerr, ok := err.(*otto.Error); ok {
-					io.Copy(rl.Stdout(), strings.NewReader(oerr.String()))
+				var oerr *otto.Error
+				if errors.As(err, &oerr) {
+					if _, err := io.Copy(rl.Stdout(), strings.NewReader(oerr.String())); err != nil {
+						return fmt.Errorf("write out: %w", err)
+					}
 				} else {
-					io.Copy(rl.Stdout(), strings.NewReader(err.Error()))
+					if _, err := io.Copy(rl.Stdout(), strings.NewReader(err.Error())); err != nil {
+						return fmt.Errorf("write out: %w", err)
+					}
 				}
 			} else {
-				rl.Stdout().Write([]byte(v.String() + "\n"))
+				if _, err := rl.Stdout().Write([]byte(v.String() + "\n")); err != nil {
+					return fmt.Errorf("write out: %w", err)
+				}
 			}
 		}
 

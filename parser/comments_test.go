@@ -22,10 +22,10 @@ func checkComments(actual []*ast.Comment, expected []string, position ast.Commen
 
 	for i, v := range comments {
 		if v.Text != expected[i] {
-			return fmt.Errorf("comments do not match. \"%v\" != \"%v\"\n", v.Text, expected[i])
+			return fmt.Errorf("comments do not match: %q != %q", v.Text, expected[i])
 		}
 		if v.Position != position {
-			return fmt.Errorf("the comment is not %v, was %v\n", position, v.Position)
+			return fmt.Errorf("comment positions do not match: %d != %d", position, v.Position)
 		}
 	}
 
@@ -33,11 +33,11 @@ func checkComments(actual []*ast.Comment, expected []string, position ast.Commen
 }
 
 func displayComments(m ast.CommentMap) {
-	fmt.Printf("Displaying comments:\n")
+	fmt.Printf("Displaying comments:\n") //nolint: forbidigo
 	for n, comments := range m {
-		fmt.Printf("%v %v:\n", reflect.TypeOf(n), n)
+		fmt.Printf("%v %v:\n", reflect.TypeOf(n), n) //nolint: forbidigo
 		for i, comment := range comments {
-			fmt.Printf(" [%v] %v @ %v\n", i, comment.Text, comment.Position)
+			fmt.Printf(" [%v] %v @ %v\n", i, comment.Text, comment.Position) //nolint: forbidigo
 		}
 	}
 }
@@ -49,7 +49,7 @@ func TestParser_comments(t *testing.T) {
 			is(firstErr(err), chk)
 
 			// Check unresolved comments
-			//is(len(parser.comments), 0)
+
 			return parser, program
 		}
 
@@ -1436,7 +1436,7 @@ func TestParser_comments2(t *testing.T) {
 a = /*comment1*/new /*comment2*/ obj/*comment3*/()
 `, nil)
 		n := program.Body[0]
-		fmt.Printf("FOUND NODE: %v, number of comments: %v\n", reflect.TypeOf(n), len(parser.comments.CommentMap[n]))
+		fmt.Printf("FOUND NODE: %v, number of comments: %v\n", reflect.TypeOf(n), len(parser.comments.CommentMap[n])) //nolint: forbidigo
 		displayComments(parser.comments.CommentMap)
 	})
 }

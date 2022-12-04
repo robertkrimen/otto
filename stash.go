@@ -4,11 +4,8 @@ import (
 	"fmt"
 )
 
-// ======
-// _stash
-// ======
-
-type _stash interface {
+// stasher is implemented by types which can stash data.
+type stasher interface {
 	hasBinding(string) bool            //
 	createBinding(string, bool, Value) // CreateMutableBinding
 	setBinding(string, Value, bool)    // SetMutableBinding
@@ -16,160 +13,151 @@ type _stash interface {
 	deleteBinding(string) bool         //
 	setValue(string, Value, bool)      // createBinding + setBinding
 
-	outer() _stash
-	runtime() *_runtime
+	outer() stasher
+	runtime() *runtime
 
-	newReference(string, bool, _at) _reference
+	newReference(string, bool, at) referencer
 
-	clone(clone *_clone) _stash
+	clone(*cloner) stasher
 }
 
-// ==========
-// _objectStash
-// ==========
-
-type _objectStash struct {
-	_runtime *_runtime
-	_outer   _stash
-	object   *_object
+type objectStash struct {
+	rt     *runtime
+	outr   stasher
+	object *object
 }
 
-func (self *_objectStash) runtime() *_runtime {
-	return self._runtime
+func (s *objectStash) runtime() *runtime {
+	return s.rt
 }
 
-func (runtime *_runtime) newObjectStash(object *_object, outer _stash) *_objectStash {
-	if object == nil {
-		object = runtime.newBaseObject()
-		object.class = "environment"
+func (rt *runtime) newObjectStash(obj *object, outer stasher) *objectStash {
+	if obj == nil {
+		obj = rt.newBaseObject()
+		obj.class = "environment"
 	}
-	return &_objectStash{
-		_runtime: runtime,
-		_outer:   outer,
-		object:   object,
+	return &objectStash{
+		rt:     rt,
+		outr:   outer,
+		object: obj,
 	}
 }
 
-func (in *_objectStash) clone(clone *_clone) _stash {
-	out, exists := clone.objectStash(in)
+func (s *objectStash) clone(c *cloner) stasher {
+	out, exists := c.objectStash(s)
 	if exists {
 		return out
 	}
-	*out = _objectStash{
-		clone.runtime,
-		clone.stash(in._outer),
-		clone.object(in.object),
+	*out = objectStash{
+		c.runtime,
+		c.stash(s.outr),
+		c.object(s.object),
 	}
 	return out
 }
 
-func (self *_objectStash) hasBinding(name string) bool {
-	return self.object.hasProperty(name)
+func (s *objectStash) hasBinding(name string) bool {
+	return s.object.hasProperty(name)
 }
 
-func (self *_objectStash) createBinding(name string, deletable bool, value Value) {
-	if self.object.hasProperty(name) {
+func (s *objectStash) createBinding(name string, deletable bool, value Value) {
+	if s.object.hasProperty(name) {
 		panic(hereBeDragons())
 	}
-	mode := _propertyMode(0111)
+	mode := propertyMode(0o111)
 	if !deletable {
-		mode = _propertyMode(0110)
+		mode = propertyMode(0o110)
 	}
 	// TODO False?
-	self.object.defineProperty(name, value, mode, false)
+	s.object.defineProperty(name, value, mode, false)
 }
 
-func (self *_objectStash) setBinding(name string, value Value, strict bool) {
-	self.object.put(name, value, strict)
+func (s *objectStash) setBinding(name string, value Value, strict bool) {
+	s.object.put(name, value, strict)
 }
 
-func (self *_objectStash) setValue(name string, value Value, throw bool) {
-	if !self.hasBinding(name) {
-		self.createBinding(name, true, value) // Configurable by default
+func (s *objectStash) setValue(name string, value Value, throw bool) {
+	if !s.hasBinding(name) {
+		s.createBinding(name, true, value) // Configurable by default
 	} else {
-		self.setBinding(name, value, throw)
+		s.setBinding(name, value, throw)
 	}
 }
 
-func (self *_objectStash) getBinding(name string, throw bool) Value {
-	if self.object.hasProperty(name) {
-		return self.object.get(name)
+func (s *objectStash) getBinding(name string, throw bool) Value {
+	if s.object.hasProperty(name) {
+		return s.object.get(name)
 	}
 	if throw { // strict?
-		panic(self._runtime.panicReferenceError("Not Defined", name))
+		panic(s.rt.panicReferenceError("Not Defined", name))
 	}
 	return Value{}
 }
 
-func (self *_objectStash) deleteBinding(name string) bool {
-	return self.object.delete(name, false)
+func (s *objectStash) deleteBinding(name string) bool {
+	return s.object.delete(name, false)
 }
 
-func (self *_objectStash) outer() _stash {
-	return self._outer
+func (s *objectStash) outer() stasher {
+	return s.outr
 }
 
-func (self *_objectStash) newReference(name string, strict bool, at _at) _reference {
-	return newPropertyReference(self._runtime, self.object, name, strict, at)
+func (s *objectStash) newReference(name string, strict bool, atv at) referencer {
+	return newPropertyReference(s.rt, s.object, name, strict, atv)
 }
 
-// =========
-// _dclStash
-// =========
-
-type _dclStash struct {
-	_runtime *_runtime
-	_outer   _stash
-	property map[string]_dclProperty
+type dclStash struct {
+	rt       *runtime
+	outr     stasher
+	property map[string]dclProperty
 }
 
-type _dclProperty struct {
+type dclProperty struct {
 	value     Value
 	mutable   bool
 	deletable bool
 	readable  bool
 }
 
-func (runtime *_runtime) newDeclarationStash(outer _stash) *_dclStash {
-	return &_dclStash{
-		_runtime: runtime,
-		_outer:   outer,
-		property: map[string]_dclProperty{},
+func (rt *runtime) newDeclarationStash(outer stasher) *dclStash {
+	return &dclStash{
+		rt:       rt,
+		outr:     outer,
+		property: map[string]dclProperty{},
 	}
 }
 
-func (in *_dclStash) clone(clone *_clone) _stash {
-	out, exists := clone.dclStash(in)
+func (s *dclStash) clone(c *cloner) stasher {
+	out, exists := c.dclStash(s)
 	if exists {
 		return out
 	}
-	property := make(map[string]_dclProperty, len(in.property))
-	for index, value := range in.property {
-		property[index] = clone.dclProperty(value)
+	prop := make(map[string]dclProperty, len(s.property))
+	for index, value := range s.property {
+		prop[index] = c.dclProperty(value)
 	}
-	*out = _dclStash{
-		clone.runtime,
-		clone.stash(in._outer),
-		property,
+	*out = dclStash{
+		c.runtime,
+		c.stash(s.outr),
+		prop,
 	}
 	return out
 }
 
-func (self *_dclStash) hasBinding(name string) bool {
-	_, exists := self.property[name]
+func (s *dclStash) hasBinding(name string) bool {
+	_, exists := s.property[name]
 	return exists
 }
 
-func (self *_dclStash) runtime() *_runtime {
-	return self._runtime
+func (s *dclStash) runtime() *runtime {
+	return s.rt
 }
 
-func (self *_dclStash) createBinding(name string, deletable bool, value Value) {
-	_, exists := self.property[name]
-	if exists {
+func (s *dclStash) createBinding(name string, deletable bool, value Value) {
+	if _, exists := s.property[name]; exists {
 		panic(fmt.Errorf("createBinding: %s: already exists", name))
 	}
-	self.property[name] = _dclProperty{
+	s.property[name] = dclProperty{
 		value:     value,
 		mutable:   true,
 		deletable: deletable,
@@ -177,62 +165,62 @@ func (self *_dclStash) createBinding(name string, deletable bool, value Value) {
 	}
 }
 
-func (self *_dclStash) setBinding(name string, value Value, strict bool) {
-	property, exists := self.property[name]
+func (s *dclStash) setBinding(name string, value Value, strict bool) {
+	prop, exists := s.property[name]
 	if !exists {
 		panic(fmt.Errorf("setBinding: %s: missing", name))
 	}
-	if property.mutable {
-		property.value = value
-		self.property[name] = property
+	if prop.mutable {
+		prop.value = value
+		s.property[name] = prop
 	} else {
-		self._runtime.typeErrorResult(strict)
+		s.rt.typeErrorResult(strict)
 	}
 }
 
-func (self *_dclStash) setValue(name string, value Value, throw bool) {
-	if !self.hasBinding(name) {
-		self.createBinding(name, false, value) // NOT deletable by default
+func (s *dclStash) setValue(name string, value Value, throw bool) {
+	if !s.hasBinding(name) {
+		s.createBinding(name, false, value) // NOT deletable by default
 	} else {
-		self.setBinding(name, value, throw)
+		s.setBinding(name, value, throw)
 	}
 }
 
-// FIXME This is called a __lot__
-func (self *_dclStash) getBinding(name string, throw bool) Value {
-	property, exists := self.property[name]
+// FIXME This is called a __lot__.
+func (s *dclStash) getBinding(name string, throw bool) Value {
+	prop, exists := s.property[name]
 	if !exists {
 		panic(fmt.Errorf("getBinding: %s: missing", name))
 	}
-	if !property.mutable && !property.readable {
+	if !prop.mutable && !prop.readable {
 		if throw { // strict?
-			panic(self._runtime.panicTypeError())
+			panic(s.rt.panicTypeError())
 		}
 		return Value{}
 	}
-	return property.value
+	return prop.value
 }
 
-func (self *_dclStash) deleteBinding(name string) bool {
-	property, exists := self.property[name]
+func (s *dclStash) deleteBinding(name string) bool {
+	prop, exists := s.property[name]
 	if !exists {
 		return true
 	}
-	if !property.deletable {
+	if !prop.deletable {
 		return false
 	}
-	delete(self.property, name)
+	delete(s.property, name)
 	return true
 }
 
-func (self *_dclStash) outer() _stash {
-	return self._outer
+func (s *dclStash) outer() stasher {
+	return s.outr
 }
 
-func (self *_dclStash) newReference(name string, strict bool, _ _at) _reference {
-	return &_stashReference{
+func (s *dclStash) newReference(name string, strict bool, _ at) referencer {
+	return &stashReference{
 		name: name,
-		base: self,
+		base: s,
 	}
 }
 
@@ -240,57 +228,62 @@ func (self *_dclStash) newReference(name string, strict bool, _ _at) _reference 
 // _fnStash
 // ========
 
-type _fnStash struct {
-	_dclStash
-	arguments           *_object
+type fnStash struct {
+	dclStash
+	arguments           *object
 	indexOfArgumentName map[string]string
 }
 
-func (runtime *_runtime) newFunctionStash(outer _stash) *_fnStash {
-	return &_fnStash{
-		_dclStash: _dclStash{
-			_runtime: runtime,
-			_outer:   outer,
-			property: map[string]_dclProperty{},
+func (rt *runtime) newFunctionStash(outer stasher) *fnStash {
+	return &fnStash{
+		dclStash: dclStash{
+			rt:       rt,
+			outr:     outer,
+			property: map[string]dclProperty{},
 		},
 	}
 }
 
-func (in *_fnStash) clone(clone *_clone) _stash {
-	out, exists := clone.fnStash(in)
+func (s *fnStash) clone(c *cloner) stasher {
+	out, exists := c.fnStash(s)
 	if exists {
 		return out
 	}
-	dclStash := in._dclStash.clone(clone).(*_dclStash)
-	index := make(map[string]string, len(in.indexOfArgumentName))
-	for name, value := range in.indexOfArgumentName {
+	dclStash := s.dclStash.clone(c).(*dclStash)
+	index := make(map[string]string, len(s.indexOfArgumentName))
+	for name, value := range s.indexOfArgumentName {
 		index[name] = value
 	}
-	*out = _fnStash{
-		_dclStash:           *dclStash,
-		arguments:           clone.object(in.arguments),
+	*out = fnStash{
+		dclStash:            *dclStash,
+		arguments:           c.object(s.arguments),
 		indexOfArgumentName: index,
 	}
 	return out
 }
 
-func getStashProperties(stash _stash) (keys []string) {
+// getStashProperties returns the properties from stash.
+func getStashProperties(stash stasher) []string {
 	switch vars := stash.(type) {
-	case *_dclStash:
+	case *dclStash:
+		keys := make([]string, 0, len(vars.property))
 		for k := range vars.property {
 			keys = append(keys, k)
 		}
-	case *_fnStash:
+		return keys
+	case *fnStash:
+		keys := make([]string, 0, len(vars.property))
 		for k := range vars.property {
 			keys = append(keys, k)
 		}
-	case *_objectStash:
+		return keys
+	case *objectStash:
+		keys := make([]string, 0, len(vars.object.property))
 		for k := range vars.object.property {
 			keys = append(keys, k)
 		}
+		return keys
 	default:
 		panic("unknown stash type")
 	}
-
-	return
 }

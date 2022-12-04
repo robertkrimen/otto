@@ -9,27 +9,27 @@ import (
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"
 	"github.com/robertkrimen/otto/underscore"
+	"github.com/stretchr/testify/require"
 )
 
 func firstErr(err error) error {
-	switch err := err.(type) {
-	case ErrorList:
-		return err[0]
+	var lerr *ErrorList
+	if errors.As(err, &lerr) {
+		return (*lerr)[0]
 	}
 	return err
 }
 
 var matchBeforeAfterSeparator = regexp.MustCompile(`(?m)^[ \t]*---$`)
 
-func testParse(src string) (parser *_parser, program *ast.Program, err error) {
+func testParse(src string) (*_parser, *ast.Program, error) {
 	return testParseWithMode(src, 0)
 }
 
-func testParseWithMode(src string, mode Mode) (parser *_parser, program *ast.Program, err error) {
+func testParseWithMode(src string, mode Mode) (parser *_parser, program *ast.Program, err error) { //nolint: nonamedreturns
 	defer func() {
 		if tmp := recover(); tmp != nil {
-			switch tmp := tmp.(type) {
-			case string:
+			if tmp, ok := tmp.(string); ok {
 				if strings.HasPrefix(tmp, "SyntaxError:") {
 					parser = nil
 					program = nil
@@ -40,10 +40,10 @@ func testParseWithMode(src string, mode Mode) (parser *_parser, program *ast.Pro
 			panic(tmp)
 		}
 	}()
-	parser = _newParser("", src, 1, nil)
+	parser = newParser("", src, 1, nil)
 	parser.mode = mode
 	program, err = parser.parse()
-	return
+	return parser, program, err
 }
 
 func TestParseFile(t *testing.T) {
@@ -92,7 +92,7 @@ func TestParseFunction(t *testing.T) {
 func TestParserErr(t *testing.T) {
 	tt(t, func() {
 		test := func(input string, expect interface{}) (*ast.Program, *_parser) {
-			parser := _newParser("", input, 1, nil)
+			parser := newParser("", input, 1, nil)
 			program, err := parser.parse()
 			is(firstErr(err), expect)
 			return program, parser
@@ -162,17 +162,17 @@ func TestParserErr(t *testing.T) {
 
 		test("var x = /(s/g", "(anonymous): Line 1:9 Invalid regular expression: Unterminated group")
 
-		test("0 = 1", "(anonymous): Line 1:1 Invalid left-hand side in assignment")
+		test("0 = 1", "(anonymous): Line 1:1 invalid left-hand side in assignment")
 
-		test("func() = 1", "(anonymous): Line 1:1 Invalid left-hand side in assignment")
+		test("func() = 1", "(anonymous): Line 1:1 invalid left-hand side in assignment")
 
-		test("(1 + 1) = 2", "(anonymous): Line 1:2 Invalid left-hand side in assignment")
+		test("(1 + 1) = 2", "(anonymous): Line 1:2 invalid left-hand side in assignment")
 
-		test("1++", "(anonymous): Line 1:2 Invalid left-hand side in assignment")
+		test("1++", "(anonymous): Line 1:2 invalid left-hand side in assignment")
 
-		test("1--", "(anonymous): Line 1:2 Invalid left-hand side in assignment")
+		test("1--", "(anonymous): Line 1:2 invalid left-hand side in assignment")
 
-		test("--1", "(anonymous): Line 1:1 Invalid left-hand side in assignment")
+		test("--1", "(anonymous): Line 1:1 invalid left-hand side in assignment")
 
 		test("for((1 + 1) in abc) def();", "(anonymous): Line 1:1 Invalid left-hand side in for-in")
 
@@ -192,9 +192,9 @@ func TestParserErr(t *testing.T) {
 
 		test("var if = 0", "(anonymous): Line 1:5 Unexpected token if")
 
-		test("abc + 0 = 1", "(anonymous): Line 1:1 Invalid left-hand side in assignment")
+		test("abc + 0 = 1", "(anonymous): Line 1:1 invalid left-hand side in assignment")
 
-		test("+abc = 1", "(anonymous): Line 1:1 Invalid left-hand side in assignment")
+		test("+abc = 1", "(anonymous): Line 1:1 invalid left-hand side in assignment")
 
 		test("1 + (", "(anonymous): Line 1:6 Unexpected end of input")
 
@@ -203,19 +203,19 @@ func TestParserErr(t *testing.T) {
 		test("\n/* Some multiline\ncomment */\n)", "(anonymous): Line 4:1 Unexpected token )")
 
 		// TODO
-		//{ set 1 }
-		//{ get 2 }
-		//({ set: s(if) { } })
-		//({ set s(.) { } })
-		//({ set: s() { } })
-		//({ set: s(a, b) { } })
-		//({ get: g(d) { } })
-		//({ get i() { }, i: 42 })
-		//({ i: 42, get i() { } })
-		//({ set i(x) { }, i: 42 })
-		//({ i: 42, set i(x) { } })
-		//({ get i() { }, get i() { } })
-		//({ set i(x) { }, set i(x) { } })
+		// { set 1 }
+		// { get 2 }
+		// ({ set: s(if) { } })
+		// ({ set s(.) { } })
+		// ({ set: s() { } })
+		// ({ set: s(a, b) { } })
+		// ({ get: g(d) { } })
+		// ({ get i() { }, i: 42 })
+		// ({ i: 42, get i() { } })
+		// ({ set i(x) { }, i: 42 })
+		// ({ i: 42, set i(x) { } })
+		// ({ get i() { }, get i() { } })
+		// ({ set i(x) { }, set i(x) { } })
 
 		test("function abc(if) {}", "(anonymous): Line 1:14 Unexpected token if")
 
@@ -506,7 +506,7 @@ func TestParser(t *testing.T) {
             abc
             --
             []
-        `, "(anonymous): Line 3:13 Invalid left-hand side in assignment")
+        `, "(anonymous): Line 3:13 invalid left-hand side in assignment")
 
 		test(`
             abc--
@@ -779,7 +779,7 @@ func TestParser(t *testing.T) {
 		test("'\\\r\n'", nil)
 
 		//// 11.13.1-1-1
-		test("42 = 42;", "(anonymous): Line 1:1 Invalid left-hand side in assignment")
+		test("42 = 42;", "(anonymous): Line 1:1 invalid left-hand side in assignment")
 
 		// S11.13.2_A4.2_T1.3
 		test(`
@@ -968,7 +968,7 @@ func Test_parseNumberLiteral(t *testing.T) {
 
 func TestPosition(t *testing.T) {
 	tt(t, func() {
-		parser := _newParser("", "// Lorem ipsum", 1, nil)
+		parser := newParser("", "// Lorem ipsum", 1, nil)
 
 		// Out of range, idx0 (error condition)
 		is(parser.slice(0, 1), "")
@@ -986,7 +986,7 @@ func TestPosition(t *testing.T) {
 		is(parser.str[0:14], "// Lorem ipsum")
 		is(parser.slice(1, 15), "// Lorem ipsum")
 
-		parser = _newParser("", "(function(){ return 0; })", 1, nil)
+		parser = newParser("", "(function(){ return 0; })", 1, nil)
 		program, err := parser.parse()
 		is(err, nil)
 
@@ -1004,20 +1004,20 @@ func TestPosition(t *testing.T) {
 		is(node.Idx1(), file.Idx(25))
 		is(parser.slice(node.Idx0(), node.Idx1()), "function(){ return 0; }")
 
-		parser = _newParser("", "(function(){ return abc; })", 1, nil)
+		parser = newParser("", "(function(){ return abc; })", 1, nil)
 		program, err = parser.parse()
 		is(err, nil)
 		node = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral)
 		is(node.(*ast.FunctionLiteral).Source, "function(){ return abc; }")
 
-		parser = _newParser("", "this.style", 1, nil)
+		parser = newParser("", "this.style", 1, nil)
 		program, err = parser.parse()
 		is(err, nil)
 		node = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.DotExpression).Left.(*ast.ThisExpression)
 		is(node.Idx0(), file.Idx(1))
 		is(node.Idx1(), file.Idx(5))
 
-		parser = _newParser("", "(function(){ if (abc) { throw 'failed'; } })", 1, nil)
+		parser = newParser("", "(function(){ if (abc) { throw 'failed'; } })", 1, nil)
 		program, err = parser.parse()
 		is(err, nil)
 		block := program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
@@ -1033,7 +1033,8 @@ func BenchmarkParser(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		parser := _newParser("", src, 1, nil)
-		parser.parse()
+		parser := newParser("", src, 1, nil)
+		_, err := parser.parse()
+		require.NoError(b, err)
 	}
 }
