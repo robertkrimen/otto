@@ -14,7 +14,7 @@ func TestNativeStackFrames(t *testing.T) {
 			function A() { ext1(); }
 			function B() { ext2(); }
 			A();
-    	`)
+		`)
 		require.NoError(t, err)
 
 		err = vm.Set("ext1", func(c FunctionCall) Value {

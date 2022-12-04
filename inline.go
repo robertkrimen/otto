@@ -6340,20 +6340,6 @@ func intValue(value int) Value {
 	}
 }
 
-func int8Value(value int8) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
-func int16Value(value int16) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
 func int32Value(value int32) Value {
 	return Value{
 		kind:  valueNumber,
@@ -6368,20 +6354,6 @@ func int64Value(value int64) Value {
 	}
 }
 
-func uintValue(value uint) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
-func uint8Value(value uint8) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
 func uint16Value(value uint16) Value {
 	return Value{
 		kind:  valueNumber,
@@ -6390,20 +6362,6 @@ func uint16Value(value uint16) Value {
 }
 
 func uint32Value(value uint32) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
-func uint64Value(value uint64) Value {
-	return Value{
-		kind:  valueNumber,
-		value: value,
-	}
-}
-
-func float32Value(value float32) Value {
 	return Value{
 		kind:  valueNumber,
 		value: value,

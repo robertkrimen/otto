@@ -48,7 +48,7 @@ func (rt *runtime) newConsole() *object {
 }
 _END_
 
-for (qw/int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 float32 float64/) {
+for (qw/int int32 int64 uint16 uint32 float64/) {
     $fmt->print(<<_END_);
 
 func ${_}Value(value $_) Value {
