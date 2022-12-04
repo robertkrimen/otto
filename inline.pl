@@ -10,8 +10,18 @@ use IO::File;
 
 my $self = __PACKAGE__;
 
-sub functionLabel ($) {
-    return "$_[0]_function";
+sub label ($) {
+    my $name = shift;
+
+    if ($name eq "toString") {
+        return "methodToString";
+    } elsif ($name =~ /^(length|prototype|constructor)$/) {
+        return "property" . ucfirst $name;
+    } elsif ($name =~ /^class\w+Name$/) {
+        return $name;
+    }
+
+    return qq{"${name}"};
 }
 
 sub trim ($) {
@@ -29,19 +39,19 @@ import (
     "math"
 )
 
-func _newContext(rt *_runtime) {
+func (rt *runtime) newContext() {
 @{[ join "\n", $self->newContext() ]}
 }
 
-func newConsoleObject(rt *_runtime) *_object {
-@{[ join "\n", $self->newConsoleObject() ]}
+func (rt *runtime) newConsole() *object {
+@{[ join "\n", $self->newConsole() ]}
 }
 _END_
 
 for (qw/int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 float32 float64/) {
     $fmt->print(<<_END_);
 
-func toValue_$_(value $_) Value {
+func ${_}Value(value $_) Value {
     return Value{
         kind: valueNumber,
         value: value,
@@ -52,28 +62,28 @@ _END_
 
 $fmt->print(<<_END_);
 
-func toValue_string(value string) Value {
+func stringValue(value string) Value {
     return Value{
         kind: valueString,
         value: value,
     }
 }
 
-func toValue_string16(value []uint16) Value {
+func string16Value(value []uint16) Value {
     return Value{
         kind: valueString,
         value: value,
     }
 }
 
-func toValue_bool(value bool) Value {
+func boolValue(value bool) Value {
     return Value{
         kind: valueBoolean,
         value: value,
     }
 }
 
-func toValue_object(value *_object) Value {
+func objectValue(value *object) Value {
     return Value{
         kind: valueObject,
         value: value,
@@ -83,7 +93,7 @@ _END_
 
 close $fmt;
 
-sub newConsoleObject {
+sub newConsole {
     my $self = shift;
 
     return
@@ -118,7 +128,7 @@ sub newContext {
             ".${class}Prototype =",
             $self->globalPrototype(
                 $class,
-                "_classObject",
+                "classObject",
                 undef,
                 "prototypeValueObject",
             ),
@@ -131,7 +141,7 @@ sub newContext {
             ".${class}Prototype =",
             $self->globalPrototype(
                 $class,
-                "_classObject",
+                "classObject",
                 ".ObjectPrototype",
                 "prototypeValueFunction",
             ),
@@ -151,7 +161,7 @@ sub newContext {
             );
             my @propertyMap = $self->propertyMap(
                 @got,
-                $self->property("constructor", undef),
+                $self->property("constructor", undef, undef),
             );
             my $propertyOrder = $self->propertyOrder(@propertyMap);
             $propertyOrder =~ s/^propertyOrder: //;
@@ -172,7 +182,7 @@ sub newContext {
             );
             my @propertyMap = $self->propertyMap(
                 @got,
-                $self->property("constructor", undef),
+                $self->property("constructor", undef, undef),
                 $self->property("length", $self->numberValue(0), "0"),
             );
             my $propertyOrder = $self->propertyOrder(@propertyMap);
@@ -213,12 +223,10 @@ sub newContext {
         $self->block(sub {
             my $class = "Function";
             return
-            "Function :=",
-            $self->globalFunction(
+            ".$class = " . $self->globalFunction(
                 $class,
                 1,
             ),
-            ".$class = Function",
         }),
 
         # Array
@@ -252,10 +260,10 @@ sub newContext {
             ".${class}Prototype =",
             $self->globalPrototype(
                 $class,
-                "_classArray",
+                "classArray",
                 ".ObjectPrototype",
                 undef,
-                $self->property("length", $self->numberValue("uint32(0)"), "0100"),
+                $self->property("length", $self->numberValue("uint32(0)"), "0o100"),
                 @got,
             ),
             ".$class =",
@@ -301,7 +309,7 @@ sub newContext {
             ".${class}Prototype =",
             $self->globalPrototype(
                 $class,
-                "_classString",
+                "classString",
                 ".ObjectPrototype",
                 "prototypeValueString",
                 $self->property("length", $self->numberValue("int(0)"), "0"),
@@ -330,7 +338,7 @@ sub newContext {
             ".${class}Prototype =",
             $self->globalPrototype(
                 $class,
-                "_classObject",
+                "classObject",
                 ".ObjectPrototype",
                 "prototypeValueBoolean",
                 @got,
@@ -361,7 +369,7 @@ sub newContext {
             ".${class}Prototype =",
             $self->globalPrototype(
                 $class,
-                "_classObject",
+                "classObject",
                 ".ObjectPrototype",
                 "prototypeValueNumber",
                 @got,
@@ -481,7 +489,7 @@ sub newContext {
             ".${class}Prototype =",
             $self->globalPrototype(
                 $class,
-                "_classObject",
+                "classObject",
                 ".ObjectPrototype",
                 "prototypeValueDate",
                 @got,
@@ -513,7 +521,7 @@ sub newContext {
             ".${class}Prototype =",
             $self->globalPrototype(
                 $class,
-                "_classObject",
+                "classObject",
                 ".ObjectPrototype",
                 "prototypeValueRegExp",
                 @got,
@@ -539,7 +547,7 @@ sub newContext {
             ".${class}Prototype =",
             $self->globalPrototype(
                 $class,
-                "_classObject",
+                "classObject",
                 ".ObjectPrototype",
                 undef,
                 @got,
@@ -566,7 +574,7 @@ sub newContext {
                 ".${class}Prototype =",
                 $self->globalPrototype(
                     $class,
-                    "_classObject",
+                    "classObject",
                     ".ErrorPrototype",
                     undef,
                     @got,
@@ -654,14 +662,14 @@ sub newContext {
 
 sub propertyMap {
     my $self = shift;
-    return "map[string]_property{", (join ",\n", @_, ""), "}",
+    return "map[string]property{", (join ",\n", @_, ""), "}",
 }
 
-our (@preblock, @postblock);
+our (@postblock, %funcs);
 sub block {
     my $self = shift;
-    local @preblock = ();
     local @postblock = ();
+    local %funcs = ();
     my @input = $_[0]->();
     my @output;
     while (@input) {
@@ -672,14 +680,14 @@ sub block {
         if (m/ :?=$/) {
             $_ .= shift @input;
         }
+        foreach my $label (keys %funcs) {
+            $_ =~ s/value: $label,/value: $funcs{$label},/;
+        }
         push @output, $_;
     }
     return
-    "{",
-        @preblock,
         @output,
         @postblock,
-    "}",
     ;
 }
 
@@ -702,7 +710,7 @@ sub functionDeclare {
     while (@_) {
         my $name = shift;
         my $length = shift;
-        $name = $self->newFunction($name, "${builtin}_", $length);
+        $name = $self->newFunction($name, $builtin, $length);
         push @got, $self->functionProperty($name),
     }
     return @got;
@@ -713,7 +721,7 @@ sub globalDeclare {
     my @got;
     while (@_) {
         my $name = shift;
-        push @got, $self->property($name, $self->objectValue("rt.global.$name"), "0101"),
+        push @got, $self->property("class${name}Name", $self->objectValue("rt.global.$name"), "0o101"),
     }
     return @got;
 }
@@ -722,7 +730,7 @@ sub propertyOrder {
     my $self = shift;
     my $propertyMap = join "", @_;
 
-    my (@keys) = $propertyMap =~ m/("\w+"):/g;
+    my (@keys) = grep !/^(mode|value|kind)$/, $propertyMap =~ m/("?\w+"?):/g;
     my $propertyOrder =
         join "\n", "propertyOrder: []string{", (join ",\n", @keys, ""), "}";
     return $propertyOrder;
@@ -740,10 +748,10 @@ sub globalObject {
     }
 
     return trim <<_END_;
-&_object{
+&object{
     runtime: rt,
-    class: "$name",
-    objectClass: _classObject,
+    class: class${name}Name,
+    objectClass: classObject,
     prototype: rt.global.ObjectPrototype,
     extensible: true,
     $propertyMap
@@ -772,15 +780,15 @@ sub globalFunction {
     }
 
     push @postblock, $self->statement(
-        "$prototype.property[\"constructor\"] =",
-        $self->property(undef, $self->objectValue("rt.global.${name}"), "0101"),
+        "$prototype.property[propertyConstructor] = " .
+        $self->property(undef, $self->objectValue("rt.global.${name}"), "0o101"),
     );
 
     return trim <<_END_;
-&_object{
+&object{
     runtime: rt,
-    class: "Function",
-    objectClass: _classObject,
+    class: classFunctionName,
+    objectClass: classObject,
     prototype: rt.global.FunctionPrototype,
     extensible: true,
     value: @{[ $self->nativeFunctionOf($name, $builtin, $builtinNew) ]},
@@ -794,7 +802,7 @@ sub nativeCallFunction {
     my $name = shift;
     my $func = shift;
     return trim <<_END_;
-_nativeCallFunction{ "$name", $func }
+nativeCallFunction{ "$name", $func }
 _END_
 }
 
@@ -825,9 +833,9 @@ sub globalPrototype {
     }
 
     return trim <<_END_;
-&_object{
+&object{
     runtime: rt,
-    class: "$class",
+    class: class${class}Name,
     objectClass: $classObject,
     prototype: $prototype,
     extensible: true,
@@ -846,11 +854,11 @@ sub newFunction {
     my @name = ($name, $name);
     if ($name =~ m/^(\w+):(\w+)$/) {
         @name = ($1, $2);
-        $name = $name[0];
+        $name = $1;
     }
 
-    if ($func =~ m/^builtin\w+_$/) {
-        $func = "$func$name[1]";
+    if ($func =~ m/^builtin\w+$/) {
+        $func = $func . ucfirst $name[1];
     }
 
     my $propertyOrder = "";
@@ -863,13 +871,13 @@ sub newFunction {
         $propertyOrder = "$propertyOrder,";
     }
 
-    my $label = functionLabel($name);
-    push @preblock, $self->statement(
-        "$label := @{[ trim <<_END_ ]}",
-&_object{
+    my $label = label($name);
+    $funcs{$label} = $self->statement(
+        "@{[ trim <<_END_ ]}",
+&object{
     runtime: rt,
-    class: "Function",
-    objectClass: _classObject,
+    class: classFunctionName,
+    objectClass: classObject,
     prototype: rt.global.FunctionPrototype,
     extensible: true,
     property: @{[ join "\n", $self->propertyMap(@propertyMap) ]},
@@ -889,10 +897,10 @@ sub newObject {
     my $propertyOrder = $self->propertyOrder($propertyMap);
 
     return trim <<_END_;
-&_object{
+&object{
     runtime: rt,
-    class: "Object",
-    objectClass: _classObject,
+    class: classObjectName,
+    objectClass: classObject,
     prototype: rt.global.ObjectPrototype,
     extensible: true,
     property: $propertyMap,
@@ -914,9 +922,9 @@ sub newPrototypeObject {
     my $propertyOrder = $self->propertyOrder($propertyMap);
 
     return trim <<_END_;
-&_object{
+&object{
     runtime: rt,
-    class: "$class",
+    class: class${class}Name,
     objectClass: $objectClass,
     prototype: rt.global.ObjectPrototype,
     extensible: true,
@@ -933,7 +941,7 @@ sub functionProperty {
 
     return $self->property(
         $name,
-        $self->objectValue(functionLabel($name))
+        $self->objectValue(label($name))
     );
 }
 
@@ -953,7 +961,7 @@ sub functionOf {
     }
 
     return trim <<_END_
-_functionObject{
+functionObject{
     call: $call,
     $construct
 }
@@ -967,28 +975,17 @@ sub nativeFunctionOf {
     my $construct = shift;
     if ($construct) {
         $construct = "construct: $construct,";
+        $name = "class${name}Name";
     } else {
         $construct = "";
+        $name = label($name);
     }
 
     return trim <<_END_
-_nativeFunctionObject{
-    name: "$name",
+nativeFunctionObject{
+    name: $name,
     call: $call,
     $construct
-}
-_END_
-}
-
-sub nameProperty {
-    my $self = shift;
-    my $name = shift;
-    my $value = shift;
-
-    return trim <<_END_;
-"$name": _property{
-    mode: 0101,
-    value: $value,
 }
 _END_
 }
@@ -1009,39 +1006,27 @@ sub property {
     my $name = shift;
     my $value = shift;
     my $mode = shift;
-    $mode = "0101" unless defined $mode;
+    $mode = "0o101" unless defined $mode;
     if (! defined $value) {
         $value = "Value{}";
     }
     if (defined $name) {
+        $name = label($name);
         return trim <<_END_;
-"$name": _property{
+$name: {
     mode: $mode,
     value: $value,
 }
 _END_
     } else {
         return trim <<_END_;
-_property{
+property{
     mode: $mode,
     value: $value,
 }
 _END_
     }
 
-}
-
-sub objectProperty {
-    my $self = shift;
-    my $name = shift;
-    my $value = shift;
-
-    return trim <<_END_;
-"$name": _property{
-    mode: 0101,
-    value: @{[ $self->objectValue($value)]},
-}
-_END_
 }
 
 sub objectValue {
@@ -1058,10 +1043,15 @@ _END_
 sub stringValue {
     my $self = shift;
     my $value = shift;
+    if ($value) {
+        $value = "class${value}Name";
+    } else {
+        $value = q{""};
+    }
     return trim <<_END_
 Value{
     kind: valueString,
-    value: "$value",
+    value: $value,
 }
 _END_
 }

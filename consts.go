@@ -12,8 +12,23 @@ const (
 	classObjectName   = "Object"
 	classRegExpName   = "RegExp"
 	classBooleanName  = "Boolean"
-	classErrorName    = "Error"
+	classMathName     = "Math"
+	classJSONName     = "JSON"
+
+	// Error classes.
+	classErrorName          = "Error"
+	classEvalErrorName      = "EvalError"
+	classTypeErrorName      = "TypeError"
+	classRangeErrorName     = "RangeError"
+	classReferenceErrorName = "ReferenceError"
+	classSyntaxErrorName    = "SyntaxError"
+	classURIErrorName       = "URIError"
 
 	// Common properties.
-	propertyLength = "length"
+	propertyLength      = "length"
+	propertyPrototype   = "prototype"
+	propertyConstructor = "constructor"
+
+	// Common methods.
+	methodToString = "toString"
 )

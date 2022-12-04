@@ -5,3 +5,4 @@
 /test/tester
 .idea
 dist/
+.vscode/

@@ -44,7 +44,3 @@ func builtinConsoleTrace(call FunctionCall) Value {
 func builtinConsoleAssert(call FunctionCall) Value {
 	return Value{}
 }
-
-func (rt *runtime) newConsole() *object {
-	return newConsoleObject(rt)
-}
