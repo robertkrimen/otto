@@ -1,0 +1,772 @@
+types:
+  - name: Object
+    core: true
+    properties:
+      - name: length
+        mode: 0
+        value: 1
+      - name: prototype
+        mode: 0
+        value: rt.global.ObjectPrototype
+      - name: getPrototypeOf
+        function: 1
+      - name: getOwnPropertyDescriptor
+        function: 2
+      - name: defineProperty
+        function: 3
+      - name: defineProperties
+        function: 2
+      - name: create
+        function: 2
+      - name: isExtensible
+        function: 1
+      - name: preventExtensions
+        function: 1
+      - name: isSealed
+        function: 1
+      - name: seal
+        function: 1
+      - name: isFrozen
+        function: 1
+      - name: freeze
+        function: 1
+      - name: keys
+        function: 1
+      - name: getOwnPropertyNames
+        function: 1
+    prototype:
+      value: prototypeValueObject
+      properties:
+        - name: constructor
+          value: rt.global.Object
+        - name: hasOwnProperty
+          function: 1
+        - name: isPrototypeOf
+          function: 1
+        - name: propertyIsEnumerable
+          function: 1
+        - name: toString
+          function: -1
+        - name: valueOf
+          function: -1
+        - name: toLocaleString
+          function: -1
+
+  - name: Function
+    core: true
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.FunctionPrototype
+    prototype:
+      prototype: Object
+      value: prototypeValueFunction
+      properties:
+        - name: toString
+          function: -1
+        - name: apply
+          function: 2
+        - name: call
+          function: 1
+        - name: bind
+          function: 1
+        - name: constructor
+          value: rt.global.Function
+        - name: length
+          kind: valueNumber
+          value: 0
+
+  - name: Array
+    objectClass: Object
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.ArrayPrototype
+      - name: isArray
+        function: 1
+    prototype:
+      prototype: Object
+      objectClass: Array
+      value: nil
+      properties:
+        - name: length
+          mode: 0o100
+          kind: valueNumber
+          value: uint32(0)
+        - name: constructor
+          value: rt.global.Array
+        - name: concat
+          function: 1
+        - name: lastIndexOf
+          function: 1
+        - name: pop
+          function: -1
+        - name: push
+          function: 1
+        - name: reverse
+          function: -1
+        - name: shift
+          function: -1
+        - name: unshift
+          function: 1
+        - name: slice
+          function: 2
+        - name: sort
+          function: 1
+        - name: splice
+          function: 2
+        - name: indexOf
+          function: 1
+        - name: join
+          function: 1
+        - name: forEach
+          function: 1
+        - name: filter
+          function: 1
+        - name: map
+          function: 1
+        - name: every
+          function: 1
+        - name: some
+          function: 1
+        - name: reduce
+          function: 1
+        - name: reduceRight
+          function: 1
+        - name: toLocaleString
+          function: -1
+        - name: toString
+          function: -1
+
+  - name: String
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.StringPrototype
+      - name: fromCharCode
+        function: 1
+    prototype:
+      objectClass: String
+      prototype: Object
+      value: prototypeValueString
+      properties:
+        - name: length
+          kind: valueNumber
+          value: int(0)
+        - name: constructor
+          value: rt.global.String
+        - name: charAt
+          function: 1
+        - name: charCodeAt
+          function: 1
+        - name: concat
+          function: 1
+        - name: indexOf
+          function: 1
+        - name: lastIndexOf
+          function: 1
+        - name: localeCompare
+          function: 1
+        - name: match
+          function: 1
+        - name: replace
+          function: 2
+        - name: search
+          function: 1
+        - name: slice
+          function: 2
+        - name: split
+          function: 2
+        - name: substr
+          function: 2
+        - name: substring
+          function: 2
+        - name: toString
+          function: -1
+        - name: trim
+          function: -1
+        - name: trimLeft
+          function: -1
+        - name: trimRight
+          function: -1
+        - name: toLocaleLowerCase
+          function: -1
+        - name: toLocaleUpperCase
+          function: -1
+        - name: toLowerCase
+          function: -1
+        - name: toUpperCase
+          function: -1
+        - name: valueOf
+          function: -1
+
+  - name: Boolean
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.BooleanPrototype
+    prototype:
+      prototype: Object
+      value: prototypeValueBoolean
+      properties:
+        - name: constructor
+          value: rt.global.Boolean
+        - name: toString
+          function: -1
+        - name: valueOf
+          function: -1
+    globals:
+      length: 1
+
+  - name: Number
+    properties:
+    - name: length
+      value: 1
+    - name: prototype
+      value: rt.global.NumberPrototype
+    - name: isNaN
+      function: 1
+    - name: MAX_VALUE
+      value: math.MaxFloat64
+      kind: valueNumber
+    - name: MIN_VALUE
+      kind: valueNumber
+      value: math.SmallestNonzeroFloat64
+    - name: NaN
+      kind: valueNumber
+      value: math.NaN()
+    - name: NEGATIVE_INFINITY
+      kind: valueNumber
+      value: math.Inf(-1)
+    - name: POSITIVE_INFINITY
+      kind: valueNumber
+      value: math.Inf(+1)
+    prototype:
+      prototype: Object
+      value: prototypeValueNumber
+      properties:
+        - name: constructor
+          value: rt.global.Number
+        - name: toExponential
+          function: 1
+        - name: toFixed
+          function: 1
+        - name: toPrecision
+          function: 1
+        - name: toString
+          function: -1
+        - name: valueOf
+          function: -1
+        - name: toLocaleString
+          function: 1
+
+  - name: Math
+    class: Math
+    objectPrototype: Object
+    properties:
+        - name: abs
+          function: 1
+        - name: acos
+          function: 1
+        - name: asin
+          function: 1
+        - name: atan
+          function: 1
+        - name: atan2
+          function: 1
+        - name: ceil
+          function: 1
+        - name: cos
+          function: 1
+        - name: exp
+          function: 1
+        - name: floor
+          function: 1
+        - name: log
+          function: 1
+        - name: max
+          function: 2
+        - name: min
+          function: 2
+        - name: pow
+          function: 2
+        - name: random
+          function: -1
+        - name: round
+          function: 1
+        - name: sin
+          function: 1
+        - name: sqrt
+          function: 1
+        - name: tan
+          function: 1
+        - name: E
+          kind: valueNumber
+          value: math.E
+        - name: LN10
+          kind: valueNumber
+          value: math.Ln10
+        - name: LN2
+          kind: valueNumber
+          value: math.Ln2
+        - name: LOG10E
+          kind: valueNumber
+          value: math.Log10E
+        - name: LOG2E
+          kind: valueNumber
+          value: math.Log2E
+        - name: PI
+          kind: valueNumber
+          value: math.Pi
+        - name: SQRT1_2
+          kind: valueNumber
+          value: sqrt1_2
+        - name: SQRT2
+          kind: valueNumber
+          value: math.Sqrt2
+
+  - name: Date
+    properties:
+      - name: length
+        value: 7
+      - name: prototype
+        value: rt.global.DatePrototype
+      - name: parse
+        function: 1
+      - name: UTC
+        function: 7
+      - name: now
+        function: -1
+    prototype:
+      prototype: Object
+      value: prototypeValueDate
+      properties:
+        - name: constructor
+          value: rt.global.Date
+        - name: toString
+          function: -1
+        - name: toDateString
+          function: -1
+        - name: toTimeString
+          function: -1
+        - name: toISOString
+          function: -1
+        - name: toUTCString
+          function: -1
+        - name: toGMTString
+          function: -1
+        - name: getDate
+          function: -1
+        - name: setDate
+          function: 1
+        - name: getDay
+          function: -1
+        - name: getFullYear
+          function: -1
+        - name: setFullYear
+          function: 3
+        - name: getHours
+          function: -1
+        - name: setHours
+          function: 4
+        - name: getMilliseconds
+          function: -1
+        - name: setMilliseconds
+          function: 1
+        - name: getMinutes
+          function: -1
+        - name: setMinutes
+          function: 3
+        - name: getMonth
+          function: -1
+        - name: setMonth
+          function: 2
+        - name: getSeconds
+          function: -1
+        - name: setSeconds
+          function: 2
+        - name: getTime
+          function: -1
+        - name: setTime
+          function: 1
+        - name: getTimezoneOffset
+          function: -1
+        - name: getUTCDate
+          function: -1
+        - name: setUTCDate
+          function: 1
+        - name: getUTCDay
+          function: -1
+        - name: getUTCFullYear
+          function: -1
+        - name: setUTCFullYear
+          function: 3
+        - name: getUTCHours
+          function: -1
+        - name: setUTCHours
+          function: 4
+        - name: getUTCMilliseconds
+          function: -1
+        - name: setUTCMilliseconds
+          function: 1
+        - name: getUTCMinutes
+          function: -1
+        - name: setUTCMinutes
+          function: 3
+        - name: getUTCMonth
+          function: -1
+        - name: setUTCMonth
+          function: 2
+        - name: getUTCSeconds
+          function: -1
+        - name: setUTCSeconds
+          function: 2
+        - name: valueOf
+          function: -1
+        - name: getYear
+          function: -1
+        - name: setYear
+          function: 1
+        - name: toJSON
+          function: 1
+        - name: toLocaleString
+          function: -1
+        - name: toLocaleDateString
+          function: -1
+        - name: toLocaleTimeString
+          function: -1
+
+  - name: RegExp
+    properties:
+      - name: length
+        value: 2
+      - name: prototype
+        value: rt.global.RegExpPrototype
+    prototype:
+      prototype: Object
+      value: prototypeValueRegExp
+      properties:
+        - name: constructor
+          value: rt.global.RegExp
+        - name: exec
+          function: 1
+        - name: compile
+          function: 1
+        - name: toString
+          function: -1
+        - name: test
+          function: 1
+
+  - name: Error
+    objectPrototype: Function
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.ErrorPrototype
+    prototype:
+      prototype: Object
+      value: nil
+      properties:
+        - name: constructor
+          value: rt.global.Error
+        - name: name
+          kind: valueString
+          value: classErrorName
+          mode: 0o101
+        - name: message
+          kind: valueString
+          value: '""'
+          mode: 0o101
+        - name: toString
+          function: -1
+
+  - name: EvalError
+    objectPrototype: Function
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.EvalErrorPrototype
+    prototype:
+      prototype: Error
+      value: nil
+      properties:
+        - name: constructor
+          value: rt.global.EvalError
+        - name: name
+          kind: valueString
+          value: classEvalErrorName
+          mode: 0o101
+        - name: message
+          kind: valueString
+          value: '""'
+          mode: 0o101
+        - name: toString
+          function: -1
+          call: ErrorToString
+
+  - name: TypeError
+    objectPrototype: Function
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.TypeErrorPrototype
+    prototype:
+      prototype: Error
+      value: nil
+      properties:
+        - name: constructor
+          value: rt.global.TypeError
+        - name: name
+          kind: valueString
+          value: classTypeErrorName
+          mode: 0o101
+        - name: message
+          kind: valueString
+          value: '""'
+          mode: 0o101
+        - name: toString
+          function: -1
+          call: ErrorToString
+
+  - name: RangeError
+    objectPrototype: Function
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.RangeErrorPrototype
+    prototype:
+      prototype: Error
+      value: nil
+      properties:
+        - name: constructor
+          value: rt.global.RangeError
+        - name: name
+          kind: valueString
+          value: classRangeErrorName
+          mode: 0o101
+        - name: message
+          kind: valueString
+          value: '""'
+          mode: 0o101
+        - name: toString
+          function: -1
+          call: ErrorToString
+
+  - name: ReferenceError
+    objectPrototype: Function
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.ReferenceErrorPrototype
+    prototype:
+      prototype: Error
+      value: nil
+      properties:
+        - name: constructor
+          value: rt.global.ReferenceError
+        - name: name
+          kind: valueString
+          value: classReferenceErrorName
+          mode: 0o101
+        - name: message
+          kind: valueString
+          value: '""'
+          mode: 0o101
+        - name: toString
+          function: -1
+          call: ErrorToString
+
+  - name: SyntaxError
+    objectPrototype: Function
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.SyntaxErrorPrototype
+    prototype:
+      prototype: Error
+      value: nil
+      properties:
+        - name: constructor
+          value: rt.global.SyntaxError
+        - name: name
+          kind: valueString
+          value: classSyntaxErrorName
+          mode: 0o101
+        - name: message
+          kind: valueString
+          value: '""'
+          mode: 0o101
+        - name: toString
+          function: -1
+          call: ErrorToString
+
+  - name: URIError
+    objectPrototype: Function
+    properties:
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.URIErrorPrototype
+    prototype:
+      prototype: Error
+      value: nil
+      properties:
+        - name: constructor
+          value: rt.global.URIError
+        - name: name
+          kind: valueString
+          value: classURIErrorName
+          mode: 0o101
+        - name: message
+          kind: valueString
+          value: '""'
+          mode: 0o101
+        - name: toString
+          function: -1
+          call: ErrorToString
+
+  - name: JSON
+    class: JSON
+    objectPrototype: Object
+    properties:
+      - name: parse
+        function: 2
+      - name: stringify
+        function: 3
+
+  - name: Global
+    properties:
+      - name: eval
+        function: 1
+      - name: parseInt
+        function: 2
+      - name: parseFloat
+        function: 1
+      - name: isNaN
+        function: 1
+      - name: isFinite
+        function: 1
+      - name: decodeURI
+        function: 1
+      - name: decodeURIComponent
+        function: 1
+      - name: encodeURI
+        function: 1
+      - name: encodeURIComponent
+        function: 1
+      - name: escape
+        function: 1
+      - name: unescape
+        function: 1
+      - name: Object
+        mode: 0o101
+        value: rt.global.Object
+      - name: Function
+        mode: 0o101
+        value: rt.global.Function
+      - name: Array
+        mode: 0o101
+        value: rt.global.Array
+      - name: String
+        mode: 0o101
+        value: rt.global.String
+      - name: Boolean
+        mode: 0o101
+        value: rt.global.Boolean
+      - name: Number
+        mode: 0o101
+        value: rt.global.Number
+      - name: Math
+        mode: 0o101
+        value: rt.global.Math
+      - name: Date
+        mode: 0o101
+        value: rt.global.Date
+      - name: RegExp
+        mode: 0o101
+        value: rt.global.RegExp
+      - name: Error
+        mode: 0o101
+        value: rt.global.Error
+      - name: EvalError
+        mode: 0o101
+        value: rt.global.EvalError
+      - name: TypeError
+        mode: 0o101
+        value: rt.global.TypeError
+      - name: RangeError
+        mode: 0o101
+        value: rt.global.RangeError
+      - name: ReferenceError
+        mode: 0o101
+        value: rt.global.ReferenceError
+      - name: SyntaxError
+        mode: 0o101
+        value: rt.global.SyntaxError
+      - name: URIError
+        mode: 0o101
+        value: rt.global.URIError
+      - name: JSON
+        mode: 0o101
+        value: rt.global.JSON
+      - name: undefined
+        kind: valueUndefined
+      - name: NaN
+        kind: valueNumber
+        value: math.NaN()
+      - name: Infinity
+        kind: valueNumber
+        value: math.Inf(+1)
+
+log:
+  name: Console
+  class: Object
+  objectPrototype: Object
+  properties:
+    - name: log
+      function: -1
+    - name: debug
+      call: ConsoleLog
+      function: -1
+    - name: info
+      call: ConsoleLog
+      function: -1
+    - name: error
+      function: -1
+    - name: warn
+      function: -1
+      call: ConsoleError
+    - name: dir
+      function: -1
+    - name: time
+      function: -1
+    - name: timeEnd
+      function: -1
+    - name: trace
+      function: -1
+    - name: assert
+      function: -1
+
+values:
+  - name: int
+  - name: int32
+  - name: int64
+  - name: uint16
+  - name: uint32
+  - name: float64
+  - name: string
+  - name: string16
+    type: "[]uint16"
+  - name: bool
+  - name: object
+    type: "*object"

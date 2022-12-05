@@ -1,0 +1,52 @@
+package token
+
+const (
+	_ Token = iota
+    {{range .Tokens}}
+        {{- if not .Future}}
+            {{- if .Group}}
+                // {{.Group}}.
+            {{- else}}
+                {{.Name}} {{- if .Symbol}}// {{.Symbol}}{{end}}
+            {{- end}}
+        {{- end}}
+    {{- end}}
+)
+
+
+var token2string = [...]string{
+    {{- $lc := false -}}
+    {{- range .Tokens -}}
+        {{if or .Future .Group | not -}}
+            {{- if eq .Name "_" -}}
+                {{$lc = true}}
+            {{- else}}
+                {{- $symbol := or .Symbol .Name}}
+                {{.Name}}: "{{if $lc}}{{toLower $symbol}}{{else}}{{$symbol}}{{end}}",
+            {{- end}}
+        {{- end -}}
+    {{- end}}
+}
+
+var keywordTable = map[string]keyword{
+    {{- $keyword := false -}}
+    {{range .Tokens}}
+        {{- /* First keyword follows _ */ -}}
+        {{- if eq .Name "_"}}{{$keyword = true}}{{continue}}{{end}}
+        {{- if $keyword}}
+            {{- if or .Symbol .Group | not}}
+                "{{toLower .Name}}": {
+                    {{- if .Future}}
+                    token: KEYWORD,
+                    futureKeyword: true,
+                    {{- else}}
+                    token: {{.Name}},
+                    {{- end}}
+                    {{- if .Strict}}
+                    strict:        true,
+                    {{- end}}
+                },
+            {{- end -}}
+        {{end -}}
+    {{- end}}
+}

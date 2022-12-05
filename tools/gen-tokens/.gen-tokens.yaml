@@ -1,0 +1,218 @@
+tokens:
+  - group: Control
+  - name: ILLEGAL
+  - name: EOF
+  - name: COMMENT
+  - name: KEYWORD
+
+  - group: Types
+  - name: STRING
+  - name: BOOLEAN
+  - name: "NULL"
+  - name: NUMBER
+  - name: IDENTIFIER
+
+  - group: Maths
+  - name: PLUS
+    symbol: "+"
+  - name: MINUS
+    symbol: "-"
+  - name: MULTIPLY
+    symbol: "*"
+  - name: SLASH
+    symbol: "/"
+  - name: REMAINDER
+    symbol: "%"
+
+  - group: Logical and bitwise operators
+  - name: AND
+    symbol: "&"
+  - name: OR
+    symbol: "|"
+  - name: EXCLUSIVE_OR
+    symbol: "^"
+  - name: SHIFT_LEFT
+    symbol: "<<"
+  - name: SHIFT_RIGHT
+    symbol: ">>"
+  - name: UNSIGNED_SHIFT_RIGHT
+    symbol: ">>>"
+  - name: AND_NOT
+    symbol: "&^"
+
+  - group: Math assignments
+  - name: ADD_ASSIGN
+    symbol: "+="
+  - name: SUBTRACT_ASSIGN
+    symbol: "-="
+  - name: MULTIPLY_ASSIGN
+    symbol: "*="
+  - name: QUOTIENT_ASSIGN
+    symbol: "/="
+  - name: REMAINDER_ASSIGN
+    symbol: "%="
+
+  - group: Math and bitwise assignments
+  - name: AND_ASSIGN
+    symbol: "&="
+  - name: OR_ASSIGN
+    symbol: "|="
+  - name: EXCLUSIVE_OR_ASSIGN
+    symbol: "^="
+  - name: SHIFT_LEFT_ASSIGN
+    symbol: "<<="
+  - name: SHIFT_RIGHT_ASSIGN
+    symbol: ">>="
+  - name: UNSIGNED_SHIFT_RIGHT_ASSIGN
+    symbol: ">>>="
+  - name: AND_NOT_ASSIGN
+    symbol: "&^="
+
+  - group: Logical operators and decrement / increment
+  - name: LOGICAL_AND
+    symbol: "&&"
+  - name: LOGICAL_OR
+    symbol: "||"
+  - name: INCREMENT
+    symbol: "++"
+  - name: DECREMENT
+    symbol: "--"
+
+  - group: Comparison operators
+  - name: EQUAL
+    symbol: "=="
+  - name: STRICT_EQUAL
+    symbol: "==="
+  - name: LESS
+    symbol: "<"
+  - name: GREATER
+    symbol: ">"
+  - name: ASSIGN
+    symbol: "="
+  - name: NOT
+    symbol: "!"
+
+  - group: Bitwise not
+  - name: BITWISE_NOT
+    symbol: "~"
+
+  - group: Comparison operators
+  - name: NOT_EQUAL
+    symbol: "!="
+  - name: STRICT_NOT_EQUAL
+    symbol: "!=="
+  - name: LESS_OR_EQUAL
+    symbol: "<="
+  - name: GREATER_OR_EQUAL
+    symbol: ">="
+
+  - group: Left operators
+  - name: LEFT_PARENTHESIS
+    symbol: "("
+  - name: LEFT_BRACKET
+    symbol: "["
+  - name: LEFT_BRACE
+    symbol: "{"
+  - name: COMMA
+    symbol: ","
+  - name: PERIOD
+    symbol: "."
+
+  - group: Right operators
+  - name: RIGHT_PARENTHESIS
+    symbol: ")"
+  - name: RIGHT_BRACKET
+    symbol: "]"
+  - name: RIGHT_BRACE
+    symbol: "}"
+  - name: SEMICOLON
+    symbol: ";"
+  - name: COLON
+    symbol: ":"
+  - name: QUESTION_MARK
+    symbol: "?"
+
+  - group: Basic flow - keywords below here
+  - name: _
+  - name: IF
+  - name: IN
+  - name: DO
+
+  - group: Declarations
+  - name: VAR
+  - name: FOR
+  - name: NEW
+  - name: TRY
+
+  - group: Advanced flow
+  - name: THIS
+  - name: ELSE
+  - name: CASE
+  - name: VOID
+  - name: WITH
+
+  - group: Loops
+  - name: WHILE
+  - name: BREAK
+  - name: CATCH
+  - name: THROW
+
+  - group: Functions
+  - name: RETURN
+  - name: TYPEOF
+  - name: DELETE
+  - name: SWITCH
+
+  - group: Fallback identifiers
+  - name: DEFAULT
+  - name: FINALLY
+
+  - group: Miscellaneous
+  - name: FUNCTION
+  - name: CONTINUE
+  - name: DEBUGGER
+
+  - group: Instance of
+  - name: INSTANCEOF
+
+  # Future
+  - name: const
+    future: true
+  - name: class
+    future: true
+  - name: enum
+    future: true
+  - name: export
+    future: true
+  - name: extends
+    future: true
+  - name: import
+    future: true
+  - name: super
+    future: true
+
+  # Future Strict items
+  - name: implements
+    future: true
+    strict: true
+  - name: interface
+    future: true
+    strict: true
+  - name: let
+    future: true
+    strict: true
+  - name: package
+    future: true
+    strict: true
+  - name: private
+    future: true
+    strict: true
+  - name: protected
+    future: true
+    strict: true
+  - name: public
+    future: true
+    strict: true
+  - name: static
+    future: true
+    strict: true

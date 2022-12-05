@@ -1,0 +1,4 @@
+{{- with .Prototype.Property "constructor"}}
+    // {{$.Name}} constructor definition.
+    rt.global.{{$.Name}}Prototype.property[{{template "name.tmpl" .Name}}] = property{{template "property-value.tmpl" dict "Name" $.Name "Core" true "Property" .}}
+{{- end}}

@@ -1,0 +1,15 @@
+{{/* Expects .Name.(jsType.Name), .Prototype and optional .BlankConstructor */}}
+{{- with .Prototype}}
+// {{$.Name}} prototype.
+rt.global.{{$.Name}}Prototype = &object{
+    runtime:     rt,
+    class:       class{{$.Name}}Name,
+    objectClass: class{{or .ObjectClass "Object"}},
+    prototype:   {{if .Prototype}}rt.global.{{.Prototype}}Prototype{{else}}nil{{end}},
+    extensible:  true,
+    value:       {{or .Value (print "prototypeValue" $.Name)}},
+    {{- if not $.Core}}
+        {{- template "property-fields.tmpl" dict "Name" $.Name "BlankConstructor" $.BlankConstructor "Properties" .Properties}}
+    {{- end}}
+}
+{{- end -}}

@@ -1,0 +1,6 @@
+{{- /* expects .Properties */ -}}
+[]string{
+{{range .Properties -}}
+    {{template "name.tmpl" .Name}},
+{{end -}}
+}{{/* No newline */ -}}

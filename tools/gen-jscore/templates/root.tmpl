@@ -1,0 +1,35 @@
+package otto
+
+import (
+	"math"
+)
+
+func (rt *runtime) newContext() {
+    // Order here is import as definitions depend on each other.
+    {{- $object := .Type "Object"}}
+    {{- $function := .Type "Function"}}
+    {{template "prototype.tmpl" $object}}
+    {{template "prototype.tmpl" $function}}
+
+    {{- template "core-prototype-property.tmpl" $object}}
+    {{- template "core-prototype-property.tmpl" $function}}
+
+    {{- template "type.tmpl" $object}}
+    {{- template "type.tmpl" $function}}
+
+    {{- range .Types}}
+        {{- if eq .Name "Global"}}
+            {{template "global.tmpl" . }}
+        {{- else if not .Core}}
+            {{template "type.tmpl" .}}
+        {{- end}}
+    {{- end}}
+}
+
+func (rt *runtime) newConsole() *object {
+    return {{template "definition.tmpl" .Log}}
+}
+
+{{range .Values}}
+    {{template "value.tmpl" .}}
+{{- end}}

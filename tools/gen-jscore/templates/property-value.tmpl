@@ -1,0 +1,15 @@
+{{with .Property}} {
+    mode: {{if .Mode}}{{.Mode}}{{else if or .Function (eq .Name "constructor")}}0o101{{else}}0{{end}},
+    {{- if eq .Name "constructor" | and $.BlankConstructor}}
+    value: Value{},
+    {{- else}}
+    value: Value{
+        kind:  {{if .Kind}}{{.Kind}}{{else if eq .Name "length"}}valueNumber{{else}}valueObject{{end}},
+        {{- if .Function}}
+        value: {{template "function.tmpl" $}},
+        {{- else if .Value}}
+        value: {{.Value}},
+        {{- end}}
+    },
+    {{- end}}
+}{{end -}}

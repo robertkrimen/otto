@@ -1,0 +1,15 @@
+func {{.Name}}Value(value {{or .Type .Name}}) Value {
+	return Value{
+		kind:
+{{- if contains .Name "string"}}
+valueString
+{{- else if contains .Name "bool"}}
+valueBoolean
+{{- else if contains .Name "object"}}
+valueObject
+{{- else}}
+valueNumber
+{{- end}},
+		value: value,
+	}
+}
