@@ -67,11 +67,17 @@ func builtinRegExpTest(call FunctionCall) Value {
 	var start int
 	n := 1
 	re := call.runtime.global.RegExp
+	empty := stringValue("")
 	for i, v := range result[2:] {
 		if i%2 == 0 {
 			start = v
 		} else {
-			re.defineProperty(fmt.Sprintf("$%d", n), stringValue(target[start:v]), 0o100, false)
+			if v == -1 {
+				// No match for this part.
+				re.defineProperty(fmt.Sprintf("$%d", n), empty, 0o100, false)
+			} else {
+				re.defineProperty(fmt.Sprintf("$%d", n), stringValue(target[start:v]), 0o100, false)
+			}
 			n++
 			if n == 10 {
 				break
@@ -81,7 +87,6 @@ func builtinRegExpTest(call FunctionCall) Value {
 
 	if n <= 9 {
 		// Erase remaining.
-		empty := stringValue("")
 		for i := n; i <= 9; i++ {
 			re.defineProperty(fmt.Sprintf("$%d", i), empty, 0o100, false)
 		}

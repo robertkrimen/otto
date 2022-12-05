@@ -1048,6 +1048,11 @@ func Test_issue317(t *testing.T) {
 			regexp: "(1+)-(2+)-(3+)-(4+)-(5+)-(6+)-(7+)-(8+)-(9+)-(X+)",
 			want:   "",
 		},
+		"missing-match": {
+			input:  "data:image/png;base64,",
+			regexp: "^data:(.*?)(;(.*?))??(;base64)?,",
+			want:   "data:image/png;base64,,image/png,,,;base64,,,,,",
+		},
 	}
 
 	previous := ",,,,,,,,,"
