@@ -1,3 +1,8 @@
+// Command tester automates the ability to download a suite of JavaScript libraries from a CDN and check if otto can handle them.
+//
+// It provides two commands via flags:
+// * -fetch = Fetch all libraries from the CDN and store them in local testdata directory.
+// * -report [file1 file2 ... fileN] = Report the results of trying to run the given or if empty all libraries in the testdata directory.
 package main
 
 import (
@@ -69,18 +74,18 @@ func min(a, b int) int {
 	return a
 }
 
-// http://cdnjs.com/
-// http://api.cdnjs.com/libraries
-
+// libraries represents fetch all libraries response.
 type libraries struct {
 	Results []library `json:"results"`
 }
 
+// library represents a single library in a libraries response.
 type library struct {
 	Name   string `json:"name"`
 	Latest string `json:"latest"`
 }
 
+// fetch fetches itself and stores it in the dataDir.
 func (l library) fetch() error {
 	if !strings.HasSuffix(l.Latest, ".js") {
 		return nil
