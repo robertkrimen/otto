@@ -1,0 +1,5 @@
+{{/* Expects .(jsType) */}}
+
+// {{.Name}} prototype property definition.
+rt.global.{{.Name}}Prototype.property = {{template "property.tmpl" dict "Name" .Name "BlankConstructor" true "Properties" .Prototype.Properties}}
+rt.global.{{.Name}}Prototype.propertyOrder = {{template "property-order.tmpl" .Prototype}}{{/* No newline. */}}

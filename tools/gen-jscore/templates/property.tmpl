@@ -1,0 +1,9 @@
+{{- /* Expects .Name and .Properties */ -}}
+map[string]property{
+{{range .Properties -}}
+    {{- /* Skip constructor which is output later. */}}
+    {{- if eq .Name "constructor" | not -}}
+        {{template "property-entry.tmpl" dict "Name" $.Name "BlankConstructor" $.BlankConstructor "Property" .}}
+    {{end -}}
+{{end -}}
+}{{/* No newline */ -}}

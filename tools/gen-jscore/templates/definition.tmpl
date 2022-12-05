@@ -1,0 +1,15 @@
+&object{
+    runtime:     rt,
+    class:       class{{or .Class "Function"}}Name,
+    objectClass: class{{or .ObjectClass "Object"}},
+    prototype:   rt.global.{{or .ObjectPrototype "Function"}}Prototype,
+    extensible:  true,
+    {{- if not .Class}}
+    value: nativeFunctionObject{
+            name:      class{{or .Value .Name}}Name,
+            call:      builtin{{or .Value .Name}},
+            construct: builtinNew{{or .Value .Name}},
+    },
+    {{- end}}
+    {{- template "property-fields.tmpl" .}}
+}{{/* No newline */ -}}

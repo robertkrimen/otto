@@ -25,6 +25,7 @@ const (
 	classURIErrorName       = "URIError"
 
 	// Common properties.
+	propertyName        = "name"
 	propertyLength      = "length"
 	propertyPrototype   = "prototype"
 	propertyConstructor = "constructor"

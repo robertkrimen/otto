@@ -1,0 +1,5 @@
+{{- /* expects .Name and .Properties */ -}}
+{{if .Properties}}
+property: {{template "property.tmpl" .}},
+propertyOrder: {{template "property-order.tmpl" .}},
+{{end -}}

@@ -1,0 +1,10 @@
+{{if not .Core | and .Prototype}}
+{{template "prototype.tmpl" dict "Name" .Name "Prototype" .Prototype}}
+{{- end}}
+
+// {{.Name}} definition.
+rt.global.{{.Name}} = {{template "definition.tmpl" .}}
+
+{{- if .Prototype}}
+{{template "constructor.tmpl" .}}
+{{- end}}

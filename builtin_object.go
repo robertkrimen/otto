@@ -286,5 +286,7 @@ func builtinObjectGetOwnPropertyNames(call FunctionCall) Value {
 		})
 		return objectValue(call.runtime.newArrayOf(propertyNames))
 	}
-	panic(call.runtime.panicTypeError())
+
+	// Default to empty array for non object types.
+	return objectValue(call.runtime.newArray(0))
 }

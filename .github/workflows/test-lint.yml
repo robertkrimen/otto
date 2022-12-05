@@ -22,9 +22,10 @@ jobs:
           go-version: ${{ matrix.go }}
           cache: true
 
-      - name: Validate go mod
+      - name: Validate go mod / generate
         run: |
           go mod tidy
+          go generate ./...
           git --no-pager diff && [[ 0 -eq $(git status --porcelain | wc -l) ]]
 
       - name: Go Lint

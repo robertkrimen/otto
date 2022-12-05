@@ -6,7 +6,7 @@ use warnings;
 my (%token, @order, @keywords);
 
 {
-    my $keywords;
+    my $keywords = 1;
     my @const;
     push @const, <<_END_;
 package token
@@ -72,7 +72,7 @@ BITWISE_NOT                    ~
 NOT_EQUAL                      !=
 STRICT_NOT_EQUAL               !==
 LESS_OR_EQUAL                  <=
-GREATER_OR_EQUAL               <=
+GREATER_OR_EQUAL               >=
 
 LEFT_PARENTHESIS               (
 LEFT_BRACKET                   [
@@ -87,7 +87,7 @@ SEMICOLON                      ;
 COLON                          :
 QUESTION_MARK                  ?
 
-firstKeyword
+_
 IF
 IN
 DO
@@ -121,7 +121,6 @@ CONTINUE
 DEBUGGER
 
 INSTANCEOF
-lastKeyword
 _END_
         chomp;
 
@@ -150,7 +149,6 @@ _END_
         } else {
             push @const, "";
         }
-
     }
     push @const, ")";
     print join "\n", @const, "";
@@ -170,11 +168,11 @@ _END_
 
     print <<_END_;
 
-var keywordTable = map[string]_keyword{
+var keywordTable = map[string]keyword{
 _END_
     for my $name (@keywords) {
         print <<_END_
-			"@{[ lc $name ]}": _keyword{
+			"@{[ lc $name ]}": {
 				token: $name,
 			},
 _END_
@@ -190,7 +188,7 @@ _END_
         super
         /) {
         print <<_END_
-			"$name": _keyword{
+			"$name": {
 				token: KEYWORD,
                 futureKeyword: true,
 			},
@@ -208,7 +206,7 @@ _END_
         static
         /) {
         print <<_END_
-			"$name": _keyword{
+			"$name": {
 				token: KEYWORD,
                 futureKeyword: true,
                 strict: true,

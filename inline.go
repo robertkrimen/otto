@@ -5,6 +5,9 @@ import (
 )
 
 func (rt *runtime) newContext() {
+	// Order here is import as definitions depend on each other.
+
+	// Object prototype.
 	rt.global.ObjectPrototype = &object{
 		runtime:     rt,
 		class:       classObjectName,
@@ -13,6 +16,8 @@ func (rt *runtime) newContext() {
 		extensible:  true,
 		value:       prototypeValueObject,
 	}
+
+	// Function prototype.
 	rt.global.FunctionPrototype = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -21,94 +26,9 @@ func (rt *runtime) newContext() {
 		extensible:  true,
 		value:       prototypeValueFunction,
 	}
+
+	// Object prototype property definition.
 	rt.global.ObjectPrototype.property = map[string]property{
-		"valueOf": {
-			mode: 0o101,
-			value: Value{
-				kind: valueObject,
-				value: &object{
-					runtime:     rt,
-					class:       classFunctionName,
-					objectClass: classObject,
-					prototype:   rt.global.FunctionPrototype,
-					extensible:  true,
-					property: map[string]property{
-						propertyLength: {
-							mode: 0,
-							value: Value{
-								kind:  valueNumber,
-								value: 0,
-							},
-						},
-					},
-					propertyOrder: []string{
-						propertyLength,
-					},
-					value: nativeFunctionObject{
-						name: "valueOf",
-						call: builtinObjectValueOf,
-					},
-				},
-			},
-		},
-		methodToString: {
-			mode: 0o101,
-			value: Value{
-				kind: valueObject,
-				value: &object{
-					runtime:     rt,
-					class:       classFunctionName,
-					objectClass: classObject,
-					prototype:   rt.global.FunctionPrototype,
-					extensible:  true,
-					property: map[string]property{
-						propertyLength: {
-							mode: 0,
-							value: Value{
-								kind:  valueNumber,
-								value: 0,
-							},
-						},
-					},
-					propertyOrder: []string{
-						propertyLength,
-					},
-					value: nativeFunctionObject{
-						name: methodToString,
-						call: builtinObjectToString,
-					},
-				},
-			},
-		},
-		"toLocaleString": {
-			mode: 0o101,
-			value: Value{
-				kind: valueObject,
-				value: &object{
-					runtime:     rt,
-					class:       classFunctionName,
-					objectClass: classObject,
-					prototype:   rt.global.FunctionPrototype,
-					extensible:  true,
-					property: map[string]property{
-						propertyLength: {
-							mode: 0,
-							value: Value{
-								kind:  valueNumber,
-								value: 0,
-							},
-						},
-					},
-					propertyOrder: []string{
-						propertyLength,
-					},
-					value: nativeFunctionObject{
-						name: "toLocaleString",
-						call: builtinObjectToLocaleString,
-					},
-				},
-			},
-		},
 		"hasOwnProperty": {
 			mode: 0o101,
 			value: Value{
@@ -127,9 +47,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "hasOwnProperty",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "hasOwnProperty",
@@ -156,9 +84,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "isPrototypeOf",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "isPrototypeOf",
@@ -185,9 +121,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "propertyIsEnumerable",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "propertyIsEnumerable",
@@ -196,20 +140,129 @@ func (rt *runtime) newContext() {
 				},
 			},
 		},
-		propertyConstructor: {
-			mode:  0o101,
-			value: Value{},
+		methodToString: {
+			mode: 0o101,
+			value: Value{
+				kind: valueObject,
+				value: &object{
+					runtime:     rt,
+					class:       classFunctionName,
+					objectClass: classObject,
+					prototype:   rt.global.FunctionPrototype,
+					extensible:  true,
+					property: map[string]property{
+						propertyLength: {
+							mode: 0,
+							value: Value{
+								kind:  valueNumber,
+								value: 0,
+							},
+						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "toString",
+							},
+						},
+					},
+					propertyOrder: []string{
+						propertyLength,
+						propertyName,
+					},
+					value: nativeFunctionObject{
+						name: methodToString,
+						call: builtinObjectToString,
+					},
+				},
+			},
+		},
+		"valueOf": {
+			mode: 0o101,
+			value: Value{
+				kind: valueObject,
+				value: &object{
+					runtime:     rt,
+					class:       classFunctionName,
+					objectClass: classObject,
+					prototype:   rt.global.FunctionPrototype,
+					extensible:  true,
+					property: map[string]property{
+						propertyLength: {
+							mode: 0,
+							value: Value{
+								kind:  valueNumber,
+								value: 0,
+							},
+						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "valueOf",
+							},
+						},
+					},
+					propertyOrder: []string{
+						propertyLength,
+						propertyName,
+					},
+					value: nativeFunctionObject{
+						name: "valueOf",
+						call: builtinObjectValueOf,
+					},
+				},
+			},
+		},
+		"toLocaleString": {
+			mode: 0o101,
+			value: Value{
+				kind: valueObject,
+				value: &object{
+					runtime:     rt,
+					class:       classFunctionName,
+					objectClass: classObject,
+					prototype:   rt.global.FunctionPrototype,
+					extensible:  true,
+					property: map[string]property{
+						propertyLength: {
+							mode: 0,
+							value: Value{
+								kind:  valueNumber,
+								value: 0,
+							},
+						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "toLocaleString",
+							},
+						},
+					},
+					propertyOrder: []string{
+						propertyLength,
+						propertyName,
+					},
+					value: nativeFunctionObject{
+						name: "toLocaleString",
+						call: builtinObjectToLocaleString,
+					},
+				},
+			},
 		},
 	}
 	rt.global.ObjectPrototype.propertyOrder = []string{
-		"valueOf",
-		methodToString,
-		"toLocaleString",
+		propertyConstructor,
 		"hasOwnProperty",
 		"isPrototypeOf",
 		"propertyIsEnumerable",
-		propertyConstructor,
+		methodToString,
+		"valueOf",
+		"toLocaleString",
 	}
+
+	// Function prototype property definition.
 	rt.global.FunctionPrototype.property = map[string]property{
 		methodToString: {
 			mode: 0o101,
@@ -229,9 +282,17 @@ func (rt *runtime) newContext() {
 								value: 0,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "toString",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: methodToString,
@@ -258,9 +319,17 @@ func (rt *runtime) newContext() {
 								value: 2,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "apply",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "apply",
@@ -287,9 +356,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "call",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "call",
@@ -316,9 +393,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "bind",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "bind",
@@ -326,10 +411,6 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
-		},
-		propertyConstructor: {
-			mode:  0o101,
-			value: Value{},
 		},
 		propertyLength: {
 			mode: 0,
@@ -347,6 +428,8 @@ func (rt *runtime) newContext() {
 		propertyConstructor,
 		propertyLength,
 	}
+
+	// Object definition.
 	rt.global.Object = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -391,9 +474,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getPrototypeOf",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "getPrototypeOf",
@@ -420,9 +511,17 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getOwnPropertyDescriptor",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "getOwnPropertyDescriptor",
@@ -449,9 +548,17 @@ func (rt *runtime) newContext() {
 									value: 3,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "defineProperty",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "defineProperty",
@@ -478,9 +585,17 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "defineProperties",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "defineProperties",
@@ -507,9 +622,17 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "create",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "create",
@@ -536,9 +659,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "isExtensible",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "isExtensible",
@@ -565,9 +696,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "preventExtensions",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "preventExtensions",
@@ -594,9 +733,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "isSealed",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "isSealed",
@@ -623,9 +770,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "seal",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "seal",
@@ -652,9 +807,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "isFrozen",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "isFrozen",
@@ -681,9 +844,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "freeze",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "freeze",
@@ -710,9 +881,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "keys",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "keys",
@@ -739,9 +918,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getOwnPropertyNames",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "getOwnPropertyNames",
@@ -769,6 +956,8 @@ func (rt *runtime) newContext() {
 			"getOwnPropertyNames",
 		},
 	}
+
+	// Object constructor definition.
 	rt.global.ObjectPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -776,6 +965,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.Object,
 		},
 	}
+
+	// Function definition.
 	rt.global.Function = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -808,6 +999,8 @@ func (rt *runtime) newContext() {
 			propertyPrototype,
 		},
 	}
+
+	// Function constructor definition.
 	rt.global.FunctionPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -815,6 +1008,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.Function,
 		},
 	}
+
+	// Array prototype.
 	rt.global.ArrayPrototype = &object{
 		runtime:     rt,
 		class:       classArrayName,
@@ -828,64 +1023,6 @@ func (rt *runtime) newContext() {
 				value: Value{
 					kind:  valueNumber,
 					value: uint32(0),
-				},
-			},
-			methodToString: {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: methodToString,
-							call: builtinArrayToString,
-						},
-					},
-				},
-			},
-			"toLocaleString": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "toLocaleString",
-							call: builtinArrayToLocaleString,
-						},
-					},
 				},
 			},
 			"concat": {
@@ -906,9 +1043,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "concat",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "concat",
@@ -917,7 +1062,7 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
-			"join": {
+			"lastIndexOf": {
 				mode: 0o101,
 				value: Value{
 					kind: valueObject,
@@ -935,71 +1080,21 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "join",
-							call: builtinArrayJoin,
-						},
-					},
-				},
-			},
-			"splice": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
+							propertyName: {
 								mode: 0,
 								value: Value{
-									kind:  valueNumber,
-									value: 2,
+									kind:  valueString,
+									value: "lastIndexOf",
 								},
 							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
-							name: "splice",
-							call: builtinArraySplice,
-						},
-					},
-				},
-			},
-			"shift": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "shift",
-							call: builtinArrayShift,
+							name: "lastIndexOf",
+							call: builtinArrayLastIndexOf,
 						},
 					},
 				},
@@ -1022,9 +1117,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "pop",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "pop",
@@ -1051,71 +1154,21 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "push",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "push",
 							call: builtinArrayPush,
-						},
-					},
-				},
-			},
-			"slice": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 2,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "slice",
-							call: builtinArraySlice,
-						},
-					},
-				},
-			},
-			"unshift": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "unshift",
-							call: builtinArrayUnshift,
 						},
 					},
 				},
@@ -1138,13 +1191,132 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "reverse",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "reverse",
 							call: builtinArrayReverse,
+						},
+					},
+				},
+			},
+			"shift": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "shift",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "shift",
+							call: builtinArrayShift,
+						},
+					},
+				},
+			},
+			"unshift": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "unshift",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "unshift",
+							call: builtinArrayUnshift,
+						},
+					},
+				},
+			},
+			"slice": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 2,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "slice",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "slice",
+							call: builtinArraySlice,
 						},
 					},
 				},
@@ -1167,13 +1339,58 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "sort",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "sort",
 							call: builtinArraySort,
+						},
+					},
+				},
+			},
+			"splice": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 2,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "splice",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "splice",
+							call: builtinArraySplice,
 						},
 					},
 				},
@@ -1196,9 +1413,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "indexOf",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "indexOf",
@@ -1207,7 +1432,7 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
-			"lastIndexOf": {
+			"join": {
 				mode: 0o101,
 				value: Value{
 					kind: valueObject,
@@ -1225,13 +1450,132 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "join",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
-							name: "lastIndexOf",
-							call: builtinArrayLastIndexOf,
+							name: "join",
+							call: builtinArrayJoin,
+						},
+					},
+				},
+			},
+			"forEach": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "forEach",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "forEach",
+							call: builtinArrayForEach,
+						},
+					},
+				},
+			},
+			"filter": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "filter",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "filter",
+							call: builtinArrayFilter,
+						},
+					},
+				},
+			},
+			"map": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "map",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "map",
+							call: builtinArrayMap,
 						},
 					},
 				},
@@ -1254,9 +1598,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "every",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "every",
@@ -1283,100 +1635,21 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "some",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "some",
 							call: builtinArraySome,
-						},
-					},
-				},
-			},
-			"forEach": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "forEach",
-							call: builtinArrayForEach,
-						},
-					},
-				},
-			},
-			"map": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "map",
-							call: builtinArrayMap,
-						},
-					},
-				},
-			},
-			"filter": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "filter",
-							call: builtinArrayFilter,
 						},
 					},
 				},
@@ -1399,9 +1672,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "reduce",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "reduce",
@@ -1428,9 +1709,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "reduceRight",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "reduceRight",
@@ -1439,32 +1728,109 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"toLocaleString": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toLocaleString",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "toLocaleString",
+							call: builtinArrayToLocaleString,
+						},
+					},
+				},
+			},
+			methodToString: {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: methodToString,
+							call: builtinArrayToString,
+						},
+					},
+				},
+			},
 		},
 		propertyOrder: []string{
 			propertyLength,
-			methodToString,
-			"toLocaleString",
+			propertyConstructor,
 			"concat",
-			"join",
-			"splice",
-			"shift",
+			"lastIndexOf",
 			"pop",
 			"push",
-			"slice",
-			"unshift",
 			"reverse",
+			"shift",
+			"unshift",
+			"slice",
 			"sort",
+			"splice",
 			"indexOf",
-			"lastIndexOf",
+			"join",
+			"forEach",
+			"filter",
+			"map",
 			"every",
 			"some",
-			"forEach",
-			"map",
-			"filter",
 			"reduce",
 			"reduceRight",
+			"toLocaleString",
+			methodToString,
 		},
 	}
+
+	// Array definition.
 	rt.global.Array = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -1509,9 +1875,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "isArray",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "isArray",
@@ -1527,6 +1901,8 @@ func (rt *runtime) newContext() {
 			"isArray",
 		},
 	}
+
+	// Array constructor definition.
 	rt.global.ArrayPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -1534,6 +1910,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.Array,
 		},
 	}
+
+	// String prototype.
 	rt.global.StringPrototype = &object{
 		runtime:     rt,
 		class:       classStringName,
@@ -1547,64 +1925,6 @@ func (rt *runtime) newContext() {
 				value: Value{
 					kind:  valueNumber,
 					value: int(0),
-				},
-			},
-			methodToString: {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: methodToString,
-							call: builtinStringToString,
-						},
-					},
-				},
-			},
-			"valueOf": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "valueOf",
-							call: builtinStringValueOf,
-						},
-					},
 				},
 			},
 			"charAt": {
@@ -1625,9 +1945,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "charAt",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "charAt",
@@ -1654,9 +1982,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "charCodeAt",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "charCodeAt",
@@ -1683,9 +2019,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "concat",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "concat",
@@ -1712,9 +2056,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "indexOf",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "indexOf",
@@ -1741,13 +2093,58 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "lastIndexOf",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "lastIndexOf",
 							call: builtinStringLastIndexOf,
+						},
+					},
+				},
+			},
+			"localeCompare": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "localeCompare",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "localeCompare",
+							call: builtinStringLocaleCompare,
 						},
 					},
 				},
@@ -1770,9 +2167,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "match",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "match",
@@ -1799,9 +2204,17 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "replace",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "replace",
@@ -1828,42 +2241,21 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "search",
-							call: builtinStringSearch,
-						},
-					},
-				},
-			},
-			"split": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
+							propertyName: {
 								mode: 0,
 								value: Value{
-									kind:  valueNumber,
-									value: 2,
+									kind:  valueString,
+									value: "search",
 								},
 							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
-							name: "split",
-							call: builtinStringSplit,
+							name: "search",
+							call: builtinStringSearch,
 						},
 					},
 				},
@@ -1886,9 +2278,17 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "slice",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "slice",
@@ -1897,7 +2297,7 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
-			"substring": {
+			"split": {
 				mode: 0o101,
 				value: Value{
 					kind: valueObject,
@@ -1915,71 +2315,21 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "substring",
-							call: builtinStringSubstring,
-						},
-					},
-				},
-			},
-			"toLowerCase": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
+							propertyName: {
 								mode: 0,
 								value: Value{
-									kind:  valueNumber,
-									value: 0,
+									kind:  valueString,
+									value: "split",
 								},
 							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
-							name: "toLowerCase",
-							call: builtinStringToLowerCase,
-						},
-					},
-				},
-			},
-			"toUpperCase": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "toUpperCase",
-							call: builtinStringToUpperCase,
+							name: "split",
+							call: builtinStringSplit,
 						},
 					},
 				},
@@ -2002,13 +2352,95 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "substr",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "substr",
 							call: builtinStringSubstr,
+						},
+					},
+				},
+			},
+			"substring": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 2,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "substring",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "substring",
+							call: builtinStringSubstring,
+						},
+					},
+				},
+			},
+			methodToString: {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: methodToString,
+							call: builtinStringToString,
 						},
 					},
 				},
@@ -2031,9 +2463,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "trim",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "trim",
@@ -2060,9 +2500,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "trimLeft",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "trimLeft",
@@ -2089,42 +2537,21 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "trimRight",
-							call: builtinStringTrimRight,
-						},
-					},
-				},
-			},
-			"localeCompare": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
+							propertyName: {
 								mode: 0,
 								value: Value{
-									kind:  valueNumber,
-									value: 1,
+									kind:  valueString,
+									value: "trimRight",
 								},
 							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
-							name: "localeCompare",
-							call: builtinStringLocaleCompare,
+							name: "trimRight",
+							call: builtinStringTrimRight,
 						},
 					},
 				},
@@ -2147,9 +2574,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toLocaleLowerCase",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "toLocaleLowerCase",
@@ -2176,9 +2611,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toLocaleUpperCase",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "toLocaleUpperCase",
@@ -2187,33 +2630,147 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"toLowerCase": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toLowerCase",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "toLowerCase",
+							call: builtinStringToLowerCase,
+						},
+					},
+				},
+			},
+			"toUpperCase": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toUpperCase",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "toUpperCase",
+							call: builtinStringToUpperCase,
+						},
+					},
+				},
+			},
+			"valueOf": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "valueOf",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "valueOf",
+							call: builtinStringValueOf,
+						},
+					},
+				},
+			},
 		},
 		propertyOrder: []string{
 			propertyLength,
-			methodToString,
-			"valueOf",
+			propertyConstructor,
 			"charAt",
 			"charCodeAt",
 			"concat",
 			"indexOf",
 			"lastIndexOf",
+			"localeCompare",
 			"match",
 			"replace",
 			"search",
-			"split",
 			"slice",
-			"substring",
-			"toLowerCase",
-			"toUpperCase",
+			"split",
 			"substr",
+			"substring",
+			methodToString,
 			"trim",
 			"trimLeft",
 			"trimRight",
-			"localeCompare",
 			"toLocaleLowerCase",
 			"toLocaleUpperCase",
+			"toLowerCase",
+			"toUpperCase",
+			"valueOf",
 		},
 	}
+
+	// String definition.
 	rt.global.String = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -2258,9 +2815,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "fromCharCode",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "fromCharCode",
@@ -2276,6 +2841,8 @@ func (rt *runtime) newContext() {
 			"fromCharCode",
 		},
 	}
+
+	// String constructor definition.
 	rt.global.StringPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -2283,6 +2850,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.String,
 		},
 	}
+
+	// Boolean prototype.
 	rt.global.BooleanPrototype = &object{
 		runtime:     rt,
 		class:       classBooleanName,
@@ -2309,9 +2878,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: methodToString,
@@ -2338,9 +2915,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "valueOf",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "valueOf",
@@ -2351,10 +2936,13 @@ func (rt *runtime) newContext() {
 			},
 		},
 		propertyOrder: []string{
+			propertyConstructor,
 			methodToString,
 			"valueOf",
 		},
 	}
+
+	// Boolean definition.
 	rt.global.Boolean = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -2387,6 +2975,8 @@ func (rt *runtime) newContext() {
 			propertyPrototype,
 		},
 	}
+
+	// Boolean constructor definition.
 	rt.global.BooleanPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -2394,6 +2984,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.Boolean,
 		},
 	}
+
+	// Number prototype.
 	rt.global.NumberPrototype = &object{
 		runtime:     rt,
 		class:       classNumberName,
@@ -2402,6 +2994,117 @@ func (rt *runtime) newContext() {
 		extensible:  true,
 		value:       prototypeValueNumber,
 		property: map[string]property{
+			"toExponential": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toExponential",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "toExponential",
+							call: builtinNumberToExponential,
+						},
+					},
+				},
+			},
+			"toFixed": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toFixed",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "toFixed",
+							call: builtinNumberToFixed,
+						},
+					},
+				},
+			},
+			"toPrecision": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toPrecision",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "toPrecision",
+							call: builtinNumberToPrecision,
+						},
+					},
+				},
+			},
 			methodToString: {
 				mode: 0o101,
 				value: Value{
@@ -2420,9 +3123,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: methodToString,
@@ -2449,100 +3160,21 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "valueOf",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "valueOf",
 							call: builtinNumberValueOf,
-						},
-					},
-				},
-			},
-			"toFixed": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "toFixed",
-							call: builtinNumberToFixed,
-						},
-					},
-				},
-			},
-			"toExponential": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "toExponential",
-							call: builtinNumberToExponential,
-						},
-					},
-				},
-			},
-			"toPrecision": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "toPrecision",
-							call: builtinNumberToPrecision,
 						},
 					},
 				},
@@ -2565,9 +3197,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toLocaleString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "toLocaleString",
@@ -2578,14 +3218,17 @@ func (rt *runtime) newContext() {
 			},
 		},
 		propertyOrder: []string{
+			propertyConstructor,
+			"toExponential",
+			"toFixed",
+			"toPrecision",
 			methodToString,
 			"valueOf",
-			"toFixed",
-			"toExponential",
-			"toPrecision",
 			"toLocaleString",
 		},
 	}
+
+	// Number definition.
 	rt.global.Number = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -2630,9 +3273,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "isNaN",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "isNaN",
@@ -2688,6 +3339,8 @@ func (rt *runtime) newContext() {
 			"POSITIVE_INFINITY",
 		},
 	}
+
+	// Number constructor definition.
 	rt.global.NumberPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -2695,6 +3348,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.Number,
 		},
 	}
+
+	// Math definition.
 	rt.global.Math = &object{
 		runtime:     rt,
 		class:       classMathName,
@@ -2720,9 +3375,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "abs",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "abs",
@@ -2749,9 +3412,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "acos",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "acos",
@@ -2778,9 +3449,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "asin",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "asin",
@@ -2807,9 +3486,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "atan",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "atan",
@@ -2836,9 +3523,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "atan2",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "atan2",
@@ -2865,9 +3560,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "ceil",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "ceil",
@@ -2894,9 +3597,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "cos",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "cos",
@@ -2923,9 +3634,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "exp",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "exp",
@@ -2952,9 +3671,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "floor",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "floor",
@@ -2981,9 +3708,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "log",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "log",
@@ -3010,9 +3745,17 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "max",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "max",
@@ -3039,9 +3782,17 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "min",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "min",
@@ -3068,9 +3819,17 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "pow",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "pow",
@@ -3097,9 +3856,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "random",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "random",
@@ -3126,9 +3893,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "round",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "round",
@@ -3155,9 +3930,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "sin",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "sin",
@@ -3184,9 +3967,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "sqrt",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "sqrt",
@@ -3213,9 +4004,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "tan",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "tan",
@@ -3245,18 +4044,18 @@ func (rt *runtime) newContext() {
 					value: math.Ln2,
 				},
 			},
-			"LOG2E": {
-				mode: 0,
-				value: Value{
-					kind:  valueNumber,
-					value: math.Log2E,
-				},
-			},
 			"LOG10E": {
 				mode: 0,
 				value: Value{
 					kind:  valueNumber,
 					value: math.Log10E,
+				},
+			},
+			"LOG2E": {
+				mode: 0,
+				value: Value{
+					kind:  valueNumber,
+					value: math.Log2E,
 				},
 			},
 			"PI": {
@@ -3303,13 +4102,15 @@ func (rt *runtime) newContext() {
 			"E",
 			"LN10",
 			"LN2",
-			"LOG2E",
 			"LOG10E",
+			"LOG2E",
 			"PI",
 			"SQRT1_2",
 			"SQRT2",
 		},
 	}
+
+	// Date prototype.
 	rt.global.DatePrototype = &object{
 		runtime:     rt,
 		class:       classDateName,
@@ -3336,9 +4137,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: methodToString,
@@ -3365,9 +4174,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toDateString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "toDateString",
@@ -3394,42 +4211,21 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "toTimeString",
-							call: builtinDateToTimeString,
-						},
-					},
-				},
-			},
-			"toUTCString": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
+							propertyName: {
 								mode: 0,
 								value: Value{
-									kind:  valueNumber,
-									value: 0,
+									kind:  valueString,
+									value: "toTimeString",
 								},
 							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
-							name: "toUTCString",
-							call: builtinDateToUTCString,
+							name: "toTimeString",
+							call: builtinDateToTimeString,
 						},
 					},
 				},
@@ -3452,9 +4248,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toISOString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "toISOString",
@@ -3463,7 +4267,7 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
-			"toJSON": {
+			"toUTCString": {
 				mode: 0o101,
 				value: Value{
 					kind: valueObject,
@@ -3478,16 +4282,24 @@ func (rt *runtime) newContext() {
 								mode: 0,
 								value: Value{
 									kind:  valueNumber,
-									value: 1,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toUTCString",
 								},
 							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
-							name: "toJSON",
-							call: builtinDateToJSON,
+							name: "toUTCString",
+							call: builtinDateToUTCString,
 						},
 					},
 				},
@@ -3510,13 +4322,1390 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toGMTString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "toGMTString",
 							call: builtinDateToGMTString,
+						},
+					},
+				},
+			},
+			"getDate": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getDate",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getDate",
+							call: builtinDateGetDate,
+						},
+					},
+				},
+			},
+			"setDate": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setDate",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setDate",
+							call: builtinDateSetDate,
+						},
+					},
+				},
+			},
+			"getDay": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getDay",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getDay",
+							call: builtinDateGetDay,
+						},
+					},
+				},
+			},
+			"getFullYear": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getFullYear",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getFullYear",
+							call: builtinDateGetFullYear,
+						},
+					},
+				},
+			},
+			"setFullYear": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 3,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setFullYear",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setFullYear",
+							call: builtinDateSetFullYear,
+						},
+					},
+				},
+			},
+			"getHours": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getHours",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getHours",
+							call: builtinDateGetHours,
+						},
+					},
+				},
+			},
+			"setHours": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 4,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setHours",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setHours",
+							call: builtinDateSetHours,
+						},
+					},
+				},
+			},
+			"getMilliseconds": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getMilliseconds",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getMilliseconds",
+							call: builtinDateGetMilliseconds,
+						},
+					},
+				},
+			},
+			"setMilliseconds": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setMilliseconds",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setMilliseconds",
+							call: builtinDateSetMilliseconds,
+						},
+					},
+				},
+			},
+			"getMinutes": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getMinutes",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getMinutes",
+							call: builtinDateGetMinutes,
+						},
+					},
+				},
+			},
+			"setMinutes": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 3,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setMinutes",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setMinutes",
+							call: builtinDateSetMinutes,
+						},
+					},
+				},
+			},
+			"getMonth": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getMonth",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getMonth",
+							call: builtinDateGetMonth,
+						},
+					},
+				},
+			},
+			"setMonth": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 2,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setMonth",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setMonth",
+							call: builtinDateSetMonth,
+						},
+					},
+				},
+			},
+			"getSeconds": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getSeconds",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getSeconds",
+							call: builtinDateGetSeconds,
+						},
+					},
+				},
+			},
+			"setSeconds": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 2,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setSeconds",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setSeconds",
+							call: builtinDateSetSeconds,
+						},
+					},
+				},
+			},
+			"getTime": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getTime",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getTime",
+							call: builtinDateGetTime,
+						},
+					},
+				},
+			},
+			"setTime": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setTime",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setTime",
+							call: builtinDateSetTime,
+						},
+					},
+				},
+			},
+			"getTimezoneOffset": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getTimezoneOffset",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getTimezoneOffset",
+							call: builtinDateGetTimezoneOffset,
+						},
+					},
+				},
+			},
+			"getUTCDate": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getUTCDate",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getUTCDate",
+							call: builtinDateGetUTCDate,
+						},
+					},
+				},
+			},
+			"setUTCDate": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setUTCDate",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setUTCDate",
+							call: builtinDateSetUTCDate,
+						},
+					},
+				},
+			},
+			"getUTCDay": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getUTCDay",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getUTCDay",
+							call: builtinDateGetUTCDay,
+						},
+					},
+				},
+			},
+			"getUTCFullYear": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getUTCFullYear",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getUTCFullYear",
+							call: builtinDateGetUTCFullYear,
+						},
+					},
+				},
+			},
+			"setUTCFullYear": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 3,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setUTCFullYear",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setUTCFullYear",
+							call: builtinDateSetUTCFullYear,
+						},
+					},
+				},
+			},
+			"getUTCHours": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getUTCHours",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getUTCHours",
+							call: builtinDateGetUTCHours,
+						},
+					},
+				},
+			},
+			"setUTCHours": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 4,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setUTCHours",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setUTCHours",
+							call: builtinDateSetUTCHours,
+						},
+					},
+				},
+			},
+			"getUTCMilliseconds": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getUTCMilliseconds",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getUTCMilliseconds",
+							call: builtinDateGetUTCMilliseconds,
+						},
+					},
+				},
+			},
+			"setUTCMilliseconds": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setUTCMilliseconds",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setUTCMilliseconds",
+							call: builtinDateSetUTCMilliseconds,
+						},
+					},
+				},
+			},
+			"getUTCMinutes": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getUTCMinutes",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getUTCMinutes",
+							call: builtinDateGetUTCMinutes,
+						},
+					},
+				},
+			},
+			"setUTCMinutes": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 3,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setUTCMinutes",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setUTCMinutes",
+							call: builtinDateSetUTCMinutes,
+						},
+					},
+				},
+			},
+			"getUTCMonth": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getUTCMonth",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getUTCMonth",
+							call: builtinDateGetUTCMonth,
+						},
+					},
+				},
+			},
+			"setUTCMonth": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 2,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setUTCMonth",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setUTCMonth",
+							call: builtinDateSetUTCMonth,
+						},
+					},
+				},
+			},
+			"getUTCSeconds": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getUTCSeconds",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getUTCSeconds",
+							call: builtinDateGetUTCSeconds,
+						},
+					},
+				},
+			},
+			"setUTCSeconds": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 2,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setUTCSeconds",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setUTCSeconds",
+							call: builtinDateSetUTCSeconds,
+						},
+					},
+				},
+			},
+			"valueOf": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "valueOf",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "valueOf",
+							call: builtinDateValueOf,
+						},
+					},
+				},
+			},
+			"getYear": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "getYear",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "getYear",
+							call: builtinDateGetYear,
+						},
+					},
+				},
+			},
+			"setYear": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "setYear",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "setYear",
+							call: builtinDateSetYear,
+						},
+					},
+				},
+			},
+			"toJSON": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toJSON",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "toJSON",
+							call: builtinDateToJSON,
 						},
 					},
 				},
@@ -3539,9 +5728,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toLocaleString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "toLocaleString",
@@ -3568,9 +5765,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toLocaleDateString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "toLocaleDateString",
@@ -3597,9 +5802,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toLocaleTimeString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "toLocaleTimeString",
@@ -3608,1100 +5821,59 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
-			"valueOf": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "valueOf",
-							call: builtinDateValueOf,
-						},
-					},
-				},
-			},
-			"getTime": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getTime",
-							call: builtinDateGetTime,
-						},
-					},
-				},
-			},
-			"getYear": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getYear",
-							call: builtinDateGetYear,
-						},
-					},
-				},
-			},
-			"getFullYear": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getFullYear",
-							call: builtinDateGetFullYear,
-						},
-					},
-				},
-			},
-			"getUTCFullYear": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getUTCFullYear",
-							call: builtinDateGetUTCFullYear,
-						},
-					},
-				},
-			},
-			"getMonth": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getMonth",
-							call: builtinDateGetMonth,
-						},
-					},
-				},
-			},
-			"getUTCMonth": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getUTCMonth",
-							call: builtinDateGetUTCMonth,
-						},
-					},
-				},
-			},
-			"getDate": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getDate",
-							call: builtinDateGetDate,
-						},
-					},
-				},
-			},
-			"getUTCDate": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getUTCDate",
-							call: builtinDateGetUTCDate,
-						},
-					},
-				},
-			},
-			"getDay": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getDay",
-							call: builtinDateGetDay,
-						},
-					},
-				},
-			},
-			"getUTCDay": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getUTCDay",
-							call: builtinDateGetUTCDay,
-						},
-					},
-				},
-			},
-			"getHours": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getHours",
-							call: builtinDateGetHours,
-						},
-					},
-				},
-			},
-			"getUTCHours": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getUTCHours",
-							call: builtinDateGetUTCHours,
-						},
-					},
-				},
-			},
-			"getMinutes": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getMinutes",
-							call: builtinDateGetMinutes,
-						},
-					},
-				},
-			},
-			"getUTCMinutes": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getUTCMinutes",
-							call: builtinDateGetUTCMinutes,
-						},
-					},
-				},
-			},
-			"getSeconds": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getSeconds",
-							call: builtinDateGetSeconds,
-						},
-					},
-				},
-			},
-			"getUTCSeconds": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getUTCSeconds",
-							call: builtinDateGetUTCSeconds,
-						},
-					},
-				},
-			},
-			"getMilliseconds": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getMilliseconds",
-							call: builtinDateGetMilliseconds,
-						},
-					},
-				},
-			},
-			"getUTCMilliseconds": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getUTCMilliseconds",
-							call: builtinDateGetUTCMilliseconds,
-						},
-					},
-				},
-			},
-			"getTimezoneOffset": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "getTimezoneOffset",
-							call: builtinDateGetTimezoneOffset,
-						},
-					},
-				},
-			},
-			"setTime": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setTime",
-							call: builtinDateSetTime,
-						},
-					},
-				},
-			},
-			"setMilliseconds": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setMilliseconds",
-							call: builtinDateSetMilliseconds,
-						},
-					},
-				},
-			},
-			"setUTCMilliseconds": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setUTCMilliseconds",
-							call: builtinDateSetUTCMilliseconds,
-						},
-					},
-				},
-			},
-			"setSeconds": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 2,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setSeconds",
-							call: builtinDateSetSeconds,
-						},
-					},
-				},
-			},
-			"setUTCSeconds": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 2,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setUTCSeconds",
-							call: builtinDateSetUTCSeconds,
-						},
-					},
-				},
-			},
-			"setMinutes": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 3,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setMinutes",
-							call: builtinDateSetMinutes,
-						},
-					},
-				},
-			},
-			"setUTCMinutes": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 3,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setUTCMinutes",
-							call: builtinDateSetUTCMinutes,
-						},
-					},
-				},
-			},
-			"setHours": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 4,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setHours",
-							call: builtinDateSetHours,
-						},
-					},
-				},
-			},
-			"setUTCHours": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 4,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setUTCHours",
-							call: builtinDateSetUTCHours,
-						},
-					},
-				},
-			},
-			"setDate": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setDate",
-							call: builtinDateSetDate,
-						},
-					},
-				},
-			},
-			"setUTCDate": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setUTCDate",
-							call: builtinDateSetUTCDate,
-						},
-					},
-				},
-			},
-			"setMonth": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 2,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setMonth",
-							call: builtinDateSetMonth,
-						},
-					},
-				},
-			},
-			"setUTCMonth": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 2,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setUTCMonth",
-							call: builtinDateSetUTCMonth,
-						},
-					},
-				},
-			},
-			"setYear": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setYear",
-							call: builtinDateSetYear,
-						},
-					},
-				},
-			},
-			"setFullYear": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 3,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setFullYear",
-							call: builtinDateSetFullYear,
-						},
-					},
-				},
-			},
-			"setUTCFullYear": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 3,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "setUTCFullYear",
-							call: builtinDateSetUTCFullYear,
-						},
-					},
-				},
-			},
 		},
 		propertyOrder: []string{
+			propertyConstructor,
 			methodToString,
 			"toDateString",
 			"toTimeString",
-			"toUTCString",
 			"toISOString",
-			"toJSON",
+			"toUTCString",
 			"toGMTString",
+			"getDate",
+			"setDate",
+			"getDay",
+			"getFullYear",
+			"setFullYear",
+			"getHours",
+			"setHours",
+			"getMilliseconds",
+			"setMilliseconds",
+			"getMinutes",
+			"setMinutes",
+			"getMonth",
+			"setMonth",
+			"getSeconds",
+			"setSeconds",
+			"getTime",
+			"setTime",
+			"getTimezoneOffset",
+			"getUTCDate",
+			"setUTCDate",
+			"getUTCDay",
+			"getUTCFullYear",
+			"setUTCFullYear",
+			"getUTCHours",
+			"setUTCHours",
+			"getUTCMilliseconds",
+			"setUTCMilliseconds",
+			"getUTCMinutes",
+			"setUTCMinutes",
+			"getUTCMonth",
+			"setUTCMonth",
+			"getUTCSeconds",
+			"setUTCSeconds",
+			"valueOf",
+			"getYear",
+			"setYear",
+			"toJSON",
 			"toLocaleString",
 			"toLocaleDateString",
 			"toLocaleTimeString",
-			"valueOf",
-			"getTime",
-			"getYear",
-			"getFullYear",
-			"getUTCFullYear",
-			"getMonth",
-			"getUTCMonth",
-			"getDate",
-			"getUTCDate",
-			"getDay",
-			"getUTCDay",
-			"getHours",
-			"getUTCHours",
-			"getMinutes",
-			"getUTCMinutes",
-			"getSeconds",
-			"getUTCSeconds",
-			"getMilliseconds",
-			"getUTCMilliseconds",
-			"getTimezoneOffset",
-			"setTime",
-			"setMilliseconds",
-			"setUTCMilliseconds",
-			"setSeconds",
-			"setUTCSeconds",
-			"setMinutes",
-			"setUTCMinutes",
-			"setHours",
-			"setUTCHours",
-			"setDate",
-			"setUTCDate",
-			"setMonth",
-			"setUTCMonth",
-			"setYear",
-			"setFullYear",
-			"setUTCFullYear",
 		},
 	}
+
+	// Date definition.
 	rt.global.Date = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -4746,9 +5918,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "parse",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "parse",
@@ -4775,9 +5955,17 @@ func (rt *runtime) newContext() {
 									value: 7,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "UTC",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "UTC",
@@ -4804,9 +5992,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "now",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "now",
@@ -4824,6 +6020,8 @@ func (rt *runtime) newContext() {
 			"now",
 		},
 	}
+
+	// Date constructor definition.
 	rt.global.DatePrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -4831,6 +6029,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.Date,
 		},
 	}
+
+	// RegExp prototype.
 	rt.global.RegExpPrototype = &object{
 		runtime:     rt,
 		class:       classRegExpName,
@@ -4839,35 +6039,6 @@ func (rt *runtime) newContext() {
 		extensible:  true,
 		value:       prototypeValueRegExp,
 		property: map[string]property{
-			methodToString: {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 0,
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: methodToString,
-							call: builtinRegExpToString,
-						},
-					},
-				},
-			},
 			"exec": {
 				mode: 0o101,
 				value: Value{
@@ -4886,42 +6057,21 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-						},
-						value: nativeFunctionObject{
-							name: "exec",
-							call: builtinRegExpExec,
-						},
-					},
-				},
-			},
-			"test": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
+							propertyName: {
 								mode: 0,
 								value: Value{
-									kind:  valueNumber,
-									value: 1,
+									kind:  valueString,
+									value: "exec",
 								},
 							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
-							name: "test",
-							call: builtinRegExpTest,
+							name: "exec",
+							call: builtinRegExpExec,
 						},
 					},
 				},
@@ -4944,9 +6094,17 @@ func (rt *runtime) newContext() {
 									value: 1,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "compile",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "compile",
@@ -4955,14 +6113,91 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			methodToString: {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: methodToString,
+							call: builtinRegExpToString,
+						},
+					},
+				},
+			},
+			"test": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "test",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "test",
+							call: builtinRegExpTest,
+						},
+					},
+				},
+			},
 		},
 		propertyOrder: []string{
-			methodToString,
+			propertyConstructor,
 			"exec",
-			"test",
 			"compile",
+			methodToString,
+			"test",
 		},
 	}
+
+	// RegExp definition.
 	rt.global.RegExp = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -4995,6 +6230,8 @@ func (rt *runtime) newContext() {
 			propertyPrototype,
 		},
 	}
+
+	// RegExp constructor definition.
 	rt.global.RegExpPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -5002,6 +6239,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.RegExp,
 		},
 	}
+
+	// Error prototype.
 	rt.global.ErrorPrototype = &object{
 		runtime:     rt,
 		class:       classErrorName,
@@ -5010,6 +6249,20 @@ func (rt *runtime) newContext() {
 		extensible:  true,
 		value:       nil,
 		property: map[string]property{
+			"name": {
+				mode: 0o101,
+				value: Value{
+					kind:  valueString,
+					value: classErrorName,
+				},
+			},
+			"message": {
+				mode: 0o101,
+				value: Value{
+					kind:  valueString,
+					value: "",
+				},
+			},
 			methodToString: {
 				mode: 0o101,
 				value: Value{
@@ -5028,9 +6281,17 @@ func (rt *runtime) newContext() {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: methodToString,
@@ -5039,27 +6300,16 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
-			"name": {
-				mode: 0o101,
-				value: Value{
-					kind:  valueString,
-					value: classErrorName,
-				},
-			},
-			"message": {
-				mode: 0o101,
-				value: Value{
-					kind:  valueString,
-					value: "",
-				},
-			},
 		},
 		propertyOrder: []string{
-			methodToString,
+			propertyConstructor,
 			"name",
 			"message",
+			methodToString,
 		},
 	}
+
+	// Error definition.
 	rt.global.Error = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -5092,6 +6342,8 @@ func (rt *runtime) newContext() {
 			propertyPrototype,
 		},
 	}
+
+	// Error constructor definition.
 	rt.global.ErrorPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -5099,6 +6351,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.Error,
 		},
 	}
+
+	// EvalError prototype.
 	rt.global.EvalErrorPrototype = &object{
 		runtime:     rt,
 		class:       classEvalErrorName,
@@ -5114,11 +6368,60 @@ func (rt *runtime) newContext() {
 					value: classEvalErrorName,
 				},
 			},
+			"message": {
+				mode: 0o101,
+				value: Value{
+					kind:  valueString,
+					value: "",
+				},
+			},
+			methodToString: {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: methodToString,
+							call: builtinErrorToString,
+						},
+					},
+				},
+			},
 		},
 		propertyOrder: []string{
+			propertyConstructor,
 			"name",
+			"message",
+			methodToString,
 		},
 	}
+
+	// EvalError definition.
 	rt.global.EvalError = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -5151,6 +6454,8 @@ func (rt *runtime) newContext() {
 			propertyPrototype,
 		},
 	}
+
+	// EvalError constructor definition.
 	rt.global.EvalErrorPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -5158,6 +6463,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.EvalError,
 		},
 	}
+
+	// TypeError prototype.
 	rt.global.TypeErrorPrototype = &object{
 		runtime:     rt,
 		class:       classTypeErrorName,
@@ -5173,11 +6480,60 @@ func (rt *runtime) newContext() {
 					value: classTypeErrorName,
 				},
 			},
+			"message": {
+				mode: 0o101,
+				value: Value{
+					kind:  valueString,
+					value: "",
+				},
+			},
+			methodToString: {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: methodToString,
+							call: builtinErrorToString,
+						},
+					},
+				},
+			},
 		},
 		propertyOrder: []string{
+			propertyConstructor,
 			"name",
+			"message",
+			methodToString,
 		},
 	}
+
+	// TypeError definition.
 	rt.global.TypeError = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -5210,6 +6566,8 @@ func (rt *runtime) newContext() {
 			propertyPrototype,
 		},
 	}
+
+	// TypeError constructor definition.
 	rt.global.TypeErrorPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -5217,6 +6575,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.TypeError,
 		},
 	}
+
+	// RangeError prototype.
 	rt.global.RangeErrorPrototype = &object{
 		runtime:     rt,
 		class:       classRangeErrorName,
@@ -5232,11 +6592,60 @@ func (rt *runtime) newContext() {
 					value: classRangeErrorName,
 				},
 			},
+			"message": {
+				mode: 0o101,
+				value: Value{
+					kind:  valueString,
+					value: "",
+				},
+			},
+			methodToString: {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: methodToString,
+							call: builtinErrorToString,
+						},
+					},
+				},
+			},
 		},
 		propertyOrder: []string{
+			propertyConstructor,
 			"name",
+			"message",
+			methodToString,
 		},
 	}
+
+	// RangeError definition.
 	rt.global.RangeError = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -5269,6 +6678,8 @@ func (rt *runtime) newContext() {
 			propertyPrototype,
 		},
 	}
+
+	// RangeError constructor definition.
 	rt.global.RangeErrorPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -5276,6 +6687,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.RangeError,
 		},
 	}
+
+	// ReferenceError prototype.
 	rt.global.ReferenceErrorPrototype = &object{
 		runtime:     rt,
 		class:       classReferenceErrorName,
@@ -5291,11 +6704,60 @@ func (rt *runtime) newContext() {
 					value: classReferenceErrorName,
 				},
 			},
+			"message": {
+				mode: 0o101,
+				value: Value{
+					kind:  valueString,
+					value: "",
+				},
+			},
+			methodToString: {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: methodToString,
+							call: builtinErrorToString,
+						},
+					},
+				},
+			},
 		},
 		propertyOrder: []string{
+			propertyConstructor,
 			"name",
+			"message",
+			methodToString,
 		},
 	}
+
+	// ReferenceError definition.
 	rt.global.ReferenceError = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -5328,6 +6790,8 @@ func (rt *runtime) newContext() {
 			propertyPrototype,
 		},
 	}
+
+	// ReferenceError constructor definition.
 	rt.global.ReferenceErrorPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -5335,6 +6799,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.ReferenceError,
 		},
 	}
+
+	// SyntaxError prototype.
 	rt.global.SyntaxErrorPrototype = &object{
 		runtime:     rt,
 		class:       classSyntaxErrorName,
@@ -5350,11 +6816,60 @@ func (rt *runtime) newContext() {
 					value: classSyntaxErrorName,
 				},
 			},
+			"message": {
+				mode: 0o101,
+				value: Value{
+					kind:  valueString,
+					value: "",
+				},
+			},
+			methodToString: {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: methodToString,
+							call: builtinErrorToString,
+						},
+					},
+				},
+			},
 		},
 		propertyOrder: []string{
+			propertyConstructor,
 			"name",
+			"message",
+			methodToString,
 		},
 	}
+
+	// SyntaxError definition.
 	rt.global.SyntaxError = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -5387,6 +6902,8 @@ func (rt *runtime) newContext() {
 			propertyPrototype,
 		},
 	}
+
+	// SyntaxError constructor definition.
 	rt.global.SyntaxErrorPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -5394,6 +6911,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.SyntaxError,
 		},
 	}
+
+	// URIError prototype.
 	rt.global.URIErrorPrototype = &object{
 		runtime:     rt,
 		class:       classURIErrorName,
@@ -5409,11 +6928,60 @@ func (rt *runtime) newContext() {
 					value: classURIErrorName,
 				},
 			},
+			"message": {
+				mode: 0o101,
+				value: Value{
+					kind:  valueString,
+					value: "",
+				},
+			},
+			methodToString: {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "toString",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: methodToString,
+							call: builtinErrorToString,
+						},
+					},
+				},
+			},
 		},
 		propertyOrder: []string{
+			propertyConstructor,
 			"name",
+			"message",
+			methodToString,
 		},
 	}
+
+	// URIError definition.
 	rt.global.URIError = &object{
 		runtime:     rt,
 		class:       classFunctionName,
@@ -5446,6 +7014,8 @@ func (rt *runtime) newContext() {
 			propertyPrototype,
 		},
 	}
+
+	// URIError constructor definition.
 	rt.global.URIErrorPrototype.property[propertyConstructor] = property{
 		mode: 0o101,
 		value: Value{
@@ -5453,6 +7023,8 @@ func (rt *runtime) newContext() {
 			value: rt.global.URIError,
 		},
 	}
+
+	// JSON definition.
 	rt.global.JSON = &object{
 		runtime:     rt,
 		class:       classJSONName,
@@ -5478,9 +7050,17 @@ func (rt *runtime) newContext() {
 									value: 2,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "parse",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "parse",
@@ -5507,9 +7087,17 @@ func (rt *runtime) newContext() {
 									value: 3,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "stringify",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "stringify",
@@ -5524,6 +7112,8 @@ func (rt *runtime) newContext() {
 			"stringify",
 		},
 	}
+
+	// Global properties.
 	rt.globalObject.property = map[string]property{
 		"eval": {
 			mode: 0o101,
@@ -5543,9 +7133,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "eval",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "eval",
@@ -5572,9 +7170,17 @@ func (rt *runtime) newContext() {
 								value: 2,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "parseInt",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "parseInt",
@@ -5601,9 +7207,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "parseFloat",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "parseFloat",
@@ -5630,9 +7244,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "isNaN",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "isNaN",
@@ -5659,9 +7281,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "isFinite",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "isFinite",
@@ -5688,9 +7318,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "decodeURI",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "decodeURI",
@@ -5717,9 +7355,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "decodeURIComponent",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "decodeURIComponent",
@@ -5746,9 +7392,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "encodeURI",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "encodeURI",
@@ -5775,9 +7429,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "encodeURIComponent",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "encodeURIComponent",
@@ -5804,9 +7466,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "escape",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "escape",
@@ -5833,9 +7503,17 @@ func (rt *runtime) newContext() {
 								value: 1,
 							},
 						},
+						propertyName: {
+							mode: 0,
+							value: Value{
+								kind:  valueString,
+								value: "unescape",
+							},
+						},
 					},
 					propertyOrder: []string{
 						propertyLength,
+						propertyName,
 					},
 					value: nativeFunctionObject{
 						name: "unescape",
@@ -5984,6 +7662,8 @@ func (rt *runtime) newContext() {
 			},
 		},
 	}
+
+	// Global property order.
 	rt.globalObject.propertyOrder = []string{
 		"eval",
 		"parseInt",
@@ -6045,9 +7725,17 @@ func (rt *runtime) newConsole() *object {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "log",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "log",
@@ -6074,9 +7762,17 @@ func (rt *runtime) newConsole() *object {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "debug",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "debug",
@@ -6103,9 +7799,17 @@ func (rt *runtime) newConsole() *object {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "info",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "info",
@@ -6132,9 +7836,17 @@ func (rt *runtime) newConsole() *object {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "error",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "error",
@@ -6161,9 +7873,17 @@ func (rt *runtime) newConsole() *object {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "warn",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "warn",
@@ -6190,9 +7910,17 @@ func (rt *runtime) newConsole() *object {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "dir",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "dir",
@@ -6219,9 +7947,17 @@ func (rt *runtime) newConsole() *object {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "time",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "time",
@@ -6248,9 +7984,17 @@ func (rt *runtime) newConsole() *object {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "timeEnd",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "timeEnd",
@@ -6277,9 +8021,17 @@ func (rt *runtime) newConsole() *object {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "trace",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "trace",
@@ -6306,9 +8058,17 @@ func (rt *runtime) newConsole() *object {
 									value: 0,
 								},
 							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "assert",
+								},
+							},
 						},
 						propertyOrder: []string{
 							propertyLength,
+							propertyName,
 						},
 						value: nativeFunctionObject{
 							name: "assert",

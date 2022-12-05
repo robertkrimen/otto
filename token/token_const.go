@@ -3,23 +3,24 @@ package token
 const (
 	_ Token = iota
 
+	// Control.
 	ILLEGAL
 	EOF
 	COMMENT
 	KEYWORD
-
+	// Types.
 	STRING
 	BOOLEAN
 	NULL
 	NUMBER
 	IDENTIFIER
-
+	// Maths.
 	PLUS      // +
 	MINUS     // -
 	MULTIPLY  // *
 	SLASH     // /
 	REMAINDER // %
-
+	// Logical and bitwise operators.
 	AND                  // &
 	OR                   // |
 	EXCLUSIVE_OR         // ^
@@ -27,13 +28,13 @@ const (
 	SHIFT_RIGHT          // >>
 	UNSIGNED_SHIFT_RIGHT // >>>
 	AND_NOT              // &^
-
+	// Math assignments.
 	ADD_ASSIGN       // +=
 	SUBTRACT_ASSIGN  // -=
 	MULTIPLY_ASSIGN  // *=
 	QUOTIENT_ASSIGN  // /=
 	REMAINDER_ASSIGN // %=
-
+	// Math and bitwise assignments.
 	AND_ASSIGN                  // &=
 	OR_ASSIGN                   // |=
 	EXCLUSIVE_OR_ASSIGN         // ^=
@@ -41,72 +42,72 @@ const (
 	SHIFT_RIGHT_ASSIGN          // >>=
 	UNSIGNED_SHIFT_RIGHT_ASSIGN // >>>=
 	AND_NOT_ASSIGN              // &^=
-
+	// Logical operators and decrement / increment.
 	LOGICAL_AND // &&
 	LOGICAL_OR  // ||
 	INCREMENT   // ++
 	DECREMENT   // --
-
+	// Comparison operators.
 	EQUAL        // ==
 	STRICT_EQUAL // ===
 	LESS         // <
 	GREATER      // >
 	ASSIGN       // =
 	NOT          // !
-
+	// Bitwise not.
 	BITWISE_NOT // ~
-
+	// Comparison operators.
 	NOT_EQUAL        // !=
 	STRICT_NOT_EQUAL // !==
 	LESS_OR_EQUAL    // <=
 	GREATER_OR_EQUAL // >=
-
+	// Left operators.
 	LEFT_PARENTHESIS // (
 	LEFT_BRACKET     // [
 	LEFT_BRACE       // {
 	COMMA            // ,
 	PERIOD           // .
-
+	// Right operators.
 	RIGHT_PARENTHESIS // )
 	RIGHT_BRACKET     // ]
 	RIGHT_BRACE       // }
 	SEMICOLON         // ;
 	COLON             // :
 	QUESTION_MARK     // ?
-
+	// Basic flow - keywords below here.
 	_
 	IF
 	IN
 	DO
-
+	// Declarations.
 	VAR
 	FOR
 	NEW
 	TRY
-
+	// Advanced flow.
 	THIS
 	ELSE
 	CASE
 	VOID
 	WITH
-
+	// Loops.
 	WHILE
 	BREAK
 	CATCH
 	THROW
-
+	// Functions.
 	RETURN
 	TYPEOF
 	DELETE
 	SWITCH
-
+	// Fallback identifiers.
 	DEFAULT
 	FINALLY
-
+	// Miscellaneous.
 	FUNCTION
 	CONTINUE
 	DEBUGGER
-
+	// Instance of.
 	INSTANCEOF
 )
 
