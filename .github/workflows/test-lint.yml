@@ -25,6 +25,7 @@ jobs:
       - name: Validate go mod / generate
         run: |
           go mod tidy
+          go install golang.org/x/tools/cmd/stringer@latest
           go generate ./...
           git --no-pager diff && [[ 0 -eq $(git status --porcelain | wc -l) ]]
 
