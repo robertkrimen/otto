@@ -627,11 +627,11 @@ func Test_instanceof(t *testing.T) {
 
 		test(`raise:
             abc = {} instanceof "abc";
-        `, "TypeError: Expecting a function in instanceof check, but got: abc")
+        `, "TypeError: invalid kind String for instanceof (expected object)")
 
 		test(`raise:
             "xyzzy" instanceof Math;
-        `, "TypeError")
+        `, "TypeError: Object.hasInstance not callable")
 	})
 }
 

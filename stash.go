@@ -194,7 +194,7 @@ func (s *dclStash) getBinding(name string, throw bool) Value {
 	}
 	if !prop.mutable && !prop.readable {
 		if throw { // strict?
-			panic(s.rt.panicTypeError())
+			panic(s.rt.panicTypeError("getBinding property %s not mutable and not readable", name))
 		}
 		return Value{}
 	}

@@ -81,7 +81,7 @@ func builtinObjectToString(call FunctionCall) Value {
 func builtinObjectToLocaleString(call FunctionCall) Value {
 	toString := call.thisObject().get("toString")
 	if !toString.isCallable() {
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Object.toLocaleString %q is not callable", toString))
 	}
 	return toString.call(call.runtime, call.This)
 }
@@ -90,7 +90,7 @@ func builtinObjectGetPrototypeOf(call FunctionCall) Value {
 	val := call.Argument(0)
 	obj := val.object()
 	if obj == nil {
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Object.GetPrototypeOf is nil"))
 	}
 
 	if obj.prototype == nil {
@@ -104,7 +104,7 @@ func builtinObjectGetOwnPropertyDescriptor(call FunctionCall) Value {
 	val := call.Argument(0)
 	obj := val.object()
 	if obj == nil {
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Object.GetOwnPropertyDescriptor is nil"))
 	}
 
 	name := call.Argument(1).string()
@@ -119,7 +119,7 @@ func builtinObjectDefineProperty(call FunctionCall) Value {
 	val := call.Argument(0)
 	obj := val.object()
 	if obj == nil {
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Object.DefineProperty is nil"))
 	}
 	name := call.Argument(1).string()
 	descriptor := toPropertyDescriptor(call.runtime, call.Argument(2))
@@ -131,7 +131,7 @@ func builtinObjectDefineProperties(call FunctionCall) Value {
 	val := call.Argument(0)
 	obj := val.object()
 	if obj == nil {
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Object.DefineProperties is nil"))
 	}
 
 	properties := call.runtime.toObject(call.Argument(1))
@@ -147,7 +147,7 @@ func builtinObjectDefineProperties(call FunctionCall) Value {
 func builtinObjectCreate(call FunctionCall) Value {
 	prototypeValue := call.Argument(0)
 	if !prototypeValue.IsNull() && !prototypeValue.IsObject() {
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Object.Create is nil"))
 	}
 
 	obj := call.runtime.newObject()
@@ -171,17 +171,16 @@ func builtinObjectIsExtensible(call FunctionCall) Value {
 	if obj := val.object(); obj != nil {
 		return boolValue(obj.extensible)
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Object.IsExtensible is nil"))
 }
 
 func builtinObjectPreventExtensions(call FunctionCall) Value {
 	val := call.Argument(0)
 	if obj := val.object(); obj != nil {
 		obj.extensible = false
-	} else {
-		panic(call.runtime.panicTypeError())
+		return val
 	}
-	return val
+	panic(call.runtime.panicTypeError("Object.PreventExtensions is nil"))
 }
 
 func builtinObjectIsSealed(call FunctionCall) Value {
@@ -200,7 +199,7 @@ func builtinObjectIsSealed(call FunctionCall) Value {
 		})
 		return boolValue(result)
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Object.IsSealed is nil"))
 }
 
 func builtinObjectSeal(call FunctionCall) Value {
@@ -214,10 +213,9 @@ func builtinObjectSeal(call FunctionCall) Value {
 			return true
 		})
 		obj.extensible = false
-	} else {
-		panic(call.runtime.panicTypeError())
+		return val
 	}
-	return val
+	panic(call.runtime.panicTypeError("Object.Seal is nil"))
 }
 
 func builtinObjectIsFrozen(call FunctionCall) Value {
@@ -236,7 +234,7 @@ func builtinObjectIsFrozen(call FunctionCall) Value {
 		})
 		return boolValue(result)
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Object.IsFrozen is nil"))
 }
 
 func builtinObjectFreeze(call FunctionCall) Value {
@@ -259,10 +257,9 @@ func builtinObjectFreeze(call FunctionCall) Value {
 			return true
 		})
 		obj.extensible = false
-	} else {
-		panic(call.runtime.panicTypeError())
+		return val
 	}
-	return val
+	panic(call.runtime.panicTypeError("Object.Freeze is nil"))
 }
 
 func builtinObjectKeys(call FunctionCall) Value {
@@ -273,7 +270,7 @@ func builtinObjectKeys(call FunctionCall) Value {
 		})
 		return objectValue(call.runtime.newArrayOf(keys))
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Object.Keys is nil"))
 }
 
 func builtinObjectGetOwnPropertyNames(call FunctionCall) Value {

@@ -180,12 +180,12 @@ func builtinJSONStringify(call FunctionCall) Value {
 	}
 	valueJSON, err := json.Marshal(value)
 	if err != nil {
-		panic(call.runtime.panicTypeError(err.Error()))
+		panic(call.runtime.panicTypeError("JSON.stringify marshal: %s", err))
 	}
 	if ctx.gap != "" {
 		valueJSON1 := bytes.Buffer{}
 		if err = json.Indent(&valueJSON1, valueJSON, "", ctx.gap); err != nil {
-			panic(call.runtime.panicTypeError(err.Error()))
+			panic(call.runtime.panicTypeError("JSON.stringify indent: %s", err))
 		}
 		valueJSON = valueJSON1.Bytes()
 	}

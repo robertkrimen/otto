@@ -117,7 +117,7 @@ func (p property) isEmpty() bool {
 func toPropertyDescriptor(rt *runtime, value Value) property {
 	objectDescriptor := value.object()
 	if objectDescriptor == nil {
-		panic(rt.panicTypeError())
+		panic(rt.panicTypeError("toPropertyDescriptor on nil"))
 	}
 
 	var descriptor property
@@ -153,7 +153,7 @@ func toPropertyDescriptor(rt *runtime, value Value) property {
 		value := objectDescriptor.get("get")
 		if value.IsDefined() {
 			if !value.isCallable() {
-				panic(rt.panicTypeError())
+				panic(rt.panicTypeError("toPropertyDescriptor get not callable"))
 			}
 			getter = value.object()
 			getterSetter = true
@@ -167,7 +167,7 @@ func toPropertyDescriptor(rt *runtime, value Value) property {
 		value := objectDescriptor.get("set")
 		if value.IsDefined() {
 			if !value.isCallable() {
-				panic(rt.panicTypeError())
+				panic(rt.panicTypeError("toPropertyDescriptor set not callable"))
 			}
 			setter = value.object()
 			getterSetter = true
@@ -179,14 +179,14 @@ func toPropertyDescriptor(rt *runtime, value Value) property {
 
 	if getterSetter {
 		if descriptor.writeSet() {
-			panic(rt.panicTypeError())
+			panic(rt.panicTypeError("toPropertyDescriptor descriptor writeSet"))
 		}
 		descriptor.value = propertyGetSet{getter, setter}
 	}
 
 	if objectDescriptor.hasProperty("value") {
 		if getterSetter {
-			panic(rt.panicTypeError())
+			panic(rt.panicTypeError("toPropertyDescriptor value getterSetter"))
 		}
 		descriptor.value = objectDescriptor.get("value")
 	}

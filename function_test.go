@@ -229,7 +229,7 @@ func TestFunction_bind(t *testing.T) {
 
 		test(`raise:
             Math.bind();
-        `, "TypeError: 'bind' is not a function")
+        `, `TypeError: "bind" is not a function`)
 
 		test(`
             function construct(fn, arguments) {
@@ -268,7 +268,7 @@ func TestFunction_toString(t *testing.T) {
 
 		test(`raise:
             Function.prototype.toString.call(undefined);
-        `, "TypeError")
+        `, "TypeError: Function.Class environment != Function")
 
 		test(`
             abc = function()   {       return -1    ;

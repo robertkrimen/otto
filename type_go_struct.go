@@ -69,7 +69,7 @@ func (o goStructObject) setValue(rt *runtime, name string, value Value) bool {
 	fieldValue := o.getValue(name)
 	converted, err := rt.convertCallParameter(value, fieldValue.Type())
 	if err != nil {
-		panic(rt.panicTypeError(err.Error()))
+		panic(rt.panicTypeError("Object.setValue convertCallParameter: %s", err))
 	}
 	fieldValue.Set(converted)
 

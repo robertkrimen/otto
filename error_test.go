@@ -80,7 +80,7 @@ func TestErrorContext(t *testing.T) {
         `)
 		{
 			err := asError(t, err)
-			is(err.message, "'undefined' is not a function")
+			is(err.message, `"undefined" is not a function`)
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:2:13")
 		}
@@ -90,7 +90,7 @@ func TestErrorContext(t *testing.T) {
         `)
 		{
 			err := asError(t, err)
-			is(err.message, "'abc' is not a function")
+			is(err.message, `"abc" is not a function`)
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:2:14")
 		}
@@ -100,7 +100,7 @@ func TestErrorContext(t *testing.T) {
         `)
 		{
 			err := asError(t, err)
-			is(err.message, "'abc' is not a function")
+			is(err.message, `"abc" is not a function`)
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:2:14")
 		}
@@ -111,7 +111,7 @@ func TestErrorContext(t *testing.T) {
         `)
 		{
 			err := asError(t, err)
-			is(err.message, "'ghi' is not a function")
+			is(err.message, `"ghi" is not a function`)
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:3:13")
 		}
@@ -127,7 +127,7 @@ func TestErrorContext(t *testing.T) {
         `)
 		{
 			err := asError(t, err)
-			is(err.message, "'undefined' is not a function")
+			is(err.message, `"undefined" is not a function`)
 			is(len(err.trace), 3)
 			is(err.trace[0].location(), "def (<anonymous>:3:17)")
 			is(err.trace[1].location(), "abc (<anonymous>:6:17)")
@@ -174,7 +174,7 @@ func TestErrorContext(t *testing.T) {
         `)
 		{
 			err := asError(t, err)
-			is(err.message, "'xyzzy' is not a function")
+			is(err.message, `"xyzzy" is not a function`)
 			is(len(err.trace), 1)
 			is(err.trace[0].location(), "<anonymous>:1:1")
 		}
@@ -251,7 +251,7 @@ func TestErrorContext(t *testing.T) {
 			f, _ := vm.Get("C")
 			_, err := f.Call(UndefinedValue())
 			err1 := asError(t, err)
-			is(err1.message, "Cannot access member 'prop' of null")
+			is(err1.message, `Cannot access member "prop" of null`)
 			is(len(err1.trace), 1)
 			is(err1.trace[0].location(), "C (file1.js:7:5)")
 		}

@@ -81,7 +81,7 @@ func builtinDateToJSON(call FunctionCall) Value {
 	toISOString := obj.get("toISOString")
 	if !toISOString.isCallable() {
 		// FIXME
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Date.toJSON toISOString %q is not callable", toISOString))
 	}
 	return toISOString.call(call.runtime, objectValue(obj), []Value{})
 }

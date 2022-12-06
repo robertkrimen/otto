@@ -21,7 +21,7 @@ func Test_panic(t *testing.T) {
             var abc = [];
             Object.defineProperty(abc, "0", { writable: false });
             Object.defineProperty(abc, "0", { value: false, writable: false });
-        `, "TypeError")
+        `, "TypeError: Array.DefineOwnProperty Object.DefineOwnProperty failed")
 
 		// Test that a regular expression can contain \c0410 (CYRILLIC CAPITAL LETTER A)
 		// without panicking

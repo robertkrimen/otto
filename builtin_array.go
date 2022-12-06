@@ -52,7 +52,7 @@ func builtinArrayToLocaleString(call FunctionCall) Value {
 			obj := call.runtime.toObject(value)
 			toLocaleString := obj.get("toLocaleString")
 			if !toLocaleString.isCallable() {
-				panic(call.runtime.panicTypeError())
+				panic(call.runtime.panicTypeError("Array.toLocaleString index[%d] %q is not callable", index, toLocaleString))
 			}
 			stringValue = toLocaleString.call(call.runtime, objectValue(obj)).string()
 		}
@@ -457,7 +457,7 @@ func builtinArraySort(call FunctionCall) Value {
 	compare := compareValue.object()
 	if compareValue.IsUndefined() {
 	} else if !compareValue.isCallable() {
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Array.sort value %q is not callable", compareValue))
 	}
 	if length > 1 {
 		arraySortQuickSort(thisObject, 0, length-1, compare)
@@ -541,7 +541,7 @@ func builtinArrayEvery(call FunctionCall) Value {
 		}
 		return trueValue
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Array.every argument %q is not callable", call.Argument(0)))
 }
 
 func builtinArraySome(call FunctionCall) Value {
@@ -559,7 +559,7 @@ func builtinArraySome(call FunctionCall) Value {
 		}
 		return falseValue
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Array.some %q if not callable", call.Argument(0)))
 }
 
 func builtinArrayForEach(call FunctionCall) Value {
@@ -575,7 +575,7 @@ func builtinArrayForEach(call FunctionCall) Value {
 		}
 		return Value{}
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Array.foreach %q if not callable", call.Argument(0)))
 }
 
 func builtinArrayMap(call FunctionCall) Value {
@@ -594,7 +594,7 @@ func builtinArrayMap(call FunctionCall) Value {
 		}
 		return objectValue(call.runtime.newArrayOf(values))
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Array.foreach %q if not callable", call.Argument(0)))
 }
 
 func builtinArrayFilter(call FunctionCall) Value {
@@ -614,7 +614,7 @@ func builtinArrayFilter(call FunctionCall) Value {
 		}
 		return objectValue(call.runtime.newArrayOf(values))
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Array.filter %q if not callable", call.Argument(0)))
 }
 
 func builtinArrayReduce(call FunctionCall) Value {
@@ -647,7 +647,7 @@ func builtinArrayReduce(call FunctionCall) Value {
 			return accumulator
 		}
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Array.reduce %q if not callable", call.Argument(0)))
 }
 
 func builtinArrayReduceRight(call FunctionCall) Value {
@@ -679,5 +679,5 @@ func builtinArrayReduceRight(call FunctionCall) Value {
 			return accumulator
 		}
 	}
-	panic(call.runtime.panicTypeError())
+	panic(call.runtime.panicTypeError("Array.reduceRight %q if not callable", call.Argument(0)))
 }

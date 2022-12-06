@@ -111,7 +111,7 @@ func TestArray_toLocaleString(t *testing.T) {
 
 		test(`raise:
             [ { toLocaleString: undefined } ].toLocaleString();
-        `, "TypeError")
+        `, `TypeError: Array.toLocaleString index[0] "undefined" is not callable`)
 	})
 }
 
@@ -429,9 +429,9 @@ func TestArray_every(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: [].every()`, "TypeError")
+		test(`raise: [].every()`, `TypeError: Array.every argument "undefined" is not callable`)
 
-		test(`raise: [].every("abc")`, "TypeError")
+		test(`raise: [].every("abc")`, `TypeError: Array.every argument "abc" is not callable`)
 
 		test(`[].every(function() { return false })`, true)
 
@@ -479,7 +479,7 @@ func TestArray_some(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: [].some("abc")`, "TypeError")
+		test(`raise: [].some("abc")`, `TypeError: Array.some "abc" if not callable`)
 
 		test(`[].some(function() { return true })`, false)
 
@@ -521,7 +521,7 @@ func TestArray_forEach(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: [].forEach("abc")`, "TypeError")
+		test(`raise: [].forEach("abc")`, `TypeError: Array.foreach "abc" if not callable`)
 
 		test(`
             var abc = 0;
@@ -594,7 +594,7 @@ func TestArray_map(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: [].map("abc")`, "TypeError")
+		test(`raise: [].map("abc")`, `TypeError: Array.foreach "abc" if not callable`)
 
 		test(`[].map(function() { return 1 }).length`, 0)
 
@@ -626,7 +626,7 @@ func TestArray_filter(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: [].filter("abc")`, "TypeError")
+		test(`raise: [].filter("abc")`, `TypeError: Array.filter "abc" if not callable`)
 
 		test(`[].filter(function() { return 1 }).length`, 0)
 
@@ -640,9 +640,9 @@ func TestArray_reduce(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: [].reduce("abc")`, "TypeError")
+		test(`raise: [].reduce("abc")`, `TypeError: Array.reduce "abc" if not callable`)
 
-		test(`raise: [].reduce(function() {})`, "TypeError")
+		test(`raise: [].reduce(function() {})`, `TypeError: Array.reduce "function() {}" if not callable`)
 
 		test(`[].reduce(function() {}, 0)`, 0)
 
@@ -660,9 +660,9 @@ func TestArray_reduceRight(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: [].reduceRight("abc")`, "TypeError")
+		test(`raise: [].reduceRight("abc")`, `TypeError: Array.reduceRight "abc" if not callable`)
 
-		test(`raise: [].reduceRight(function() {})`, "TypeError")
+		test(`raise: [].reduceRight(function() {})`, `TypeError: Array.reduceRight "function() {}" if not callable`)
 
 		test(`[].reduceRight(function() {}, 0)`, 0)
 
@@ -697,7 +697,7 @@ func TestArray_defineOwnProperty(t *testing.T) {
             Object.defineProperty(abc, "length", {
                 writable: true
             });
-        `, "TypeError")
+        `, `TypeError: Object.DefineOwnProperty: property not configurable or writeable and descriptor not writeable`)
 	})
 }
 

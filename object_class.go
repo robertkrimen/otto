@@ -210,7 +210,7 @@ func objectCanPutDetails(obj *object, name string) (canPut bool, prop *property,
 			canPut = setter != nil
 			return
 		default:
-			panic(obj.runtime.panicTypeError())
+			panic(obj.runtime.panicTypeError("unexpected type %T to Object.CanPutDetails", prop.value))
 		}
 	}
 
@@ -234,7 +234,7 @@ func objectCanPutDetails(obj *object, name string) (canPut bool, prop *property,
 		canPut = setter != nil
 		return
 	default:
-		panic(obj.runtime.panicTypeError())
+		panic(obj.runtime.panicTypeError("unexpected type %T to Object.CanPutDetails", prop.value))
 	}
 }
 
@@ -282,22 +282,23 @@ func objectPut(obj *object, name string, value Value, throw bool) {
 			}
 		}
 		obj.defineProperty(name, value, 0o111, throw)
-	} else {
-		switch propertyValue := prop.value.(type) {
-		case Value:
-			prop.value = value
-			obj.defineOwnProperty(name, *prop, throw)
-		case propertyGetSet:
-			if propertyValue[1] != nil {
-				propertyValue[1].call(toValue(obj), []Value{value}, false, nativeFrame)
-				return
-			}
-			if throw {
-				panic(obj.runtime.panicTypeError())
-			}
-		default:
-			panic(obj.runtime.panicTypeError())
+		return
+	}
+
+	switch propertyValue := prop.value.(type) {
+	case Value:
+		prop.value = value
+		obj.defineOwnProperty(name, *prop, throw)
+	case propertyGetSet:
+		if propertyValue[1] != nil {
+			propertyValue[1].call(toValue(obj), []Value{value}, false, nativeFrame)
+			return
 		}
+		if throw {
+			panic(obj.runtime.panicTypeError("Object.Put nil second parameter to propertyGetSet"))
+		}
+	default:
+		panic(obj.runtime.panicTypeError("Object.Put unexpected type %T", prop.value))
 	}
 }
 
@@ -312,9 +313,9 @@ func objectHasOwnProperty(obj *object, name string) bool {
 
 // 8.12.9.
 func objectDefineOwnProperty(obj *object, name string, descriptor property, throw bool) bool {
-	reject := func() bool {
+	reject := func(reason string) bool {
 		if throw {
-			panic(obj.runtime.panicTypeError())
+			panic(obj.runtime.panicTypeError("Object.DefineOwnProperty: %s", reason))
 		}
 		return false
 	}
@@ -322,7 +323,7 @@ func objectDefineOwnProperty(obj *object, name string, descriptor property, thro
 	prop, exists := obj.readProperty(name)
 	if !exists {
 		if !obj.extensible {
-			return reject()
+			return reject("not exists and not extensible")
 		}
 		if newGetSet, isAccessor := descriptor.value.(propertyGetSet); isAccessor {
 			if newGetSet[0] == &nilGetSetObject {
@@ -347,12 +348,12 @@ func objectDefineOwnProperty(obj *object, name string, descriptor property, thro
 	configurable := prop.configurable()
 	if !configurable {
 		if descriptor.configurable() {
-			return reject()
+			return reject("property and descriptor not configurable")
 		}
 		// Test that, if enumerable is set on the property descriptor, then it should
 		// be the same as the existing property
 		if descriptor.enumerateSet() && descriptor.enumerable() != prop.enumerable() {
-			return reject()
+			return reject("property not configurable and enumerable miss match")
 		}
 	}
 
@@ -364,17 +365,17 @@ func objectDefineOwnProperty(obj *object, name string, descriptor property, thro
 	case isDataDescriptor != descriptor.isDataDescriptor():
 		// DataDescriptor <=> AccessorDescriptor
 		if !configurable {
-			return reject()
+			return reject("property descriptor not configurable")
 		}
 	case isDataDescriptor && descriptor.isDataDescriptor():
 		// DataDescriptor <=> DataDescriptor
 		if !configurable {
 			if !prop.writable() && descriptor.writable() {
-				return reject()
+				return reject("property not configurable or writeable and descriptor not writeable")
 			}
 			if !prop.writable() {
 				if descriptor.value != nil && !sameValue(value, descriptor.value.(Value)) {
-					return reject()
+					return reject("property not configurable or writeable and descriptor not the same")
 				}
 			}
 		}
@@ -400,7 +401,7 @@ func objectDefineOwnProperty(obj *object, name string, descriptor property, thro
 		}
 		if !configurable {
 			if (presentGet && (getSet[0] != newGetSet[0])) || (presentSet && (getSet[1] != newGetSet[1])) {
-				return reject()
+				return reject("access descriptor not configurable")
 			}
 		}
 		descriptor.value = newGetSet
