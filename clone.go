@@ -17,6 +17,7 @@ func (rt *runtime) clone() *runtime {
 	defer rt.lck.Unlock()
 
 	out := &runtime{
+		regExp:     rt.regExp,
 		debugger:   rt.debugger,
 		random:     rt.random,
 		stackLimit: rt.stackLimit,

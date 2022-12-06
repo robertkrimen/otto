@@ -18,6 +18,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"runtime/debug"
+	"sort"
 	"strings"
 	"sync"
 	"text/tabwriter"
@@ -25,6 +27,7 @@ import (
 
 	"github.com/robertkrimen/otto"
 	"github.com/robertkrimen/otto/parser"
+	"github.com/robertkrimen/otto/regexp2"
 )
 
 const (
@@ -124,10 +127,10 @@ func (l library) fetch() error {
 
 // test runs the code from filename returning the time it took and any error
 // encountered when running a full parse without IgnoreRegExpErrors in parseError.
-func test(filename string) (took time.Duration, parseError, err error) { //nolint: nonamedreturns
+func test(filename string, ecma bool) (took time.Duration, parseError, err error) { //nolint: nonamedreturns
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("panic on %q: %v", filename, r)
+			err = fmt.Errorf("panic on %q: %v\n%s", filename, r, string(debug.Stack()))
 		}
 	}()
 	now := time.Now()
@@ -145,13 +148,24 @@ func test(filename string) (took time.Duration, parseError, err error) { //nolin
 		return 0, nil, err
 	}
 
-	vm := otto.New()
+	var mode parser.Mode
+	var options []otto.Option
+	if ecma {
+		mode = parser.NoRegExpTransform
+		options = append(options, otto.RegExp(regexp2.Creator{}))
+	}
+
+	vm := otto.New(options...)
 	if err := vm.Set("console", noopConsole); err != nil {
 		return 0, nil, fmt.Errorf("set console: %w", err)
 	}
 
-	prog, err := parser.ParseFile(nil, filename, string(script), 0)
+	prog, err := parser.ParseFile(nil, filename, string(script), mode)
 	if err != nil {
+		if ecma {
+			return 0, nil, err
+		}
+
 		val := err.Error()
 		switch {
 		case matchReferenceErrorNotDefined.MatchString(val),
@@ -247,7 +261,7 @@ type result struct {
 
 // report runs test for all specified files, if none a specified all
 // JavaScript files in our dataDir, outputting the results.
-func report(files []string) error {
+func report(files []string, ecma bool) error {
 	if len(files) == 0 {
 		var err error
 		files, err = filepath.Glob(filepath.Join(dataDir, "*.js"))
@@ -266,7 +280,7 @@ func report(files []string) error {
 			defer wg.Done()
 			for f := range work {
 				fmt.Fprint(os.Stdout, ".")
-				took, parseError, err := test(f)
+				took, parseError, err := test(f, ecma)
 				results <- result{
 					filename:   f,
 					err:        err,
@@ -292,20 +306,23 @@ func report(files []string) error {
 	fmt.Fprintln(os.Stdout, " done")
 
 	var fail, pass, parse int
-	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 0, '\t', 0)
-	fmt.Fprintln(writer, "Library", "\t| Took", "\t| Status")
-	fmt.Fprintln(writer, "-------", "\t| ----", "\t| ------")
+	writer := tabwriter.NewWriter(os.Stdout, 0, 8, 1, ' ', 0)
+	fmt.Fprintln(writer, "Library\t| Took\t| Status\t| Failure")
+	fmt.Fprintln(writer, "-------\t| ----\t| ------\t| ------")
 
+	failures := make(map[string]int)
 	for res := range results {
 		switch {
 		case res.err != nil:
-			fmt.Fprintf(writer, "%s\t| %v\t| fail: %v\n", res.filename, res.took, res.err)
+			fmt.Fprintf(writer, "%s\t| %v\t| fail\t| %v\n", res.filename, res.took, res.err)
+			failures[strings.Split(res.err.Error(), "\n")[0]]++
 			fail++
 		case res.parseError != nil:
-			fmt.Fprintf(writer, "%s\t| %v\t| pass parse: %v\n", res.filename, res.took, res.parseError)
+			fmt.Fprintf(writer, "%s\t| %v\t| pass parse\t| %v\n", res.filename, res.took, res.parseError)
+			failures[strings.Split(res.parseError.Error(), "\n")[0]]++
 			parse++
 		default:
-			fmt.Fprintf(writer, "%s\t| %v\t| pass\n", res.filename, res.took)
+			fmt.Fprintf(writer, "%s\t| %v\t| pass\t|\n", res.filename, res.took)
 			pass++
 		}
 	}
@@ -314,13 +331,50 @@ func report(files []string) error {
 		return fmt.Errorf("flush: %w", err)
 	}
 
-	fmt.Fprintf(os.Stdout, "\nSummary:\n - %d passes\n - %d parse passes\n - %d fails\n", pass, parse, fail)
+	fmt.Fprintln(writer, "\nSummary")
+	fmt.Fprintln(writer, "Count", "\t| Result")
+	fmt.Fprintln(writer, "-----", "\t| -----")
+	fmt.Fprintf(writer, "%d\t| pass\t\n", pass)
+	fmt.Fprintf(writer, "%d\t| parse pass\t\n", parse)
+	fmt.Fprintf(writer, "%d\t| fail\t\n", fail)
 
-	return nil
+	if len(failures) == 0 {
+		// No failures return early.
+		return writer.Flush()
+	}
+
+	keys := make([]string, 0, len(failures))
+	for k := range failures {
+		if c := failures[k]; c > 1 {
+			keys = append(keys, k)
+		}
+	}
+
+	if len(keys) == 0 {
+		// No failures with more than one count return early.
+		return writer.Flush()
+	}
+
+	sort.SliceStable(keys, func(i, j int) bool {
+		return failures[keys[i]] > failures[keys[j]]
+	})
+
+	fmt.Fprintln(writer, "\nFailure by count > 1")
+	fmt.Fprintln(writer, "Count", "\t| Error")
+	fmt.Fprintln(writer, "-----", "\t| -----")
+
+	for _, k := range keys {
+		if c := failures[k]; c > 1 {
+			fmt.Fprintf(writer, "%d\t| %s\t\n", c, k)
+		}
+	}
+
+	return writer.Flush()
 }
 
 func main() {
 	flagFetch := flag.Bool("fetch", false, "fetch all libraries for testing")
+	flagEcma := flag.Bool("ecma", false, "enables ECMAScript compatible RegExp using regexp2")
 	flagReport := flag.Bool("report", false, "test and report the named files or all libraries if non specified")
 	flag.Parse()
 
@@ -329,7 +383,7 @@ func main() {
 	case *flagFetch:
 		err = fetchAll(librariesURL)
 	case *flagReport:
-		err = report(flag.Args())
+		err = report(flag.Args(), *flagEcma)
 	default:
 		flag.PrintDefaults()
 		err = fmt.Errorf("missing flag")

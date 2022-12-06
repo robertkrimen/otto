@@ -3,6 +3,7 @@ module github.com/robertkrimen/otto
 go 1.18
 
 require (
+	github.com/dlclark/regexp2 v1.7.0
 	github.com/stretchr/testify v1.8.1
 	golang.org/x/text v0.4.0
 	gopkg.in/readline.v1 v1.0.0-20160726135117-62c6fe619375
