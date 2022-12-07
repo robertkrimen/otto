@@ -40,23 +40,23 @@ func TransformRegExp(pattern string) (string, error) {
 
 	// TODO If without \, if without (?=, (?!, then another shortcut
 
-	parser := regExpParser{
+	p := regExpParser{
 		str:      pattern,
 		length:   len(pattern),
 		goRegexp: bytes.NewBuffer(make([]byte, 0, 3*len(pattern)/2)),
 	}
-	parser.read() // Pull in the first character
-	parser.scan()
+	p.read() // Pull in the first character
+	p.scan()
 	var err error
-	if len(parser.errors) > 0 {
-		err = parser.errors[0]
+	if len(p.errors) > 0 {
+		err = p.errors[0]
 	}
-	if parser.invalid {
+	if p.invalid {
 		return "", err
 	}
 
 	// Might not be re2 compatible, but is still a valid JavaScript RegExp
-	return parser.goRegexp.String(), err
+	return p.goRegexp.String(), err
 }
 
 func (p *regExpParser) scan() {

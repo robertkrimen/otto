@@ -55,7 +55,7 @@ func isIdentifierPart(chr rune) bool {
 		chr >= utf8.RuneSelf && (unicode.IsLetter(chr) || unicode.IsDigit(chr))
 }
 
-func (p *_parser) scanIdentifier() (string, error) {
+func (p *parser) scanIdentifier() (string, error) {
 	offset := p.chrOffset
 	parse := false
 	for isIdentifierPart(p.chr) {
@@ -119,7 +119,7 @@ func isLineTerminator(chr rune) bool {
 	return false
 }
 
-func (p *_parser) scan() (tkn token.Token, literal string, idx file.Idx) { //nolint: nonamedreturns
+func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //nolint: nonamedreturns
 	p.implicitSemicolon = false
 
 	for {
@@ -310,7 +310,7 @@ func (p *_parser) scan() (tkn token.Token, literal string, idx file.Idx) { //nol
 	}
 }
 
-func (p *_parser) switch2(tkn0, tkn1 token.Token) token.Token {
+func (p *parser) switch2(tkn0, tkn1 token.Token) token.Token {
 	if p.chr == '=' {
 		p.read()
 		return tkn1
@@ -318,7 +318,7 @@ func (p *_parser) switch2(tkn0, tkn1 token.Token) token.Token {
 	return tkn0
 }
 
-func (p *_parser) switch3(tkn0, tkn1 token.Token, chr2 rune, tkn2 token.Token) token.Token {
+func (p *parser) switch3(tkn0, tkn1 token.Token, chr2 rune, tkn2 token.Token) token.Token {
 	if p.chr == '=' {
 		p.read()
 		return tkn1
@@ -330,7 +330,7 @@ func (p *_parser) switch3(tkn0, tkn1 token.Token, chr2 rune, tkn2 token.Token) t
 	return tkn0
 }
 
-func (p *_parser) switch4(tkn0, tkn1 token.Token, chr2 rune, tkn2, tkn3 token.Token) token.Token {
+func (p *parser) switch4(tkn0, tkn1 token.Token, chr2 rune, tkn2, tkn3 token.Token) token.Token {
 	if p.chr == '=' {
 		p.read()
 		return tkn1
@@ -346,7 +346,7 @@ func (p *_parser) switch4(tkn0, tkn1 token.Token, chr2 rune, tkn2, tkn3 token.To
 	return tkn0
 }
 
-func (p *_parser) switch6(tkn0, tkn1 token.Token, chr2 rune, tkn2, tkn3 token.Token, chr3 rune, tkn4, tkn5 token.Token) token.Token {
+func (p *parser) switch6(tkn0, tkn1 token.Token, chr2 rune, tkn2, tkn3 token.Token, chr3 rune, tkn4, tkn5 token.Token) token.Token {
 	if p.chr == '=' {
 		p.read()
 		return tkn1
@@ -370,7 +370,7 @@ func (p *_parser) switch6(tkn0, tkn1 token.Token, chr2 rune, tkn2, tkn3 token.To
 	return tkn0
 }
 
-func (p *_parser) chrAt(index int) chr { //nolint: unused
+func (p *parser) chrAt(index int) chr { //nolint: unused
 	value, width := utf8.DecodeRuneInString(p.str[index:])
 	return chr{
 		value: value,
@@ -378,14 +378,14 @@ func (p *_parser) chrAt(index int) chr { //nolint: unused
 	}
 }
 
-func (p *_parser) peek() rune {
+func (p *parser) peek() rune {
 	if p.offset+1 < p.length {
 		return rune(p.str[p.offset+1])
 	}
 	return -1
 }
 
-func (p *_parser) read() {
+func (p *parser) read() {
 	if p.offset < p.length {
 		p.chrOffset = p.offset
 		chr, width := rune(p.str[p.offset]), 1
@@ -422,7 +422,7 @@ func (p *regExpParser) read() {
 	}
 }
 
-func (p *_parser) readSingleLineComment() []rune {
+func (p *parser) readSingleLineComment() []rune {
 	var result []rune
 	for p.chr != -1 {
 		p.read()
@@ -436,7 +436,7 @@ func (p *_parser) readSingleLineComment() []rune {
 	return result[:len(result)-1]
 }
 
-func (p *_parser) readMultiLineComment() []rune {
+func (p *parser) readMultiLineComment() []rune {
 	var result []rune
 	p.read()
 	for p.chr >= 0 {
@@ -455,7 +455,7 @@ func (p *_parser) readMultiLineComment() []rune {
 	return result
 }
 
-func (p *_parser) skipSingleLineComment() {
+func (p *parser) skipSingleLineComment() {
 	for p.chr != -1 {
 		p.read()
 		if isLineTerminator(p.chr) {
@@ -464,7 +464,7 @@ func (p *_parser) skipSingleLineComment() {
 	}
 }
 
-func (p *_parser) skipMultiLineComment() {
+func (p *parser) skipMultiLineComment() {
 	p.read()
 	for p.chr >= 0 {
 		chr := p.chr
@@ -478,7 +478,7 @@ func (p *_parser) skipMultiLineComment() {
 	p.errorUnexpected(0, p.chr)
 }
 
-func (p *_parser) skipWhiteSpace() {
+func (p *parser) skipWhiteSpace() {
 	for {
 		switch p.chr {
 		case ' ', '\t', '\f', '\v', '\u00a0', '\ufeff':
@@ -508,13 +508,13 @@ func (p *_parser) skipWhiteSpace() {
 	}
 }
 
-func (p *_parser) scanMantissa(base int) {
+func (p *parser) scanMantissa(base int) {
 	for digitValue(p.chr) < base {
 		p.read()
 	}
 }
 
-func (p *_parser) scanEscape(quote rune) {
+func (p *parser) scanEscape(quote rune) {
 	var length, base uint32
 	switch p.chr {
 	//    Octal:
@@ -547,7 +547,7 @@ func (p *_parser) scanEscape(quote rune) {
 	}
 }
 
-func (p *_parser) scanString(offset int) (string, error) {
+func (p *parser) scanString(offset int) (string, error) {
 	// " ' /
 	quote := rune(p.str[offset])
 
@@ -591,7 +591,7 @@ newline:
 	return "", errors.New(err)
 }
 
-func (p *_parser) scanNewline() {
+func (p *parser) scanNewline() {
 	if p.chr == '\r' {
 		p.read()
 		if p.chr != '\n' {
@@ -780,7 +780,7 @@ func parseStringLiteral(literal string) (string, error) {
 	return buffer.String(), nil
 }
 
-func (p *_parser) scanNumericLiteral(decimalPoint bool) (token.Token, string) {
+func (p *parser) scanNumericLiteral(decimalPoint bool) (token.Token, string) {
 	offset := p.chrOffset
 	tkn := token.NUMBER
 

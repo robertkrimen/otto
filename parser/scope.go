@@ -15,14 +15,14 @@ type scope struct {
 	labels []string
 }
 
-func (p *_parser) openScope() {
+func (p *parser) openScope() {
 	p.scope = &scope{
 		outer:   p.scope,
 		allowIn: true,
 	}
 }
 
-func (p *_parser) closeScope() {
+func (p *parser) closeScope() {
 	p.scope = p.scope.outer
 }
 

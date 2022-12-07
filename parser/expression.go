@@ -8,7 +8,7 @@ import (
 	"github.com/robertkrimen/otto/token"
 )
 
-func (p *_parser) parseIdentifier() *ast.Identifier {
+func (p *parser) parseIdentifier() *ast.Identifier {
 	literal := p.literal
 	idx := p.idx
 	if p.mode&StoreComments != 0 {
@@ -27,7 +27,7 @@ func (p *_parser) parseIdentifier() *ast.Identifier {
 	return exp
 }
 
-func (p *_parser) parsePrimaryExpression() ast.Expression {
+func (p *parser) parsePrimaryExpression() ast.Expression {
 	literal := p.literal
 	idx := p.idx
 	switch p.token {
@@ -118,7 +118,7 @@ func (p *_parser) parsePrimaryExpression() ast.Expression {
 	return &ast.BadExpression{From: idx, To: p.idx}
 }
 
-func (p *_parser) parseRegExpLiteral() *ast.RegExpLiteral {
+func (p *parser) parseRegExpLiteral() *ast.RegExpLiteral {
 	offset := p.chrOffset - 1 // Opening slash already gotten
 	if p.token == token.QUOTIENT_ASSIGN {
 		offset-- // =
@@ -170,7 +170,7 @@ func (p *_parser) parseRegExpLiteral() *ast.RegExpLiteral {
 	}
 }
 
-func (p *_parser) parseVariableDeclaration(declarationList *[]*ast.VariableExpression) ast.Expression {
+func (p *parser) parseVariableDeclaration(declarationList *[]*ast.VariableExpression) ast.Expression {
 	if p.token != token.IDENTIFIER {
 		idx := p.expect(token.IDENTIFIER)
 		p.nextStatement()
@@ -203,7 +203,7 @@ func (p *_parser) parseVariableDeclaration(declarationList *[]*ast.VariableExpre
 	return node
 }
 
-func (p *_parser) parseVariableDeclarationList(idx file.Idx) []ast.Expression {
+func (p *parser) parseVariableDeclarationList(idx file.Idx) []ast.Expression {
 	var declarationList []*ast.VariableExpression // Avoid bad expressions
 	var list []ast.Expression
 
@@ -230,7 +230,7 @@ func (p *_parser) parseVariableDeclarationList(idx file.Idx) []ast.Expression {
 	return list
 }
 
-func (p *_parser) parseObjectPropertyKey() (string, string) {
+func (p *parser) parseObjectPropertyKey() (string, string) {
 	idx, tkn, literal := p.idx, p.token, p.literal
 	value := ""
 	if p.mode&StoreComments != 0 {
@@ -264,7 +264,7 @@ func (p *_parser) parseObjectPropertyKey() (string, string) {
 	return literal, value
 }
 
-func (p *_parser) parseObjectProperty() ast.Property {
+func (p *parser) parseObjectProperty() ast.Property {
 	literal, value := p.parseObjectPropertyKey()
 	if literal == "get" && p.token != token.COLON {
 		idx := p.idx
@@ -315,7 +315,7 @@ func (p *_parser) parseObjectProperty() ast.Property {
 	return exp
 }
 
-func (p *_parser) parseObjectLiteral() ast.Expression {
+func (p *parser) parseObjectLiteral() ast.Expression {
 	var value []ast.Property
 	idx0 := p.expect(token.LEFT_BRACE)
 	for p.token != token.RIGHT_BRACE && p.token != token.EOF {
@@ -340,7 +340,7 @@ func (p *_parser) parseObjectLiteral() ast.Expression {
 	}
 }
 
-func (p *_parser) parseArrayLiteral() ast.Expression {
+func (p *parser) parseArrayLiteral() ast.Expression {
 	idx0 := p.expect(token.LEFT_BRACKET)
 	var value []ast.Expression
 	for p.token != token.RIGHT_BRACKET && p.token != token.EOF {
@@ -379,7 +379,7 @@ func (p *_parser) parseArrayLiteral() ast.Expression {
 	}
 }
 
-func (p *_parser) parseArgumentList() (argumentList []ast.Expression, idx0, idx1 file.Idx) { //nolint: nonamedreturns
+func (p *parser) parseArgumentList() (argumentList []ast.Expression, idx0, idx1 file.Idx) { //nolint: nonamedreturns
 	if p.mode&StoreComments != 0 {
 		p.comments.Unset()
 	}
@@ -407,7 +407,7 @@ func (p *_parser) parseArgumentList() (argumentList []ast.Expression, idx0, idx1
 	return
 }
 
-func (p *_parser) parseCallExpression(left ast.Expression) ast.Expression {
+func (p *parser) parseCallExpression(left ast.Expression) ast.Expression {
 	argumentList, idx0, idx1 := p.parseArgumentList()
 	exp := &ast.CallExpression{
 		Callee:           left,
@@ -422,7 +422,7 @@ func (p *_parser) parseCallExpression(left ast.Expression) ast.Expression {
 	return exp
 }
 
-func (p *_parser) parseDotMember(left ast.Expression) ast.Expression {
+func (p *parser) parseDotMember(left ast.Expression) ast.Expression {
 	period := p.expect(token.PERIOD)
 
 	literal := p.literal
@@ -445,7 +445,7 @@ func (p *_parser) parseDotMember(left ast.Expression) ast.Expression {
 	}
 }
 
-func (p *_parser) parseBracketMember(left ast.Expression) ast.Expression {
+func (p *parser) parseBracketMember(left ast.Expression) ast.Expression {
 	idx0 := p.expect(token.LEFT_BRACKET)
 	member := p.parseExpression()
 	idx1 := p.expect(token.RIGHT_BRACKET)
@@ -457,7 +457,7 @@ func (p *_parser) parseBracketMember(left ast.Expression) ast.Expression {
 	}
 }
 
-func (p *_parser) parseNewExpression() ast.Expression {
+func (p *parser) parseNewExpression() ast.Expression {
 	idx := p.expect(token.NEW)
 	callee := p.parseLeftHandSideExpression()
 	node := &ast.NewExpression{
@@ -478,7 +478,7 @@ func (p *_parser) parseNewExpression() ast.Expression {
 	return node
 }
 
-func (p *_parser) parseLeftHandSideExpression() ast.Expression {
+func (p *parser) parseLeftHandSideExpression() ast.Expression {
 	var left ast.Expression
 	if p.token == token.NEW {
 		left = p.parseNewExpression()
@@ -506,7 +506,7 @@ func (p *_parser) parseLeftHandSideExpression() ast.Expression {
 	}
 }
 
-func (p *_parser) parseLeftHandSideExpressionAllowCall() ast.Expression {
+func (p *parser) parseLeftHandSideExpressionAllowCall() ast.Expression {
 	allowIn := p.scope.allowIn
 	p.scope.allowIn = true
 	defer func() {
@@ -551,7 +551,7 @@ func (p *_parser) parseLeftHandSideExpressionAllowCall() ast.Expression {
 	}
 }
 
-func (p *_parser) parsePostfixExpression() ast.Expression {
+func (p *parser) parsePostfixExpression() ast.Expression {
 	operand := p.parseLeftHandSideExpressionAllowCall()
 
 	switch p.token {
@@ -590,7 +590,7 @@ func (p *_parser) parsePostfixExpression() ast.Expression {
 	return operand
 }
 
-func (p *_parser) parseUnaryExpression() ast.Expression {
+func (p *parser) parseUnaryExpression() ast.Expression {
 	switch p.token {
 	case token.PLUS, token.MINUS, token.NOT, token.BITWISE_NOT:
 		fallthrough
@@ -632,7 +632,7 @@ func (p *_parser) parseUnaryExpression() ast.Expression {
 	return p.parsePostfixExpression()
 }
 
-func (p *_parser) parseMultiplicativeExpression() ast.Expression {
+func (p *parser) parseMultiplicativeExpression() ast.Expression {
 	next := p.parseUnaryExpression
 	left := next()
 
@@ -654,7 +654,7 @@ func (p *_parser) parseMultiplicativeExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseAdditiveExpression() ast.Expression {
+func (p *parser) parseAdditiveExpression() ast.Expression {
 	next := p.parseMultiplicativeExpression
 	left := next()
 
@@ -675,7 +675,7 @@ func (p *_parser) parseAdditiveExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseShiftExpression() ast.Expression {
+func (p *parser) parseShiftExpression() ast.Expression {
 	next := p.parseAdditiveExpression
 	left := next()
 
@@ -697,7 +697,7 @@ func (p *_parser) parseShiftExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseRelationalExpression() ast.Expression {
+func (p *parser) parseRelationalExpression() ast.Expression {
 	next := p.parseShiftExpression
 	left := next()
 
@@ -756,7 +756,7 @@ func (p *_parser) parseRelationalExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseEqualityExpression() ast.Expression {
+func (p *parser) parseEqualityExpression() ast.Expression {
 	next := p.parseRelationalExpression
 	left := next()
 
@@ -779,7 +779,7 @@ func (p *_parser) parseEqualityExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseBitwiseAndExpression() ast.Expression {
+func (p *parser) parseBitwiseAndExpression() ast.Expression {
 	next := p.parseEqualityExpression
 	left := next()
 
@@ -800,7 +800,7 @@ func (p *_parser) parseBitwiseAndExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseBitwiseExclusiveOrExpression() ast.Expression {
+func (p *parser) parseBitwiseExclusiveOrExpression() ast.Expression {
 	next := p.parseBitwiseAndExpression
 	left := next()
 
@@ -821,7 +821,7 @@ func (p *_parser) parseBitwiseExclusiveOrExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseBitwiseOrExpression() ast.Expression {
+func (p *parser) parseBitwiseOrExpression() ast.Expression {
 	next := p.parseBitwiseExclusiveOrExpression
 	left := next()
 
@@ -842,7 +842,7 @@ func (p *_parser) parseBitwiseOrExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseLogicalAndExpression() ast.Expression {
+func (p *parser) parseLogicalAndExpression() ast.Expression {
 	next := p.parseBitwiseOrExpression
 	left := next()
 
@@ -863,7 +863,7 @@ func (p *_parser) parseLogicalAndExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseLogicalOrExpression() ast.Expression {
+func (p *parser) parseLogicalOrExpression() ast.Expression {
 	next := p.parseLogicalAndExpression
 	left := next()
 
@@ -884,7 +884,7 @@ func (p *_parser) parseLogicalOrExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseConditionlExpression() ast.Expression {
+func (p *parser) parseConditionlExpression() ast.Expression {
 	left := p.parseLogicalOrExpression()
 
 	if p.token == token.QUESTION_MARK {
@@ -910,7 +910,7 @@ func (p *_parser) parseConditionlExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseAssignmentExpression() ast.Expression {
+func (p *parser) parseAssignmentExpression() ast.Expression {
 	left := p.parseConditionlExpression()
 	var operator token.Token
 	switch p.token {
@@ -972,7 +972,7 @@ func (p *_parser) parseAssignmentExpression() ast.Expression {
 	return left
 }
 
-func (p *_parser) parseExpression() ast.Expression {
+func (p *parser) parseExpression() ast.Expression {
 	next := p.parseAssignmentExpression
 	left := next()
 

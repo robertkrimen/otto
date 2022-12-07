@@ -5,7 +5,7 @@ import (
 	"github.com/robertkrimen/otto/token"
 )
 
-func (p *_parser) parseBlockStatement() *ast.BlockStatement {
+func (p *parser) parseBlockStatement() *ast.BlockStatement {
 	node := &ast.BlockStatement{}
 
 	// Find comments before the leading brace
@@ -34,12 +34,12 @@ func (p *_parser) parseBlockStatement() *ast.BlockStatement {
 	return node
 }
 
-func (p *_parser) parseEmptyStatement() ast.Statement {
+func (p *parser) parseEmptyStatement() ast.Statement {
 	idx := p.expect(token.SEMICOLON)
 	return &ast.EmptyStatement{Semicolon: idx}
 }
 
-func (p *_parser) parseStatementList() (list []ast.Statement) { //nolint: nonamedreturns
+func (p *parser) parseStatementList() (list []ast.Statement) { //nolint: nonamedreturns
 	for p.token != token.RIGHT_BRACE && p.token != token.EOF {
 		statement := p.parseStatement()
 		list = append(list, statement)
@@ -48,7 +48,7 @@ func (p *_parser) parseStatementList() (list []ast.Statement) { //nolint: noname
 	return list
 }
 
-func (p *_parser) parseStatement() ast.Statement {
+func (p *parser) parseStatement() ast.Statement {
 	if p.token == token.EOF {
 		p.errorUnexpectedToken(p.token)
 		return &ast.BadStatement{From: p.idx, To: p.idx + 1}
@@ -147,7 +147,7 @@ func (p *_parser) parseStatement() ast.Statement {
 	return statement
 }
 
-func (p *_parser) parseTryStatement() ast.Statement {
+func (p *parser) parseTryStatement() ast.Statement {
 	var tryComments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		tryComments = p.comments.FetchAll()
@@ -211,7 +211,7 @@ func (p *_parser) parseTryStatement() ast.Statement {
 	return node
 }
 
-func (p *_parser) parseFunctionParameterList() *ast.ParameterList {
+func (p *parser) parseFunctionParameterList() *ast.ParameterList {
 	opening := p.expect(token.LEFT_PARENTHESIS)
 	if p.mode&StoreComments != 0 {
 		p.comments.Unset()
@@ -240,7 +240,7 @@ func (p *_parser) parseFunctionParameterList() *ast.ParameterList {
 	}
 }
 
-func (p *_parser) parseFunctionStatement() *ast.FunctionStatement {
+func (p *parser) parseFunctionStatement() *ast.FunctionStatement {
 	var comments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
@@ -255,7 +255,7 @@ func (p *_parser) parseFunctionStatement() *ast.FunctionStatement {
 	return function
 }
 
-func (p *_parser) parseFunction(declaration bool) *ast.FunctionLiteral {
+func (p *parser) parseFunction(declaration bool) *ast.FunctionLiteral {
 	node := &ast.FunctionLiteral{
 		Function: p.expect(token.FUNCTION),
 	}
@@ -283,7 +283,7 @@ func (p *_parser) parseFunction(declaration bool) *ast.FunctionLiteral {
 	return node
 }
 
-func (p *_parser) parseFunctionBlock(node *ast.FunctionLiteral) {
+func (p *parser) parseFunctionBlock(node *ast.FunctionLiteral) {
 	p.openScope()
 	inFunction := p.scope.inFunction
 	p.scope.inFunction = true
@@ -295,7 +295,7 @@ func (p *_parser) parseFunctionBlock(node *ast.FunctionLiteral) {
 	node.DeclarationList = p.scope.declarationList
 }
 
-func (p *_parser) parseDebuggerStatement() ast.Statement {
+func (p *parser) parseDebuggerStatement() ast.Statement {
 	idx := p.expect(token.DEBUGGER)
 
 	node := &ast.DebuggerStatement{
@@ -309,7 +309,7 @@ func (p *_parser) parseDebuggerStatement() ast.Statement {
 	return node
 }
 
-func (p *_parser) parseReturnStatement() ast.Statement {
+func (p *parser) parseReturnStatement() ast.Statement {
 	idx := p.expect(token.RETURN)
 	var comments []*ast.Comment
 	if p.mode&StoreComments != 0 {
@@ -338,7 +338,7 @@ func (p *_parser) parseReturnStatement() ast.Statement {
 	return node
 }
 
-func (p *_parser) parseThrowStatement() ast.Statement {
+func (p *parser) parseThrowStatement() ast.Statement {
 	var comments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
@@ -368,7 +368,7 @@ func (p *_parser) parseThrowStatement() ast.Statement {
 	return node
 }
 
-func (p *_parser) parseSwitchStatement() ast.Statement {
+func (p *parser) parseSwitchStatement() ast.Statement {
 	var comments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
@@ -418,7 +418,7 @@ func (p *_parser) parseSwitchStatement() ast.Statement {
 	return node
 }
 
-func (p *_parser) parseWithStatement() ast.Statement {
+func (p *parser) parseWithStatement() ast.Statement {
 	var comments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
@@ -446,7 +446,7 @@ func (p *_parser) parseWithStatement() ast.Statement {
 	return node
 }
 
-func (p *_parser) parseCaseStatement() *ast.CaseStatement {
+func (p *parser) parseCaseStatement() *ast.CaseStatement {
 	node := &ast.CaseStatement{
 		Case: p.idx,
 	}
@@ -488,7 +488,7 @@ func (p *_parser) parseCaseStatement() *ast.CaseStatement {
 	return node
 }
 
-func (p *_parser) parseIterationStatement() ast.Statement {
+func (p *parser) parseIterationStatement() ast.Statement {
 	inIteration := p.scope.inIteration
 	p.scope.inIteration = true
 	defer func() {
@@ -497,7 +497,7 @@ func (p *_parser) parseIterationStatement() ast.Statement {
 	return p.parseStatement()
 }
 
-func (p *_parser) parseForIn(into ast.Expression) *ast.ForInStatement {
+func (p *parser) parseForIn(into ast.Expression) *ast.ForInStatement {
 	// Already have consumed "<into> in"
 
 	source := p.parseExpression()
@@ -513,7 +513,7 @@ func (p *_parser) parseForIn(into ast.Expression) *ast.ForInStatement {
 	return forin
 }
 
-func (p *_parser) parseFor(initializer ast.Expression) *ast.ForStatement {
+func (p *parser) parseFor(initializer ast.Expression) *ast.ForStatement {
 	// Already have consumed "<initializer> ;"
 
 	var test, update ast.Expression
@@ -542,7 +542,7 @@ func (p *_parser) parseFor(initializer ast.Expression) *ast.ForStatement {
 	return forstatement
 }
 
-func (p *_parser) parseForOrForInStatement() ast.Statement {
+func (p *parser) parseForOrForInStatement() ast.Statement {
 	var comments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
@@ -623,7 +623,7 @@ func (p *_parser) parseForOrForInStatement() ast.Statement {
 	return forstatement
 }
 
-func (p *_parser) parseVariableStatement() *ast.VariableStatement {
+func (p *parser) parseVariableStatement() *ast.VariableStatement {
 	var comments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
@@ -645,7 +645,7 @@ func (p *_parser) parseVariableStatement() *ast.VariableStatement {
 	return statement
 }
 
-func (p *_parser) parseDoWhileStatement() ast.Statement {
+func (p *parser) parseDoWhileStatement() ast.Statement {
 	inIteration := p.scope.inIteration
 	p.scope.inIteration = true
 	defer func() {
@@ -690,7 +690,7 @@ func (p *_parser) parseDoWhileStatement() ast.Statement {
 	return node
 }
 
-func (p *_parser) parseWhileStatement() ast.Statement {
+func (p *parser) parseWhileStatement() ast.Statement {
 	var comments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
@@ -717,7 +717,7 @@ func (p *_parser) parseWhileStatement() ast.Statement {
 	return node
 }
 
-func (p *_parser) parseIfStatement() ast.Statement {
+func (p *parser) parseIfStatement() ast.Statement {
 	var comments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
@@ -753,12 +753,12 @@ func (p *_parser) parseIfStatement() ast.Statement {
 	return node
 }
 
-func (p *_parser) parseSourceElement() ast.Statement {
+func (p *parser) parseSourceElement() ast.Statement {
 	statement := p.parseStatement()
 	return statement
 }
 
-func (p *_parser) parseSourceElements() []ast.Statement {
+func (p *parser) parseSourceElements() []ast.Statement {
 	body := []ast.Statement(nil)
 
 	for {
@@ -775,7 +775,7 @@ func (p *_parser) parseSourceElements() []ast.Statement {
 	return body
 }
 
-func (p *_parser) parseProgram() *ast.Program {
+func (p *parser) parseProgram() *ast.Program {
 	p.openScope()
 	defer p.closeScope()
 	return &ast.Program{
@@ -785,7 +785,7 @@ func (p *_parser) parseProgram() *ast.Program {
 	}
 }
 
-func (p *_parser) parseBreakStatement() ast.Statement {
+func (p *parser) parseBreakStatement() ast.Statement {
 	var comments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
@@ -842,7 +842,7 @@ illegal:
 	return &ast.BadStatement{From: idx, To: p.idx}
 }
 
-func (p *_parser) parseContinueStatement() ast.Statement {
+func (p *parser) parseContinueStatement() ast.Statement {
 	idx := p.expect(token.CONTINUE)
 	semicolon := p.implicitSemicolon
 	if p.token == token.SEMICOLON {
@@ -887,7 +887,7 @@ illegal:
 }
 
 // Find the next statement after an error (recover).
-func (p *_parser) nextStatement() {
+func (p *parser) nextStatement() {
 	for {
 		switch p.token {
 		case token.BREAK, token.CONTINUE,

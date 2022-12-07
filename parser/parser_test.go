@@ -22,11 +22,11 @@ func firstErr(err error) error {
 
 var matchBeforeAfterSeparator = regexp.MustCompile(`(?m)^[ \t]*---$`)
 
-func testParse(src string) (*_parser, *ast.Program, error) {
+func testParse(src string) (*parser, *ast.Program, error) {
 	return testParseWithMode(src, 0)
 }
 
-func testParseWithMode(src string, mode Mode) (parser *_parser, program *ast.Program, err error) { //nolint: nonamedreturns
+func testParseWithMode(src string, mode Mode) (parser *parser, program *ast.Program, err error) { //nolint: nonamedreturns
 	defer func() {
 		if tmp := recover(); tmp != nil {
 			if tmp, ok := tmp.(string); ok {
@@ -91,7 +91,7 @@ func TestParseFunction(t *testing.T) {
 
 func TestParserErr(t *testing.T) {
 	tt(t, func() {
-		test := func(input string, expect interface{}) (*ast.Program, *_parser) {
+		test := func(input string, expect interface{}) (*ast.Program, *parser) {
 			parser := newParser("", input, 1, nil)
 			program, err := parser.parse()
 			is(firstErr(err), expect)
