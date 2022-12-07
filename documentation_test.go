@@ -57,6 +57,26 @@ func ExampleSynopsis() { //nolint: govet
     `)
 	fmt.Println(value)
 
+	// custom object
+	console := map[string]interface{}{
+		"log": func(call FunctionCall) Value {
+			args := make([]string, 0, len(call.ArgumentList))
+			for _, arg := range call.ArgumentList {
+				args = append(args, fmt.Sprintf("%v", arg))
+			}
+			fmt.Println("console.log:", strings.Join(args, " "))
+			return UndefinedValue()
+		},
+	}
+
+	if err := vm.Set("console", console); err != nil {
+		panic(fmt.Errorf("console error: %w", err))
+	}
+
+	value, err = vm.Run(`console.log("Hello, World.");`)
+	fmt.Println(value)
+	fmt.Println(err)
+
 	// Output:
 	// The value of abc is 4
 	// 4
@@ -68,25 +88,22 @@ func ExampleSynopsis() { //nolint: govet
 	// Hello, Xyzzy.
 	// Hello, undefined.
 	// 4
+	// console.log: Hello, World.
+	// undefined
+	// <nil>
 }
 
-func ExampleConsole() {
-	vm := New()
-	console := map[string]interface{}{
-		"log": func(call FunctionCall) Value {
-			args := make([]string, 0, len(call.ArgumentList))
-			for _, arg := range argsAsAny(call.ArgumentList) {
-				args = append(args, fmt.Sprintf("%v", arg))
-			}
-			fmt.Println("console.log:", strings.Join(args, " "))
-			return UndefinedValue()
-		},
-	}
+type printer struct{}
 
-	err := vm.Set("console", console)
-	if err != nil {
-		panic(fmt.Errorf("console error: %w", err))
-	}
+func (c *printer) Log(v ...interface{})   { fmt.Print("console.log: "); fmt.Println(v...) }
+func (c *printer) Trace(v ...interface{}) { fmt.Print("console.trace: "); fmt.Println(v...) }
+func (c *printer) Debug(v ...interface{}) { fmt.Print("console.debug: "); fmt.Println(v...) }
+func (c *printer) Info(v ...interface{})  { fmt.Print("console.info: "); fmt.Println(v...) }
+func (c *printer) Warn(v ...interface{})  { fmt.Print("console.warn: "); fmt.Println(v...) }
+func (c *printer) Error(v ...interface{}) { fmt.Print("console.error: "); fmt.Println(v...) }
+
+func ExampleConsole() {
+	vm := New(WithConsole(new(printer)))
 
 	value, err := vm.Run(`console.log("Hello, World.");`)
 	fmt.Println(value)
