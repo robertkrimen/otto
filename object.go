@@ -94,7 +94,7 @@ func (o *object) DefaultValue(hint defaultValueHint) Value {
 		}
 	}
 
-	panic(o.runtime.panicTypeError())
+	panic(o.runtime.panicTypeError("Object.DefaultValue unknown"))
 }
 
 func (o *object) String() string {
