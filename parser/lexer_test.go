@@ -15,7 +15,7 @@ var (
 
 func TestLexer(t *testing.T) {
 	tt(t, func() {
-		setup := func(src string) *_parser {
+		setup := func(src string) *parser {
 			parser := newParser("", src, 1, nil)
 			return parser
 		}

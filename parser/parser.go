@@ -56,7 +56,7 @@ const (
 	StoreComments
 )
 
-type _parser struct { //nolint: maligned
+type parser struct { //nolint: maligned
 	str    string
 	length int
 	base   int
@@ -93,8 +93,8 @@ type Parser interface {
 	Scan() (tkn token.Token, literal string, idx file.Idx)
 }
 
-func newParser(filename, src string, base int, sm *sourcemap.Consumer) *_parser {
-	return &_parser{
+func newParser(filename, src string, base int, sm *sourcemap.Consumer) *parser {
+	return &parser{
 		chr:      ' ', // This is set so we can start scanning by skipping whitespace
 		str:      src,
 		length:   len(src),
@@ -190,10 +190,10 @@ func ParseFileWithSourceMap(fileSet *file.FileSet, filename string, javascriptSo
 		base = fileSet.AddFile(filename, string(src))
 	}
 
-	parser := newParser(filename, string(src), base, sm)
-	parser.mode = mode
-	program, err := parser.parse()
-	program.Comments = parser.comments.CommentMap
+	p := newParser(filename, string(src), base, sm)
+	p.mode = mode
+	program, err := p.parse()
+	program.Comments = p.comments.CommentMap
 
 	return program, err
 }
@@ -221,8 +221,8 @@ func ParseFile(fileSet *file.FileSet, filename string, src interface{}, mode Mod
 func ParseFunction(parameterList, body string) (*ast.FunctionLiteral, error) {
 	src := "(function(" + parameterList + ") {\n" + body + "\n})"
 
-	parser := newParser("", src, 1, nil)
-	program, err := parser.parse()
+	p := newParser("", src, 1, nil)
+	program, err := p.parse()
 	if err != nil {
 		return nil, err
 	}
@@ -233,11 +233,11 @@ func ParseFunction(parameterList, body string) (*ast.FunctionLiteral, error) {
 // Scan reads a single token from the source at the current offset, increments the offset and
 // returns the token.Token token, a string literal representing the value of the token (if applicable)
 // and it's current file.Idx index.
-func (p *_parser) Scan() (token.Token, string, file.Idx) {
+func (p *parser) Scan() (token.Token, string, file.Idx) {
 	return p.scan()
 }
 
-func (p *_parser) slice(idx0, idx1 file.Idx) string {
+func (p *parser) slice(idx0, idx1 file.Idx) string {
 	from := int(idx0) - p.base
 	to := int(idx1) - p.base
 	if from >= 0 && to <= len(p.str) {
@@ -247,7 +247,7 @@ func (p *_parser) slice(idx0, idx1 file.Idx) string {
 	return ""
 }
 
-func (p *_parser) parse() (*ast.Program, error) {
+func (p *parser) parse() (*ast.Program, error) {
 	p.next()
 	program := p.parseProgram()
 	if false {
@@ -261,11 +261,11 @@ func (p *_parser) parse() (*ast.Program, error) {
 	return program, p.errors.Err()
 }
 
-func (p *_parser) next() {
+func (p *parser) next() {
 	p.token, p.literal, p.idx = p.scan()
 }
 
-func (p *_parser) optionalSemicolon() {
+func (p *parser) optionalSemicolon() {
 	if p.token == token.SEMICOLON {
 		p.next()
 		return
@@ -281,7 +281,7 @@ func (p *_parser) optionalSemicolon() {
 	}
 }
 
-func (p *_parser) semicolon() {
+func (p *parser) semicolon() {
 	if p.token != token.RIGHT_PARENTHESIS && p.token != token.RIGHT_BRACE {
 		if p.implicitSemicolon {
 			p.implicitSemicolon = false
@@ -292,11 +292,11 @@ func (p *_parser) semicolon() {
 	}
 }
 
-func (p *_parser) idxOf(offset int) file.Idx {
+func (p *parser) idxOf(offset int) file.Idx {
 	return file.Idx(p.base + offset)
 }
 
-func (p *_parser) expect(value token.Token) file.Idx {
+func (p *parser) expect(value token.Token) file.Idx {
 	idx := p.idx
 	if p.token != value {
 		p.errorUnexpectedToken(p.token)
@@ -329,7 +329,7 @@ func lineCount(str string) (int, int) {
 	return line, last
 }
 
-func (p *_parser) position(idx file.Idx) file.Position {
+func (p *parser) position(idx file.Idx) file.Position {
 	position := file.Position{}
 	offset := int(idx) - p.base
 	str := p.str[:offset]

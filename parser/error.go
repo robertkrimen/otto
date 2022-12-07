@@ -68,7 +68,7 @@ func (e Error) Error() string {
 	)
 }
 
-func (p *_parser) error(place interface{}, msg string, msgValues ...interface{}) {
+func (p *parser) error(place interface{}, msg string, msgValues ...interface{}) {
 	var idx file.Idx
 	switch place := place.(type) {
 	case int:
@@ -88,7 +88,7 @@ func (p *_parser) error(place interface{}, msg string, msgValues ...interface{})
 	p.errors.Add(position, msg)
 }
 
-func (p *_parser) errorUnexpected(idx file.Idx, chr rune) {
+func (p *parser) errorUnexpected(idx file.Idx, chr rune) {
 	if chr == -1 {
 		p.error(idx, errUnexpectedEndOfInput)
 		return
@@ -96,7 +96,7 @@ func (p *_parser) errorUnexpected(idx file.Idx, chr rune) {
 	p.error(idx, errUnexpectedToken, token.ILLEGAL)
 }
 
-func (p *_parser) errorUnexpectedToken(tkn token.Token) {
+func (p *parser) errorUnexpectedToken(tkn token.Token) {
 	if tkn == token.EOF {
 		p.error(file.Idx(0), errUnexpectedEndOfInput)
 		return
