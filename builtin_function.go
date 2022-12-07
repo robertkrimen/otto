@@ -58,14 +58,14 @@ func builtinFunctionToString(call FunctionCall) Value {
 		return stringValue(fn.node.source)
 	case bindFunctionObject:
 		return stringValue("function () { [native code] }")
+	default:
+		panic(call.runtime.panicTypeError("Function.toString unknown type %T", obj.value))
 	}
-
-	panic(call.runtime.panicTypeError("Function.toString()"))
 }
 
 func builtinFunctionApply(call FunctionCall) Value {
 	if !call.This.isCallable() {
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Function.apply %q is not callable", call.This))
 	}
 	this := call.Argument(0)
 	if this.IsUndefined() {
@@ -78,7 +78,7 @@ func builtinFunctionApply(call FunctionCall) Value {
 		return call.thisObject().call(this, nil, false, nativeFrame)
 	case valueObject:
 	default:
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Function.apply unknown type %T for second argument"))
 	}
 
 	arrayObject := argumentList.object()
@@ -93,7 +93,7 @@ func builtinFunctionApply(call FunctionCall) Value {
 
 func builtinFunctionCall(call FunctionCall) Value {
 	if !call.This.isCallable() {
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Function.call %q is not callable", call.This))
 	}
 	thisObject := call.thisObject()
 	this := call.Argument(0)
@@ -110,7 +110,7 @@ func builtinFunctionCall(call FunctionCall) Value {
 func builtinFunctionBind(call FunctionCall) Value {
 	target := call.This
 	if !target.isCallable() {
-		panic(call.runtime.panicTypeError())
+		panic(call.runtime.panicTypeError("Function.bind %q is not callable", call.This))
 	}
 	targetObject := target.object()
 

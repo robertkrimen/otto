@@ -63,7 +63,7 @@ func TestObject_create(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: Object.create()`, "TypeError")
+		test(`raise: Object.create()`, "TypeError: Object.Create is nil")
 
 		test(`
             var abc = Object.create(null)
@@ -121,7 +121,7 @@ func TestObject_isExtensible(t *testing.T) {
 
 		test(`raise:
             Object.isExtensible();
-        `, "TypeError")
+        `, "TypeError: Object.IsExtensible is nil")
 
 		// FIXME terst, Why raise?
 		test(`raise:
@@ -139,7 +139,7 @@ func TestObject_preventExtensions(t *testing.T) {
 
 		test(`raise:
             Object.preventExtensions()
-        `, "TypeError")
+        `, "TypeError: Object.PreventExtensions is nil")
 
 		test(`raise:
             var abc = { def: true };
@@ -178,7 +178,7 @@ func TestObject_seal(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: Object.seal()`, "TypeError")
+		test(`raise: Object.seal()`, "TypeError: Object.Seal is nil")
 
 		test(`
             var abc = {a:1,b:1,c:3};
@@ -211,7 +211,7 @@ func TestObject_isFrozen(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: Object.isFrozen()`, "TypeError")
+		test(`raise: Object.isFrozen()`, "TypeError: Object.IsFrozen is nil")
 		test(`Object.isFrozen(Object.preventExtensions({a:1}))`, false)
 		test(`Object.isFrozen({})`, false)
 
@@ -235,7 +235,7 @@ func TestObject_freeze(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`raise: Object.freeze()`, "TypeError")
+		test(`raise: Object.freeze()`, "TypeError: Object.Freeze is nil")
 
 		test(`
             var abc = {a:1,b:2,c:3};
@@ -395,7 +395,7 @@ func TestObjectGetterSetter(t *testing.T) {
                     writable: true
                 }
             }).abc;
-        `, "TypeError")
+        `, "TypeError: toPropertyDescriptor descriptor writeSet")
 
 		test(`raise:
             Object.create({}, {
@@ -406,7 +406,7 @@ func TestObjectGetterSetter(t *testing.T) {
                     writable: false
                 }
             }).abc;
-        `, "TypeError")
+        `, "TypeError: toPropertyDescriptor descriptor writeSet")
 
 		test(`
             Object.create({}, {
@@ -512,7 +512,7 @@ func TestObjectGetterSetter(t *testing.T) {
                     return 2;
                 }
             });
-        `, "TypeError")
+        `, `TypeError: Array.DefineOwnProperty ["function () {\n                    return 2;\n                }" <nil>] is not a value`)
 
 		test(`
             var abc = {};

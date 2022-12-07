@@ -119,14 +119,14 @@ func (rt *runtime) calculateBinaryExpression(operator token.Token, left Value, r
 	case token.INSTANCEOF:
 		rightValue := right.resolve()
 		if !rightValue.IsObject() {
-			panic(rt.panicTypeError("Expecting a function in instanceof check, but got: %v", rightValue))
+			panic(rt.panicTypeError("invalid kind %s for instanceof (expected object)", rightValue.kind))
 		}
 		return boolValue(rightValue.object().hasInstance(leftValue))
 
 	case token.IN:
 		rightValue := right.resolve()
 		if !rightValue.IsObject() {
-			panic(rt.panicTypeError())
+			panic(rt.panicTypeError("invalid kind %s for in (expected object)", rightValue.kind))
 		}
 		return boolValue(rightValue.object().hasProperty(leftValue.string()))
 	}

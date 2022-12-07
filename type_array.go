@@ -55,6 +55,13 @@ func arrayDefineOwnProperty(obj *object, name string, descriptor property, throw
 	if !valid {
 		panic("Array.length != Value{}")
 	}
+
+	reject := func(reason string) bool {
+		if throw {
+			panic(obj.runtime.panicTypeError("Array.DefineOwnProperty %s", reason))
+		}
+		return false
+	}
 	length := lengthValue.value.(uint32)
 	if name == propertyLength {
 		if descriptor.value == nil {
@@ -62,7 +69,7 @@ func arrayDefineOwnProperty(obj *object, name string, descriptor property, throw
 		}
 		newLengthValue, isValue := descriptor.value.(Value)
 		if !isValue {
-			panic(obj.runtime.panicTypeError())
+			panic(obj.runtime.panicTypeError("Array.DefineOwnProperty %q is not a value", descriptor.value))
 		}
 		newLength := arrayUint32(obj.runtime, newLengthValue)
 		descriptor.value = uint32Value(newLength)
@@ -70,7 +77,7 @@ func arrayDefineOwnProperty(obj *object, name string, descriptor property, throw
 			return objectDefineOwnProperty(obj, name, descriptor, throw)
 		}
 		if !lengthProperty.writable() {
-			goto Reject
+			return reject("property length for not writable")
 		}
 		newWritable := true
 		if descriptor.mode&0o700 == 0 {
@@ -89,7 +96,7 @@ func arrayDefineOwnProperty(obj *object, name string, descriptor property, throw
 					descriptor.mode &= 0o077
 				}
 				objectDefineOwnProperty(obj, name, descriptor, false)
-				goto Reject
+				return reject("delete failed")
 			}
 		}
 		if !newWritable {
@@ -98,10 +105,10 @@ func arrayDefineOwnProperty(obj *object, name string, descriptor property, throw
 		}
 	} else if index := stringToArrayIndex(name); index >= 0 {
 		if index >= int64(length) && !lengthProperty.writable() {
-			goto Reject
+			return reject("property length not writable")
 		}
 		if !objectDefineOwnProperty(obj, strconv.FormatInt(index, 10), descriptor, false) {
-			goto Reject
+			return reject("Object.DefineOwnProperty failed")
 		}
 		if index >= int64(length) {
 			lengthProperty.value = uint32Value(uint32(index + 1))
@@ -110,9 +117,4 @@ func arrayDefineOwnProperty(obj *object, name string, descriptor property, throw
 		}
 	}
 	return objectDefineOwnProperty(obj, name, descriptor, throw)
-Reject:
-	if throw {
-		panic(obj.runtime.panicTypeError())
-	}
-	return false
 }

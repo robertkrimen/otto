@@ -147,7 +147,7 @@ func (rt *runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, isExcep
 func (rt *runtime) toObject(value Value) *object {
 	switch value.kind {
 	case valueEmpty, valueUndefined, valueNull:
-		panic(rt.panicTypeError())
+		panic(rt.panicTypeError("toObject unsupported kind %s", value.kind))
 	case valueBoolean:
 		return rt.newBoolean(value)
 	case valueString:
@@ -157,7 +157,7 @@ func (rt *runtime) toObject(value Value) *object {
 	case valueObject:
 		return value.object()
 	default:
-		panic(rt.panicTypeError())
+		panic(rt.panicTypeError("toObject unknown kind %s", value.kind))
 	}
 }
 
@@ -176,19 +176,18 @@ func (rt *runtime) objectCoerce(value Value) (*object, error) {
 	case valueObject:
 		return value.object(), nil
 	default:
-		panic(rt.panicTypeError())
+		panic(rt.panicTypeError("objectCoerce unknown kind %s", value.kind))
 	}
 }
 
 func checkObjectCoercible(rt *runtime, value Value) {
 	isObject, mustCoerce := testObjectCoercible(value)
 	if !isObject && !mustCoerce {
-		panic(rt.panicTypeError())
+		panic(rt.panicTypeError("checkObjectCoercible not object or mustCoerce"))
 	}
 }
 
-// testObjectCoercible
-
+// testObjectCoercible.
 func testObjectCoercible(value Value) (isObject, mustCoerce bool) { //nolint: nonamedreturns
 	switch value.kind {
 	case valueReference, valueEmpty, valueNull, valueUndefined:
@@ -198,7 +197,7 @@ func testObjectCoercible(value Value) (isObject, mustCoerce bool) { //nolint: no
 	case valueObject:
 		return true, false
 	default:
-		panic("this should never happen")
+		panic(fmt.Sprintf("testObjectCoercible unknown kind %s", value.kind))
 	}
 }
 
@@ -534,7 +533,7 @@ func (rt *runtime) convertCallParameter(v Value, t reflect.Type) (reflect.Value,
 
 				r, err := rt.convertCallParameter(rv, t.Out(0))
 				if err != nil {
-					panic(rt.panicTypeError(err.Error()))
+					panic(rt.panicTypeError("convertCallParameter Func: %s", err))
 				}
 
 				return []reflect.Value{r}

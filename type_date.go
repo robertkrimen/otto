@@ -140,8 +140,11 @@ func (o *object) dateValue() dateObject {
 }
 
 func dateObjectOf(rt *runtime, date *object) dateObject {
-	if date == nil || date.class != classDateName {
-		panic(rt.panicTypeError())
+	if date == nil {
+		panic(rt.panicTypeError("Date.ObjectOf is nil"))
+	}
+	if date.class != classDateName {
+		panic(rt.panicTypeError("Date.ObjectOf %q != %q", date.class, classDateName))
 	}
 	return date.dateValue()
 }

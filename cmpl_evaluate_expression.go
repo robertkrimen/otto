@@ -169,7 +169,7 @@ func (rt *runtime) cmplEvaluateNodeBracketExpression(node *nodeBracketExpression
 	// TODO Pass in base value as-is, and defer toObject till later?
 	obj, err := rt.objectCoerce(targetValue)
 	if err != nil {
-		panic(rt.panicTypeError("Cannot access member '%s' of %s", memberValue.string(), err.Error(), at(node.idx)))
+		panic(rt.panicTypeError("Cannot access member %q of %s", memberValue.string(), err, at(node.idx)))
 	}
 	return toValue(newPropertyReference(rt, obj, memberValue.string(), false, at(node.idx)))
 }
@@ -201,7 +201,7 @@ func (rt *runtime) cmplEvaluateNodeCallExpression(node *nodeCallExpression, with
 			eval = rf.name == "eval" // Possible direct eval
 		default:
 			// FIXME?
-			panic(rt.panicTypeError("Here be dragons"))
+			panic(rt.panicTypeError("unexpected callee type %T to node call expression", rf))
 		}
 	}
 
@@ -226,7 +226,7 @@ func (rt *runtime) cmplEvaluateNodeCallExpression(node *nodeCallExpression, with
 			// FIXME Maybe typeof?
 			panic(rt.panicTypeError("%v is not a function", vl, atv))
 		}
-		panic(rt.panicTypeError("'%s' is not a function", name, atv))
+		panic(rt.panicTypeError("%q is not a function", name, atv))
 	}
 
 	rt.scope.frame.offset = int(atv)
@@ -249,7 +249,7 @@ func (rt *runtime) cmplEvaluateNodeDotExpression(node *nodeDotExpression) Value 
 	// TODO Pass in base value as-is, and defer toObject till later?
 	obj, err := rt.objectCoerce(targetValue)
 	if err != nil {
-		panic(rt.panicTypeError("Cannot access member '%s' of %s", node.identifier, err.Error(), at(node.idx)))
+		panic(rt.panicTypeError("Cannot access member %q of %s", node.identifier, err, at(node.idx)))
 	}
 	return toValue(newPropertyReference(rt, obj, node.identifier, false, at(node.idx)))
 }
@@ -270,7 +270,7 @@ func (rt *runtime) cmplEvaluateNodeNewExpression(node *nodeNewExpression) Value 
 		case *stashReference:
 			name = rf.name
 		default:
-			panic(rt.panicTypeError("Here be dragons"))
+			panic(rt.panicTypeError("node new expression unexpected callee type %T", rf))
 		}
 	}
 

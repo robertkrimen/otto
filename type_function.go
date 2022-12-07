@@ -107,8 +107,9 @@ func (fn bindFunctionObject) construct(argumentList []Value) Value {
 	case nodeFunctionObject:
 		argumentList = append(fn.argumentList, argumentList...)
 		return obj.construct(argumentList)
+	default:
+		panic(fn.target.runtime.panicTypeError("construct unknown type %T", obj.value))
 	}
-	panic(fn.target.runtime.panicTypeError())
 }
 
 // nodeFunctionObject.
@@ -246,14 +247,14 @@ func (o *object) construct(argumentList []Value) Value {
 func (o *object) hasInstance(of Value) bool {
 	if !o.isCall() {
 		// We should not have a hasInstance method
-		panic(o.runtime.panicTypeError())
+		panic(o.runtime.panicTypeError("Object.hasInstance not callable"))
 	}
 	if !of.IsObject() {
 		return false
 	}
 	prototype := o.get("prototype")
 	if !prototype.IsObject() {
-		panic(o.runtime.panicTypeError())
+		panic(o.runtime.panicTypeError("Object.hasInstance prototype %q is not an object", prototype))
 	}
 	prototypeObject := prototype.object()
 
@@ -306,7 +307,7 @@ func (f *FunctionCall) thisObject() *object {
 
 func (f *FunctionCall) thisClassObject(class string) *object {
 	if o := f.thisObject(); o.class != class {
-		panic(f.runtime.panicTypeError())
+		panic(f.runtime.panicTypeError("Function.Class %s != %s", o.class, class))
 	}
 	return f.thisObj
 }

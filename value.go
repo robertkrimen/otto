@@ -118,10 +118,7 @@ func (v Value) call(rt *runtime, this Value, argumentList ...interface{}) Value 
 	if function, ok := v.value.(*object); ok {
 		return function.call(this, function.runtime.toValueArray(argumentList...), false, nativeFrame)
 	}
-	if rt == nil {
-		panic("FIXME TypeError")
-	}
-	panic(rt.panicTypeError())
+	panic(rt.panicTypeError("call %q is not an object", v.value))
 }
 
 func (v Value) constructSafe(rt *runtime, this Value, argumentList ...interface{}) (Value, error) {
@@ -136,10 +133,7 @@ func (v Value) construct(rt *runtime, this Value, argumentList ...interface{}) V
 	if fn, ok := v.value.(*object); ok {
 		return fn.construct(fn.runtime.toValueArray(argumentList...))
 	}
-	if rt == nil {
-		panic("FIXME TypeError")
-	}
-	panic(rt.panicTypeError())
+	panic(rt.panicTypeError("construct %q is not an object", v.value))
 }
 
 // IsPrimitive will return true if value is a primitive (any kind of primitive).
