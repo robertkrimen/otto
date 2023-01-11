@@ -50,6 +50,20 @@ func TestMath_acos(t *testing.T) {
 	})
 }
 
+func TestMath_acosh(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.acosh(-1)`, naN)
+		test(`Math.acosh(0)`, naN)
+		test(`Math.acosh(0.999999999999)`, naN)
+		test(`1/Math.acosh(1)`, infinity)
+		test(`Math.acosh(Infinity)`, infinity)
+		test(`Math.acosh(2)`, 1.3169578969248166)
+		test(`Math.acosh(2.5)`, 1.566799236972411)
+	})
+}
+
 func TestMath_asin(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
@@ -61,6 +75,20 @@ func TestMath_asin(t *testing.T) {
 		test(`1/Math.asin(-0)`, -infinity)
 
 		test(`Math.asin(0.5)`, 0.5235987755982989)
+	})
+}
+
+func TestMath_asinh(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.asinh(-1)`, -0.881373587019543)
+		test(`Math.asinh(1)`, 0.881373587019543)
+		test(`Math.asinh(-0)`, -0)
+		test(`Math.asinh(0)`, 0)
+		test(`Math.asinh(-Infinity)`, -infinity)
+		test(`Math.asinh(Infinity)`, infinity)
+		test(`Math.asinh(2)`, 1.4436354751788103)
 	})
 }
 
@@ -119,6 +147,35 @@ func TestMath_atan2(t *testing.T) {
 	})
 }
 
+func TestMath_atanh(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.atanh(-2)`, naN)
+		test(`Math.atanh(2)`, naN)
+		test(`Math.atanh(-1)`, -infinity)
+		test(`Math.atanh(1)`, infinity)
+		test(`Math.atanh(0)`, 0)
+		test(`Math.atanh(0.5)`, 0.5493061443340548)
+	})
+}
+
+func TestMath_cbrt(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.cbrt(NaN)`, naN)
+		test(`Math.cbrt(-1)`, -1)
+		test(`Math.cbrt(1)`, 1)
+		test(`Math.cbrt(-0)`, -0)
+		test(`Math.cbrt(0)`, 0)
+		test(`Math.cbrt(-Infinity)`, -infinity)
+		test(`Math.cbrt(Infinity)`, infinity)
+		test(`Math.cbrt(null)`, 0)
+		test(`Math.cbrt(2)`, 1.2599210498948732)
+	})
+}
+
 func TestMath_ceil(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
@@ -150,6 +207,16 @@ func TestMath_cos(t *testing.T) {
 	})
 }
 
+func TestMath_cosh(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.cosh(0)`, 1)
+		test(`Math.cosh(1)`, 1.5430806348152437)
+		test(`Math.cosh(-1)`, 1.5430806348152437)
+	})
+}
+
 func TestMath_exp(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
@@ -159,6 +226,19 @@ func TestMath_exp(t *testing.T) {
 		test(`Math.exp(-0)`, 1)
 		test(`Math.exp(Infinity)`, infinity)
 		test(`Math.exp(-Infinity)`, 0)
+	})
+}
+
+func TestMath_expm1(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.expm1(0)`, 0)
+		test(`Math.expm1(1)`, 1.718281828459045)
+		test(`Math.expm1(-1)`, -0.6321205588285577)
+		test(`Math.expm1(2)`, 6.38905609893065)
+		test(`Math.expm1("foo")`, naN)
+
 	})
 }
 
@@ -190,6 +270,48 @@ func TestMath_log(t *testing.T) {
 		test(`Math.log(Infinity)`, infinity)
 
 		test(`Math.log(0.5)`, -0.6931471805599453)
+	})
+}
+
+func TestMath_log10(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.log10(100000)`, 5)
+		test(`Math.log10(-2)`, naN)
+		test(`Math.log10(2)`, 0.3010299956639812)
+		test(`Math.log10(1)`, 0)
+		test(`Math.log10(-0)`, -infinity)
+		test(`Math.log10(0)`, -infinity)
+		test(`Math.log10(Infinity)`, infinity)
+	})
+}
+
+func TestMath_log1p(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.log1p(-2)`, naN)
+		test(`Math.log1p(-1)`, -infinity)
+		test(`Math.log1p(1)`, 0.6931471805599453)
+		test(`Math.log1p(-0)`, -0)
+		test(`Math.log1p(0)`, 0)
+		test(`Math.log1p(Infinity)`, infinity)
+	})
+}
+
+func TestMath_log2(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.log2(-2)`, naN)
+		test(`Math.log2(-0)`, -infinity)
+		test(`Math.log2(0)`, -infinity)
+		test(`Math.log2(1)`, 0)
+		test(`Math.log2(2)`, 1)
+		test(`Math.log2(5)`, 2.321928094887362)
+		test(`Math.log2(1024)`, 10)
+		test(`Math.log2(Infinity)`, infinity)
 	})
 }
 
@@ -276,6 +398,21 @@ func TestMath_sin(t *testing.T) {
 	})
 }
 
+func TestMath_sinh(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.sinh(-Infinity)`, -infinity)
+		test(`Math.sinh(Infinity)`, infinity)
+		test(`Math.sinh(-0)`, -0)
+		test(`Math.sinh(0)`, 0)
+		test(`Math.sinh(-1)`, -1.1752011936438014)
+		test(`Math.sinh(1)`, 1.1752011936438014)
+		test(`Math.sinh(2)`, 3.626860407847019)
+
+	})
+}
+
 func TestMath_sqrt(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
@@ -301,5 +438,34 @@ func TestMath_tan(t *testing.T) {
 		test(`Math.tan(-Infinity)`, naN)
 
 		test(`Math.tan(0.5)`, 0.5463024898437905)
+	})
+}
+
+func TestMath_tanh(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.tanh(Infinity)`, 1)
+		test(`Math.tanh(-Infinity)`, -1)
+		test(`Math.tanh(-1)`, -0.7615941559557649)
+		test(`Math.tanh(1)`, 0.7615941559557649)
+		test(`Math.tanh(-0)`, -0)
+		test(`Math.tanh(0)`, 0)
+	})
+}
+
+func TestMath_trunc(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Math.trunc(-Infinity)`, -infinity)
+		test(`Math.trunc(Infinity)`, infinity)
+		test(`Math.trunc(-0.123)`, -0)
+		test(`Math.trunc(0.123)`, 0)
+		test(`Math.trunc(-0)`, -0)
+		test(`Math.trunc(0)`, 0)
+		test(`Math.trunc("-1.123")`, -1)
+		test(`Math.trunc(13.37)`, 13)
+		test(`Math.trunc(42.84)`, 42)
 	})
 }
