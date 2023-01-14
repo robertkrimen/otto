@@ -272,21 +272,39 @@ types:
           function: 1
         - name: acos
           function: 1
+        - name: acosh
+          function: 1
         - name: asin
+          function: 1
+        - name: asinh
           function: 1
         - name: atan
           function: 1
+        - name: atanh
+          function: 1
         - name: atan2
+          function: 1
+        - name: cbrt
           function: 1
         - name: ceil
           function: 1
         - name: cos
           function: 1
+        - name: cosh
+          function: 1
         - name: exp
+          function: 1
+        - name: expm1
           function: 1
         - name: floor
           function: 1
         - name: log
+          function: 1
+        - name: log10
+          function: 1
+        - name: log1p
+          function: 1
+        - name: log2
           function: 1
         - name: max
           function: 2
@@ -300,9 +318,15 @@ types:
           function: 1
         - name: sin
           function: 1
+        - name: sinh
+          function: 1
         - name: sqrt
           function: 1
         - name: tan
+          function: 1
+        - name: tanh
+          function: 1
+        - name: trunc
           function: 1
         - name: E
           kind: valueNumber

@@ -3579,43 +3579,6 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
-			"atan2": {
-				mode: 0o101,
-				value: Value{
-					kind: valueObject,
-					value: &object{
-						runtime:     rt,
-						class:       classFunctionName,
-						objectClass: classObject,
-						prototype:   rt.global.FunctionPrototype,
-						extensible:  true,
-						property: map[string]property{
-							propertyLength: {
-								mode: 0,
-								value: Value{
-									kind:  valueNumber,
-									value: 1,
-								},
-							},
-							propertyName: {
-								mode: 0,
-								value: Value{
-									kind:  valueString,
-									value: "atan2",
-								},
-							},
-						},
-						propertyOrder: []string{
-							propertyLength,
-							propertyName,
-						},
-						value: nativeFunctionObject{
-							name: "atan2",
-							call: builtinMathAtan2,
-						},
-					},
-				},
-			},
 			"atanh": {
 				mode: 0o101,
 				value: Value{
@@ -3649,6 +3612,43 @@ func (rt *runtime) newContext() {
 						value: nativeFunctionObject{
 							name: "atanh",
 							call: builtinMathAtanh,
+						},
+					},
+				},
+			},
+			"atan2": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "atan2",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "atan2",
+							call: builtinMathAtan2,
 						},
 					},
 				},
@@ -4527,22 +4527,34 @@ func (rt *runtime) newContext() {
 		propertyOrder: []string{
 			"abs",
 			"acos",
+			"acosh",
 			"asin",
+			"asinh",
 			"atan",
+			"atanh",
 			"atan2",
+			"cbrt",
 			"ceil",
 			"cos",
+			"cosh",
 			"exp",
+			"expm1",
 			"floor",
 			"log",
+			"log10",
+			"log1p",
+			"log2",
 			"max",
 			"min",
 			"pow",
 			"random",
 			"round",
 			"sin",
+			"sinh",
 			"sqrt",
 			"tan",
+			"tanh",
+			"trunc",
 			"E",
 			"LN10",
 			"LN2",
