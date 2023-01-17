@@ -238,7 +238,6 @@ func TestMath_expm1(t *testing.T) {
 		test(`Math.expm1(-1)`, -0.6321205588285577)
 		test(`Math.expm1(2)`, 6.38905609893065)
 		test(`Math.expm1("foo")`, naN)
-
 	})
 }
 
@@ -409,7 +408,6 @@ func TestMath_sinh(t *testing.T) {
 		test(`Math.sinh(-1)`, -1.1752011936438014)
 		test(`Math.sinh(1)`, 1.1752011936438014)
 		test(`Math.sinh(2)`, 3.626860407847019)
-
 	})
 }
 
