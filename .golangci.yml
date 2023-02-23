@@ -52,3 +52,5 @@ linters:
 issues:
   exclude-use-default: false
   max-same-issues: 0
+  exclude:
+  - Deferring unsafe method "Close" on type "io\.ReadCloser"
