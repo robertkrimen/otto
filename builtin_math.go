@@ -17,9 +17,19 @@ func builtinMathAcos(call FunctionCall) Value {
 	return float64Value(math.Acos(number))
 }
 
+func builtinMathAcosh(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Acosh(number))
+}
+
 func builtinMathAsin(call FunctionCall) Value {
 	number := call.Argument(0).float64()
 	return float64Value(math.Asin(number))
+}
+
+func builtinMathAsinh(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Asinh(number))
 }
 
 func builtinMathAtan(call FunctionCall) Value {
@@ -39,6 +49,16 @@ func builtinMathAtan2(call FunctionCall) Value {
 	return float64Value(math.Atan2(y, x))
 }
 
+func builtinMathAtanh(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Atanh(number))
+}
+
+func builtinMathCbrt(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Cbrt(number))
+}
+
 func builtinMathCos(call FunctionCall) Value {
 	number := call.Argument(0).float64()
 	return float64Value(math.Cos(number))
@@ -49,9 +69,19 @@ func builtinMathCeil(call FunctionCall) Value {
 	return float64Value(math.Ceil(number))
 }
 
+func builtinMathCosh(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Cosh(number))
+}
+
 func builtinMathExp(call FunctionCall) Value {
 	number := call.Argument(0).float64()
 	return float64Value(math.Exp(number))
+}
+
+func builtinMathExpm1(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Expm1(number))
 }
 
 func builtinMathFloor(call FunctionCall) Value {
@@ -62,6 +92,21 @@ func builtinMathFloor(call FunctionCall) Value {
 func builtinMathLog(call FunctionCall) Value {
 	number := call.Argument(0).float64()
 	return float64Value(math.Log(number))
+}
+
+func builtinMathLog10(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Log10(number))
+}
+
+func builtinMathLog1p(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Log1p(number))
+}
+
+func builtinMathLog2(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Log2(number))
 }
 
 func builtinMathMax(call FunctionCall) Value {
@@ -140,6 +185,11 @@ func builtinMathSin(call FunctionCall) Value {
 	return float64Value(math.Sin(number))
 }
 
+func builtinMathSinh(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Sinh(number))
+}
+
 func builtinMathSqrt(call FunctionCall) Value {
 	number := call.Argument(0).float64()
 	return float64Value(math.Sqrt(number))
@@ -148,4 +198,14 @@ func builtinMathSqrt(call FunctionCall) Value {
 func builtinMathTan(call FunctionCall) Value {
 	number := call.Argument(0).float64()
 	return float64Value(math.Tan(number))
+}
+
+func builtinMathTanh(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Tanh(number))
+}
+
+func builtinMathTrunc(call FunctionCall) Value {
+	number := call.Argument(0).float64()
+	return float64Value(math.Trunc(number))
 }

@@ -3433,6 +3433,43 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"acosh": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "acosh",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "acosh",
+							call: builtinMathAcosh,
+						},
+					},
+				},
+			},
 			"asin": {
 				mode: 0o101,
 				value: Value{
@@ -3466,6 +3503,43 @@ func (rt *runtime) newContext() {
 						value: nativeFunctionObject{
 							name: "asin",
 							call: builtinMathAsin,
+						},
+					},
+				},
+			},
+			"asinh": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "asinh",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "asinh",
+							call: builtinMathAsinh,
 						},
 					},
 				},
@@ -3507,6 +3581,43 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"atanh": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "atanh",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "atanh",
+							call: builtinMathAtanh,
+						},
+					},
+				},
+			},
 			"atan2": {
 				mode: 0o101,
 				value: Value{
@@ -3540,6 +3651,43 @@ func (rt *runtime) newContext() {
 						value: nativeFunctionObject{
 							name: "atan2",
 							call: builtinMathAtan2,
+						},
+					},
+				},
+			},
+			"cbrt": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "cbrt",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "cbrt",
+							call: builtinMathCbrt,
 						},
 					},
 				},
@@ -3618,6 +3766,43 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"cosh": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "cosh",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "cosh",
+							call: builtinMathCosh,
+						},
+					},
+				},
+			},
 			"exp": {
 				mode: 0o101,
 				value: Value{
@@ -3651,6 +3836,43 @@ func (rt *runtime) newContext() {
 						value: nativeFunctionObject{
 							name: "exp",
 							call: builtinMathExp,
+						},
+					},
+				},
+			},
+			"expm1": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "expm1",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "expm1",
+							call: builtinMathExpm1,
 						},
 					},
 				},
@@ -3725,6 +3947,117 @@ func (rt *runtime) newContext() {
 						value: nativeFunctionObject{
 							name: "log",
 							call: builtinMathLog,
+						},
+					},
+				},
+			},
+			"log10": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "log10",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "log10",
+							call: builtinMathLog10,
+						},
+					},
+				},
+			},
+			"log1p": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "log1p",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "log1p",
+							call: builtinMathLog1p,
+						},
+					},
+				},
+			},
+			"log2": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "log2",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "log2",
+							call: builtinMathLog2,
 						},
 					},
 				},
@@ -3951,6 +4284,43 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"sinh": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "sinh",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "sinh",
+							call: builtinMathSinh,
+						},
+					},
+				},
+			},
 			"sqrt": {
 				mode: 0o101,
 				value: Value{
@@ -4025,6 +4395,80 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"tanh": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "tanh",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "tanh",
+							call: builtinMathTanh,
+						},
+					},
+				},
+			},
+			"trunc": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "trunc",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "trunc",
+							call: builtinMathTrunc,
+						},
+					},
+				},
+			},
 			"E": {
 				mode: 0,
 				value: Value{
@@ -4085,22 +4529,34 @@ func (rt *runtime) newContext() {
 		propertyOrder: []string{
 			"abs",
 			"acos",
+			"acosh",
 			"asin",
+			"asinh",
 			"atan",
+			"atanh",
 			"atan2",
+			"cbrt",
 			"ceil",
 			"cos",
+			"cosh",
 			"exp",
+			"expm1",
 			"floor",
 			"log",
+			"log10",
+			"log1p",
+			"log2",
 			"max",
 			"min",
 			"pow",
 			"random",
 			"round",
 			"sin",
+			"sinh",
 			"sqrt",
 			"tan",
+			"tanh",
+			"trunc",
 			"E",
 			"LN10",
 			"LN2",
