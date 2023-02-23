@@ -30,6 +30,10 @@ func TestDate(t *testing.T) {
 		test(`Date`, "function Date() { [native code] }")
 		test(`new Date(0).toUTCString()`, "Thu, 01 Jan 1970 00:00:00 GMT")
 		test(`new Date(0).toGMTString()`, "Thu, 01 Jan 1970 00:00:00 GMT")
+		test(`new Date('2023').toGMTString()`, "Sun, 01 Jan 2023 00:00:00 GMT")
+		test(`new Date('2023/02').toGMTString()`, "Wed, 01 Feb 2023 00:00:00 GMT")
+		test(`new Date('2023/02/23').toGMTString()`, "Thu, 23 Feb 2023 00:00:00 GMT")
+		test(`new Date('2023/02/23 11:23:57').toGMTString()`, "Thu, 23 Feb 2023 11:23:57 GMT")
 		if false {
 			// TODO toLocale{Date,Time}String
 			test(`new Date(0).toLocaleString()`, "")
