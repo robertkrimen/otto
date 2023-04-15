@@ -235,16 +235,29 @@ type Otto struct {
 	// See "Halting Problem" for more information.
 	Interrupt chan func()
 	runtime   *runtime
+
+	console Console
 }
 
 // New will allocate a new JavaScript runtime.
-func New() *Otto {
+func New(options ...Option) *Otto {
 	o := &Otto{
 		runtime: newContext(),
 	}
 	o.runtime.otto = o
 	o.runtime.traceLimit = 10
-	if err := o.Set("console", o.runtime.newConsole()); err != nil {
+
+	for i := 0; i < len(options); i++ {
+		options[i](o)
+	}
+
+	if o.console == nil {
+		o.console = &builtinConsole{}
+	}
+
+	// o.console = o.runtime.newConsole() // FIXME: We should try to use the generated code
+
+	if err := o.Set("console", o.runtime.newConsoleManual(o.console)); err != nil {
 		panic(err)
 	}
 
