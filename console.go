@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-// Console is implemented by type which can be used to process console output.
+// Console describes the well known console object present in browsers and other runtimes.
 type Console interface {
-	Log(v ...interface{})
-	Trace(v ...interface{})
-	Debug(v ...interface{})
-	Info(v ...interface{})
-	Warn(v ...interface{})
-	Error(v ...interface{})
+	Log(call FunctionCall) Value
+	Trace(call FunctionCall) Value
+	Debug(call FunctionCall) Value
+	Info(call FunctionCall) Value
+	Warn(call FunctionCall) Value
+	Error(call FunctionCall) Value
 }
 
 func formatForConsole(argumentList []Value) string {
