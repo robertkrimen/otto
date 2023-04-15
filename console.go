@@ -29,6 +29,48 @@ func formatForConsole(argumentList []Value) string {
 	return strings.Join(output, " ")
 }
 
+type builtinConsole struct{}
+
+func (b *builtinConsole) Log(call FunctionCall) Value {
+	return builtinConsoleLog(call)
+}
+
+func (b *builtinConsole) Trace(call FunctionCall) Value {
+	return builtinConsoleLog(call)
+}
+
+func (b *builtinConsole) Debug(call FunctionCall) Value {
+	return builtinConsoleLog(call)
+}
+
+func (b *builtinConsole) Info(call FunctionCall) Value {
+	return builtinConsoleLog(call)
+}
+
+func (b *builtinConsole) Warn(call FunctionCall) Value {
+	return builtinConsoleLog(call)
+}
+
+func (b *builtinConsole) Error(call FunctionCall) Value {
+	return builtinConsoleLog(call)
+}
+
+func (b *builtinConsole) Dir(call FunctionCall) Value {
+	return builtinConsoleDir(call)
+}
+
+func (b *builtinConsole) Time(call FunctionCall) Value {
+	return builtinConsoleTime(call)
+}
+
+func (b *builtinConsole) TimeEnd(call FunctionCall) Value {
+	return builtinConsoleTimeEnd(call)
+}
+
+func (b *builtinConsole) Assert(call FunctionCall) Value {
+	return builtinConsoleAssert(call)
+}
+
 func builtinConsoleLog(call FunctionCall) Value {
 	fmt.Fprintln(os.Stdout, formatForConsole(call.ArgumentList))
 	return Value{}
