@@ -9,3 +9,9 @@ func WithConsole(console Console) func(o *Otto) {
 		o.console = console
 	}
 }
+
+// WithNoopConsole replaces the builtin Console with a no-op implementation.
+func WithNoopConsole() func(o *Otto) {
+	noop := &noopConsole{}
+	return WithConsole(noop)
+}
