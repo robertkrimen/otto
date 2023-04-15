@@ -81,6 +81,29 @@ func builtinConsoleError(call FunctionCall) Value {
 	return Value{}
 }
 
+type noopConsole struct {
+}
+
+func (n *noopConsole) Log(_ FunctionCall) Value { return Value{} }
+
+func (n *noopConsole) Trace(_ FunctionCall) Value { return Value{} }
+
+func (n *noopConsole) Debug(_ FunctionCall) Value { return Value{} }
+
+func (n *noopConsole) Info(_ FunctionCall) Value { return Value{} }
+
+func (n *noopConsole) Warn(_ FunctionCall) Value { return Value{} }
+
+func (n *noopConsole) Error(_ FunctionCall) Value { return Value{} }
+
+func (n *noopConsole) Dir(_ FunctionCall) Value { return Value{} }
+
+func (n *noopConsole) Time(_ FunctionCall) Value { return Value{} }
+
+func (n *noopConsole) TimeEnd(_ FunctionCall) Value { return Value{} }
+
+func (n *noopConsole) Assert(_ FunctionCall) Value { return Value{} }
+
 // Nothing happens.
 func builtinConsoleDir(call FunctionCall) Value {
 	return Value{}
