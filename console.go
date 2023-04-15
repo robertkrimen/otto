@@ -14,6 +14,11 @@ type Console interface {
 	Info(call FunctionCall) Value
 	Warn(call FunctionCall) Value
 	Error(call FunctionCall) Value
+
+	Dir(call FunctionCall) Value
+	Time(call FunctionCall) Value
+	TimeEnd(call FunctionCall) Value
+	Assert(call FunctionCall) Value
 }
 
 func formatForConsole(argumentList []Value) string {
