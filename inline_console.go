@@ -1,7 +1,7 @@
 package otto
 
 // newConsoleManual is a manually implemented "fork" of newConsole which is generated code.
-func (rt *runtime) newConsoleManual() *object {
+func (rt *runtime) newConsoleManual(console Console) *object {
 	return &object{
 		runtime:     rt,
 		class:       classObjectName,
@@ -41,7 +41,7 @@ func (rt *runtime) newConsoleManual() *object {
 						},
 						value: nativeFunctionObject{
 							name: "log",
-							call: builtinConsoleLog,
+							call: console.Log,
 						},
 					},
 				},
@@ -78,7 +78,7 @@ func (rt *runtime) newConsoleManual() *object {
 						},
 						value: nativeFunctionObject{
 							name: "debug",
-							call: builtinConsoleLog,
+							call: console.Debug,
 						},
 					},
 				},
@@ -115,7 +115,7 @@ func (rt *runtime) newConsoleManual() *object {
 						},
 						value: nativeFunctionObject{
 							name: "info",
-							call: builtinConsoleLog,
+							call: console.Info,
 						},
 					},
 				},
@@ -152,7 +152,7 @@ func (rt *runtime) newConsoleManual() *object {
 						},
 						value: nativeFunctionObject{
 							name: "error",
-							call: builtinConsoleError,
+							call: console.Error,
 						},
 					},
 				},
@@ -189,7 +189,7 @@ func (rt *runtime) newConsoleManual() *object {
 						},
 						value: nativeFunctionObject{
 							name: "warn",
-							call: builtinConsoleError,
+							call: console.Warn,
 						},
 					},
 				},
@@ -226,7 +226,7 @@ func (rt *runtime) newConsoleManual() *object {
 						},
 						value: nativeFunctionObject{
 							name: "dir",
-							call: builtinConsoleDir,
+							call: console.Dir,
 						},
 					},
 				},
@@ -263,7 +263,7 @@ func (rt *runtime) newConsoleManual() *object {
 						},
 						value: nativeFunctionObject{
 							name: "time",
-							call: builtinConsoleTime,
+							call: console.Time,
 						},
 					},
 				},
@@ -300,7 +300,7 @@ func (rt *runtime) newConsoleManual() *object {
 						},
 						value: nativeFunctionObject{
 							name: "timeEnd",
-							call: builtinConsoleTimeEnd,
+							call: console.TimeEnd,
 						},
 					},
 				},
@@ -337,7 +337,7 @@ func (rt *runtime) newConsoleManual() *object {
 						},
 						value: nativeFunctionObject{
 							name: "trace",
-							call: builtinConsoleTrace,
+							call: console.Trace,
 						},
 					},
 				},
@@ -374,7 +374,7 @@ func (rt *runtime) newConsoleManual() *object {
 						},
 						value: nativeFunctionObject{
 							name: "assert",
-							call: builtinConsoleAssert,
+							call: console.Assert,
 						},
 					},
 				},
