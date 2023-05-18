@@ -38,6 +38,7 @@ func Walk(v Visitor, n Node) {
 			Walk(v, n.Right)
 		}
 	case *BadExpression:
+	case *BadStatement:
 	case *BinaryExpression:
 		if n != nil {
 			Walk(v, n.Left)
