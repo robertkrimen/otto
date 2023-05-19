@@ -29,7 +29,7 @@ type jsType struct {
 	Class           string     `yaml:"class"`
 	Value           string     `yaml:"value"`
 	Properties      []property `yaml:"properties"`
-	Prototype       *prototype
+	Prototype       *prototype `yaml:"prototype"`
 }
 
 // BlankConstructor is a default fallback returning false for templates.
