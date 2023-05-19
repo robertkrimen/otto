@@ -18,9 +18,9 @@ func parseNumber(value string) float64 {
 		return 0
 	}
 
-	parseFloat := false
+	var parseFloat bool
 	switch {
-	case strings.IndexRune(value, '.') != -1: //nolint: gosimple
+	case strings.ContainsRune(value, '.'):
 		parseFloat = true
 	case stringToNumberParseInteger.MatchString(value):
 		parseFloat = false
