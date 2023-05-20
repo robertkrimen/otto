@@ -136,3 +136,22 @@ func Test_issue261(t *testing.T) {
 		})
 	}
 }
+
+func TestBadStatement(t *testing.T) {
+	source := `
+	var abc;
+	break; do {
+	} while(true);
+`
+	program, err := parser.ParseFile(nil, "", source, 0)
+	require.ErrorContains(t, err, "Illegal break statement")
+
+	w := &walker{
+		source: source,
+		seen:   make(map[ast.Node]struct{}),
+	}
+
+	require.NotPanics(t, func() {
+		ast.Walk(w, program)
+	})
+}
