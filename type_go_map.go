@@ -30,6 +30,10 @@ func newGoMapObject(value reflect.Value) *goMapObject {
 }
 
 func (o goMapObject) toKey(name string) reflect.Value {
+	if reflect.ValueOf(name).CanConvert(o.keyType) {
+		return reflect.ValueOf(name).Convert(o.keyType)
+	}
+
 	reflectValue, err := stringToReflectValue(name, o.keyType.Kind())
 	if err != nil {
 		panic(err)
