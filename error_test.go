@@ -447,3 +447,20 @@ func TestErrorStackProperty(t *testing.T) {
 		is(v.String(), "TypeError: uh oh\n    at A (test.js:2:29)\n    at B (test.js:3:26)\n    at C (test.js:4:26)\n    at test.js:8:10\n")
 	})
 }
+
+func TestErrorMessageContainingFormatCharacters(t *testing.T) {
+	tt(t, func() {
+		test, tester := test()
+
+		tester.Set("F", func(call FunctionCall) Value {
+			return call.Otto.MakeCustomError(call.ArgumentList[0].String(), call.ArgumentList[1].String())
+		})
+
+		test("Error('literal percent-s: %s')", "Error: literal percent-s: %s")
+		test("new Error('literal percent-s: %s')", "Error: literal percent-s: %s")
+		test("F('TestError', 'literal percent-s: %s')", "TestError: literal percent-s: %s")
+		test("raise: throw Error('literal percent-s: %s')", "Error: literal percent-s: %s")
+		test("raise: throw new Error('literal percent-s: %s')", "Error: literal percent-s: %s")
+		test("raise: throw F('TestError', 'literal percent-s: %s')", "TestError: literal percent-s: %s")
+	})
+}
