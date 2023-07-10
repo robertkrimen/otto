@@ -47,7 +47,21 @@ func (o goMapObject) toValue(value Value) reflect.Value {
 
 func goMapGetOwnProperty(obj *object, name string) *property {
 	goObj := obj.value.(*goMapObject)
-	value := goObj.value.MapIndex(goObj.toKey(name))
+
+	// an error here means that the key referenced by `name` could not possibly
+	// be a property of this object, so it should be safe to ignore this error
+	//
+	// TODO: figure out if any cases from
+	// https://go.dev/ref/spec#Comparison_operators meet the criteria of 1)
+	// being possible to represent as a string, 2) being possible to reconstruct
+	// from a string, and 3) having a meaningful failure case in this context
+	// other than "key does not exist"
+	key, err := stringToReflectValue(name, goObj.keyType.Kind())
+	if err != nil {
+		return nil
+	}
+
+	value := goObj.value.MapIndex(key)
 	if value.IsValid() {
 		return &property{obj.runtime.toValue(value.Interface()), 0o111}
 	}

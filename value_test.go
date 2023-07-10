@@ -77,6 +77,42 @@ func TestToValue(t *testing.T) {
 			value, _ = vm.ToValue(&tmp2)
 			is(value, "undefined")
 		}
+
+		{
+			m := map[int64]string{0: "foo", 1: "bar"}
+			value, err := vm.ToValue(m)
+			is(err, nil)
+			v0, err := value.Object().Get("0")
+			is(err, nil)
+			is(v0, m[0])
+			v1, err := value.Object().Get("1")
+			is(err, nil)
+			is(v1, m[1])
+			missing, err := value.Object().Get("2")
+			is(err, nil)
+			is(missing, UndefinedValue())
+			invalid, err := value.Object().Get("xxx")
+			is(err, nil)
+			is(invalid, UndefinedValue())
+		}
+
+		{
+			m := map[uint64]string{0: "foo", 1: "bar"}
+			value, err := vm.ToValue(m)
+			is(err, nil)
+			v0, err := value.Object().Get("0")
+			is(err, nil)
+			is(v0, m[0])
+			v1, err := value.Object().Get("1")
+			is(err, nil)
+			is(v1, m[1])
+			missing, err := value.Object().Get("2")
+			is(err, nil)
+			is(missing, UndefinedValue())
+			invalid, err := value.Object().Get("xxx")
+			is(err, nil)
+			is(invalid, UndefinedValue())
+		}
 	})
 }
 
@@ -292,6 +328,18 @@ func TestExport(t *testing.T) {
 			}{}
 			abc.def = 3
 			abc.xyz = 3.1459
+			vm.Set("abc", abc)
+			is(test(`abc;`).export(), abc)
+		}
+
+		{
+			abc := map[int64]string{0: "foo", 1: "bar"}
+			vm.Set("abc", abc)
+			is(test(`abc;`).export(), abc)
+		}
+
+		{
+			abc := map[uint64]string{0: "foo", 1: "bar"}
 			vm.Set("abc", abc)
 			is(test(`abc;`).export(), abc)
 		}
