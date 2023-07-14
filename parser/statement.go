@@ -722,7 +722,7 @@ func (p *parser) parseIfStatement() ast.Statement {
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
 	}
-	p.expect(token.IF)
+	pos := p.expect(token.IF)
 	var ifComments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		ifComments = p.comments.FetchAll()
@@ -730,7 +730,7 @@ func (p *parser) parseIfStatement() ast.Statement {
 
 	p.expect(token.LEFT_PARENTHESIS)
 	node := &ast.IfStatement{
-		If:   p.idx,
+		If:   pos,
 		Test: p.parseExpression(),
 	}
 	p.expect(token.RIGHT_PARENTHESIS)
