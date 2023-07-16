@@ -162,7 +162,7 @@ func (o *object) isCall() bool {
 	}
 }
 
-func (o *object) call(this Value, argumentList []Value, eval bool, frm frame) Value {
+func (o *object) call(this Value, argumentList []Value, eval bool, frm frame) Value { //nolint: unparam // Isn't currently used except in recursive self.
 	switch fn := o.value.(type) {
 	case nativeFunctionObject:
 		// Since eval is a native function, we only have to check for it here

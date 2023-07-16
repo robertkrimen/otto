@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         go: [1.19, 1.18]
-        golangcli: [v1.50.1]
+        golangcli: [v1.53.3]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -32,7 +32,7 @@ jobs:
       - name: Go Lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: ${{ matrix.golangci }}
+          version: ${{ matrix.golangcli }}
           args: "--out-${NO_FUTURE}format colored-line-number"
           skip-pkg-cache: true
           skip-build-cache: true

@@ -2,7 +2,7 @@ package otto
 
 import (
 	"math"
-	Time "time"
+	"time"
 )
 
 // Date
@@ -10,7 +10,7 @@ import (
 const (
 	// TODO Be like V8?
 	// builtinDateDateTimeLayout = "Mon Jan 2 2006 15:04:05 GMT-0700 (MST)".
-	builtinDateDateTimeLayout = Time.RFC1123 // "Mon, 02 Jan 2006 15:04:05 MST"
+	builtinDateDateTimeLayout = time.RFC1123 // "Mon, 02 Jan 2006 15:04:05 MST"
 	builtinDateDateLayout     = "Mon, 02 Jan 2006"
 	builtinDateTimeLayout     = "15:04:05 MST"
 )
@@ -18,16 +18,16 @@ const (
 // utcTimeZone is the time zone used for UTC calculations.
 // It is GMT not UTC as that's what Javascript does because toUTCString is
 // actually an alias to toGMTString.
-var utcTimeZone = Time.FixedZone("GMT", 0)
+var utcTimeZone = time.FixedZone("GMT", 0)
 
 func builtinDate(call FunctionCall) Value {
 	date := &dateObject{}
-	date.Set(newDateTime([]Value{}, Time.Local))
+	date.Set(newDateTime([]Value{}, time.Local)) //nolint: gosmopolitan
 	return stringValue(date.Time().Format(builtinDateDateTimeLayout))
 }
 
 func builtinNewDate(obj *object, argumentList []Value) Value {
-	return objectValue(obj.runtime.newDate(newDateTime(argumentList, Time.Local)))
+	return objectValue(obj.runtime.newDate(newDateTime(argumentList, time.Local))) //nolint: gosmopolitan
 }
 
 func builtinDateToString(call FunctionCall) Value {
@@ -35,7 +35,7 @@ func builtinDateToString(call FunctionCall) Value {
 	if date.isNaN {
 		return stringValue("Invalid Date")
 	}
-	return stringValue(date.Time().Local().Format(builtinDateDateTimeLayout))
+	return stringValue(date.Time().Local().Format(builtinDateDateTimeLayout)) //nolint: gosmopolitan
 }
 
 func builtinDateToDateString(call FunctionCall) Value {
@@ -43,7 +43,7 @@ func builtinDateToDateString(call FunctionCall) Value {
 	if date.isNaN {
 		return stringValue("Invalid Date")
 	}
-	return stringValue(date.Time().Local().Format(builtinDateDateLayout))
+	return stringValue(date.Time().Local().Format(builtinDateDateLayout)) //nolint: gosmopolitan
 }
 
 func builtinDateToTimeString(call FunctionCall) Value {
@@ -51,7 +51,7 @@ func builtinDateToTimeString(call FunctionCall) Value {
 	if date.isNaN {
 		return stringValue("Invalid Date")
 	}
-	return stringValue(date.Time().Local().Format(builtinDateTimeLayout))
+	return stringValue(date.Time().Local().Format(builtinDateTimeLayout)) //nolint: gosmopolitan
 }
 
 func builtinDateToUTCString(call FunctionCall) Value {
@@ -142,7 +142,7 @@ func builtinDateBeforeSet(call FunctionCall, argumentLimit int, timeLocal bool) 
 	}
 	baseTime := date.Time()
 	if timeLocal {
-		baseTime = baseTime.Local()
+		baseTime = baseTime.Local() //nolint: gosmopolitan
 	}
 	ecmaTime := newEcmaTime(baseTime)
 	return obj, &date, &ecmaTime, valueList
@@ -154,7 +154,7 @@ func builtinDateParse(call FunctionCall) Value {
 }
 
 func builtinDateUTC(call FunctionCall) Value {
-	return float64Value(newDateTime(call.ArgumentList, Time.UTC))
+	return float64Value(newDateTime(call.ArgumentList, time.UTC))
 }
 
 func builtinDateNow(call FunctionCall) Value {
@@ -168,7 +168,7 @@ func builtinDateToLocaleString(call FunctionCall) Value {
 	if date.isNaN {
 		return stringValue("Invalid Date")
 	}
-	return stringValue(date.Time().Local().Format("2006-01-02 15:04:05"))
+	return stringValue(date.Time().Local().Format("2006-01-02 15:04:05")) //nolint: gosmopolitan
 }
 
 // This is a placeholder.
@@ -177,7 +177,7 @@ func builtinDateToLocaleDateString(call FunctionCall) Value {
 	if date.isNaN {
 		return stringValue("Invalid Date")
 	}
-	return stringValue(date.Time().Local().Format("2006-01-02"))
+	return stringValue(date.Time().Local().Format("2006-01-02")) //nolint: gosmopolitan
 }
 
 // This is a placeholder.
@@ -186,7 +186,7 @@ func builtinDateToLocaleTimeString(call FunctionCall) Value {
 	if date.isNaN {
 		return stringValue("Invalid Date")
 	}
-	return stringValue(date.Time().Local().Format("15:04:05"))
+	return stringValue(date.Time().Local().Format("15:04:05")) //nolint: gosmopolitan
 }
 
 func builtinDateValueOf(call FunctionCall) Value {
@@ -204,7 +204,7 @@ func builtinDateGetYear(call FunctionCall) Value {
 	if date.isNaN {
 		return NaNValue()
 	}
-	return intValue(date.Time().Local().Year() - 1900)
+	return intValue(date.Time().Local().Year() - 1900) //nolint: gosmopolitan
 }
 
 func builtinDateGetFullYear(call FunctionCall) Value {
@@ -214,7 +214,7 @@ func builtinDateGetFullYear(call FunctionCall) Value {
 	if date.isNaN {
 		return NaNValue()
 	}
-	return intValue(date.Time().Local().Year())
+	return intValue(date.Time().Local().Year()) //nolint: gosmopolitan
 }
 
 func builtinDateGetUTCFullYear(call FunctionCall) Value {
@@ -230,7 +230,7 @@ func builtinDateGetMonth(call FunctionCall) Value {
 	if date.isNaN {
 		return NaNValue()
 	}
-	return intValue(dateFromGoMonth(date.Time().Local().Month()))
+	return intValue(dateFromGoMonth(date.Time().Local().Month())) //nolint: gosmopolitan
 }
 
 func builtinDateGetUTCMonth(call FunctionCall) Value {
@@ -246,7 +246,7 @@ func builtinDateGetDate(call FunctionCall) Value {
 	if date.isNaN {
 		return NaNValue()
 	}
-	return intValue(date.Time().Local().Day())
+	return intValue(date.Time().Local().Day()) //nolint: gosmopolitan
 }
 
 func builtinDateGetUTCDate(call FunctionCall) Value {
@@ -263,7 +263,7 @@ func builtinDateGetDay(call FunctionCall) Value {
 	if date.isNaN {
 		return NaNValue()
 	}
-	return intValue(dateFromGoDay(date.Time().Local().Weekday()))
+	return intValue(dateFromGoDay(date.Time().Local().Weekday())) //nolint: gosmopolitan
 }
 
 func builtinDateGetUTCDay(call FunctionCall) Value {
@@ -279,7 +279,7 @@ func builtinDateGetHours(call FunctionCall) Value {
 	if date.isNaN {
 		return NaNValue()
 	}
-	return intValue(date.Time().Local().Hour())
+	return intValue(date.Time().Local().Hour()) //nolint: gosmopolitan
 }
 
 func builtinDateGetUTCHours(call FunctionCall) Value {
@@ -295,7 +295,7 @@ func builtinDateGetMinutes(call FunctionCall) Value {
 	if date.isNaN {
 		return NaNValue()
 	}
-	return intValue(date.Time().Local().Minute())
+	return intValue(date.Time().Local().Minute()) //nolint: gosmopolitan
 }
 
 func builtinDateGetUTCMinutes(call FunctionCall) Value {
@@ -311,7 +311,7 @@ func builtinDateGetSeconds(call FunctionCall) Value {
 	if date.isNaN {
 		return NaNValue()
 	}
-	return intValue(date.Time().Local().Second())
+	return intValue(date.Time().Local().Second()) //nolint: gosmopolitan
 }
 
 func builtinDateGetUTCSeconds(call FunctionCall) Value {
@@ -327,7 +327,7 @@ func builtinDateGetMilliseconds(call FunctionCall) Value {
 	if date.isNaN {
 		return NaNValue()
 	}
-	return intValue(date.Time().Local().Nanosecond() / (100 * 100 * 100))
+	return intValue(date.Time().Local().Nanosecond() / (100 * 100 * 100)) //nolint: gosmopolitan
 }
 
 func builtinDateGetUTCMilliseconds(call FunctionCall) Value {
@@ -343,9 +343,9 @@ func builtinDateGetTimezoneOffset(call FunctionCall) Value {
 	if date.isNaN {
 		return NaNValue()
 	}
-	timeLocal := date.Time().Local()
+	timeLocal := date.Time().Local() //nolint: gosmopolitan
 	// Is this kosher?
-	timeLocalAsUTC := Time.Date(
+	timeLocalAsUTC := time.Date(
 		timeLocal.Year(),
 		timeLocal.Month(),
 		timeLocal.Day(),
@@ -353,7 +353,7 @@ func builtinDateGetTimezoneOffset(call FunctionCall) Value {
 		timeLocal.Minute(),
 		timeLocal.Second(),
 		timeLocal.Nanosecond(),
-		Time.UTC,
+		time.UTC,
 	)
 	return float64Value(date.Time().Sub(timeLocalAsUTC).Seconds() / 60)
 }
