@@ -55,6 +55,8 @@ linters:
     - ifshort
     - interfacer
     - maligned
+    # Just causes noise
+    - depguard
 
 issues:
   exclude-use-default: false

@@ -143,23 +143,20 @@ func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //noli
 
 				switch tkn {
 				case 0: // Not a keyword
-					if literal == "true" || literal == "false" {
+					switch literal {
+					case "true", "false":
 						p.insertSemicolon = true
-						tkn = token.BOOLEAN
-						return
-					} else if literal == "null" {
+						return token.BOOLEAN, literal, idx
+					case "null":
 						p.insertSemicolon = true
-						tkn = token.NULL
-						return
+						return token.NULL, literal, idx
 					}
-
 				case token.KEYWORD:
-					tkn = token.KEYWORD
 					if strict {
 						// TODO If strict and in strict mode, then this is not a break
 						break
 					}
-					return
+					return token.KEYWORD, literal, idx
 
 				case
 					token.THIS,
@@ -169,19 +166,18 @@ func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //noli
 					token.CONTINUE,
 					token.DEBUGGER:
 					p.insertSemicolon = true
-					return
+					return tkn, literal, idx
 
 				default:
-					return
+					return tkn, literal, idx
 				}
 			}
 			p.insertSemicolon = true
-			tkn = token.IDENTIFIER
-			return
+			return token.IDENTIFIER, literal, idx
 		case '0' <= chr && chr <= '9':
 			p.insertSemicolon = true
 			tkn, literal = p.scanNumericLiteral(false)
-			return
+			return tkn, literal, idx
 		default:
 			p.read()
 			switch chr {
@@ -306,7 +302,7 @@ func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //noli
 			}
 		}
 		p.insertSemicolon = insertSemicolon
-		return
+		return tkn, literal, idx
 	}
 }
 
