@@ -1042,6 +1042,13 @@ func TestPosition(t *testing.T) {
 		node = block.List[0].(*ast.ForInStatement)
 		is(node.Idx0(), 14)
 		is(parser.slice(node.Idx0(), node.Idx1()), "for (p in o) { console.log(p); }")
+
+		parser = newParser("", "x = {x: 1}", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		node = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.AssignExpression).Right.(*ast.ObjectLiteral)
+		is(node.Idx0(), 5)
+		is(parser.slice(node.Idx0(), node.Idx1()), "{x: 1}")
 	})
 }
 

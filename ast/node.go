@@ -343,7 +343,7 @@ func (ol *ObjectLiteral) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ol *ObjectLiteral) Idx1() file.Idx {
-	return ol.RightBrace
+	return ol.RightBrace + 1
 }
 
 // expression implements Expression.
