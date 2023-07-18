@@ -661,13 +661,13 @@ func (p *parser) parseDoWhileStatement() ast.Statement {
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
 	}
-	p.expect(token.DO)
+	idx := p.expect(token.DO)
 	var doComments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		doComments = p.comments.FetchAll()
 	}
 
-	node := &ast.DoWhileStatement{}
+	node := &ast.DoWhileStatement{Do: idx}
 	if p.token == token.LEFT_BRACE {
 		node.Body = p.parseBlockStatement()
 	} else {
@@ -681,7 +681,7 @@ func (p *parser) parseDoWhileStatement() ast.Statement {
 	}
 	p.expect(token.LEFT_PARENTHESIS)
 	node.Test = p.parseExpression()
-	p.expect(token.RIGHT_PARENTHESIS)
+	node.RightParenthesis = p.expect(token.RIGHT_PARENTHESIS)
 
 	p.implicitSemicolon = true
 	p.optionalSemicolon()

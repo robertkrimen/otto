@@ -1178,6 +1178,13 @@ func TestPosition(t *testing.T) {
 		node = program.Body[0].(*ast.WhileStatement)
 		is(node.Idx0(), 1)
 		is(parser.slice(node.Idx0(), node.Idx1()), "while (i < 10) { i++; }")
+
+		parser = newParser("", "do { i++; } while (i < 10 )", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		node = program.Body[0].(*ast.DoWhileStatement)
+		is(node.Idx0(), 1)
+		is(parser.slice(node.Idx0(), node.Idx1()), "do { i++; } while (i < 10 )")
 	})
 }
 

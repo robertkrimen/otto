@@ -619,9 +619,10 @@ func (*DebuggerStatement) statement() {}
 
 // DoWhileStatement represents a do while statement.
 type DoWhileStatement struct {
-	Do   file.Idx
-	Test Expression
-	Body Statement
+	Do               file.Idx
+	Test             Expression
+	Body             Statement
+	RightParenthesis file.Idx
 }
 
 // Idx0 implements Node.
@@ -631,7 +632,7 @@ func (dws *DoWhileStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (dws *DoWhileStatement) Idx1() file.Idx {
-	return dws.Test.Idx1()
+	return dws.RightParenthesis + 1
 }
 
 // expression implements Statement.
