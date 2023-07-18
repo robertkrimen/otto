@@ -700,7 +700,7 @@ func (p *parser) parseWhileStatement() ast.Statement {
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
 	}
-	p.expect(token.WHILE)
+	idx := p.expect(token.WHILE)
 
 	var whileComments []*ast.Comment
 	if p.mode&StoreComments != 0 {
@@ -709,7 +709,8 @@ func (p *parser) parseWhileStatement() ast.Statement {
 
 	p.expect(token.LEFT_PARENTHESIS)
 	node := &ast.WhileStatement{
-		Test: p.parseExpression(),
+		While: idx,
+		Test:  p.parseExpression(),
 	}
 	p.expect(token.RIGHT_PARENTHESIS)
 	node.Body = p.parseIterationStatement()
