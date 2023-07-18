@@ -36,7 +36,7 @@ func (al *ArrayLiteral) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (al *ArrayLiteral) Idx1() file.Idx {
-	return al.RightBracket
+	return al.RightBracket + 1
 }
 
 // expression implements Expression.
