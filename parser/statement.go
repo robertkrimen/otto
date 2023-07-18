@@ -603,6 +603,7 @@ func (p *parser) parseForOrForInStatement() ast.Statement {
 		}
 
 		forin := p.parseForIn(left[0])
+		forin.For = idx
 		if p.mode&StoreComments != 0 {
 			p.comments.CommentMap.AddComments(forin, comments, ast.LEADING)
 			p.comments.CommentMap.AddComments(forin, forComments, ast.FOR)
@@ -616,6 +617,7 @@ func (p *parser) parseForOrForInStatement() ast.Statement {
 	p.expect(token.SEMICOLON)
 	initializer := &ast.SequenceExpression{Sequence: left}
 	forstatement := p.parseFor(initializer)
+	forstatement.For = idx
 	if p.mode&StoreComments != 0 {
 		p.comments.CommentMap.AddComments(forstatement, comments, ast.LEADING)
 		p.comments.CommentMap.AddComments(forstatement, forComments, ast.FOR)

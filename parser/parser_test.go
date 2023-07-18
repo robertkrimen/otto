@@ -1026,6 +1026,20 @@ func TestPosition(t *testing.T) {
 		is(parser.slice(node.Idx0(), node.Idx1()), "if (abc) { throw 'failed'; }")
 		node = node.(*ast.IfStatement).Consequent.(*ast.BlockStatement).List[0].(*ast.ThrowStatement)
 		is(node.Idx0(), 39)
+
+		parser = newParser("", "for (x=1; x<=4; x++) { console.log(x); }", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		node = program.Body[0].(*ast.ForStatement)
+		is(node.Idx0(), 1)
+		is(parser.slice(node.Idx0(), node.Idx1()), "for (x=1; x<=4; x++) { console.log(x); }")
+
+		parser = newParser("", "for (p in o) { console.log(p); }", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		node = program.Body[0].(*ast.ForInStatement)
+		is(node.Idx0(), 1)
+		is(parser.slice(node.Idx0(), node.Idx1()), "for (p in o) { console.log(p); }")
 	})
 }
 
