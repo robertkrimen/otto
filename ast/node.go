@@ -791,7 +791,10 @@ func (rs *ReturnStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (rs *ReturnStatement) Idx1() file.Idx {
-	return rs.Return
+	if rs.Argument != nil {
+		return rs.Argument.Idx1()
+	}
+	return rs.Return + 6
 }
 
 // expression implements Statement.

@@ -1119,6 +1119,23 @@ func TestPosition(t *testing.T) {
 		node = block.List[0].(*ast.IfStatement).Consequent.(*ast.BranchStatement)
 		is(node.Idx0(), 45)
 		is(parser.slice(node.Idx0(), node.Idx1()), "continue xyz")
+
+		parser = newParser("", "(function(){ return; })", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.ReturnStatement)
+		is(node.Idx0(), 14)
+		is(parser.slice(node.Idx0(), node.Idx1()), "return")
+
+		parser = newParser("", "(function(){ return 10; })", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.ReturnStatement)
+		is(node.Idx0(), 14)
+		is(parser.slice(node.Idx0(), node.Idx1()), "return 10")
+
 	})
 }
 
