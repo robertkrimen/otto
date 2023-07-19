@@ -543,14 +543,17 @@ type BranchStatement struct {
 	Label *Identifier
 }
 
-// Idx1 implements Node.
-func (bs *BranchStatement) Idx1() file.Idx {
-	return bs.Idx
-}
-
 // Idx0 implements Node.
 func (bs *BranchStatement) Idx0() file.Idx {
 	return bs.Idx
+}
+
+// Idx1 implements Node.
+func (bs *BranchStatement) Idx1() file.Idx {
+	if bs.Label == nil {
+		return file.Idx(int(bs.Idx) + len(bs.Token.String()))
+	}
+	return bs.Label.Idx1()
 }
 
 // expression implements Statement.

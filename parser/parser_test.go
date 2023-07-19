@@ -1100,6 +1100,22 @@ func TestPosition(t *testing.T) {
 		node = block.List[0].(*ast.VariableStatement).List[1].(*ast.VariableExpression)
 		is(node.Idx0(), 23)
 		is(parser.slice(node.Idx0(), node.Idx1()), "xyz = 1")
+
+		parser = newParser("", "for (i = 0; i < 10; i++) { if (i == 5) break; }", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ForStatement).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.IfStatement).Consequent.(*ast.BranchStatement)
+		is(node.Idx0(), 40)
+		is(parser.slice(node.Idx0(), node.Idx1()), "break")
+
+		parser = newParser("", "xyz: for (i = 0; i < 10; i++) { if (i == 5) continue xyz; }", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.LabelledStatement).Statement.(*ast.ForStatement).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.IfStatement).Consequent.(*ast.BranchStatement)
+		is(node.Idx0(), 45)
+		is(parser.slice(node.Idx0(), node.Idx1()), "continue xyz")
 	})
 }
 
