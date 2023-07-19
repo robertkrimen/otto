@@ -772,7 +772,7 @@ func (ls *LabelledStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ls *LabelledStatement) Idx1() file.Idx {
-	return ls.Colon + 1
+	return ls.Statement.Idx1()
 }
 
 // expression implements Statement.
