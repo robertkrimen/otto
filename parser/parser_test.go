@@ -1056,6 +1056,13 @@ func TestPosition(t *testing.T) {
 		node = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.AssignExpression).Right.(*ast.ArrayLiteral)
 		is(node.Idx0(), 5)
 		is(parser.slice(node.Idx0(), node.Idx1()), "[1, 2]")
+
+		parser = newParser("", "x = true ? 1 : 2", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		node = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.AssignExpression).Right.(*ast.ConditionalExpression)
+		is(node.Idx0(), 5)
+		is(parser.slice(node.Idx0(), node.Idx1()), "true ? 1 : 2")
 	})
 }
 

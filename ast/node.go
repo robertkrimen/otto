@@ -178,7 +178,7 @@ func (ce *ConditionalExpression) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ce *ConditionalExpression) Idx1() file.Idx {
-	return ce.Test.Idx1()
+	return ce.Alternate.Idx1()
 }
 
 // expression implements Expression.
