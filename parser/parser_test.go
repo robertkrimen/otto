@@ -1071,6 +1071,21 @@ func TestPosition(t *testing.T) {
 		node = block.List[0].(*ast.ExpressionStatement).Expression.(*ast.SequenceExpression)
 		is(node.Idx0(), 14)
 		is(parser.slice(node.Idx0(), node.Idx1()), "x = 1, y = 2")
+
+		parser = newParser("", "x = ~x", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		node = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.AssignExpression).Right.(*ast.UnaryExpression)
+		is(node.Idx0(), 5)
+		is(parser.slice(node.Idx0(), node.Idx1()), "~x")
+
+		parser = newParser("", "(function(){ xyz++; })", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.ExpressionStatement).Expression.(*ast.UnaryExpression)
+		is(node.Idx0(), 14)
+		is(parser.slice(node.Idx0(), node.Idx1()), "xyz++")
 	})
 }
 

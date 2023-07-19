@@ -451,6 +451,9 @@ type UnaryExpression struct {
 
 // Idx0 implements Node.
 func (ue *UnaryExpression) Idx0() file.Idx {
+	if ue.Postfix {
+		return ue.Operand.Idx0()
+	}
 	return ue.Idx
 }
 
