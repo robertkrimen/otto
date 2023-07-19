@@ -1136,6 +1136,13 @@ func TestPosition(t *testing.T) {
 		is(node.Idx0(), 14)
 		is(parser.slice(node.Idx0(), node.Idx1()), "return 10")
 
+		parser = newParser("", "(function(){ switch (a) { default: return; }})", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.SwitchStatement)
+		is(node.Idx0(), 14)
+		is(parser.slice(node.Idx0(), node.Idx1()), "switch (a) { default: return; }")
 	})
 }
 

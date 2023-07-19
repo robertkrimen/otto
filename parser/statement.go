@@ -373,12 +373,13 @@ func (p *parser) parseSwitchStatement() ast.Statement {
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
 	}
-	p.expect(token.SWITCH)
+	idx := p.expect(token.SWITCH)
 	if p.mode&StoreComments != 0 {
 		comments = append(comments, p.comments.FetchAll()...)
 	}
 	p.expect(token.LEFT_PARENTHESIS)
 	node := &ast.SwitchStatement{
+		Switch:       idx,
 		Discriminant: p.parseExpression(),
 		Default:      -1,
 	}
@@ -397,6 +398,7 @@ func (p *parser) parseSwitchStatement() ast.Statement {
 
 	for index := 0; p.token != token.EOF; index++ {
 		if p.token == token.RIGHT_BRACE {
+			node.RightBrace = p.idx
 			p.next()
 			break
 		}

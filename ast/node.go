@@ -806,6 +806,7 @@ type SwitchStatement struct {
 	Discriminant Expression
 	Default      int
 	Body         []*CaseStatement
+	RightBrace   file.Idx
 }
 
 // Idx0 implements Node.
@@ -815,7 +816,7 @@ func (ss *SwitchStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ss *SwitchStatement) Idx1() file.Idx {
-	return ss.Body[len(ss.Body)-1].Idx1()
+	return ss.RightBrace + 1
 }
 
 // expression implements Statement.
