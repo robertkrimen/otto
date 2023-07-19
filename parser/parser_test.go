@@ -1063,6 +1063,14 @@ func TestPosition(t *testing.T) {
 		node = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.AssignExpression).Right.(*ast.ConditionalExpression)
 		is(node.Idx0(), 5)
 		is(parser.slice(node.Idx0(), node.Idx1()), "true ? 1 : 2")
+
+		parser = newParser("", "(function(){ x = 1, y = 2; })", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.ExpressionStatement).Expression.(*ast.SequenceExpression)
+		is(node.Idx0(), 14)
+		is(parser.slice(node.Idx0(), node.Idx1()), "x = 1, y = 2")
 	})
 }
 

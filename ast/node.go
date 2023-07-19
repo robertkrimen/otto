@@ -397,7 +397,7 @@ func (se *SequenceExpression) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (se *SequenceExpression) Idx1() file.Idx {
-	return se.Sequence[0].Idx1()
+	return se.Sequence[len(se.Sequence)-1].Idx1()
 }
 
 // expression implements Expression.
