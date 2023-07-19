@@ -1086,6 +1086,20 @@ func TestPosition(t *testing.T) {
 		node = block.List[0].(*ast.ExpressionStatement).Expression.(*ast.UnaryExpression)
 		is(node.Idx0(), 14)
 		is(parser.slice(node.Idx0(), node.Idx1()), "xyz++")
+
+		parser = newParser("", "(function(){ var abc, xyz = 1; })", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.VariableStatement)
+		is(node.Idx0(), 14)
+		is(parser.slice(node.Idx0(), node.Idx1()), "var abc, xyz = 1")
+		node = block.List[0].(*ast.VariableStatement).List[0].(*ast.VariableExpression)
+		is(node.Idx0(), 18)
+		is(parser.slice(node.Idx0(), node.Idx1()), "abc")
+		node = block.List[0].(*ast.VariableStatement).List[1].(*ast.VariableExpression)
+		is(node.Idx0(), 23)
+		is(parser.slice(node.Idx0(), node.Idx1()), "xyz = 1")
 	})
 }
 

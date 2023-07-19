@@ -483,7 +483,7 @@ func (ve *VariableExpression) Idx0() file.Idx {
 // Idx1 implements Node.
 func (ve *VariableExpression) Idx1() file.Idx {
 	if ve.Initializer == nil {
-		return file.Idx(int(ve.Idx) + len(ve.Name) + 1)
+		return file.Idx(int(ve.Idx) + len(ve.Name))
 	}
 	return ve.Initializer.Idx1()
 }
