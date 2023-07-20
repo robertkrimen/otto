@@ -856,7 +856,10 @@ func (ts *TryStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ts *TryStatement) Idx1() file.Idx {
-	return ts.Try
+	if ts.Finally != nil {
+		return ts.Finally.Idx1()
+	}
+	return ts.Catch.Idx1()
 }
 
 // expression implements Statement.

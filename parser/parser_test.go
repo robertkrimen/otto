@@ -1144,6 +1144,25 @@ func TestPosition(t *testing.T) {
 		node = block.List[0].(*ast.SwitchStatement)
 		is(node.Idx0(), 14)
 		is(parser.slice(node.Idx0(), node.Idx1()), "switch (a) { default: return; }")
+
+		parser = newParser("", "(function(){ try { a(); } catch (error) { b(); } })", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.TryStatement)
+		is(node.Idx0(), 14)
+		is(parser.slice(node.Idx0(), node.Idx1()), "try { a(); } catch (error) { b(); }")
+		node = block.List[0].(*ast.TryStatement).Catch
+		is(node.Idx0(), 27)
+		is(parser.slice(node.Idx0(), node.Idx1()), "catch (error) { b(); }")
+
+		parser = newParser("", "(function(){ try { a(); } catch (error) { b(); } finally { c(); } })", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.TryStatement)
+		is(node.Idx0(), 14)
+		is(parser.slice(node.Idx0(), node.Idx1()), "try { a(); } catch (error) { b(); } finally { c(); }")
 	})
 }
 
