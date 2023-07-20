@@ -1163,6 +1163,14 @@ func TestPosition(t *testing.T) {
 		node = block.List[0].(*ast.TryStatement)
 		is(node.Idx0(), 14)
 		is(parser.slice(node.Idx0(), node.Idx1()), "try { a(); } catch (error) { b(); } finally { c(); }")
+
+		parser = newParser("", "(function(){ with (1) {} })", 1, nil)
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		node = block.List[0].(*ast.WithStatement)
+		is(node.Idx0(), 14)
+		is(parser.slice(node.Idx0(), node.Idx1()), "with (1) {}")
 	})
 }
 

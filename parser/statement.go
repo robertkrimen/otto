@@ -425,7 +425,7 @@ func (p *parser) parseWithStatement() ast.Statement {
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
 	}
-	p.expect(token.WITH)
+	idx := p.expect(token.WITH)
 	var withComments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		withComments = p.comments.FetchAll()
@@ -434,6 +434,7 @@ func (p *parser) parseWithStatement() ast.Statement {
 	p.expect(token.LEFT_PARENTHESIS)
 
 	node := &ast.WithStatement{
+		With:   idx,
 		Object: p.parseExpression(),
 	}
 	p.expect(token.RIGHT_PARENTHESIS)
