@@ -356,7 +356,7 @@ func (p *parser) parseThrowStatement() ast.Statement {
 	}
 
 	node := &ast.ThrowStatement{
-		Throw:    p.idx,
+		Throw:    idx,
 		Argument: p.parseExpression(),
 	}
 	if p.mode&StoreComments != 0 {

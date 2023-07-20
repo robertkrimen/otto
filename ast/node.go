@@ -835,7 +835,7 @@ func (ts *ThrowStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ts *ThrowStatement) Idx1() file.Idx {
-	return ts.Throw
+	return ts.Argument.Idx1()
 }
 
 // expression implements Statement.
