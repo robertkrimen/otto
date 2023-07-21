@@ -178,7 +178,7 @@ func (ce *ConditionalExpression) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ce *ConditionalExpression) Idx1() file.Idx {
-	return ce.Test.Idx1()
+	return ce.Alternate.Idx1()
 }
 
 // expression implements Expression.
@@ -397,7 +397,7 @@ func (se *SequenceExpression) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (se *SequenceExpression) Idx1() file.Idx {
-	return se.Sequence[0].Idx1()
+	return se.Sequence[len(se.Sequence)-1].Idx1()
 }
 
 // expression implements Expression.
@@ -451,6 +451,9 @@ type UnaryExpression struct {
 
 // Idx0 implements Node.
 func (ue *UnaryExpression) Idx0() file.Idx {
+	if ue.Postfix {
+		return ue.Operand.Idx0()
+	}
 	return ue.Idx
 }
 
@@ -480,7 +483,7 @@ func (ve *VariableExpression) Idx0() file.Idx {
 // Idx1 implements Node.
 func (ve *VariableExpression) Idx1() file.Idx {
 	if ve.Initializer == nil {
-		return file.Idx(int(ve.Idx) + len(ve.Name) + 1)
+		return file.Idx(int(ve.Idx) + len(ve.Name))
 	}
 	return ve.Initializer.Idx1()
 }

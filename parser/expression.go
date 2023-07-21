@@ -884,7 +884,7 @@ func (p *parser) parseLogicalOrExpression() ast.Expression {
 	return left
 }
 
-func (p *parser) parseConditionlExpression() ast.Expression {
+func (p *parser) parseConditionalExpression() ast.Expression {
 	left := p.parseLogicalOrExpression()
 
 	if p.token == token.QUESTION_MARK {
@@ -911,7 +911,7 @@ func (p *parser) parseConditionlExpression() ast.Expression {
 }
 
 func (p *parser) parseAssignmentExpression() ast.Expression {
-	left := p.parseConditionlExpression()
+	left := p.parseConditionalExpression()
 	var operator token.Token
 	switch p.token {
 	case token.ASSIGN:
