@@ -543,14 +543,17 @@ type BranchStatement struct {
 	Label *Identifier
 }
 
-// Idx1 implements Node.
-func (bs *BranchStatement) Idx1() file.Idx {
-	return bs.Idx
-}
-
 // Idx0 implements Node.
 func (bs *BranchStatement) Idx0() file.Idx {
 	return bs.Idx
+}
+
+// Idx1 implements Node.
+func (bs *BranchStatement) Idx1() file.Idx {
+	if bs.Label == nil {
+		return file.Idx(int(bs.Idx) + len(bs.Token.String()))
+	}
+	return bs.Label.Idx1()
 }
 
 // expression implements Statement.
@@ -616,9 +619,10 @@ func (*DebuggerStatement) statement() {}
 
 // DoWhileStatement represents a do while statement.
 type DoWhileStatement struct {
-	Do   file.Idx
-	Test Expression
-	Body Statement
+	Do               file.Idx
+	Test             Expression
+	Body             Statement
+	RightParenthesis file.Idx
 }
 
 // Idx0 implements Node.
@@ -628,7 +632,7 @@ func (dws *DoWhileStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (dws *DoWhileStatement) Idx1() file.Idx {
-	return dws.Test.Idx1()
+	return dws.RightParenthesis + 1
 }
 
 // expression implements Statement.
@@ -769,7 +773,7 @@ func (ls *LabelledStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ls *LabelledStatement) Idx1() file.Idx {
-	return ls.Colon + 1
+	return ls.Statement.Idx1()
 }
 
 // expression implements Statement.
@@ -788,7 +792,10 @@ func (rs *ReturnStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (rs *ReturnStatement) Idx1() file.Idx {
-	return rs.Return
+	if rs.Argument != nil {
+		return rs.Argument.Idx1()
+	}
+	return rs.Return + 6
 }
 
 // expression implements Statement.
@@ -800,6 +807,7 @@ type SwitchStatement struct {
 	Discriminant Expression
 	Default      int
 	Body         []*CaseStatement
+	RightBrace   file.Idx
 }
 
 // Idx0 implements Node.
@@ -809,7 +817,7 @@ func (ss *SwitchStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ss *SwitchStatement) Idx1() file.Idx {
-	return ss.Body[len(ss.Body)-1].Idx1()
+	return ss.RightBrace + 1
 }
 
 // expression implements Statement.
@@ -828,7 +836,7 @@ func (ts *ThrowStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ts *ThrowStatement) Idx1() file.Idx {
-	return ts.Throw
+	return ts.Argument.Idx1()
 }
 
 // expression implements Statement.
@@ -849,7 +857,10 @@ func (ts *TryStatement) Idx0() file.Idx {
 
 // Idx1 implements Node.
 func (ts *TryStatement) Idx1() file.Idx {
-	return ts.Try
+	if ts.Finally != nil {
+		return ts.Finally.Idx1()
+	}
+	return ts.Catch.Idx1()
 }
 
 // expression implements Statement.
