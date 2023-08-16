@@ -1186,6 +1186,24 @@ func TestPosition(t *testing.T) {
 		node = program.Body[0].(*ast.DoWhileStatement)
 		is(node.Idx0(), 1)
 		is(parser.slice(node.Idx0(), node.Idx1()), "do { i++; } while (i < 10 )")
+
+		parser = newParser("", "(function() { // single-line comment\n })", 1, nil)
+		parser.mode |= StoreComments
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		comment := parser.comments.CommentMap[block][0]
+		is(comment.Begin, 15)
+		is(parser.slice(comment.Begin, file.Idx(int(comment.Begin)+len(comment.Text)+2)), "// single-line comment")
+
+		parser = newParser("", "(function() { /* multi-line comment */ })", 1, nil)
+		parser.mode |= StoreComments
+		program, err = parser.parse()
+		is(err, nil)
+		block = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.FunctionLiteral).Body.(*ast.BlockStatement)
+		comment = parser.comments.CommentMap[block][0]
+		is(comment.Begin, 15)
+		is(parser.slice(comment.Begin, file.Idx(int(comment.Begin)+len(comment.Text)+4)), "/* multi-line comment */")
 	})
 }
 

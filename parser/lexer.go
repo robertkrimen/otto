@@ -237,7 +237,7 @@ func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //noli
 				case '/':
 					if p.mode&StoreComments != 0 {
 						literal := string(p.readSingleLineComment())
-						p.comments.AddComment(ast.NewComment(literal, p.idx))
+						p.comments.AddComment(ast.NewComment(literal, idx))
 						continue
 					}
 					p.skipSingleLineComment()
@@ -245,7 +245,7 @@ func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //noli
 				case '*':
 					if p.mode&StoreComments != 0 {
 						literal = string(p.readMultiLineComment())
-						p.comments.AddComment(ast.NewComment(literal, p.idx))
+						p.comments.AddComment(ast.NewComment(literal, idx))
 						continue
 					}
 					p.skipMultiLineComment()
