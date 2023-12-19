@@ -184,6 +184,8 @@ types:
           function: 2
         - name: substring
           function: 2
+        - name: startsWith
+          function: 1
         - name: toString
           function: -1
         - name: trim

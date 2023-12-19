@@ -470,3 +470,12 @@ func TestString_localeCompare(t *testing.T) {
 		test(`'a'.localeCompare('a');`, 0)
 	})
 }
+
+func TestString_startsWith(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`'a'.startsWith('c');`, false)
+		test(`'aa'.startsWith('a');`, true)
+	})
+}

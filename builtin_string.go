@@ -443,6 +443,17 @@ func builtinStringSubstr(call FunctionCall) Value {
 	return stringValue(string(target[start : start+length]))
 }
 
+func builtinStringStartsWith(call FunctionCall) Value {
+	checkObjectCoercible(call.runtime, call.This)
+	target := call.This.string()
+	search := call.Argument(0).string()
+	length := len(search)
+	if length > len(target) {
+		return boolValue(false)
+	}
+	return boolValue(target[:length] == search)
+}
+
 func builtinStringToLowerCase(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
 	return stringValue(strings.ToLower(call.This.string()))
