@@ -102,7 +102,7 @@ func TestGetOwnPropertyNames(t *testing.T) {
 			"substr",
 			"substring",
 			// "sup",
-			// "startsWith",
+			"startsWith",
 			"toString",
 			"trim",
 			// "trimStart",
