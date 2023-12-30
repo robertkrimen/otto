@@ -479,3 +479,31 @@ func TestString_startsWith(t *testing.T) {
 		test(`'aa'.startsWith('a');`, true)
 	})
 }
+
+func TestString_trimStart(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`"		abc\u000B".trimStart()`, "abc\u000B")
+		test(`"abc ".trimStart()`, "abc ")
+		test(`
+			var a = "\u180Eabc \u000B "
+			var b = a.trimStart()
+			a.length + b.length
+		`, 13)
+	})
+}
+
+func TestString_trimEnd(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`"		abc\u000B".trimEnd()`, "		abc")
+		test(`" abc ".trimEnd()`, " abc")
+		test(`
+			var a = "\u180Eabc \u000B "
+			var b = a.trimEnd()
+			a.length + b.length
+		`, 11)
+	})
+}

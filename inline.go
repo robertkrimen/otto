@@ -2595,6 +2595,80 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"trimStart": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "trimStart",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "trimStart",
+							call: builtinStringTrimStart,
+						},
+					},
+				},
+			},
+			"trimEnd": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "trimEnd",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "trimEnd",
+							call: builtinStringTrimEnd,
+						},
+					},
+				},
+			},
 			"toLocaleLowerCase": {
 				mode: 0o101,
 				value: Value{
@@ -2802,6 +2876,8 @@ func (rt *runtime) newContext() {
 			"trim",
 			"trimLeft",
 			"trimRight",
+			"trimStart",
+			"trimEnd",
 			"toLocaleLowerCase",
 			"toLocaleUpperCase",
 			"toLowerCase",
