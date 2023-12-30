@@ -473,6 +473,14 @@ func builtinStringTrim(call FunctionCall) Value {
 		builtinStringTrimWhitespace))
 }
 
+func builtinStringTrimStart(call FunctionCall) Value {
+	return builtinStringTrimLeft(call)
+}
+
+func builtinStringTrimEnd(call FunctionCall) Value {
+	return builtinStringTrimRight(call)
+}
+
 // Mozilla extension, not ECMAScript 5.
 func builtinStringTrimLeft(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)

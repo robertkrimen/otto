@@ -194,6 +194,10 @@ types:
           function: -1
         - name: trimRight
           function: -1
+        - name: trimStart
+          function: -1
+        - name: trimEnd
+          function: -1
         - name: toLocaleLowerCase
           function: -1
         - name: toLocaleUpperCase
@@ -226,27 +230,27 @@ types:
 
   - name: Number
     properties:
-    - name: length
-      value: 1
-    - name: prototype
-      value: rt.global.NumberPrototype
-    - name: isNaN
-      function: 1
-    - name: MAX_VALUE
-      value: math.MaxFloat64
-      kind: valueNumber
-    - name: MIN_VALUE
-      kind: valueNumber
-      value: math.SmallestNonzeroFloat64
-    - name: NaN
-      kind: valueNumber
-      value: math.NaN()
-    - name: NEGATIVE_INFINITY
-      kind: valueNumber
-      value: math.Inf(-1)
-    - name: POSITIVE_INFINITY
-      kind: valueNumber
-      value: math.Inf(+1)
+      - name: length
+        value: 1
+      - name: prototype
+        value: rt.global.NumberPrototype
+      - name: isNaN
+        function: 1
+      - name: MAX_VALUE
+        value: math.MaxFloat64
+        kind: valueNumber
+      - name: MIN_VALUE
+        kind: valueNumber
+        value: math.SmallestNonzeroFloat64
+      - name: NaN
+        kind: valueNumber
+        value: math.NaN()
+      - name: NEGATIVE_INFINITY
+        kind: valueNumber
+        value: math.Inf(-1)
+      - name: POSITIVE_INFINITY
+        kind: valueNumber
+        value: math.Inf(+1)
     prototype:
       prototype: Object
       value: prototypeValueNumber
@@ -270,90 +274,90 @@ types:
     class: Math
     objectPrototype: Object
     properties:
-        - name: abs
-          function: 1
-        - name: acos
-          function: 1
-        - name: acosh
-          function: 1
-        - name: asin
-          function: 1
-        - name: asinh
-          function: 1
-        - name: atan
-          function: 1
-        - name: atanh
-          function: 1
-        - name: atan2
-          function: 1
-        - name: cbrt
-          function: 1
-        - name: ceil
-          function: 1
-        - name: cos
-          function: 1
-        - name: cosh
-          function: 1
-        - name: exp
-          function: 1
-        - name: expm1
-          function: 1
-        - name: floor
-          function: 1
-        - name: log
-          function: 1
-        - name: log10
-          function: 1
-        - name: log1p
-          function: 1
-        - name: log2
-          function: 1
-        - name: max
-          function: 2
-        - name: min
-          function: 2
-        - name: pow
-          function: 2
-        - name: random
-          function: -1
-        - name: round
-          function: 1
-        - name: sin
-          function: 1
-        - name: sinh
-          function: 1
-        - name: sqrt
-          function: 1
-        - name: tan
-          function: 1
-        - name: tanh
-          function: 1
-        - name: trunc
-          function: 1
-        - name: E
-          kind: valueNumber
-          value: math.E
-        - name: LN10
-          kind: valueNumber
-          value: math.Ln10
-        - name: LN2
-          kind: valueNumber
-          value: math.Ln2
-        - name: LOG10E
-          kind: valueNumber
-          value: math.Log10E
-        - name: LOG2E
-          kind: valueNumber
-          value: math.Log2E
-        - name: PI
-          kind: valueNumber
-          value: math.Pi
-        - name: SQRT1_2
-          kind: valueNumber
-          value: sqrt1_2
-        - name: SQRT2
-          kind: valueNumber
-          value: math.Sqrt2
+      - name: abs
+        function: 1
+      - name: acos
+        function: 1
+      - name: acosh
+        function: 1
+      - name: asin
+        function: 1
+      - name: asinh
+        function: 1
+      - name: atan
+        function: 1
+      - name: atanh
+        function: 1
+      - name: atan2
+        function: 1
+      - name: cbrt
+        function: 1
+      - name: ceil
+        function: 1
+      - name: cos
+        function: 1
+      - name: cosh
+        function: 1
+      - name: exp
+        function: 1
+      - name: expm1
+        function: 1
+      - name: floor
+        function: 1
+      - name: log
+        function: 1
+      - name: log10
+        function: 1
+      - name: log1p
+        function: 1
+      - name: log2
+        function: 1
+      - name: max
+        function: 2
+      - name: min
+        function: 2
+      - name: pow
+        function: 2
+      - name: random
+        function: -1
+      - name: round
+        function: 1
+      - name: sin
+        function: 1
+      - name: sinh
+        function: 1
+      - name: sqrt
+        function: 1
+      - name: tan
+        function: 1
+      - name: tanh
+        function: 1
+      - name: trunc
+        function: 1
+      - name: E
+        kind: valueNumber
+        value: math.E
+      - name: LN10
+        kind: valueNumber
+        value: math.Ln10
+      - name: LN2
+        kind: valueNumber
+        value: math.Ln2
+      - name: LOG10E
+        kind: valueNumber
+        value: math.Log10E
+      - name: LOG2E
+        kind: valueNumber
+        value: math.Log2E
+      - name: PI
+        kind: valueNumber
+        value: math.Pi
+      - name: SQRT1_2
+        kind: valueNumber
+        value: sqrt1_2
+      - name: SQRT2
+        kind: valueNumber
+        value: math.Sqrt2
 
   - name: Date
     properties:
