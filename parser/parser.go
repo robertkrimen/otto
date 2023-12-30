@@ -54,6 +54,9 @@ const (
 
 	// StoreComments stores the comments from source to the comments map.
 	StoreComments
+
+	// NoRegExpTransform disables RegExp transformation.
+	NoRegExpTransform
 )
 
 type parser struct { //nolint: maligned

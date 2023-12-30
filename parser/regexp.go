@@ -39,7 +39,6 @@ func TransformRegExp(pattern string) (string, error) {
 	}
 
 	// TODO If without \, if without (?=, (?!, then another shortcut
-
 	p := regExpParser{
 		str:      pattern,
 		length:   len(pattern),

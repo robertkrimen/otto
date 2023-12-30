@@ -15,6 +15,7 @@ import (
 
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/parser"
+	"github.com/robertkrimen/otto/regexp"
 )
 
 type global struct {
@@ -60,6 +61,7 @@ type runtime struct {
 	scope        *scope
 	otto         *Otto
 	eval         *object // The builtin eval, for determine indirect versus direct invocation
+	regExp       regexp.Creator
 	debugger     func(*Otto)
 	random       func() float64
 	stackLimit   int
@@ -796,12 +798,21 @@ func (rt *runtime) newGoArray(value reflect.Value) *object {
 	return obj
 }
 
+// parserMode returns the mode that parsers should be created on.
+func (rt *runtime) parserMode() parser.Mode {
+	if rt.regExp.NoTransform() {
+		// Disable RegExp transformation.
+		return parser.NoRegExpTransform
+	}
+	return 0
+}
+
 func (rt *runtime) parse(filename string, src, sm interface{}) (*ast.Program, error) {
-	return parser.ParseFileWithSourceMap(nil, filename, src, sm, 0)
+	return parser.ParseFileWithSourceMap(nil, filename, src, sm, rt.parserMode())
 }
 
 func (rt *runtime) cmplParse(filename string, src, sm interface{}) (*nodeProgram, error) {
-	program, err := parser.ParseFileWithSourceMap(nil, filename, src, sm, 0)
+	program, err := parser.ParseFileWithSourceMap(nil, filename, src, sm, rt.parserMode())
 	if err != nil {
 		return nil, err
 	}

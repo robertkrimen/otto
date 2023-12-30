@@ -225,6 +225,7 @@ import (
 	"strings"
 
 	"github.com/robertkrimen/otto/file"
+	"github.com/robertkrimen/otto/regexp"
 	"github.com/robertkrimen/otto/registry"
 )
 
@@ -237,10 +238,59 @@ type Otto struct {
 	runtime   *runtime
 }
 
+// Option represents a Otto configuration option.
+type Option func(*Otto)
+
+// Debugger is an option that sets the debugger handler to fn.
+func Debugger(fn func(vm *Otto)) Option {
+	return func(o *Otto) {
+		o.runtime.debugger = fn
+	}
+}
+
+// RandomSource is an option that sets the random source to fn.
+func RandomSource(fn func() float64) Option {
+	return func(o *Otto) {
+		o.runtime.random = fn
+	}
+}
+
+// Stack is an option that sets the stack depth to limit.
+// Default: 0 (unlimited).
+func Stack(limit int) Option {
+	return func(o *Otto) {
+		o.runtime.stackLimit = limit
+	}
+}
+
+// StackTrace is an option that sets the stack trace depth to limit.
+// Default: 10.
+func StackTrace(limit int) Option {
+	return func(o *Otto) {
+		o.runtime.traceLimit = limit
+	}
+}
+
+// RegExp is an option which sets the regular expression engine.
+// This can be used to enable ECMAScript compatible regular expression
+// processing using regexp2.Creator.
+// Default: standard regexp library using ECMA to RE2 transformation
+// which provides constant order matching but doesn't support backtracking.
+func RegExp(creator regexp.Creator) Option {
+	return func(o *Otto) {
+		o.runtime.regExp = creator
+	}
+}
+
 // New will allocate a new JavaScript runtime.
-func New() *Otto {
+func New(options ...Option) *Otto {
 	o := &Otto{
 		runtime: newContext(),
+	}
+	o.runtime.regExp = &regexpStd{}
+
+	for _, f := range options {
+		f(o)
 	}
 	o.runtime.otto = o
 	o.runtime.traceLimit = 10
@@ -360,11 +410,13 @@ func (o Otto) setValue(name string, value Value) {
 }
 
 // SetDebuggerHandler sets the debugger handler to fn.
+// Deprecated: Use Debugger option.
 func (o Otto) SetDebuggerHandler(fn func(vm *Otto)) {
 	o.runtime.debugger = fn
 }
 
 // SetRandomSource sets the random source to fn.
+// Deprecated: Use RandomSource option.
 func (o Otto) SetRandomSource(fn func() float64) {
 	o.runtime.random = fn
 }
@@ -377,6 +429,7 @@ func (o Otto) SetRandomSource(fn func() float64) {
 // JavaScript makes a call to a Go function, otto won't keep track of what
 // happens outside the interpreter. So if your Go function is infinitely
 // recursive, you're still in trouble.
+// Deprecated: Use Stack option.
 func (o Otto) SetStackDepthLimit(limit int) {
 	o.runtime.stackLimit = limit
 }
@@ -386,6 +439,7 @@ func (o Otto) SetStackDepthLimit(limit int) {
 // is 10. This is consistent with V8 and SpiderMonkey.
 //
 // TODO: expose via `Error.stackTraceLimit`.
+// Deprecated: Use StackTrace option.
 func (o Otto) SetStackTraceLimit(limit int) {
 	o.runtime.traceLimit = limit
 }
