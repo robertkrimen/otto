@@ -32,6 +32,8 @@ types:
         function: 1
       - name: keys
         function: 1
+      - name: values
+        function: 1
       - name: getOwnPropertyNames
         function: 1
     prototype:
