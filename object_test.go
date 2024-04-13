@@ -360,6 +360,40 @@ func TestObject_keys(t *testing.T) {
 	})
 }
 
+func TestObject_values(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`Object.values({ abc:"first_example", def:"second_example" })`, "first_example,second_example")
+
+		test(`
+			function abc() {
+				this.abc = "first_example";
+				this.def = "second_example";
+			}
+			Object.values(new abc())
+		`, "first_example,second_example")
+
+		test(`
+			function def() {
+				this.ghi = "third_example"
+			}
+			def.prototype = new abc();
+			Object.values(new def());
+		`, "third_example")
+
+		test(`
+			var arr = [1, 2, 3];
+			Object.values(arr);
+		`, "1,2,3")
+
+		test(`
+			var arr = [{"abc": "first_example"}, {"def": "second_example"}];
+			Object.values(arr);
+		`, "[object Object],[object Object]")
+	})
+}
+
 func TestObject_getOwnPropertyNames(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
