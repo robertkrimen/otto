@@ -9,11 +9,11 @@ import (
 
 type regExpObject struct {
 	regularExpression *regexp.Regexp
+	source            string
+	flags             string
 	global            bool
 	ignoreCase        bool
 	multiline         bool
-	source            string
-	flags             string
 }
 
 func (rt *runtime) newRegExpObject(pattern string, flags string) *object {

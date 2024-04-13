@@ -7,8 +7,8 @@ var registry []*Entry = make([]*Entry, 0)
 
 // Entry represents a registry entry.
 type Entry struct {
-	active bool
 	source func() string
+	active bool
 }
 
 // newEntry returns a new Entry for source.

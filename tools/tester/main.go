@@ -103,14 +103,14 @@ func (l library) fetch() error {
 	if err != nil {
 		return fmt.Errorf("get library %q: %w", l.Name, err)
 	}
-	defer resp.Body.Close() //nolint: errcheck
+	defer resp.Body.Close() //nolint:errcheck
 
 	name := l.Name
 	if !strings.HasSuffix(name, ".js") {
 		name += ".js"
 	}
 
-	f, err := os.Create(filepath.Join(dataDir, name)) //nolint: gosec
+	f, err := os.Create(filepath.Join(dataDir, name)) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("create library %q: %w", l.Name, err)
 	}
@@ -124,7 +124,7 @@ func (l library) fetch() error {
 
 // test runs the code from filename returning the time it took and any error
 // encountered when running a full parse without IgnoreRegExpErrors in parseError.
-func test(filename string) (took time.Duration, parseError, err error) { //nolint: nonamedreturns
+func test(filename string) (took time.Duration, parseError, err error) { //nolint:nonamedreturns
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic on %q: %v", filename, r)
@@ -140,13 +140,13 @@ func test(filename string) (took time.Duration, parseError, err error) { //nolin
 		return 0, nil, fmt.Errorf("fatal %q", val)
 	}
 
-	script, err := os.ReadFile(filename) //nolint: gosec
+	script, err := os.ReadFile(filename) //nolint:gosec
 	if err != nil {
 		return 0, nil, err
 	}
 
 	vm := otto.New()
-	if err := vm.Set("console", noopConsole); err != nil {
+	if err = vm.Set("console", noopConsole); err != nil {
 		return 0, nil, fmt.Errorf("set console: %w", err)
 	}
 
@@ -187,15 +187,15 @@ func fetchAll(src string) error {
 	if err != nil {
 		return fmt.Errorf("get libraries %q: %w", src, err)
 	}
-	defer resp.Body.Close() //nolint: errcheck
+	defer resp.Body.Close() //nolint:errcheck
 
 	var libs libraries
 	dec := json.NewDecoder(resp.Body)
-	if err := dec.Decode(&libs); err != nil {
+	if err = dec.Decode(&libs); err != nil {
 		return fmt.Errorf("json decode: %w", err)
 	}
 
-	if err := os.Mkdir(dataDir, 0o750); err != nil && !errors.Is(err, fs.ErrExist) {
+	if err = os.Mkdir(dataDir, 0o750); err != nil && !errors.Is(err, fs.ErrExist) {
 		return fmt.Errorf("mkdir: %w", err)
 	}
 
@@ -239,9 +239,9 @@ func fetchAll(src string) error {
 
 // result represents the result from a test.
 type result struct {
-	filename   string
 	err        error
 	parseError error
+	filename   string
 	took       time.Duration
 }
 
@@ -332,7 +332,7 @@ func main() {
 		err = report(flag.Args())
 	default:
 		flag.PrintDefaults()
-		err = fmt.Errorf("missing flag")
+		err = errors.New("missing flag")
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)

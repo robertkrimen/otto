@@ -5,7 +5,6 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"testing"
 	"time"
 
@@ -698,9 +697,9 @@ func Test_issue234(t *testing.T) {
 
 func Test_issue186(t *testing.T) {
 	tests := []struct {
+		err    error
 		name   string
 		script string
-		err    error
 	}{
 		{
 			name:   "missing",
@@ -739,7 +738,7 @@ func Test_issue186(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := vm.Run(tc.script)
+			_, err = vm.Run(tc.script)
 			if tc.err != nil {
 				require.Error(t, err)
 				require.Equal(t, tc.err.Error(), err.Error())
@@ -806,7 +805,7 @@ func Test_issue369(t *testing.T) {
 type testResult struct{}
 
 func (r *testResult) LastInsertId() (int64, error) {
-	return 0, fmt.Errorf("not supported")
+	return 0, errors.New("not supported")
 }
 
 func (r *testResult) RowsAffected() (int64, error) {
@@ -833,7 +832,7 @@ func (s *testStmt) Exec(args []driver.Value) (driver.Result, error) {
 
 // Query implements driver.Stmt.
 func (s *testStmt) Query(args []driver.Value) (driver.Rows, error) {
-	return nil, fmt.Errorf("not supported")
+	return nil, errors.New("not supported")
 }
 
 // testConn is a test driver.Conn.
@@ -851,7 +850,7 @@ func (c *testConn) Close() error {
 
 // Begin implements driver.Conn.
 func (c *testConn) Begin() (driver.Tx, error) {
-	return nil, fmt.Errorf("not supported")
+	return nil, errors.New("not supported")
 }
 
 // testDriver is test driver.Driver.
@@ -928,8 +927,8 @@ func Test_issue386(t *testing.T) {
 
 	for name, code := range tests {
 		t.Run(name, func(t *testing.T) {
-			val, err := vm.Run(code)
-			require.NoError(t, err)
+			val, err2 := vm.Run(code)
+			require.NoError(t, err2)
 			require.Equal(t, "something", val.String())
 		})
 	}
@@ -1132,7 +1131,7 @@ func Test_issue177(t *testing.T) {
 	require.NoError(t, err)
 	exp, err := val.Export()
 	require.NoError(t, err)
-	require.Equal(t, float64(9), exp)
+	require.EqualValues(t, 9, exp)
 }
 
 func Test_issue285(t *testing.T) {

@@ -19,13 +19,6 @@ func TestGoStructEmbeddedFields(t *testing.T) {
 	tt(t, func() {
 		test, vm := test()
 
-		var b B
-
-		b.A1 = "a1"
-		b.A2 = "a2"
-		b.A3 = "a3"
-		b.B1 = "b1"
-
 		vm.Set("v", B{A{"a1", "a2", "a3"}, "b1"})
 
 		test(`[v.a1,v.a2,v.a3,v.b1]`, "a1,a2,a3,b1")
@@ -34,9 +27,9 @@ func TestGoStructEmbeddedFields(t *testing.T) {
 
 func TestGoStructNilBoolPointerField(t *testing.T) {
 	type S struct {
-		A int         `json:"a"`
-		B *bool       `json:"b"`
 		C interface{} `json:"c"`
+		B *bool       `json:"b"`
+		A int         `json:"a"`
 	}
 
 	tt(t, func() {
@@ -58,13 +51,13 @@ func TestGoStructError(t *testing.T) {
 	}
 
 	type S2 struct {
-		A []S1 `json:"a"`
 		B S1   `json:"b"`
+		A []S1 `json:"a"`
 	}
 
 	type S3 struct {
-		A []S2 `json:"a"`
 		B S2   `json:"b"`
+		A []S2 `json:"a"`
 	}
 
 	tt(t, func() {

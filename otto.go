@@ -221,7 +221,7 @@ package otto
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"strings"
 
 	"github.com/robertkrimen/otto/file"
@@ -417,13 +417,13 @@ func (o Otto) MakeTypeError(message string) Value {
 // Context is a structure that contains information about the current execution
 // context.
 type Context struct {
+	This       Value
+	Symbols    map[string]Value
 	Filename   string
+	Callee     string
+	Stacktrace []string
 	Line       int
 	Column     int
-	Callee     string
-	Symbols    map[string]Value
-	This       Value
-	Stacktrace []string
 }
 
 // Context returns the current execution context of the vm, traversing up to
@@ -552,12 +552,11 @@ func (o Otto) Call(source string, this interface{}, argumentList ...interface{})
 		program, err := o.runtime.cmplParse("", source+"()", nil)
 		if err == nil {
 			if node, ok := program.body[0].(*nodeExpressionStatement); ok {
-				if node, ok := node.expression.(*nodeCallExpression); ok {
+				if node, ok2 := node.expression.(*nodeCallExpression); ok2 {
 					var value Value
-					err := catchPanic(func() {
+					if err = catchPanic(func() {
 						value = o.runtime.cmplEvaluateNodeCallExpression(node, argumentList)
-					})
-					if err != nil {
+					}); err != nil {
 						return Value{}, err
 					}
 					return value, nil
@@ -579,9 +578,9 @@ func (o Otto) Call(source string, this interface{}, argumentList ...interface{})
 	}
 
 	if construct {
-		result, err := fn.constructSafe(o.runtime, val, argumentList...)
-		if err != nil {
-			return Value{}, err
+		result, err2 := fn.constructSafe(o.runtime, val, argumentList...)
+		if err2 != nil {
+			return Value{}, err2
 		}
 		return result, nil
 	}
@@ -618,7 +617,7 @@ func (o Otto) Object(source string) (*Object, error) {
 	if value.IsObject() {
 		return value.Object(), nil
 	}
-	return nil, fmt.Errorf("value is not an object")
+	return nil, errors.New("value is not an object")
 }
 
 // ToValue will convert an interface{} value to a value digestible by otto/JavaScript.

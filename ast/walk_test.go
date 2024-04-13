@@ -10,10 +10,10 @@ import (
 )
 
 type walker struct {
-	stack             []ast.Node
-	source            string
-	shift             file.Idx
 	seen              map[ast.Node]struct{}
+	source            string
+	stack             []ast.Node
+	shift             file.Idx
 	duplicate         int
 	newExpressionIdx1 file.Idx
 }
@@ -96,8 +96,8 @@ func TestVisitorRewrite(t *testing.T) {
 	} // test`
 
 	require.Equal(t, xformed, w.source)
-	require.Len(t, w.stack, 0)
-	require.Equal(t, w.duplicate, 0)
+	require.Empty(t, w.stack)
+	require.Zero(t, w.duplicate)
 }
 
 func Test_issue261(t *testing.T) {
@@ -131,8 +131,8 @@ func Test_issue261(t *testing.T) {
 			ast.Walk(w, prog)
 
 			require.Equal(t, tt.want, w.newExpressionIdx1)
-			require.Len(t, w.stack, 0)
-			require.Equal(t, w.duplicate, 0)
+			require.Empty(t, w.stack)
+			require.Zero(t, w.duplicate)
 		})
 	}
 }

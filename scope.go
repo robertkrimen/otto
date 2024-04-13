@@ -5,11 +5,10 @@ type scope struct {
 	lexical  stasher
 	variable stasher
 	this     *object
-	eval     bool // Replace this with kind?
 	outer    *scope
+	frame    frame
 	depth    int
-
-	frame frame
+	eval     bool
 }
 
 func newScope(lexical stasher, variable stasher, this *object) *scope {

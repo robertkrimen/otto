@@ -166,7 +166,7 @@ func builtinMathRandom(call FunctionCall) Value {
 	if call.runtime.random != nil {
 		v = call.runtime.random()
 	} else {
-		v = rand.Float64() //nolint: gosec
+		v = rand.Float64() //nolint:gosec
 	}
 	return float64Value(v)
 }

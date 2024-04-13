@@ -339,9 +339,9 @@ func builtinArrayReverse(call FunctionCall) Value {
 func sortCompare(thisObject *object, index0, index1 uint, compare *object) int {
 	j := struct {
 		name    string
+		value   string
 		exists  bool
 		defined bool
-		value   string
 	}{}
 	k := j
 	j.name = arrayIndexToString(int64(index0))

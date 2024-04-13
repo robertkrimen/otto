@@ -8,8 +8,8 @@ import (
 )
 
 type builtinJSONParseContext struct {
-	call    FunctionCall
 	reviver Value
+	call    FunctionCall
 }
 
 func builtinJSONParse(call FunctionCall) Value {
@@ -45,21 +45,21 @@ func builtinJSONReviveWalk(ctx builtinJSONParseContext, holder *object, name str
 		if isArray(obj) {
 			length := int64(objectLength(obj))
 			for index := int64(0); index < length; index++ {
-				name := arrayIndexToString(index)
-				value := builtinJSONReviveWalk(ctx, obj, name)
-				if value.IsUndefined() {
-					obj.delete(name, false)
+				idxName := arrayIndexToString(index)
+				idxValue := builtinJSONReviveWalk(ctx, obj, idxName)
+				if idxValue.IsUndefined() {
+					obj.delete(idxName, false)
 				} else {
-					obj.defineProperty(name, value, 0o111, false)
+					obj.defineProperty(idxName, idxValue, 0o111, false)
 				}
 			}
 		} else {
 			obj.enumerate(false, func(name string) bool {
-				value := builtinJSONReviveWalk(ctx, obj, name)
-				if value.IsUndefined() {
+				enumVal := builtinJSONReviveWalk(ctx, obj, name)
+				if enumVal.IsUndefined() {
 					obj.delete(name, false)
 				} else {
-					obj.defineProperty(name, value, 0o111, false)
+					obj.defineProperty(name, enumVal, 0o111, false)
 				}
 				return true
 			})
@@ -99,11 +99,11 @@ func builtinJSONParseWalk(ctx builtinJSONParseContext, rawValue interface{}) (Va
 }
 
 type builtinJSONStringifyContext struct {
-	call             FunctionCall
-	stack            []*object
-	propertyList     []string
 	replacerFunction *Value
 	gap              string
+	stack            []*object
+	propertyList     []string
+	call             FunctionCall
 }
 
 func builtinJSONStringify(call FunctionCall) Value {
@@ -241,19 +241,19 @@ func builtinJSONStringifyWalk(ctx builtinJSONStringifyContext, key string, holde
 	case valueNull:
 		return nil, true
 	case valueObject:
-		holder := value.object()
+		objHolder := value.object()
 		if value := value.object(); nil != value {
 			for _, obj := range ctx.stack {
-				if holder == obj {
+				if objHolder == obj {
 					panic(ctx.call.runtime.panicTypeError("Converting circular structure to JSON"))
 				}
 			}
 			ctx.stack = append(ctx.stack, value)
 			defer func() { ctx.stack = ctx.stack[:len(ctx.stack)-1] }()
 		}
-		if isArray(holder) {
+		if isArray(objHolder) {
 			var length uint32
-			switch value := holder.get(propertyLength).value.(type) {
+			switch value := objHolder.get(propertyLength).value.(type) {
 			case uint32:
 				length = value
 			case int:
@@ -266,15 +266,15 @@ func builtinJSONStringifyWalk(ctx builtinJSONStringifyContext, key string, holde
 			array := make([]interface{}, length)
 			for index := range array {
 				name := arrayIndexToString(int64(index))
-				value, _ := builtinJSONStringifyWalk(ctx, name, holder)
+				value, _ := builtinJSONStringifyWalk(ctx, name, objHolder)
 				array[index] = value
 			}
 			return array, true
-		} else if holder.class != classFunctionName {
+		} else if objHolder.class != classFunctionName {
 			obj := map[string]interface{}{}
 			if ctx.propertyList != nil {
 				for _, name := range ctx.propertyList {
-					value, exists := builtinJSONStringifyWalk(ctx, name, holder)
+					value, exists := builtinJSONStringifyWalk(ctx, name, objHolder)
 					if exists {
 						obj[name] = value
 					}
@@ -282,8 +282,8 @@ func builtinJSONStringifyWalk(ctx builtinJSONStringifyContext, key string, holde
 			} else {
 				// Go maps are without order, so this doesn't conform to the ECMA ordering
 				// standard, but oh well...
-				holder.enumerate(false, func(name string) bool {
-					value, exists := builtinJSONStringifyWalk(ctx, name, holder)
+				objHolder.enumerate(false, func(name string) bool {
+					value, exists := builtinJSONStringifyWalk(ctx, name, objHolder)
 					if exists {
 						obj[name] = value
 					}

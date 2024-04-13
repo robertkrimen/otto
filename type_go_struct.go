@@ -53,11 +53,11 @@ func (o goStructObject) getValue(name string) reflect.Value {
 	return reflect.Value{}
 }
 
-func (o goStructObject) fieldIndex(name string) []int { //nolint: unused
+func (o goStructObject) fieldIndex(name string) []int { //nolint:unused
 	return fieldIndexByName(reflect.Indirect(o.value).Type(), name)
 }
 
-func (o goStructObject) method(name string) (reflect.Method, bool) { //nolint: unused
+func (o goStructObject) method(name string) (reflect.Method, bool) { //nolint:unused
 	return reflect.Indirect(o.value).Type().MethodByName(name)
 }
 

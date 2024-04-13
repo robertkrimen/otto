@@ -1,7 +1,6 @@
 package otto
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -67,7 +66,7 @@ func Test_catchPanic(t *testing.T) {
 func asError(t *testing.T, err error) *Error {
 	t.Helper()
 	var oerr *Error
-	require.True(t, errors.As(err, &oerr))
+	require.ErrorAs(t, err, &oerr)
 	return oerr
 }
 
@@ -239,7 +238,7 @@ func TestErrorContext(t *testing.T) {
 
 		{
 			f, _ := vm.Get("B")
-			_, err := f.Call(UndefinedValue())
+			_, err = f.Call(UndefinedValue())
 			err1 := asError(t, err)
 			is(err1.message, "test")
 			is(len(err1.trace), 2)
@@ -249,7 +248,7 @@ func TestErrorContext(t *testing.T) {
 
 		{
 			f, _ := vm.Get("C")
-			_, err := f.Call(UndefinedValue())
+			_, err = f.Call(UndefinedValue())
 			err1 := asError(t, err)
 			is(err1.message, `Cannot access member "prop" of null`)
 			is(len(err1.trace), 1)

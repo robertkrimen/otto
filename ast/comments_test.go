@@ -8,7 +8,7 @@ import (
 
 func TestCommentMap(t *testing.T) {
 	statement := &EmptyStatement{file.Idx(1)}
-	comment := &Comment{1, "test", LEADING}
+	comment := &Comment{Begin: 1, Text: "test", Position: LEADING}
 
 	cm := CommentMap{}
 	cm.AddComment(statement, comment)
@@ -29,7 +29,7 @@ func TestCommentMap(t *testing.T) {
 func TestCommentMap_move(t *testing.T) {
 	statement1 := &EmptyStatement{file.Idx(1)}
 	statement2 := &EmptyStatement{file.Idx(2)}
-	comment := &Comment{1, "test", LEADING}
+	comment := &Comment{Begin: 1, Text: "test", Position: LEADING}
 
 	cm := CommentMap{}
 	cm.AddComment(statement1, comment)

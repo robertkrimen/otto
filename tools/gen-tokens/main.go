@@ -37,7 +37,7 @@ type config struct {
 // generate generates the context file writing the output to filename.
 func generate(filename string) (err error) {
 	var cfg config
-	if err := yaml.Unmarshal(configData, &cfg); err != nil {
+	if err = yaml.Unmarshal(configData, &cfg); err != nil {
 		return fmt.Errorf("decode config: %w", err)
 	}
 
@@ -50,7 +50,7 @@ func generate(filename string) (err error) {
 		return fmt.Errorf("parse templates: %w", err)
 	}
 
-	output, err := os.Create(filename) //nolint: gosec
+	output, err := os.Create(filename) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("open output: %w", err)
 	}
@@ -61,7 +61,7 @@ func generate(filename string) (err error) {
 		}
 	}()
 
-	if err := tmpl.ExecuteTemplate(output, "root.tmpl", cfg); err != nil {
+	if err = tmpl.ExecuteTemplate(output, "root.tmpl", cfg); err != nil {
 		return fmt.Errorf("execute template: %w", err)
 	}
 

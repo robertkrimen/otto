@@ -24,9 +24,9 @@ type Expression interface {
 
 // ArrayLiteral represents an array literal.
 type ArrayLiteral struct {
+	Value        []Expression
 	LeftBracket  file.Idx
 	RightBracket file.Idx
-	Value        []Expression
 }
 
 // Idx0 implements Node.
@@ -44,9 +44,9 @@ func (*ArrayLiteral) expression() {}
 
 // AssignExpression represents an assignment expression.
 type AssignExpression struct {
-	Operator token.Token
 	Left     Expression
 	Right    Expression
+	Operator token.Token
 }
 
 // Idx0 implements Node.
@@ -83,9 +83,9 @@ func (*BadExpression) expression() {}
 
 // BinaryExpression represents a binary expression.
 type BinaryExpression struct {
-	Operator   token.Token
 	Left       Expression
 	Right      Expression
+	Operator   token.Token
 	Comparison bool
 }
 
@@ -104,8 +104,8 @@ func (*BinaryExpression) expression() {}
 
 // BooleanLiteral represents a boolean expression.
 type BooleanLiteral struct {
-	Idx     file.Idx
 	Literal string
+	Idx     file.Idx
 	Value   bool
 }
 
@@ -146,8 +146,8 @@ func (*BracketExpression) expression() {}
 // CallExpression represents a call expression.
 type CallExpression struct {
 	Callee           Expression
-	LeftParenthesis  file.Idx
 	ArgumentList     []Expression
+	LeftParenthesis  file.Idx
 	RightParenthesis file.Idx
 }
 
@@ -224,13 +224,12 @@ func (*EmptyExpression) expression() {}
 
 // FunctionLiteral represents a function literal.
 type FunctionLiteral struct {
-	Function      file.Idx
-	Name          *Identifier
-	ParameterList *ParameterList
-	Body          Statement
-	Source        string
-
+	Body            Statement
+	Name            *Identifier
+	ParameterList   *ParameterList
+	Source          string
 	DeclarationList []Declaration
+	Function        file.Idx
 }
 
 // Idx0 implements Node.
@@ -267,10 +266,10 @@ func (*Identifier) expression() {}
 
 // NewExpression represents a new expression.
 type NewExpression struct {
-	New              file.Idx
 	Callee           Expression
-	LeftParenthesis  file.Idx
 	ArgumentList     []Expression
+	New              file.Idx
+	LeftParenthesis  file.Idx
 	RightParenthesis file.Idx
 }
 
@@ -292,8 +291,8 @@ func (*NewExpression) expression() {}
 
 // NullLiteral represents a null literal.
 type NullLiteral struct {
-	Idx     file.Idx
 	Literal string
+	Idx     file.Idx
 }
 
 // Idx0 implements Node.
@@ -311,9 +310,9 @@ func (*NullLiteral) expression() {}
 
 // NumberLiteral represents a number literal.
 type NumberLiteral struct {
-	Idx     file.Idx
-	Literal string
 	Value   interface{}
+	Literal string
+	Idx     file.Idx
 }
 
 // Idx0 implements Node.
@@ -331,9 +330,9 @@ func (*NumberLiteral) expression() {}
 
 // ObjectLiteral represents an object literal.
 type ObjectLiteral struct {
+	Value      []Property
 	LeftBrace  file.Idx
 	RightBrace file.Idx
-	Value      []Property
 }
 
 // Idx0 implements Node.
@@ -351,25 +350,25 @@ func (*ObjectLiteral) expression() {}
 
 // ParameterList represents a parameter list.
 type ParameterList struct {
-	Opening file.Idx
 	List    []*Identifier
+	Opening file.Idx
 	Closing file.Idx
 }
 
 // Property represents a property.
 type Property struct {
+	Value Expression
 	Key   string
 	Kind  string
-	Value Expression
 }
 
 // RegExpLiteral represents a regular expression literal.
 type RegExpLiteral struct {
-	Idx     file.Idx
 	Literal string
 	Pattern string
 	Flags   string
 	Value   string
+	Idx     file.Idx
 }
 
 // Idx0 implements Node.
@@ -405,9 +404,9 @@ func (*SequenceExpression) expression() {}
 
 // StringLiteral represents a string literal.
 type StringLiteral struct {
-	Idx     file.Idx
 	Literal string
 	Value   string
+	Idx     file.Idx
 }
 
 // Idx0 implements Node.
@@ -443,9 +442,9 @@ func (*ThisExpression) expression() {}
 
 // UnaryExpression represents a unary expression.
 type UnaryExpression struct {
-	Operator token.Token
-	Idx      file.Idx // If a prefix operation
 	Operand  Expression
+	Operator token.Token
+	Idx      file.Idx
 	Postfix  bool
 }
 
@@ -470,9 +469,9 @@ func (*UnaryExpression) expression() {}
 
 // VariableExpression represents a variable expression.
 type VariableExpression struct {
+	Initializer Expression
 	Name        string
 	Idx         file.Idx
-	Initializer Expression
 }
 
 // Idx0 implements Node.
@@ -518,8 +517,8 @@ func (*BadStatement) statement() {}
 
 // BlockStatement represents a block statement.
 type BlockStatement struct {
-	LeftBrace  file.Idx
 	List       []Statement
+	LeftBrace  file.Idx
 	RightBrace file.Idx
 }
 
@@ -538,9 +537,9 @@ func (*BlockStatement) statement() {}
 
 // BranchStatement represents a branch statement.
 type BranchStatement struct {
+	Label *Identifier
 	Idx   file.Idx
 	Token token.Token
-	Label *Identifier
 }
 
 // Idx0 implements Node.
@@ -561,9 +560,9 @@ func (*BranchStatement) statement() {}
 
 // CaseStatement represents a case statement.
 type CaseStatement struct {
-	Case       file.Idx
 	Test       Expression
 	Consequent []Statement
+	Case       file.Idx
 }
 
 // Idx0 implements Node.
@@ -581,9 +580,9 @@ func (*CaseStatement) statement() {}
 
 // CatchStatement represents a catch statement.
 type CatchStatement struct {
-	Catch     file.Idx
-	Parameter *Identifier
 	Body      Statement
+	Parameter *Identifier
+	Catch     file.Idx
 }
 
 // Idx0 implements Node.
@@ -619,9 +618,9 @@ func (*DebuggerStatement) statement() {}
 
 // DoWhileStatement represents a do while statement.
 type DoWhileStatement struct {
-	Do               file.Idx
 	Test             Expression
 	Body             Statement
+	Do               file.Idx
 	RightParenthesis file.Idx
 }
 
@@ -676,10 +675,10 @@ func (*ExpressionStatement) statement() {}
 
 // ForInStatement represents a for in statement.
 type ForInStatement struct {
-	For    file.Idx
 	Into   Expression
 	Source Expression
 	Body   Statement
+	For    file.Idx
 }
 
 // Idx0 implements Node.
@@ -697,11 +696,11 @@ func (*ForInStatement) statement() {}
 
 // ForStatement represents a for statement.
 type ForStatement struct {
-	For         file.Idx
 	Initializer Expression
 	Update      Expression
 	Test        Expression
 	Body        Statement
+	For         file.Idx
 }
 
 // Idx0 implements Node.
@@ -737,10 +736,10 @@ func (*FunctionStatement) statement() {}
 
 // IfStatement represents a if statement.
 type IfStatement struct {
-	If         file.Idx
 	Test       Expression
 	Consequent Statement
 	Alternate  Statement
+	If         file.Idx
 }
 
 // Idx0 implements Node.
@@ -761,9 +760,9 @@ func (*IfStatement) statement() {}
 
 // LabelledStatement represents a labelled statement.
 type LabelledStatement struct {
+	Statement Statement
 	Label     *Identifier
 	Colon     file.Idx
-	Statement Statement
 }
 
 // Idx0 implements Node.
@@ -781,8 +780,8 @@ func (*LabelledStatement) statement() {}
 
 // ReturnStatement represents a return statement.
 type ReturnStatement struct {
-	Return   file.Idx
 	Argument Expression
+	Return   file.Idx
 }
 
 // Idx0 implements Node.
@@ -803,10 +802,10 @@ func (*ReturnStatement) statement() {}
 
 // SwitchStatement represents a switch statement.
 type SwitchStatement struct {
-	Switch       file.Idx
 	Discriminant Expression
-	Default      int
 	Body         []*CaseStatement
+	Switch       file.Idx
+	Default      int
 	RightBrace   file.Idx
 }
 
@@ -825,8 +824,8 @@ func (*SwitchStatement) statement() {}
 
 // ThrowStatement represents a throw statement.
 type ThrowStatement struct {
-	Throw    file.Idx
 	Argument Expression
+	Throw    file.Idx
 }
 
 // Idx0 implements Node.
@@ -844,10 +843,10 @@ func (*ThrowStatement) statement() {}
 
 // TryStatement represents a try statement.
 type TryStatement struct {
-	Try     file.Idx
 	Body    Statement
-	Catch   *CatchStatement
 	Finally Statement
+	Catch   *CatchStatement
+	Try     file.Idx
 }
 
 // Idx0 implements Node.
@@ -868,8 +867,8 @@ func (*TryStatement) statement() {}
 
 // VariableStatement represents a variable statement.
 type VariableStatement struct {
-	Var  file.Idx
 	List []Expression
+	Var  file.Idx
 }
 
 // Idx0 implements Node.
@@ -887,9 +886,9 @@ func (*VariableStatement) statement() {}
 
 // WhileStatement represents a while statement.
 type WhileStatement struct {
-	While file.Idx
 	Test  Expression
 	Body  Statement
+	While file.Idx
 }
 
 // Idx0 implements Node.
@@ -907,9 +906,9 @@ func (*WhileStatement) statement() {}
 
 // WithStatement represents a with statement.
 type WithStatement struct {
-	With   file.Idx
 	Object Expression
 	Body   Statement
+	With   file.Idx
 }
 
 // Idx0 implements Node.
@@ -939,8 +938,8 @@ func (*FunctionDeclaration) declaration() {}
 
 // VariableDeclaration represents a variable declaration.
 type VariableDeclaration struct {
-	Var  file.Idx
 	List []*VariableExpression
+	Var  file.Idx
 }
 
 // declaration implements Declaration.
@@ -948,13 +947,10 @@ func (*VariableDeclaration) declaration() {}
 
 // Program represents a full program.
 type Program struct {
-	Body []Statement
-
+	File            *file.File
+	Comments        CommentMap
+	Body            []Statement
 	DeclarationList []Declaration
-
-	File *file.File
-
-	Comments CommentMap
 }
 
 // Idx0 implements Node.

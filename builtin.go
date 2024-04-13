@@ -147,11 +147,11 @@ func builtinGlobalParseFloat(call FunctionCall) Value {
 	value, err := strconv.ParseFloat(input, 64)
 	if err != nil {
 		for end := len(input); end > 0; end-- {
-			input := input[0:end]
-			if !parseFloatMatchValid.MatchString(input) {
+			val := input[0:end]
+			if !parseFloatMatchValid.MatchString(val) {
 				return NaNValue()
 			}
-			value, err = strconv.ParseFloat(input, 64)
+			value, err = strconv.ParseFloat(val, 64)
 			if err == nil {
 				break
 			}
@@ -200,8 +200,7 @@ func encodeDecodeURI(call FunctionCall, escape *regexp.Regexp) Value {
 		}
 		index++
 		size := utf8.EncodeRune(encode, decode[0])
-		encode := encode[0:size]
-		output = append(output, encode...)
+		output = append(output, encode[0:size]...)
 	}
 
 	bytes := escape.ReplaceAllFunc(output, func(target []byte) []byte {

@@ -6,18 +6,15 @@ import (
 	"strconv"
 )
 
-type regExpParser struct { //nolint: maligned
-	str    string
-	length int
-
-	chr       rune // The current character
-	chrOffset int  // The offset of current character
-	offset    int  // The offset after current character (may be greater than 1)
-
-	errors  []error
-	invalid bool // The input is an invalid JavaScript RegExp
-
-	goRegexp *bytes.Buffer
+type regExpParser struct {
+	goRegexp  *bytes.Buffer
+	str       string
+	errors    []error
+	length    int
+	chrOffset int
+	offset    int
+	chr       rune
+	invalid   bool
 }
 
 // TransformRegExp transforms a JavaScript pattern into  a Go "regexp" pattern.
@@ -276,7 +273,7 @@ func (p *regExpParser) scanEscape(inClass bool) {
 			if err != nil {
 				p.errors = append(p.errors, err)
 			}
-		} else { //nolint: staticcheck
+		} else { //nolint:staticcheck
 			// Unescape the character for re2
 		}
 		p.pass()
@@ -346,7 +343,7 @@ func (p *regExpParser) pass() {
 }
 
 // TODO Better error reporting, use the offset, etc.
-func (p *regExpParser) error(offset int, msg string, msgValues ...interface{}) { //nolint: unparam
+func (p *regExpParser) error(offset int, msg string, msgValues ...interface{}) { //nolint:unparam
 	err := fmt.Errorf(msg, msgValues...)
 	p.errors = append(p.errors, err)
 }

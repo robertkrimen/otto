@@ -49,9 +49,9 @@ func (p *Position) String() string {
 }
 
 // A FileSet represents a set of source files.
-type FileSet struct { //nolint: golint
-	files []*File
+type FileSet struct {
 	last  *File
+	files []*File
 }
 
 // AddFile adds a new file with the given filename and src.
@@ -99,10 +99,10 @@ func (fs *FileSet) Position(idx Idx) *Position {
 
 // File represents a file to parse.
 type File struct {
+	sm   *sourcemap.Consumer
 	name string
 	src  string
-	base int // This will always be 1 or greater
-	sm   *sourcemap.Consumer
+	base int
 }
 
 // NewFile returns a new file with the given filename, src and base.

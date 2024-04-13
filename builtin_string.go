@@ -497,7 +497,7 @@ func builtinStringTrimRight(call FunctionCall) Value {
 
 func builtinStringLocaleCompare(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
-	this := call.This.string() //nolint: ifshort
+	this := call.This.string() //nolint:ifshort
 	that := call.Argument(0).string()
 	if this < that {
 		return intValue(-1)

@@ -1,14 +1,12 @@
 run:
-  deadline: 6m
-  skip-dirs:
-    - terst
-  skip-files:
-    - dbg/dbg.go
-    - token/token_const.go
+  timeout: 6m
 
 linters-settings:
   govet:
-    check-shadowing: false
+    settings:
+      shadow:
+        strict: true
+    enable-all: true
   goconst:
     min-len: 2
     min-occurrences: 4
@@ -57,9 +55,22 @@ linters:
     - maligned
     # Just causes noise
     - depguard
+    # Go 1.22+ only
+    - copyloopvar
+    - intrange
 
 issues:
   exclude-use-default: false
   max-same-issues: 0
   exclude:
-  - Deferring unsafe method "Close" on type "io\.ReadCloser"
+    - Deferring unsafe method "Close" on type "io\.ReadCloser"
+  exclude-dirs:
+    - terst
+  exclude-files:
+    - dbg/dbg.go
+    - token/token_const.go
+  exclude-rules:
+    # Field alignment in tests isn't a performance issue.
+    - text: fieldalignment
+      path: _test\.go
+

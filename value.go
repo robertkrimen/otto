@@ -27,8 +27,8 @@ const (
 
 // Value is the representation of a JavaScript value.
 type Value struct {
-	kind  valueKind
 	value interface{}
+	kind  valueKind
 }
 
 func (v Value) safe() bool {
@@ -129,7 +129,7 @@ func (v Value) constructSafe(rt *runtime, this Value, argumentList ...interface{
 	return result, err
 }
 
-func (v Value) construct(rt *runtime, this Value, argumentList ...interface{}) Value { //nolint: unparam
+func (v Value) construct(rt *runtime, this Value, argumentList ...interface{}) Value { //nolint:unparam
 	if fn, ok := v.value.(*object); ok {
 		return fn.construct(fn.runtime.toValueArray(argumentList...))
 	}
@@ -204,35 +204,35 @@ func (v Value) Class() string {
 	return v.value.(*object).class
 }
 
-func (v Value) isArray() bool { //nolint: unused
+func (v Value) isArray() bool { //nolint:unused
 	if v.kind != valueObject {
 		return false
 	}
 	return isArray(v.value.(*object))
 }
 
-func (v Value) isStringObject() bool { //nolint: unused
+func (v Value) isStringObject() bool { //nolint:unused
 	if v.kind != valueObject {
 		return false
 	}
 	return v.value.(*object).class == classStringName
 }
 
-func (v Value) isBooleanObject() bool { //nolint: unused
+func (v Value) isBooleanObject() bool { //nolint:unused
 	if v.kind != valueObject {
 		return false
 	}
 	return v.value.(*object).class == classBooleanName
 }
 
-func (v Value) isNumberObject() bool { //nolint: unused
+func (v Value) isNumberObject() bool { //nolint:unused
 	if v.kind != valueObject {
 		return false
 	}
 	return v.value.(*object).class == classNumberName
 }
 
-func (v Value) isDate() bool { //nolint: unused
+func (v Value) isDate() bool { //nolint:unused
 	if v.kind != valueObject {
 		return false
 	}
@@ -246,7 +246,7 @@ func (v Value) isRegExp() bool {
 	return v.value.(*object).class == classRegExpName
 }
 
-func (v Value) isError() bool { //nolint: unused
+func (v Value) isError() bool { //nolint:unused
 	if v.kind != valueObject {
 		return false
 	}
@@ -272,46 +272,46 @@ func toValue(value interface{}) Value {
 	case Value:
 		return value
 	case bool:
-		return Value{valueBoolean, value}
+		return Value{kind: valueBoolean, value: value}
 	case int:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case int8:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case int16:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case int32:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case int64:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case uint:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case uint8:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case uint16:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case uint32:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case uint64:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case float32:
-		return Value{valueNumber, float64(value)}
+		return Value{kind: valueNumber, value: float64(value)}
 	case float64:
-		return Value{valueNumber, value}
+		return Value{kind: valueNumber, value: value}
 	case []uint16:
-		return Value{valueString, value}
+		return Value{kind: valueString, value: value}
 	case string:
-		return Value{valueString, value}
+		return Value{kind: valueString, value: value}
 	// A rune is actually an int32, which is handled above
 	case *object:
-		return Value{valueObject, value}
+		return Value{kind: valueObject, value: value}
 	case *Object:
-		return Value{valueObject, value.object}
+		return Value{kind: valueObject, value: value.object}
 	case Object:
-		return Value{valueObject, value.object}
+		return Value{kind: valueObject, value: value.object}
 	case referencer: // reference is an interface (already a pointer)
-		return Value{valueReference, value}
+		return Value{kind: valueReference, value: value}
 	case result:
-		return Value{valueResult, value}
+		return Value{kind: valueResult, value: value}
 	case nil:
 		// TODO Ugh.
 		return Value{}
@@ -329,33 +329,33 @@ func toValue(value interface{}) Value {
 		}
 		switch value.Kind() {
 		case reflect.Bool:
-			return Value{valueBoolean, value.Bool()}
+			return Value{kind: valueBoolean, value: value.Bool()}
 		case reflect.Int:
-			return Value{valueNumber, int(value.Int())}
+			return Value{kind: valueNumber, value: int(value.Int())}
 		case reflect.Int8:
-			return Value{valueNumber, int8(value.Int())}
+			return Value{kind: valueNumber, value: int8(value.Int())}
 		case reflect.Int16:
-			return Value{valueNumber, int16(value.Int())}
+			return Value{kind: valueNumber, value: int16(value.Int())}
 		case reflect.Int32:
-			return Value{valueNumber, int32(value.Int())}
+			return Value{kind: valueNumber, value: int32(value.Int())}
 		case reflect.Int64:
-			return Value{valueNumber, value.Int()}
+			return Value{kind: valueNumber, value: value.Int()}
 		case reflect.Uint:
-			return Value{valueNumber, uint(value.Uint())}
+			return Value{kind: valueNumber, value: uint(value.Uint())}
 		case reflect.Uint8:
-			return Value{valueNumber, uint8(value.Uint())}
+			return Value{kind: valueNumber, value: uint8(value.Uint())}
 		case reflect.Uint16:
-			return Value{valueNumber, uint16(value.Uint())}
+			return Value{kind: valueNumber, value: uint16(value.Uint())}
 		case reflect.Uint32:
-			return Value{valueNumber, uint32(value.Uint())}
+			return Value{kind: valueNumber, value: uint32(value.Uint())}
 		case reflect.Uint64:
-			return Value{valueNumber, value.Uint()}
+			return Value{kind: valueNumber, value: value.Uint()}
 		case reflect.Float32:
-			return Value{valueNumber, float32(value.Float())}
+			return Value{kind: valueNumber, value: float32(value.Float())}
 		case reflect.Float64:
-			return Value{valueNumber, value.Float()}
+			return Value{kind: valueNumber, value: value.Float()}
 		case reflect.String:
-			return Value{valueString, value.String()}
+			return Value{kind: valueString, value: value.String()}
 		default:
 			reflectValuePanic(value.Interface(), value.Kind())
 		}
@@ -371,7 +371,7 @@ func toValue(value interface{}) Value {
 // This method will make return the empty string if there is an error.
 func (v Value) String() string {
 	var result string
-	catchPanic(func() { //nolint: errcheck, gosec
+	catchPanic(func() { //nolint:errcheck, gosec
 		result = v.string()
 	})
 	return result
@@ -398,7 +398,7 @@ func (v Value) numberValue() Value {
 	if v.kind == valueNumber {
 		return v
 	}
-	return Value{valueNumber, v.float64()}
+	return Value{kind: valueNumber, value: v.float64()}
 }
 
 // ToFloat will convert the value to a number (float64).
@@ -494,23 +494,23 @@ var (
 //
 //	ToValue(math.NaN())
 func NaNValue() Value {
-	return Value{valueNumber, nan}
+	return Value{kind: valueNumber, value: nan}
 }
 
 func positiveInfinityValue() Value {
-	return Value{valueNumber, positiveInfinity}
+	return Value{kind: valueNumber, value: positiveInfinity}
 }
 
 func negativeInfinityValue() Value {
-	return Value{valueNumber, negativeInfinity}
+	return Value{kind: valueNumber, value: negativeInfinity}
 }
 
 func positiveZeroValue() Value {
-	return Value{valueNumber, positiveZero}
+	return Value{kind: valueNumber, value: positiveZero}
 }
 
 func negativeZeroValue() Value {
-	return Value{valueNumber, negativeZero}
+	return Value{kind: valueNumber, value: negativeZero}
 }
 
 // TrueValue will return a value representing true.
@@ -519,7 +519,7 @@ func negativeZeroValue() Value {
 //
 //	ToValue(true)
 func TrueValue() Value {
-	return Value{valueBoolean, true}
+	return Value{kind: valueBoolean, value: true}
 }
 
 // FalseValue will return a value representing false.
@@ -528,7 +528,7 @@ func TrueValue() Value {
 //
 //	ToValue(false)
 func FalseValue() Value {
-	return Value{valueBoolean, false}
+	return Value{kind: valueBoolean, value: false}
 }
 
 func sameValue(x Value, y Value) bool {
