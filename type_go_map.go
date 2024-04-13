@@ -13,9 +13,9 @@ func (rt *runtime) newGoMapObject(value reflect.Value) *object {
 }
 
 type goMapObject struct {
-	value     reflect.Value
 	keyType   reflect.Type
 	valueType reflect.Type
+	value     reflect.Value
 }
 
 func newGoMapObject(value reflect.Value) *goMapObject {

@@ -89,7 +89,7 @@ func RunWithOptions(vm *otto.Otto, options Options) error {
 
 	prelude := options.Prelude
 	if prelude != "" {
-		if _, err := io.Copy(rl.Stderr(), strings.NewReader(prelude+"\n")); err != nil {
+		if _, err = io.Copy(rl.Stderr(), strings.NewReader(prelude+"\n")); err != nil {
 			return err
 		}
 
@@ -99,9 +99,9 @@ func RunWithOptions(vm *otto.Otto, options Options) error {
 	var d []string
 
 	for {
-		l, err := rl.Readline()
-		if err != nil {
-			if errors.Is(err, readline.ErrInterrupt) {
+		l, errRL := rl.Readline()
+		if errRL != nil {
+			if errors.Is(errRL, readline.ErrInterrupt) {
 				if d != nil {
 					d = nil
 
@@ -114,7 +114,7 @@ func RunWithOptions(vm *otto.Otto, options Options) error {
 				break
 			}
 
-			return err
+			return errRL
 		}
 
 		if l == "" {
@@ -123,28 +123,28 @@ func RunWithOptions(vm *otto.Otto, options Options) error {
 
 		d = append(d, l)
 
-		s, err := vm.Compile("repl", strings.Join(d, "\n"))
-		if err != nil {
+		s, errRL := vm.Compile("repl", strings.Join(d, "\n"))
+		if errRL != nil {
 			rl.SetPrompt(strings.Repeat(" ", len(prompt)))
 		} else {
 			rl.SetPrompt(prompt)
 
 			d = nil
 
-			v, err := vm.Eval(s)
-			if err != nil {
+			v, errEval := vm.Eval(s)
+			if errEval != nil {
 				var oerr *otto.Error
-				if errors.As(err, &oerr) {
-					if _, err := io.Copy(rl.Stdout(), strings.NewReader(oerr.String())); err != nil {
+				if errors.As(errEval, &oerr) {
+					if _, err = io.Copy(rl.Stdout(), strings.NewReader(oerr.String())); err != nil {
 						return fmt.Errorf("write out: %w", err)
 					}
 				} else {
-					if _, err := io.Copy(rl.Stdout(), strings.NewReader(err.Error())); err != nil {
+					if _, err = io.Copy(rl.Stdout(), strings.NewReader(errEval.Error())); err != nil {
 						return fmt.Errorf("write out: %w", err)
 					}
 				}
 			} else {
-				if _, err := rl.Stdout().Write([]byte(v.String() + "\n")); err != nil {
+				if _, err = rl.Stdout().Write([]byte(v.String() + "\n")); err != nil {
 					return fmt.Errorf("write out: %w", err)
 				}
 			}

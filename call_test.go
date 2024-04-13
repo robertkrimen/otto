@@ -20,7 +20,7 @@ func BenchmarkNativeCallWithString(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -34,7 +34,7 @@ func BenchmarkNativeCallWithFloat32(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -48,7 +48,7 @@ func BenchmarkNativeCallWithFloat64(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -62,7 +62,7 @@ func BenchmarkNativeCallWithInt(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -76,7 +76,7 @@ func BenchmarkNativeCallWithUint(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -90,7 +90,7 @@ func BenchmarkNativeCallWithInt8(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -104,7 +104,7 @@ func BenchmarkNativeCallWithUint8(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -118,7 +118,7 @@ func BenchmarkNativeCallWithInt16(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -132,7 +132,7 @@ func BenchmarkNativeCallWithUint16(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -146,7 +146,7 @@ func BenchmarkNativeCallWithInt32(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -160,7 +160,7 @@ func BenchmarkNativeCallWithUint32(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -174,7 +174,7 @@ func BenchmarkNativeCallWithInt64(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -188,7 +188,7 @@ func BenchmarkNativeCallWithUint64(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -202,7 +202,7 @@ func BenchmarkNativeCallWithStringInt(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -216,7 +216,7 @@ func BenchmarkNativeCallWithIntVariadic0(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -230,7 +230,7 @@ func BenchmarkNativeCallWithIntVariadic1(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -244,7 +244,7 @@ func BenchmarkNativeCallWithIntVariadic3(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -258,7 +258,7 @@ func BenchmarkNativeCallWithIntVariadic10(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -272,7 +272,7 @@ func BenchmarkNativeCallWithIntArray0(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -286,7 +286,7 @@ func BenchmarkNativeCallWithIntArray1(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -300,7 +300,7 @@ func BenchmarkNativeCallWithIntArray3(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -314,7 +314,7 @@ func BenchmarkNativeCallWithIntArray10(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -328,7 +328,7 @@ func BenchmarkNativeCallWithIntVariadicArray0(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -342,7 +342,7 @@ func BenchmarkNativeCallWithIntVariadicArray1(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -356,7 +356,7 @@ func BenchmarkNativeCallWithIntVariadicArray3(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -370,7 +370,7 @@ func BenchmarkNativeCallWithIntVariadicArray10(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -384,7 +384,7 @@ func BenchmarkNativeCallWithStringIntVariadic0(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -398,7 +398,7 @@ func BenchmarkNativeCallWithStringIntVariadic1(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -412,7 +412,7 @@ func BenchmarkNativeCallWithStringIntVariadic3(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -426,7 +426,7 @@ func BenchmarkNativeCallWithStringIntVariadic10(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -440,7 +440,7 @@ func BenchmarkNativeCallWithStringIntVariadicArray0(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -454,7 +454,7 @@ func BenchmarkNativeCallWithStringIntVariadicArray1(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -468,7 +468,7 @@ func BenchmarkNativeCallWithStringIntVariadicArray3(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -482,7 +482,7 @@ func BenchmarkNativeCallWithStringIntVariadicArray10(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -496,7 +496,7 @@ func BenchmarkNativeCallWithMap(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -510,7 +510,7 @@ func BenchmarkNativeCallWithMapVariadic(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -524,7 +524,7 @@ func BenchmarkNativeCallWithMapVariadicArray(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -538,7 +538,7 @@ func BenchmarkNativeCallWithFunction(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -552,7 +552,7 @@ func BenchmarkNativeCallWithFunctionInt(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -566,7 +566,7 @@ func BenchmarkNativeCallWithFunctionString(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := 0; i < b.N; i++ {
-		_, err := vm.Run(s)
+		_, err = vm.Run(s)
 		require.NoError(b, err)
 	}
 }
@@ -588,7 +588,7 @@ func TestNativeCallWithString(t *testing.T) {
 	s, err := vm.Compile("test.js", `x("zzz")`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -615,7 +615,7 @@ func TestNativeCallWithFloat32(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1.1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -642,7 +642,7 @@ func TestNativeCallWithFloat64(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1.1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -669,7 +669,7 @@ func TestNativeCallWithInt(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -696,7 +696,7 @@ func TestNativeCallWithUint(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -723,7 +723,7 @@ func TestNativeCallWithInt8(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -750,7 +750,7 @@ func TestNativeCallWithUint8(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -777,7 +777,7 @@ func TestNativeCallWithInt16(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -804,7 +804,7 @@ func TestNativeCallWithUint16(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -831,7 +831,7 @@ func TestNativeCallWithInt32(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -858,7 +858,7 @@ func TestNativeCallWithUint32(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -885,7 +885,7 @@ func TestNativeCallWithInt64(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -912,7 +912,7 @@ func TestNativeCallWithUint64(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -939,7 +939,7 @@ func TestNativeCallWithStringInt(t *testing.T) {
 	s, err := vm.Compile("test.js", `x("zzz", 1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -966,7 +966,7 @@ func TestNativeCallWithIntVariadic0(t *testing.T) {
 	s, err := vm.Compile("test.js", `x()`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -993,7 +993,7 @@ func TestNativeCallWithIntVariadic1(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1020,7 +1020,7 @@ func TestNativeCallWithIntVariadic3(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1, 2, 3)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1047,7 +1047,7 @@ func TestNativeCallWithIntVariadic10(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1074,7 +1074,7 @@ func TestNativeCallWithIntArray0(t *testing.T) {
 	s, err := vm.Compile("test.js", `x([])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1101,7 +1101,7 @@ func TestNativeCallWithIntArray1(t *testing.T) {
 	s, err := vm.Compile("test.js", `x([1])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1128,7 +1128,7 @@ func TestNativeCallWithIntArray3(t *testing.T) {
 	s, err := vm.Compile("test.js", `x([1, 2, 3])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1155,7 +1155,7 @@ func TestNativeCallWithIntArray10(t *testing.T) {
 	s, err := vm.Compile("test.js", `x([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1182,7 +1182,7 @@ func TestNativeCallWithIntVariadicArray0(t *testing.T) {
 	s, err := vm.Compile("test.js", `x([])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1209,7 +1209,7 @@ func TestNativeCallWithIntVariadicArray1(t *testing.T) {
 	s, err := vm.Compile("test.js", `x([1])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1236,7 +1236,7 @@ func TestNativeCallWithIntVariadicArray3(t *testing.T) {
 	s, err := vm.Compile("test.js", `x([1, 2, 3])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1263,7 +1263,7 @@ func TestNativeCallWithIntVariadicArray10(t *testing.T) {
 	s, err := vm.Compile("test.js", `x([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1290,7 +1290,7 @@ func TestNativeCallWithStringIntVariadic0(t *testing.T) {
 	s, err := vm.Compile("test.js", `x("a")`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1317,7 +1317,7 @@ func TestNativeCallWithStringIntVariadic1(t *testing.T) {
 	s, err := vm.Compile("test.js", `x("a", 1)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1344,7 +1344,7 @@ func TestNativeCallWithStringIntVariadic3(t *testing.T) {
 	s, err := vm.Compile("test.js", `x("a", 1, 2, 3)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1371,7 +1371,7 @@ func TestNativeCallWithStringIntVariadic10(t *testing.T) {
 	s, err := vm.Compile("test.js", `x("a", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1398,7 +1398,7 @@ func TestNativeCallWithStringIntVariadicArray0(t *testing.T) {
 	s, err := vm.Compile("test.js", `x("a", [])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1425,7 +1425,7 @@ func TestNativeCallWithStringIntVariadicArray1(t *testing.T) {
 	s, err := vm.Compile("test.js", `x("a", [1])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1452,7 +1452,7 @@ func TestNativeCallWithStringIntVariadicArray3(t *testing.T) {
 	s, err := vm.Compile("test.js", `x("a", [1, 2, 3])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1479,7 +1479,7 @@ func TestNativeCallWithStringIntVariadicArray10(t *testing.T) {
 	s, err := vm.Compile("test.js", `x("a", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1506,7 +1506,7 @@ func TestNativeCallWithMap(t *testing.T) {
 	s, err := vm.Compile("test.js", `x({a: "b", c: "d"})`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1533,7 +1533,7 @@ func TestNativeCallWithMapVariadic(t *testing.T) {
 	s, err := vm.Compile("test.js", `x({a: "b", c: "d"}, {w: "x", y: "z"})`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1560,7 +1560,7 @@ func TestNativeCallWithMapVariadicArray(t *testing.T) {
 	s, err := vm.Compile("test.js", `x([{a: "b", c: "d"}, {w: "x", y: "z"}])`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1587,7 +1587,7 @@ func TestNativeCallWithFunctionVoidBool(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(function() { return true; })`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1614,7 +1614,7 @@ func TestNativeCallWithFunctionIntInt(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(function(n) { return n; })`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1641,7 +1641,7 @@ func TestNativeCallWithFunctionStringString(t *testing.T) {
 	s, err := vm.Compile("test.js", `x(function(n) { return n; })`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1702,7 +1702,7 @@ func TestNativeCallMethodWithStruct(t *testing.T) {
 	s, err := vm.Compile("test.js", `t(x.CallWithStruct(x.MakeStruct("b")))`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1731,7 +1731,7 @@ func TestNativeCallPointerMethodWithStruct(t *testing.T) {
 	s, err := vm.Compile("test.js", `t(x.CallPointerWithStruct(x.MakeStruct("b")))`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1760,7 +1760,7 @@ func TestNativeCallMethodWithStructPointer(t *testing.T) {
 	s, err := vm.Compile("test.js", `t(x.CallWithStructPointer(x.MakeStructPointer("b")))`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}
@@ -1789,7 +1789,7 @@ func TestNativeCallPointerMethodWithStructPointer(t *testing.T) {
 	s, err := vm.Compile("test.js", `t(x.CallPointerWithStructPointer(x.MakeStructPointer("b")))`)
 	require.NoError(t, err)
 
-	if _, err := vm.Run(s); err != nil {
+	if _, err = vm.Run(s); err != nil {
 		t.Logf("err should have been nil; was %s\n", err.Error())
 		t.Fail()
 	}

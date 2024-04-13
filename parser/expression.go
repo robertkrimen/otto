@@ -268,7 +268,7 @@ func (p *parser) parseObjectProperty() ast.Property {
 	literal, value := p.parseObjectPropertyKey()
 	if literal == "get" && p.token != token.COLON {
 		idx := p.idx
-		_, value := p.parseObjectPropertyKey()
+		_, value = p.parseObjectPropertyKey()
 		parameterList := p.parseFunctionParameterList()
 
 		node := &ast.FunctionLiteral{
@@ -283,7 +283,7 @@ func (p *parser) parseObjectProperty() ast.Property {
 		}
 	} else if literal == "set" && p.token != token.COLON {
 		idx := p.idx
-		_, value := p.parseObjectPropertyKey()
+		_, value = p.parseObjectPropertyKey()
 		parameterList := p.parseFunctionParameterList()
 
 		node := &ast.FunctionLiteral{
@@ -379,7 +379,7 @@ func (p *parser) parseArrayLiteral() ast.Expression {
 	}
 }
 
-func (p *parser) parseArgumentList() (argumentList []ast.Expression, idx0, idx1 file.Idx) { //nolint: nonamedreturns
+func (p *parser) parseArgumentList() (argumentList []ast.Expression, idx0, idx1 file.Idx) { //nolint:nonamedreturns
 	if p.mode&StoreComments != 0 {
 		p.comments.Unset()
 	}

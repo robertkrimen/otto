@@ -17,7 +17,7 @@ func readSource(filename string) ([]byte, error) {
 	if filename == "" || filename == "-" {
 		return io.ReadAll(os.Stdin)
 	}
-	return os.ReadFile(filename) //nolint: gosec
+	return os.ReadFile(filename) //nolint:gosec
 }
 
 func main() {

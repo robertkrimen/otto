@@ -16,9 +16,9 @@ func TestScript(t *testing.T) {
 		str := script.String()
 		is(str, "// xyzzy\nvar abc; if (!abc) abc = 0; abc += 2; abc;")
 
-		value, err := vm.Run(script)
+		val, err := vm.Run(script)
 		require.NoError(t, err)
-		is(value, 2)
+		is(val, 2)
 
 		// TODO(steve): Fix the underlying issues as to why this returns early.
 		if true {
@@ -30,34 +30,34 @@ func TestScript(t *testing.T) {
 		is(len(tmp), 1228)
 
 		{
-			script := &Script{}
-			err = script.unmarshalBinary(tmp)
+			script2 := &Script{}
+			err = script2.unmarshalBinary(tmp)
 			require.NoError(t, err)
 
-			is(script.String(), str)
+			is(script2.String(), str)
 
-			value, err = vm.Run(script)
+			val, err = vm.Run(script2)
 			require.NoError(t, err)
-			is(value, 4)
+			is(val, 4)
 
-			tmp, err = script.marshalBinary()
+			tmp, err = script2.marshalBinary()
 			require.NoError(t, err)
 			is(len(tmp), 1228)
 		}
 
 		{
-			script := &Script{}
-			err = script.unmarshalBinary(tmp)
+			script2 := &Script{}
+			err = script2.unmarshalBinary(tmp)
 			require.NoError(t, err)
 
-			is(script.String(), str)
+			is(script2.String(), str)
 
-			value, err := vm.Run(script)
-			require.NoError(t, err)
-			is(value, 6)
+			val2, err2 := vm.Run(script2)
+			require.NoError(t, err2)
+			is(val2, 6)
 
-			tmp, err = script.marshalBinary()
-			require.NoError(t, err)
+			tmp, err2 = script2.marshalBinary()
+			require.NoError(t, err2)
 			is(len(tmp), 1228)
 		}
 
@@ -65,15 +65,15 @@ func TestScript(t *testing.T) {
 			version := scriptVersion
 			scriptVersion = "bogus"
 
-			script := &Script{}
-			err = script.unmarshalBinary(tmp)
+			script2 := &Script{}
+			err = script2.unmarshalBinary(tmp)
 			is(err, "version mismatch")
 
-			is(script.String(), "// \n")
-			is(script.version, "")
-			is(script.program == nil, true)
-			is(script.filename, "")
-			is(script.src, "")
+			is(script2.String(), "// \n")
+			is(script2.version, "")
+			is(script2.program == nil, true)
+			is(script2.filename, "")
+			is(script2.src, "")
 
 			scriptVersion = version
 		}

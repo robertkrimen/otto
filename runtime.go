@@ -59,14 +59,13 @@ type runtime struct {
 	globalStash  *objectStash
 	scope        *scope
 	otto         *Otto
-	eval         *object // The builtin eval, for determine indirect versus direct invocation
+	eval         *object
 	debugger     func(*Otto)
 	random       func() float64
+	labels       []string
 	stackLimit   int
 	traceLimit   int
-
-	labels []string // FIXME
-	lck    sync.Mutex
+	lck          sync.Mutex
 }
 
 func (rt *runtime) enterScope(scop *scope) {
@@ -116,7 +115,7 @@ func (rt *runtime) putValue(reference referencer, value Value) {
 	}
 }
 
-func (rt *runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, isException bool) { //nolint: nonamedreturns
+func (rt *runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, isException bool) { //nolint:nonamedreturns
 	// resultValue = The value of the block (e.g. the last statement)
 	// throw = Something was thrown
 	// throwValue = The value of what was thrown
@@ -188,7 +187,7 @@ func checkObjectCoercible(rt *runtime, value Value) {
 }
 
 // testObjectCoercible.
-func testObjectCoercible(value Value) (isObject, mustCoerce bool) { //nolint: nonamedreturns
+func testObjectCoercible(value Value) (isObject, mustCoerce bool) { //nolint:nonamedreturns
 	switch value.kind {
 	case valueReference, valueEmpty, valueNull, valueUndefined:
 		return false, false
@@ -510,7 +509,7 @@ func (rt *runtime) convertCallParameter(v Value, t reflect.Type) (reflect.Value,
 		}
 	case reflect.Func:
 		if t.NumOut() > 1 {
-			return reflect.Zero(t), fmt.Errorf("converting JavaScript values to Go functions with more than one return value is currently not supported")
+			return reflect.Zero(t), errors.New("converting JavaScript values to Go functions with more than one return value is currently not supported")
 		}
 
 		if o := v.object(); o != nil && o.class == classFunctionName {

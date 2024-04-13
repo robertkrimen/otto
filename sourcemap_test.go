@@ -1,7 +1,6 @@
 package otto
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -30,8 +29,8 @@ func TestSourceMapOriginalWithNoSourcemap(t *testing.T) {
 		_, err = vm.Run(`functionA()`)
 		require.Error(t, err)
 		var oerr *Error
-		require.True(t, errors.As(err, &oerr))
-		require.Equal(t, oerr.String(), testSourcemapOriginalStack)
+		require.ErrorAs(t, err, &oerr)
+		require.Equal(t, testSourcemapOriginalStack, oerr.String())
 	})
 }
 
@@ -48,8 +47,8 @@ func TestSourceMapMangledWithNoSourcemap(t *testing.T) {
 		_, err = vm.Run(`functionA()`)
 		require.Error(t, err)
 		var oerr *Error
-		require.True(t, errors.As(err, &oerr))
-		require.Equal(t, oerr.String(), testSourcemapMangledStack)
+		require.ErrorAs(t, err, &oerr)
+		require.Equal(t, testSourcemapMangledStack, oerr.String())
 	})
 }
 
@@ -66,8 +65,8 @@ func TestSourceMapMangledWithSourcemap(t *testing.T) {
 		_, err = vm.Run(`functionA()`)
 		require.Error(t, err)
 		var oerr *Error
-		require.True(t, errors.As(err, &oerr))
-		require.Equal(t, oerr.String(), testSourcemapMappedStack)
+		require.ErrorAs(t, err, &oerr)
+		require.Equal(t, testSourcemapMappedStack, oerr.String())
 	})
 }
 
@@ -84,8 +83,8 @@ func TestSourceMapMangledWithInlineSourcemap(t *testing.T) {
 		_, err = vm.Run(`functionA()`)
 		require.Error(t, err)
 		var oerr *Error
-		require.True(t, errors.As(err, &oerr))
-		require.Equal(t, oerr.String(), testSourcemapMappedStack)
+		require.ErrorAs(t, err, &oerr)
+		require.Equal(t, testSourcemapMappedStack, oerr.String())
 	})
 }
 

@@ -33,11 +33,11 @@ func checkComments(actual []*ast.Comment, expected []string, position ast.Commen
 }
 
 func displayComments(m ast.CommentMap) {
-	fmt.Printf("Displaying comments:\n") //nolint: forbidigo
+	fmt.Printf("Displaying comments:\n") //nolint:forbidigo
 	for n, comments := range m {
-		fmt.Printf("%v %v:\n", reflect.TypeOf(n), n) //nolint: forbidigo
+		fmt.Printf("%v %v:\n", reflect.TypeOf(n), n) //nolint:forbidigo
 		for i, comment := range comments {
-			fmt.Printf(" [%v] %v @ %v\n", i, comment.Text, comment.Position) //nolint: forbidigo
+			fmt.Printf(" [%v] %v @ %v\n", i, comment.Text, comment.Position) //nolint:forbidigo
 		}
 	}
 }
@@ -1436,7 +1436,7 @@ func TestParser_comments2(t *testing.T) {
 a = /*comment1*/new /*comment2*/ obj/*comment3*/()
 `, nil)
 		n := program.Body[0]
-		fmt.Printf("FOUND NODE: %v, number of comments: %v\n", reflect.TypeOf(n), len(parser.comments.CommentMap[n])) //nolint: forbidigo
+		fmt.Printf("FOUND NODE: %v, number of comments: %v\n", reflect.TypeOf(n), len(parser.comments.CommentMap[n])) //nolint:forbidigo
 		displayComments(parser.comments.CommentMap)
 	})
 }

@@ -83,7 +83,7 @@ func (s *Script) marshalBinary() ([]byte, error) {
 // will return an error.
 //
 // The binary format can change at any time and should be considered unspecified and opaque.
-func (s *Script) unmarshalBinary(data []byte) (err error) { //nolint: nonamedreturns
+func (s *Script) unmarshalBinary(data []byte) (err error) { //nolint:nonamedreturns
 	decoder := gob.NewDecoder(bytes.NewReader(data))
 	defer func() {
 		if err != nil {

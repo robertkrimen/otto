@@ -27,11 +27,11 @@ type nativeFunction func(FunctionCall) Value
 
 // nativeFunctionObject.
 type nativeFunctionObject struct {
+	call      nativeFunction
+	construct constructFunction
 	name      string
 	file      string
 	line      int
-	call      nativeFunction    // [[Call]]
-	construct constructFunction // [[Construct]]
 }
 
 func (rt *runtime) newNativeFunctionProperty(name, file string, line int, native nativeFunction, length int) *object {
@@ -162,7 +162,7 @@ func (o *object) isCall() bool {
 	}
 }
 
-func (o *object) call(this Value, argumentList []Value, eval bool, frm frame) Value { //nolint: unparam // Isn't currently used except in recursive self.
+func (o *object) call(this Value, argumentList []Value, eval bool, frm frame) Value { //nolint:unparam // Isn't currently used except in recursive self.
 	switch fn := o.value.(type) {
 	case nativeFunctionObject:
 		// Since eval is a native function, we only have to check for it here
@@ -270,13 +270,12 @@ func (o *object) hasInstance(of Value) bool {
 
 // FunctionCall is an encapsulation of a JavaScript function call.
 type FunctionCall struct {
-	runtime *runtime
-	thisObj *object
-	eval    bool // This call is a direct call to eval
-
 	This         Value
-	ArgumentList []Value
+	runtime      *runtime
+	thisObj      *object
 	Otto         *Otto
+	ArgumentList []Value
+	eval         bool
 }
 
 // Argument will return the value of the argument at the given index.

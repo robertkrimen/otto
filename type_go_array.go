@@ -33,7 +33,7 @@ func newGoArrayObject(value reflect.Value) *goArrayObject {
 	}
 }
 
-func (o goArrayObject) getValue(name string) (reflect.Value, bool) { //nolint: unused
+func (o goArrayObject) getValue(name string) (reflect.Value, bool) { //nolint:unused
 	if index, err := strconv.ParseInt(name, 10, 64); err != nil {
 		v, ok := o.getValueIndex(index)
 		if ok {
@@ -41,7 +41,7 @@ func (o goArrayObject) getValue(name string) (reflect.Value, bool) { //nolint: u
 		}
 	}
 
-	if m := o.value.MethodByName(name); m != (reflect.Value{}) {
+	if m := o.value.MethodByName(name); m.IsValid() {
 		return m, true
 	}
 
@@ -93,7 +93,7 @@ func goArrayGetOwnProperty(obj *object, name string) *property {
 		}
 	}
 
-	if method := obj.value.(*goArrayObject).value.MethodByName(name); method != (reflect.Value{}) {
+	if method := obj.value.(*goArrayObject).value.MethodByName(name); method.IsValid() {
 		return &property{
 			obj.runtime.toValue(method.Interface()),
 			0o110,

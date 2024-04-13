@@ -8,7 +8,7 @@ import (
 	"github.com/robertkrimen/otto/token"
 )
 
-func (rt *runtime) evaluateMultiply(left float64, right float64) Value { //nolint: unused
+func (rt *runtime) evaluateMultiply(left float64, right float64) Value { //nolint:unused
 	// TODO 11.5.1
 	return Value{}
 }
@@ -44,7 +44,7 @@ func (rt *runtime) evaluateDivide(left float64, right float64) Value {
 	return float64Value(left / right)
 }
 
-func (rt *runtime) evaluateModulo(left float64, right float64) Value { //nolint: unused
+func (rt *runtime) evaluateModulo(left float64, right float64) Value { //nolint:unused
 	// TODO 11.5.3
 	return Value{}
 }
@@ -255,7 +255,7 @@ func (rt *runtime) calculateComparison(comparator token.Token, left Value, right
 			panic(fmt.Sprintf("unknown types for equal: %v ==? %v", x, y))
 		}
 	default:
-		panic(fmt.Sprintf("unknown comparator %s", comparator.String()))
+		panic("unknown comparator " + comparator.String())
 	}
 
 	if kindEqualKind {

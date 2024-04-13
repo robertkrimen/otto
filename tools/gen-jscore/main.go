@@ -22,14 +22,14 @@ var templates embed.FS
 
 // jsType represents JavaScript type to generate.
 type jsType struct {
+	Prototype       *prototype `yaml:"prototype"`
 	Name            string     `yaml:"name"`
-	Core            bool       `yaml:"core"`
 	ObjectClass     string     `yaml:"objectClass"`
 	ObjectPrototype string     `yaml:"objectPrototype"`
 	Class           string     `yaml:"class"`
 	Value           string     `yaml:"value"`
 	Properties      []property `yaml:"properties"`
-	Prototype       *prototype `yaml:"prototype"`
+	Core            bool       `yaml:"core"`
 }
 
 // BlankConstructor is a default fallback returning false for templates.
@@ -60,10 +60,10 @@ func (p prototype) Property(name string) (*property, error) {
 type property struct {
 	Name     string `yaml:"name"`
 	Call     string `yaml:"call"`
-	Function int    `yaml:"function"`
 	Mode     string `yaml:"mode"`
 	Value    string `yaml:"value"`
 	Kind     string `yaml:"kind"`
+	Function int    `yaml:"function"`
 }
 
 // value represents a JavaScript value to generate a Value creator for.
@@ -75,8 +75,8 @@ type value struct {
 // config represents our configuration.
 type config struct {
 	Types  []jsType `yaml:"types"`
-	Log    jsType   `yaml:"log"`
 	Values []value  `yaml:"values"`
+	Log    jsType   `yaml:"log"`
 }
 
 // Type returns the type for name.
@@ -93,7 +93,7 @@ func (c config) Type(name string) (*jsType, error) {
 // generate generates the context file writing the output to filename.
 func generate(filename string) (err error) {
 	var cfg config
-	if err := yaml.Unmarshal(configData, &cfg); err != nil {
+	if err = yaml.Unmarshal(configData, &cfg); err != nil {
 		return fmt.Errorf("decode config: %w", err)
 	}
 
@@ -108,7 +108,7 @@ func generate(filename string) (err error) {
 		return fmt.Errorf("parse templates: %w", err)
 	}
 
-	output, err := os.Create(filename) //nolint: gosec
+	output, err := os.Create(filename) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("open output: %w", err)
 	}
@@ -119,7 +119,7 @@ func generate(filename string) (err error) {
 		}
 	}()
 
-	if err := tmpl.ExecuteTemplate(output, "root.tmpl", cfg); err != nil {
+	if err = tmpl.ExecuteTemplate(output, "root.tmpl", cfg); err != nil {
 		return fmt.Errorf("execute template: %w", err)
 	}
 

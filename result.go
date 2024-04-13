@@ -10,19 +10,19 @@ const (
 )
 
 type result struct {
-	kind   resultKind
 	value  Value
 	target string
+	kind   resultKind
 }
 
 func newReturnResult(value Value) result {
-	return result{resultReturn, value, ""}
+	return result{kind: resultReturn, value: value, target: ""}
 }
 
 func newContinueResult(target string) result {
-	return result{resultContinue, emptyValue, target}
+	return result{kind: resultContinue, value: emptyValue, target: target}
 }
 
 func newBreakResult(target string) result {
-	return result{resultBreak, emptyValue, target}
+	return result{kind: resultBreak, value: emptyValue, target: target}
 }

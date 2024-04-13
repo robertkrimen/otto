@@ -26,29 +26,23 @@ func (rt *runtime) newArgumentsObject(indexOfParameterName []string, stash stash
 }
 
 type argumentsObject struct {
+	stash                stasher
 	indexOfParameterName []string
-	// function(abc, def, ghi)
-	// indexOfParameterName[0] = "abc"
-	// indexOfParameterName[1] = "def"
-	// indexOfParameterName[2] = "ghi"
-	// ...
-	stash stasher
 }
 
 func (o argumentsObject) clone(c *cloner) argumentsObject {
 	indexOfParameterName := make([]string, len(o.indexOfParameterName))
 	copy(indexOfParameterName, o.indexOfParameterName)
 	return argumentsObject{
-		indexOfParameterName,
-		c.stash(o.stash),
+		indexOfParameterName: indexOfParameterName,
+		stash:                c.stash(o.stash),
 	}
 }
 
 func (o argumentsObject) get(name string) (Value, bool) {
 	index := stringToArrayIndex(name)
 	if index >= 0 && index < int64(len(o.indexOfParameterName)) {
-		name := o.indexOfParameterName[index]
-		if name == "" {
+		if name = o.indexOfParameterName[index]; name == "" {
 			return Value{}, false
 		}
 		return o.stash.getBinding(name, false), true

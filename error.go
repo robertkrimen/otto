@@ -50,13 +50,13 @@ func (e ottoError) formatWithStack() string {
 }
 
 type frame struct {
-	native     bool
-	nativeFile string
-	nativeLine int
-	file       *file.File
-	offset     int
-	callee     string
 	fn         interface{}
+	file       *file.File
+	nativeFile string
+	callee     string
+	nativeLine int
+	offset     int
+	native     bool
 }
 
 var nativeFrame = frame{}

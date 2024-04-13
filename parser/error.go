@@ -49,8 +49,8 @@ const (
 
 // An Error represents a parsing error. It includes the position where the error occurred and a message/description.
 type Error struct {
-	Position file.Position
 	Message  string
+	Position file.Position
 }
 
 // FIXME Should this be "SyntaxError"?
@@ -120,11 +120,11 @@ func (p *parser) errorUnexpectedToken(tkn token.Token) {
 }
 
 // ErrorList is a list of *Errors.
-type ErrorList []*Error //nolint: errname
+type ErrorList []*Error //nolint:errname
 
 // Add adds an Error with given position and message to an ErrorList.
 func (el *ErrorList) Add(position file.Position, msg string) {
-	*el = append(*el, &Error{position, msg})
+	*el = append(*el, &Error{Position: position, Message: msg})
 }
 
 // Reset resets an ErrorList to no errors.

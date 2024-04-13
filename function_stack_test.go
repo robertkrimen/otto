@@ -27,7 +27,7 @@ func TestFunction_stack(t *testing.T) {
 		}
 
 		err = vm.Set("A", func(c FunctionCall) Value {
-			_, err := c.Argument(0).Call(UndefinedValue())
+			_, err = c.Argument(0).Call(UndefinedValue())
 			require.NoError(t, err)
 			return UndefinedValue()
 		})

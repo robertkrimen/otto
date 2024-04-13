@@ -39,7 +39,7 @@ func (p *parser) parseEmptyStatement() ast.Statement {
 	return &ast.EmptyStatement{Semicolon: idx}
 }
 
-func (p *parser) parseStatementList() (list []ast.Statement) { //nolint: nonamedreturns
+func (p *parser) parseStatementList() (list []ast.Statement) { //nolint:nonamedreturns
 	for p.token != token.RIGHT_BRACE && p.token != token.EOF {
 		statement := p.parseStatement()
 		list = append(list, statement)
@@ -564,14 +564,14 @@ func (p *parser) parseForOrForInStatement() ast.Statement {
 		allowIn := p.scope.allowIn
 		p.scope.allowIn = false
 		if p.token == token.VAR {
-			idx := p.idx
+			tokenIdx := p.idx
 			var varComments []*ast.Comment
 			if p.mode&StoreComments != 0 {
 				varComments = p.comments.FetchAll()
 				p.comments.Unset()
 			}
 			p.next()
-			list := p.parseVariableDeclarationList(idx)
+			list := p.parseVariableDeclarationList(tokenIdx)
 			if len(list) == 1 && p.token == token.IN {
 				if p.mode&StoreComments != 0 {
 					p.comments.Unset()

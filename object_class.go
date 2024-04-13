@@ -198,7 +198,7 @@ func objectCanPut(obj *object, name string) bool {
 	return canPut
 }
 
-func objectCanPutDetails(obj *object, name string) (canPut bool, prop *property, setter *object) { //nolint: nonamedreturns
+func objectCanPutDetails(obj *object, name string) (canPut bool, prop *property, setter *object) { //nolint:nonamedreturns
 	prop = obj.getOwnProperty(name)
 	if prop != nil {
 		switch propertyValue := prop.value.(type) {

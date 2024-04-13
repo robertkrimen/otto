@@ -134,7 +134,7 @@ func (rt *runtime) cmplEvaluateNodeStatementList(list []nodeStatement) Value {
 }
 
 func (rt *runtime) cmplEvaluateNodeDoWhileStatement(node *nodeDoWhileStatement) Value {
-	labels := append(rt.labels, "") //nolint: gocritic
+	labels := append(rt.labels, "") //nolint:gocritic
 	rt.labels = nil
 
 	test := node.test
@@ -169,7 +169,7 @@ resultBreak:
 }
 
 func (rt *runtime) cmplEvaluateNodeForInStatement(node *nodeForInStatement) Value {
-	labels := append(rt.labels, "") //nolint: gocritic
+	labels := append(rt.labels, "") //nolint:gocritic
 	rt.labels = nil
 
 	source := rt.cmplEvaluateNodeExpression(node.source)
@@ -231,7 +231,7 @@ func (rt *runtime) cmplEvaluateNodeForInStatement(node *nodeForInStatement) Valu
 }
 
 func (rt *runtime) cmplEvaluateNodeForStatement(node *nodeForStatement) Value {
-	labels := append(rt.labels, "") //nolint: gocritic
+	labels := append(rt.labels, "") //nolint:gocritic
 	rt.labels = nil
 
 	initializer := node.initializer
@@ -304,7 +304,7 @@ func (rt *runtime) cmplEvaluateNodeIfStatement(node *nodeIfStatement) Value {
 }
 
 func (rt *runtime) cmplEvaluateNodeSwitchStatement(node *nodeSwitchStatement) Value {
-	labels := append(rt.labels, "") //nolint: gocritic
+	labels := append(rt.labels, "") //nolint:gocritic
 	rt.labels = nil
 
 	discriminantResult := rt.cmplEvaluateNodeExpression(node.discriminant)
@@ -384,7 +384,7 @@ func (rt *runtime) cmplEvaluateNodeTryStatement(node *nodeTryStatement) Value {
 func (rt *runtime) cmplEvaluateModeWhileStatement(node *nodeWhileStatement) Value {
 	test := node.test
 	body := node.body
-	labels := append(rt.labels, "") //nolint: gocritic
+	labels := append(rt.labels, "") //nolint:gocritic
 	rt.labels = nil
 
 	result := emptyValue

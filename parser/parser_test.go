@@ -26,7 +26,7 @@ func testParse(src string) (*parser, *ast.Program, error) {
 	return testParseWithMode(src, 0)
 }
 
-func testParseWithMode(src string, mode Mode) (parser *parser, program *ast.Program, err error) { //nolint: nonamedreturns
+func testParseWithMode(src string, mode Mode) (parser *parser, program *ast.Program, err error) { //nolint:nonamedreturns
 	defer func() {
 		if tmp := recover(); tmp != nil {
 			if tmp, ok := tmp.(string); ok {

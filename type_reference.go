@@ -1,20 +1,20 @@
 package otto
 
 type referencer interface {
-	invalid() bool         // IsUnresolvableReference
-	getValue() Value       // getValue
-	putValue(Value) string // PutValue
+	invalid() bool               // IsUnresolvableReference
+	getValue() Value             // getValue
+	putValue(value Value) string // PutValue
 	delete() bool
 }
 
 // PropertyReference
 
 type propertyReference struct {
-	name    string
-	strict  bool
 	base    *object
 	runtime *runtime
+	name    string
 	at      at
+	strict  bool
 }
 
 func newPropertyReference(rt *runtime, base *object, name string, strict bool, atv at) *propertyReference {
@@ -55,9 +55,9 @@ func (pr *propertyReference) delete() bool {
 }
 
 type stashReference struct {
+	base   stasher
 	name   string
 	strict bool
-	base   stasher
 }
 
 func (sr *stashReference) invalid() bool {

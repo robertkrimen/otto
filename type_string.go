@@ -8,7 +8,7 @@ import (
 
 type stringObjecter interface {
 	Length() int
-	At(int) rune
+	At(at int) rune
 	String() string
 }
 
