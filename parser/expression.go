@@ -384,21 +384,19 @@ func (p *parser) parseArgumentList() (argumentList []ast.Expression, idx0, idx1 
 		p.comments.Unset()
 	}
 	idx0 = p.expect(token.LEFT_PARENTHESIS)
-	if p.token != token.RIGHT_PARENTHESIS {
-		for {
-			exp := p.parseAssignmentExpression()
-			if p.mode&StoreComments != 0 {
-				p.comments.SetExpression(exp)
-			}
-			argumentList = append(argumentList, exp)
-			if p.token != token.COMMA {
-				break
-			}
-			if p.mode&StoreComments != 0 {
-				p.comments.Unset()
-			}
-			p.next()
+	for p.token != token.RIGHT_PARENTHESIS {
+		exp := p.parseAssignmentExpression()
+		if p.mode&StoreComments != 0 {
+			p.comments.SetExpression(exp)
 		}
+		argumentList = append(argumentList, exp)
+		if p.token != token.COMMA {
+			break
+		}
+		if p.mode&StoreComments != 0 {
+			p.comments.Unset()
+		}
+		p.next()
 	}
 	if p.mode&StoreComments != 0 {
 		p.comments.Unset()
