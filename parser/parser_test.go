@@ -879,6 +879,15 @@ func TestParser(t *testing.T) {
                 2
             debugger
         `, nil)
+
+		test(`
+            function mergeObjects(x, y) { /* dummy body */}
+
+            mergeObjects(
+                { "duck": "quack" },
+                { "dog": "bark" }, // Allow trailing comma after the last argument.
+            );
+        `, nil)
 	})
 }
 
