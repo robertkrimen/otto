@@ -38,6 +38,53 @@ func digitValue(chr rune) int {
 	return 16 // Larger than any legal digit value
 }
 
+// See https://www.unicode.org/reports/tr31/ for reference on ID_Start and ID_Continue.
+var includeIDStart = []*unicode.RangeTable{
+	unicode.Lu,
+	unicode.Ll,
+	unicode.Lt,
+	unicode.Lm,
+	unicode.Lo,
+	unicode.Nl,
+	unicode.Other_ID_Start,
+}
+
+var includeIDContinue = []*unicode.RangeTable{
+	unicode.Lu,
+	unicode.Ll,
+	unicode.Lt,
+	unicode.Lm,
+	unicode.Lo,
+	unicode.Nl,
+	unicode.Other_ID_Start,
+	unicode.Mn,
+	unicode.Mc,
+	unicode.Nd,
+	unicode.Pc,
+	unicode.Other_ID_Continue,
+}
+
+var exclude = []*unicode.RangeTable{
+	unicode.Pattern_Syntax,
+	unicode.Pattern_White_Space,
+}
+
+func unicodeIDStart(r rune) bool {
+	if unicode.In(r, exclude...) {
+		return false
+	}
+
+	return unicode.In(r, includeIDStart...)
+}
+
+func unicodeIDContinue(r rune) bool {
+	if unicode.In(r, exclude...) {
+		return false
+	}
+
+	return unicode.In(r, includeIDContinue...)
+}
+
 func isDigit(chr rune, base int) bool {
 	return digitValue(chr) < base
 }
@@ -45,14 +92,14 @@ func isDigit(chr rune, base int) bool {
 func isIdentifierStart(chr rune) bool {
 	return chr == '$' || chr == '_' || chr == '\\' ||
 		'a' <= chr && chr <= 'z' || 'A' <= chr && chr <= 'Z' ||
-		chr >= utf8.RuneSelf && unicode.IsLetter(chr)
+		chr >= utf8.RuneSelf && unicodeIDStart(chr)
 }
 
 func isIdentifierPart(chr rune) bool {
 	return chr == '$' || chr == '_' || chr == '\\' ||
 		'a' <= chr && chr <= 'z' || 'A' <= chr && chr <= 'Z' ||
 		'0' <= chr && chr <= '9' ||
-		chr >= utf8.RuneSelf && (unicode.IsLetter(chr) || unicode.IsDigit(chr))
+		chr >= utf8.RuneSelf && unicodeIDContinue(chr)
 }
 
 func (p *parser) scanIdentifier() (string, error) {
