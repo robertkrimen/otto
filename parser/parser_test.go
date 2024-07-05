@@ -975,6 +975,32 @@ func Test_parseNumberLiteral(t *testing.T) {
 	})
 }
 
+func Test_praseRegExpLiteral(t *testing.T) {
+	tt(t, func() {
+		test := func(input, literal, pattern, flags string) {
+			parser := newParser("", input, 1, nil)
+			program, err := parser.parse()
+			is(err, nil)
+
+			regex := program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.RegExpLiteral)
+			is(regex.Literal, literal)
+			is(regex.Pattern, pattern)
+			is(regex.Flags, flags)
+		}
+
+		test("/abc/", "/abc/", "abc", "")
+		test("/abc/gim", "/abc/gim", "abc", "gim")
+		test("/abc/ ", "/abc/", "abc", "")
+		test("/abc/gim ", "/abc/gim", "abc", "gim")
+		test("/abc/;", "/abc/", "abc", "")
+		test("/abc/gim;", "/abc/gim", "abc", "gim")
+		test("/abc/\n", "/abc/", "abc", "")
+		test("/abc/gim\n", "/abc/gim", "abc", "gim")
+		test("/abc/;\n", "/abc/", "abc", "")
+		test("/abc/gim;\n", "/abc/gim", "abc", "gim")
+	})
+}
+
 func TestPosition(t *testing.T) {
 	tt(t, func() {
 		parser := newParser("", "// Lorem ipsum", 1, nil)
