@@ -136,8 +136,8 @@ func (p *parser) parseRegExpLiteral() *ast.RegExpLiteral {
 	flags := ""
 	if p.token == token.IDENTIFIER { // gim
 		flags = p.literal
+		endOffset = p.chrOffset
 		p.next()
-		endOffset = p.chrOffset - 1
 	}
 
 	var value string
