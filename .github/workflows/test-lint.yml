@@ -8,8 +8,8 @@ jobs:
   go-test-lint:
     strategy:
       matrix:
-        go: [1.21, 1.22]
-        golangcli: [v1.57.2]
+        go: [1.22, 1.23]
+        golangcli: [v1.61.0]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:

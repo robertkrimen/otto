@@ -129,7 +129,7 @@ func builtinDateBeforeSet(call FunctionCall, argumentLimit int, timeLocal bool) 
 	}
 
 	valueList := make([]int, argumentLimit)
-	for index := 0; index < argumentLimit; index++ {
+	for index := range argumentLimit {
 		value := call.ArgumentList[index]
 		nm := value.number()
 		switch nm.kind {

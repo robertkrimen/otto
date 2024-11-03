@@ -647,7 +647,7 @@ func (v Value) export() interface{} {
 			elemKind := reflect.Invalid
 			state := 0
 			var t reflect.Type
-			for index := uint32(0); index < length; index++ {
+			for index := range length {
 				name := strconv.FormatInt(int64(index), 10)
 				if !obj.hasProperty(name) {
 					continue

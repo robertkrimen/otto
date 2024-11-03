@@ -97,7 +97,7 @@ func goStructEnumerate(obj *object, all bool, each func(string) bool) {
 	goObj := obj.value.(*goStructObject)
 
 	// Enumerate fields
-	for index := 0; index < reflect.Indirect(goObj.value).NumField(); index++ {
+	for index := range reflect.Indirect(goObj.value).NumField() {
 		name := reflect.Indirect(goObj.value).Type().Field(index).Name
 		if validGoStructName(name) {
 			if !each(name) {
@@ -107,7 +107,7 @@ func goStructEnumerate(obj *object, all bool, each func(string) bool) {
 	}
 
 	// Enumerate methods
-	for index := 0; index < goObj.value.NumMethod(); index++ {
+	for index := range goObj.value.NumMethod() {
 		name := goObj.value.Type().Method(index).Name
 		if validGoStructName(name) {
 			if !each(name) {

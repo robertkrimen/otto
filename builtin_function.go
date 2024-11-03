@@ -85,7 +85,7 @@ func builtinFunctionApply(call FunctionCall) Value {
 	thisObject := call.thisObject()
 	length := int64(toUint32(arrayObject.get(propertyLength)))
 	valueArray := make([]Value, length)
-	for index := int64(0); index < length; index++ {
+	for index := range length {
 		valueArray[index] = arrayObject.get(arrayIndexToString(index))
 	}
 	return thisObject.call(this, valueArray, false, nativeFrame)

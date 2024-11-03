@@ -24,7 +24,7 @@ func marshal(name string, children ...interface{}) interface{} {
 	}
 	ret := map[string]interface{}{}
 	length := len(children) / 2
-	for i := 0; i < length; i++ {
+	for i := range length {
 		name := children[i*2].(string)
 		value := children[i*2+1]
 		ret[name] = value
@@ -168,7 +168,7 @@ func testMarshalNode(node interface{}) interface{} {
 		value := reflect.ValueOf(node)
 		if value.Kind() == reflect.Slice {
 			tmp0 := []interface{}{}
-			for index := 0; index < value.Len(); index++ {
+			for index := range value.Len() {
 				tmp0 = append(tmp0, testMarshalNode(value.Index(index).Interface()))
 			}
 			return tmp0

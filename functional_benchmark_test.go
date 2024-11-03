@@ -123,7 +123,7 @@ func benchmarkGoSliceSort(b *testing.B, size int, sortFuncCall string, sortCode 
 	b.Helper()
 	// generate arbitrary slice of 'size'
 	testSlice := make([]int, size)
-	for i := 0; i < size; i++ {
+	for i := range size {
 		testSlice[i] = rand.Int() //nolint:gosec
 	}
 

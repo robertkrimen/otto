@@ -44,7 +44,7 @@ func builtinJSONReviveWalk(ctx builtinJSONParseContext, holder *object, name str
 	if obj := value.object(); obj != nil {
 		if isArray(obj) {
 			length := int64(objectLength(obj))
-			for index := int64(0); index < length; index++ {
+			for index := range length {
 				idxName := arrayIndexToString(index)
 				idxValue := builtinJSONReviveWalk(ctx, obj, idxName)
 				if idxValue.IsUndefined() {
