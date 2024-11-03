@@ -254,7 +254,9 @@ func builtinStringReplace(call FunctionCall) Value {
 					argumentList[index] = Value{}
 				}
 			}
-			argumentList[matchCount+0] = intValue(match[0])
+			// Replace expects rune offsets not byte offsets.
+			startIndex := utf8.RuneCountInString(target[0:match[0]])
+			argumentList[matchCount+0] = intValue(startIndex)
 			argumentList[matchCount+1] = stringValue(target)
 			replacement := replace.call(Value{}, argumentList, false, nativeFrame).string()
 			result = append(result, []byte(replacement)...)
@@ -394,16 +396,18 @@ func builtinStringSplit(call FunctionCall) Value {
 	}
 }
 
+// builtinStringSlice returns the string sliced by the given values
+// which are rune not byte offsets, as per String.prototype.slice.
 func builtinStringSlice(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
-	target := call.This.string()
+	target := []rune(call.This.string())
 
 	length := int64(len(target))
 	start, end := rangeStartEnd(call.ArgumentList, length, false)
 	if end-start <= 0 {
 		return stringValue("")
 	}
-	return stringValue(target[start:end])
+	return stringValue(string(target[start:end]))
 }
 
 func builtinStringSubstring(call FunctionCall) Value {

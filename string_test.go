@@ -331,6 +331,7 @@ func TestString_slice_unicode(t *testing.T) {
 		test(`"uñiçode".slice(0,11)`, "uñiçode")
 		test(`"uñiçode".slice(0,-1)`, "uñiçod")
 		test(`"uñiçode".slice(-1,11)`, "e")
+		test(`"发送 213123".slice(0,2)`, "发送")
 	})
 }
 
