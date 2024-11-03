@@ -124,7 +124,7 @@ func execRegExp(this *object, target string) (bool, []int) {
 func execResultToArray(rt *runtime, target string, result []int) *object {
 	captureCount := len(result) / 2
 	valueArray := make([]Value, captureCount)
-	for index := 0; index < captureCount; index++ {
+	for index := range captureCount {
 		offset := 2 * index
 		if result[offset] != -1 {
 			valueArray[index] = stringValue(target[result[offset]:result[offset+1]])

@@ -148,7 +148,7 @@ func newError(rt *runtime, name string, stackFramesToPop int, in ...interface{})
 	if rt != nil && rt.scope != nil {
 		curScope := rt.scope
 
-		for i := 0; i < stackFramesToPop; i++ {
+		for range stackFramesToPop {
 			if curScope.outer != nil {
 				curScope = curScope.outer
 			}

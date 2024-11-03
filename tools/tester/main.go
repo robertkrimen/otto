@@ -67,13 +67,6 @@ var broken = map[string]string{
 	"sendbird-calls.js": "runtime: out of memory",
 }
 
-func min(a, b int) int {
-	if a > b {
-		return b
-	}
-	return a
-}
-
 // libraries represents fetch all libraries response.
 type libraries struct {
 	Results []library `json:"results"`
@@ -203,7 +196,7 @@ func fetchAll(src string) error {
 	work := make(chan library, downloadWorkers)
 	errs := make(chan error, len(libs.Results))
 	wg.Add(downloadWorkers)
-	for i := 0; i < downloadWorkers; i++ {
+	for range downloadWorkers {
 		go func() {
 			defer wg.Done()
 			for lib := range work {
@@ -261,7 +254,7 @@ func report(files []string) error {
 	work := make(chan string, workers)
 	results := make(chan result, len(files))
 	wg.Add(workers)
-	for i := 0; i < workers; i++ {
+	for range workers {
 		go func() {
 			defer wg.Done()
 			for f := range work {

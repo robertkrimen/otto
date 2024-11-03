@@ -163,7 +163,7 @@ func builtinStringMatch(call FunctionCall) Value {
 	}
 	matchCount := len(result)
 	valueArray := make([]Value, matchCount)
-	for index := 0; index < matchCount; index++ {
+	for index := range matchCount {
 		valueArray[index] = stringValue(target[result[index][0]:result[index][1]])
 	}
 	matcher.put("lastIndex", intValue(result[matchCount-1][1]), true)
@@ -246,7 +246,7 @@ func builtinStringReplace(call FunctionCall) Value {
 			}
 			matchCount := len(match) / 2
 			argumentList := make([]Value, matchCount+2)
-			for index := 0; index < matchCount; index++ {
+			for index := range matchCount {
 				offset := 2 * index
 				if match[offset] != -1 {
 					argumentList[index] = stringValue(target[match[offset]:match[offset+1]])

@@ -177,7 +177,7 @@ func Test_toInt32(t *testing.T) {
 			math.Inf(+1), int32(0),
 			math.Inf(-1), int32(0),
 		}
-		for index := 0; index < len(test)/2; index++ {
+		for index := range len(test) / 2 {
 			// FIXME terst, Make strict again?
 			is(
 				toInt32(toValue(test[index*2])),
@@ -199,7 +199,7 @@ func Test_toUint32(t *testing.T) {
 			math.Inf(+1), uint32(0),
 			math.Inf(-1), uint32(0),
 		}
-		for index := 0; index < len(test)/2; index++ {
+		for index := range len(test) / 2 {
 			// FIXME terst, Make strict again?
 			is(
 				toUint32(toValue(test[index*2])),
@@ -221,7 +221,7 @@ func Test_toUint16(t *testing.T) {
 			math.Inf(+1), uint16(0),
 			math.Inf(-1), uint16(0),
 		}
-		for index := 0; index < len(test)/2; index++ {
+		for index := range len(test) / 2 {
 			// FIXME terst, Make strict again?
 			is(
 				toUint16(toValue(test[index*2])),

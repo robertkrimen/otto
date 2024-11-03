@@ -114,7 +114,7 @@ func (p *parser) scanIdentifier() (string, error) {
 			}
 			parse = true
 			var value rune
-			for j := 0; j < 4; j++ {
+			for range 4 {
 				p.read()
 				decimal, ok := hex2decimal(byte(p.chr))
 				if !ok {
@@ -764,7 +764,7 @@ func parseStringLiteral(literal string) (string, error) {
 				if len(str) < size {
 					return "", fmt.Errorf("invalid escape: \\%s: len(%q) != %d", string(chr), str, size)
 				}
-				for j := 0; j < size; j++ {
+				for j := range size {
 					decimal, ok := hex2decimal(str[j])
 					if !ok {
 						return "", fmt.Errorf("invalid escape: \\%s: %q", string(chr), str[:size])

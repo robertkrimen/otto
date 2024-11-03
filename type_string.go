@@ -50,7 +50,7 @@ func (str stringWide) String() string {
 }
 
 func newStringObject(str string) stringObjecter {
-	for i := 0; i < len(str); i++ {
+	for i := range len(str) {
 		if str[i] >= utf8.RuneSelf {
 			goto wide
 		}
@@ -91,7 +91,7 @@ func (o *object) stringValue() stringObjecter {
 func stringEnumerate(obj *object, all bool, each func(string) bool) {
 	if str := obj.stringValue(); str != nil {
 		length := str.Length()
-		for index := 0; index < length; index++ {
+		for index := range length {
 			if !each(strconv.FormatInt(int64(index), 10)) {
 				return
 			}

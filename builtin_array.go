@@ -43,7 +43,7 @@ func builtinArrayToLocaleString(call FunctionCall) Value {
 		return stringValue("")
 	}
 	stringList := make([]string, 0, length)
-	for index := int64(0); index < length; index++ {
+	for index := range length {
 		value := thisObject.get(arrayIndexToString(index))
 		stringValue := ""
 		switch value.kind {
@@ -71,7 +71,7 @@ func builtinArrayConcat(call FunctionCall) Value {
 			obj := item.object()
 			if isArray(obj) {
 				length := obj.get(propertyLength).number().int64
-				for index := int64(0); index < length; index++ {
+				for index := range length {
 					name := strconv.FormatInt(index, 10)
 					if obj.hasProperty(name) {
 						valueArray = append(valueArray, obj.get(name))
@@ -151,7 +151,7 @@ func builtinArrayJoin(call FunctionCall) Value {
 		return stringValue("")
 	}
 	stringList := make([]string, 0, length)
-	for index := int64(0); index < length; index++ {
+	for index := range length {
 		value := thisObject.get(arrayIndexToString(index))
 		stringValue := ""
 		switch value.kind {
@@ -175,7 +175,7 @@ func builtinArraySplice(call FunctionCall) Value {
 	}
 	valueArray := make([]Value, deleteCount)
 
-	for index := int64(0); index < deleteCount; index++ {
+	for index := range deleteCount {
 		indexString := arrayIndexToString(start + index)
 		if thisObject.hasProperty(indexString) {
 			valueArray[index] = thisObject.get(indexString)
@@ -236,7 +236,7 @@ func builtinArraySplice(call FunctionCall) Value {
 		}
 	}
 
-	for index := int64(0); index < itemCount; index++ {
+	for index := range itemCount {
 		thisObject.put(arrayIndexToString(index+start), itemList[index], true)
 	}
 	thisObject.put(propertyLength, int64Value(length+itemCount-deleteCount), true)
@@ -257,7 +257,7 @@ func builtinArraySlice(call FunctionCall) Value {
 	sliceLength := end - start
 	sliceValueArray := make([]Value, sliceLength)
 
-	for index := int64(0); index < sliceLength; index++ {
+	for index := range sliceLength {
 		from := arrayIndexToString(index + start)
 		if thisObject.hasProperty(from) {
 			sliceValueArray[index] = thisObject.get(from)
@@ -283,7 +283,7 @@ func builtinArrayUnshift(call FunctionCall) Value {
 		}
 	}
 
-	for index := int64(0); index < itemCount; index++ {
+	for index := range itemCount {
 		thisObject.put(arrayIndexToString(index), itemList[index], true)
 	}
 
@@ -531,7 +531,7 @@ func builtinArrayEvery(call FunctionCall) Value {
 	if iterator := call.Argument(0); iterator.isCallable() {
 		length := int64(toUint32(thisObject.get(propertyLength)))
 		callThis := call.Argument(1)
-		for index := int64(0); index < length; index++ {
+		for index := range length {
 			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 				if value := thisObject.get(key); iterator.call(call.runtime, callThis, value, int64Value(index), this).bool() {
 					continue
@@ -550,7 +550,7 @@ func builtinArraySome(call FunctionCall) Value {
 	if iterator := call.Argument(0); iterator.isCallable() {
 		length := int64(toUint32(thisObject.get(propertyLength)))
 		callThis := call.Argument(1)
-		for index := int64(0); index < length; index++ {
+		for index := range length {
 			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 				if value := thisObject.get(key); iterator.call(call.runtime, callThis, value, int64Value(index), this).bool() {
 					return trueValue
@@ -568,7 +568,7 @@ func builtinArrayForEach(call FunctionCall) Value {
 	if iterator := call.Argument(0); iterator.isCallable() {
 		length := int64(toUint32(thisObject.get(propertyLength)))
 		callThis := call.Argument(1)
-		for index := int64(0); index < length; index++ {
+		for index := range length {
 			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 				iterator.call(call.runtime, callThis, thisObject.get(key), int64Value(index), this)
 			}
@@ -585,7 +585,7 @@ func builtinArrayMap(call FunctionCall) Value {
 		length := int64(toUint32(thisObject.get(propertyLength)))
 		callThis := call.Argument(1)
 		values := make([]Value, length)
-		for index := int64(0); index < length; index++ {
+		for index := range length {
 			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 				values[index] = iterator.call(call.runtime, callThis, thisObject.get(key), index, this)
 			} else {
@@ -604,7 +604,7 @@ func builtinArrayFilter(call FunctionCall) Value {
 		length := int64(toUint32(thisObject.get(propertyLength)))
 		callThis := call.Argument(1)
 		values := make([]Value, 0)
-		for index := int64(0); index < length; index++ {
+		for index := range length {
 			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 				value := thisObject.get(key)
 				if iterator.call(call.runtime, callThis, value, index, this).bool() {

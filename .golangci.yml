@@ -15,6 +15,9 @@ linters-settings:
     rules:
     - name: var-naming
       disabled: true
+  gosec:
+    excludes:
+      - G115 # Too many false positives.
 
 linters:
   enable-all: true
@@ -23,14 +26,13 @@ linters:
     - lll
     - gochecknoglobals
     - gochecknoinits
-    - scopelint
     - funlen
     - godox
-    - exhaustivestruct
-    - goerr113
+    - err113
     - wsl
     - nlreturn
     - gomnd
+    - mnd
     - paralleltest
     - wrapcheck
     - testpackage
@@ -44,20 +46,13 @@ linters:
     - maintidx
     - ireturn
     - exhaustruct
-    - nosnakecase
     - dupword
-    - structcheck
-    - deadcode
-    - golint
-    - varcheck
-    - ifshort
-    - interfacer
-    - maligned
     # Just causes noise
     - depguard
-    # Go 1.22+ only
-    - copyloopvar
-    - intrange
+    # Deprecated
+    - execinquery
+    # Not needed in go 1.22+
+    - exportloopref
 
 issues:
   exclude-use-default: false
@@ -73,4 +68,6 @@ issues:
     # Field alignment in tests isn't a performance issue.
     - text: fieldalignment
       path: _test\.go
+    - text: Error return value of `fmt\.Fprint.*` is not checked
+      path: tools/tester/main.go
 
