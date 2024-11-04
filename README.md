@@ -1,12 +1,12 @@
 # otto
---
-```go
-import "github.com/robertkrimen/otto"
-```
+
+[![GoDoc Reference](https://pkg.go.dev/badge/github.com/robertkrimen/otto.svg)](https://pkg.go.dev/github.com/robertkrimen/otto)
+
+## Basic Usage
 
 Package otto is a JavaScript parser and interpreter written natively in Go.
 
-http://godoc.org/github.com/robertkrimen/otto
+To use import it with the following:
 
 ```go
 import (
@@ -29,7 +29,7 @@ Get a value out of the VM
 ```go
 if value, err := vm.Get("abc"); err == nil {
     if value_int, err := value.ToInteger(); err == nil {
-	fmt.Printf("", value_int, err)
+        fmt.Printf("", value_int, err)
     }
 }
 ```
@@ -104,12 +104,12 @@ result, _ = vm.Run(`
 `)
 ```
 
-### Parser
+## Parser
 
 A separate parser is available in the parser package if you're just interested
 in building an AST.
 
-http://godoc.org/github.com/robertkrimen/otto/parser
+[![GoDoc Reference](https://pkg.go.dev/badge/github.com/robertkrimen/otto/parser.svg)](https://pkg.go.dev/github.com/robertkrimen/otto/parser)
 
 Parse and return an AST
 
@@ -133,18 +133,22 @@ src := `
 program, err := parser.ParseFile(nil, filename, src, 0)
 ```
 
-### otto
+## Setup
 
-You can run (Go) JavaScript from the commandline with:
-http://github.com/robertkrimen/otto/tree/master/otto
+You can run (Go) JavaScript from the command line with
+[otto](http://github.com/robertkrimen/otto/tree/master/otto).
 
-    $ go get -v github.com/robertkrimen/otto/otto
+```shell
+go install github.com/robertkrimen/otto/otto@latest
+```
 
 Run JavaScript by entering some source on stdin or by giving otto a filename:
 
-    $ otto example.js
+```shell
+otto example.js
+```
 
-### underscore
+## Underscore
 
 Optionally include the JavaScript utility-belt library, underscore, with this
 import:
@@ -158,40 +162,38 @@ import (
 // Now every otto runtime will come loaded with underscore
 ```
 
-For more information: http://github.com/robertkrimen/otto/tree/master/underscore
+For more information: [underscore](http://github.com/robertkrimen/otto/tree/master/underscore)
 
-
-### Caveat Emptor
+## Caveat Emptor
 
 The following are some limitations with otto:
 
-    * "use strict" will parse, but does nothing.
-    * The regular expression engine (re2/regexp) is not fully compatible with the ECMA5 specification.
-    * Otto targets ES5. ES6 features (eg: Typed Arrays) are not supported.
-
+* `use strict` will parse, but does nothing.
+* The regular expression engine ([re2/regexp](https://pkg.go.dev/regexp)) is not fully compatible with the ECMA5 specification.
+* Otto targets ES5. Some ES6 features e.g. Typed Arrays are not supported, PR's to add functionality are always welcome.
 
 ### Regular Expression Incompatibility
 
 Go translates JavaScript-style regular expressions into something that is
 "regexp" compatible via `parser.TransformRegExp`. Unfortunately, RegExp requires
-backtracking for some patterns, and backtracking is not supported by the
-standard Go engine: https://code.google.com/p/re2/wiki/Syntax
+backtracking for some patterns, and backtracking is not supported by Go
+[re2](https://github.com/google/re2/wiki/syntax).
 
 Therefore, the following syntax is incompatible:
 
-    (?=)  // Lookahead (positive), currently a parsing error
-    (?!)  // Lookahead (backhead), currently a parsing error
-    \1    // Backreference (\1, \2, \3, ...), currently a parsing error
+```plaintext
+(?=)  // Lookahead (positive), currently a parsing error
+(?!)  // Lookahead (backhead), currently a parsing error
+\1    // Backreference (\1, \2, \3, ...), currently a parsing error
+```
 
-A brief discussion of these limitations: "Regexp (?!re)"
-https://groups.google.com/forum/?fromgroups=#%21topic/golang-nuts/7qgSDWPIh_E
+A brief discussion of these limitations: [Regexp (?!re)](https://groups.google.com/forum/?fromgroups=#%21topic/golang-nuts/7qgSDWPIh_E)
 
-More information about re2: https://code.google.com/p/re2/
+More information [about re2](https://github.com/google/re2)
 
-In addition to the above, re2 (Go) has a different definition for \s: [\t\n\f\r
-]. The JavaScript definition, on the other hand, also includes \v, Unicode
+In addition to the above, re2 (Go) has a different definition for `\s`: `[\t\n\f\r
+]`. The JavaScript definition, on the other hand, also includes `\v`, Unicode
 "Separator, Space", etc.
-
 
 ### Halting Problem
 
@@ -254,24 +256,20 @@ func runUnsafe(unsafe string) {
 }
 ```
 
-Where is setTimeout/setInterval?
+Where is `setTimeout` / `setInterval`?
 
-These timing functions are not actually part of the ECMA-262 specification.
+These timing functions are not actually part of the [ECMA-262 specification](https://ecma-international.org/publications-and-standards/standards/ecma-262/).
 Typically, they belong to the `window` object (in the browser). It would not be
 difficult to provide something like these via Go, but you probably want to wrap
 otto in an event loop in that case.
 
-For an example of how this could be done in Go with otto, see natto:
-
-http://github.com/robertkrimen/natto
+For an example of how this could be done in Go with otto, see [natto](http://github.com/robertkrimen/natto).
 
 Here is some more discussion of the issue:
 
-* http://book.mixu.net/node/ch2.html
-
-* http://en.wikipedia.org/wiki/Reentrancy_%28computing%29
-
-* http://aaroncrane.co.uk/2009/02/perl_safe_signals/
+* [What is Node.js?](http://book.mixu.net/node/ch2.html)
+* [Reentrancy (computing)](http://en.wikipedia.org/wiki/Reentrancy_%28computing%29)
+* [Perl Safe Signals](https://metacpan.org/pod/Perl::Unsafe::Signals)
 
 ## Usage
 
@@ -279,93 +277,103 @@ Here is some more discussion of the issue:
 var ErrVersion = errors.New("version mismatch")
 ```
 
-#### type Error
+### type Error
 
 ```go
-type Error struct {
-}
+type Error struct {}
 ```
 
-An Error represents a runtime error, e.g. a TypeError, a ReferenceError, etc.
+An Error represents a runtime error, e.g. a `TypeError`, a `ReferenceError`, etc.
 
-#### func (Error) Error
+### func (Error) Error
 
 ```go
 func (err Error) Error() string
 ```
+
 Error returns a description of the error
 
+```plaintext
     TypeError: 'def' is not a function
+```
 
-#### func (Error) String
+### func (Error) String
 
 ```go
 func (err Error) String() string
 ```
+
 String returns a description of the error and a trace of where the error
 occurred.
 
+```plaintext
     TypeError: 'def' is not a function
         at xyz (<anonymous>:3:9)
         at <anonymous>:7:1/
+```
 
-#### type FunctionCall
+### type FunctionCall
 
 ```go
 type FunctionCall struct {
-	This         Value
-	ArgumentList []Value
-	Otto         *Otto
+    This         Value
+    ArgumentList []Value
+    Otto         *Otto
 }
 ```
 
 FunctionCall is an encapsulation of a JavaScript function call.
 
-#### func (FunctionCall) Argument
+### func (FunctionCall) Argument
 
 ```go
 func (self FunctionCall) Argument(index int) Value
 ```
+
 Argument will return the value of the argument at the given index.
 
 If no such argument exists, undefined is returned.
 
-#### type Object
+### type Object
 
 ```go
-type Object struct {
-}
+type Object struct {}
 ```
 
 Object is the representation of a JavaScript object.
 
-#### func (Object) Call
+### func (Object) Call
 
 ```go
 func (self Object) Call(name string, argumentList ...interface{}) (Value, error)
 ```
+
 Call a method on the object.
 
 It is essentially equivalent to:
 
-    var method, _ := object.Get(name)
-    method.Call(object, argumentList...)
+```go
+var method, _ := object.Get(name)
+method.Call(object, argumentList...)
+```
 
 An undefined value and an error will result if:
 
-    1. There is an error during conversion of the argument list
-    2. The property is not actually a function
-    3. An (uncaught) exception is thrown
+1. There is an error during conversion of the argument list
+2. The property is not actually a function
+3. An (uncaught) exception is thrown
 
-#### func (Object) Class
+### func (Object) Class
 
 ```go
 func (self Object) Class() string
 ```
+
 Class will return the class string of the object.
 
 The return value will (generally) be one of:
 
+```plaintext
     Object
     Function
     Array
@@ -374,65 +382,72 @@ The return value will (generally) be one of:
     Boolean
     Date
     RegExp
+```
 
-#### func (Object) Get
+### func (Object) Get
 
 ```go
 func (self Object) Get(name string) (Value, error)
 ```
+
 Get the value of the property with the given name.
 
-#### func (Object) Keys
+### func (Object) Keys
 
 ```go
 func (self Object) Keys() []string
 ```
+
 Get the keys for the object
 
 Equivalent to calling Object.keys on the object
 
-#### func (Object) Set
+### func (Object) Set
 
 ```go
 func (self Object) Set(name string, value interface{}) error
 ```
+
 Set the property of the given name to the given value.
 
 An error will result if the setting the property triggers an exception (i.e.
 read-only), or there is an error during conversion of the given value.
 
-#### func (Object) Value
+### func (Object) Value
 
 ```go
 func (self Object) Value() Value
 ```
+
 Value will return self as a value.
 
-#### type Otto
+### type Otto
 
 ```go
 type Otto struct {
-	// Interrupt is a channel for interrupting the runtime. You can use this to halt a long running execution, for example.
-	// See "Halting Problem" for more information.
-	Interrupt chan func()
+    // Interrupt is a channel for interrupting the runtime. You can use this to halt a long running execution, for example.
+    // See "Halting Problem" for more information.
+    Interrupt chan func()
 }
 ```
 
 Otto is the representation of the JavaScript runtime. Each instance of Otto has
 a self-contained namespace.
 
-#### func  New
+### func New
 
 ```go
 func New() *Otto
 ```
+
 New will allocate a new JavaScript runtime
 
-#### func  Run
+### func Run
 
 ```go
 func Run(src interface{}) (*Otto, Value, error)
 ```
+
 Run will allocate a new JavaScript runtime, run the given source on the
 allocated runtime, and return the runtime, resulting value, and error (if any).
 
@@ -444,11 +459,12 @@ src may also be a Script.
 src may also be a Program, but if the AST has been modified, then runtime
 behavior is undefined.
 
-#### func (Otto) Call
+### func (Otto) Call
 
 ```go
 func (self Otto) Call(source string, this interface{}, argumentList ...interface{}) (Value, error)
 ```
+
 Call the given JavaScript with a given this and arguments.
 
 If this is nil, then some special handling takes place to determine the proper
@@ -471,11 +487,12 @@ value, _ := vm.Call("new Object", nil, "Hello, World.")
 value, _ := vm.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")
 ```
 
-#### func (*Otto) Compile
+### func (*Otto) Compile
 
 ```go
 func (self *Otto) Compile(filename string, src interface{}) (*Script, error)
 ```
+
 Compile will parse the given source and return a Script value or nil and an
 error if there was a problem during compilation.
 
@@ -484,11 +501,12 @@ script, err := vm.Compile("", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
 vm.Run(script)
 ```
 
-#### func (*Otto) Copy
+### func (*Otto) Copy
 
 ```go
 func (in *Otto) Copy() *Otto
 ```
+
 Copy will create a copy/clone of the runtime.
 
 Copy is useful for saving some time when creating many similar runtimes.
@@ -498,21 +516,23 @@ scope, stash, etc. into a new runtime.
 
 Be on the lookout for memory leaks or inadvertent sharing of resources.
 
-#### func (Otto) Get
+### func (Otto) Get
 
 ```go
 func (self Otto) Get(name string) (Value, error)
 ```
+
 Get the value of the top-level binding of the given name.
 
 If there is an error (like the binding does not exist), then the value will be
 undefined.
 
-#### func (Otto) Object
+### func (Otto) Object
 
 ```go
 func (self Otto) Object(source string) (*Object, error)
 ```
+
 Object will run the given source and return the result as an object.
 
 For example, accessing an existing object:
@@ -537,11 +557,12 @@ object.Set("volume", 11)
 If there is an error (like the source does not result in an object), then nil
 and an error is returned.
 
-#### func (Otto) Run
+### func (Otto) Run
 
 ```go
 func (self Otto) Run(src interface{}) (Value, error)
 ```
+
 Run will run the given source (parsing it first if necessary), returning the
 resulting value and error (if any)
 
@@ -556,11 +577,12 @@ src may also be a Script.
 src may also be a Program, but if the AST has been modified, then runtime
 behavior is undefined.
 
-#### func (Otto) Set
+### func (Otto) Set
 
 ```go
 func (self Otto) Set(name string, value interface{}) error
 ```
+
 Set the top-level binding of the given name to the given value.
 
 Set will automatically apply ToValue to the given value in order to convert it
@@ -571,44 +593,44 @@ fails), then an error is returned.
 
 If the top-level binding does not exist, it will be created.
 
-#### func (Otto) ToValue
+### func (Otto) ToValue
 
 ```go
 func (self Otto) ToValue(value interface{}) (Value, error)
 ```
+
 ToValue will convert an interface{} value to a value digestible by
 otto/JavaScript.
 
-#### type Script
+### type Script
 
 ```go
-type Script struct {
-}
+type Script struct {}
 ```
 
 Script is a handle for some (reusable) JavaScript. Passing a Script value to a
 run method will evaluate the JavaScript.
 
-#### func (*Script) String
+### func (*Script) String
 
 ```go
 func (self *Script) String() string
 ```
 
-#### type Value
+### type Value
 
 ```go
-type Value struct {
-}
+type Value struct {}
 ```
 
 Value is the representation of a JavaScript value.
 
-#### func  FalseValue
+### func FalseValue
 
 ```go
 func FalseValue() Value
 ```
+
 FalseValue will return a value representing false.
 
 It is equivalent to:
@@ -617,11 +639,12 @@ It is equivalent to:
 ToValue(false)
 ```
 
-#### func  NaNValue
+### func  NaNValue
 
 ```go
 func NaNValue() Value
 ```
+
 NaNValue will return a value representing NaN.
 
 It is equivalent to:
@@ -630,29 +653,32 @@ It is equivalent to:
 ToValue(math.NaN())
 ```
 
-#### func  NullValue
+### func  NullValue
 
 ```go
 func NullValue() Value
 ```
+
 NullValue will return a Value representing null.
 
-#### func  ToValue
+### func  ToValue
 
 ```go
 func ToValue(value interface{}) (Value, error)
 ```
+
 ToValue will convert an interface{} value to a value digestible by
 otto/JavaScript
 
 This function will not work for advanced types (struct, map, slice/array, etc.)
 and you should use Otto.ToValue instead.
 
-#### func  TrueValue
+### func  TrueValue
 
 ```go
 func TrueValue() Value
 ```
+
 TrueValue will return a value representing true.
 
 It is equivalent to:
@@ -661,39 +687,45 @@ It is equivalent to:
 ToValue(true)
 ```
 
-#### func  UndefinedValue
+### func UndefinedValue
 
 ```go
 func UndefinedValue() Value
 ```
+
 UndefinedValue will return a Value representing undefined.
 
-#### func (Value) Call
+### func (Value) Call
 
 ```go
 func (value Value) Call(this Value, argumentList ...interface{}) (Value, error)
 ```
+
 Call the value as a function with the given this value and argument list and
 return the result of invocation. It is essentially equivalent to:
 
+```js
     value.apply(thisValue, argumentList)
+```
 
 An undefined value and an error will result if:
 
-    1. There is an error during conversion of the argument list
-    2. The value is not actually a function
-    3. An (uncaught) exception is thrown
+1. There is an error during conversion of the argument list
+2. The value is not actually a function
+3. An (uncaught) exception is thrown
 
-#### func (Value) Class
+### func (Value) Class
 
 ```go
 func (value Value) Class() string
 ```
+
 Class will return the class string of the value or the empty string if value is
 not an object.
 
 The return value will (generally) be one of:
 
+```plaintext
     Object
     Function
     Array
@@ -702,12 +734,14 @@ The return value will (generally) be one of:
     Boolean
     Date
     RegExp
+```
 
-#### func (Value) Export
+### func (Value) Export
 
 ```go
 func (self Value) Export() (interface{}, error)
 ```
+
 Export will attempt to convert the value to a Go representation and return it
 via an interface{} kind.
 
@@ -716,6 +750,7 @@ compatibility.
 
 If a reasonable conversion is not possible, then the original value is returned.
 
+```plaintext
     undefined   -> nil (FIXME?: Should be Value{})
     null        -> nil
     boolean     -> bool
@@ -723,155 +758,177 @@ If a reasonable conversion is not possible, then the original value is returned.
     string      -> string
     Array       -> []interface{}
     Object      -> map[string]interface{}
+```
 
-#### func (Value) IsBoolean
+### func (Value) IsBoolean
 
 ```go
 func (value Value) IsBoolean() bool
 ```
+
 IsBoolean will return true if value is a boolean (primitive).
 
-#### func (Value) IsDefined
+### func (Value) IsDefined
 
 ```go
 func (value Value) IsDefined() bool
 ```
+
 IsDefined will return false if the value is undefined, and true otherwise.
 
-#### func (Value) IsFunction
+### func (Value) IsFunction
 
 ```go
 func (value Value) IsFunction() bool
 ```
+
 IsFunction will return true if value is a function.
 
-#### func (Value) IsNaN
+### func (Value) IsNaN
 
 ```go
 func (value Value) IsNaN() bool
 ```
+
 IsNaN will return true if value is NaN (or would convert to NaN).
 
-#### func (Value) IsNull
+### func (Value) IsNull
 
 ```go
 func (value Value) IsNull() bool
 ```
+
 IsNull will return true if the value is null, and false otherwise.
 
-#### func (Value) IsNumber
+### func (Value) IsNumber
 
 ```go
 func (value Value) IsNumber() bool
 ```
+
 IsNumber will return true if value is a number (primitive).
 
-#### func (Value) IsObject
+### func (Value) IsObject
 
 ```go
 func (value Value) IsObject() bool
 ```
+
 IsObject will return true if value is an object.
 
-#### func (Value) IsPrimitive
+### func (Value) IsPrimitive
 
 ```go
 func (value Value) IsPrimitive() bool
 ```
+
 IsPrimitive will return true if value is a primitive (any kind of primitive).
 
-#### func (Value) IsString
+### func (Value) IsString
 
 ```go
 func (value Value) IsString() bool
 ```
+
 IsString will return true if value is a string (primitive).
 
-#### func (Value) IsUndefined
+### func (Value) IsUndefined
 
 ```go
 func (value Value) IsUndefined() bool
 ```
+
 IsUndefined will return true if the value is undefined, and false otherwise.
 
-#### func (Value) Object
+### func (Value) Object
 
 ```go
 func (value Value) Object() *Object
 ```
+
 Object will return the object of the value, or nil if value is not an object.
 
 This method will not do any implicit conversion. For example, calling this
 method on a string primitive value will not return a String object.
 
-#### func (Value) String
+### func (Value) String
 
 ```go
 func (value Value) String() string
 ```
+
 String will return the value as a string.
 
 This method will make return the empty string if there is an error.
 
-#### func (Value) ToBoolean
+### func (Value) ToBoolean
 
 ```go
 func (value Value) ToBoolean() (bool, error)
 ```
+
 ToBoolean will convert the value to a boolean (bool).
 
+```plaintext
     ToValue(0).ToBoolean() => false
     ToValue("").ToBoolean() => false
     ToValue(true).ToBoolean() => true
     ToValue(1).ToBoolean() => true
     ToValue("Nothing happens").ToBoolean() => true
+```
 
 If there is an error during the conversion process (like an uncaught exception),
 then the result will be false and an error.
 
-#### func (Value) ToFloat
+### func (Value) ToFloat
 
 ```go
 func (value Value) ToFloat() (float64, error)
 ```
+
 ToFloat will convert the value to a number (float64).
 
+```plaintext
     ToValue(0).ToFloat() => 0.
     ToValue(1.1).ToFloat() => 1.1
     ToValue("11").ToFloat() => 11.
+```
 
 If there is an error during the conversion process (like an uncaught exception),
 then the result will be 0 and an error.
 
-#### func (Value) ToInteger
+### func (Value) ToInteger
 
 ```go
 func (value Value) ToInteger() (int64, error)
 ```
+
 ToInteger will convert the value to a number (int64).
 
+```plaintext
     ToValue(0).ToInteger() => 0
     ToValue(1.1).ToInteger() => 1
     ToValue("11").ToInteger() => 11
+```
 
 If there is an error during the conversion process (like an uncaught exception),
 then the result will be 0 and an error.
 
-#### func (Value) ToString
+### func (Value) ToString
 
 ```go
 func (value Value) ToString() (string, error)
 ```
+
 ToString will convert the value to a string (string).
 
+```plaintext
     ToValue(0).ToString() => "0"
     ToValue(false).ToString() => "false"
     ToValue(1.1).ToString() => "1.1"
     ToValue("11").ToString() => "11"
     ToValue('Nothing happens.').ToString() => "Nothing happens."
+```
 
 If there is an error during the conversion process (like an uncaught exception),
 then the result will be the empty string ("") and an error.
-
---
-**godocdown** http://github.com/robertkrimen/godocdown
