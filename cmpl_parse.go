@@ -391,12 +391,10 @@ func (cmpl *compiler) parse() *nodeProgram {
 }
 
 type nodeProgram struct {
-	body []nodeStatement
-
+	file         *file.File
+	body         []nodeStatement
 	varList      []string
 	functionList []*nodeFunctionLiteral
-
-	file *file.File
 }
 
 type node interface{}
@@ -412,22 +410,22 @@ type (
 	}
 
 	nodeAssignExpression struct {
-		operator token.Token
 		left     nodeExpression
 		right    nodeExpression
+		operator token.Token
 	}
 
 	nodeBinaryExpression struct {
-		operator   token.Token
 		left       nodeExpression
 		right      nodeExpression
+		operator   token.Token
 		comparison bool
 	}
 
 	nodeBracketExpression struct {
-		idx    file.Idx
 		left   nodeExpression
 		member nodeExpression
+		idx    file.Idx
 	}
 
 	nodeCallExpression struct {
@@ -442,24 +440,24 @@ type (
 	}
 
 	nodeDotExpression struct {
-		idx        file.Idx
 		left       nodeExpression
 		identifier string
+		idx        file.Idx
 	}
 
 	nodeFunctionLiteral struct {
-		name          string
 		body          nodeStatement
+		file          *file.File
+		name          string
 		source        string
 		parameterList []string
 		varList       []string
 		functionList  []*nodeFunctionLiteral
-		file          *file.File
 	}
 
 	nodeIdentifier struct {
-		idx  file.Idx
 		name string
+		idx  file.Idx
 	}
 
 	nodeLiteral struct {
@@ -476,9 +474,9 @@ type (
 	}
 
 	nodeProperty struct {
+		value nodeExpression
 		key   string
 		kind  string
-		value nodeExpression
 	}
 
 	nodeRegExpLiteral struct {
@@ -493,15 +491,15 @@ type (
 	nodeThisExpression struct{}
 
 	nodeUnaryExpression struct {
-		operator token.Token
 		operand  nodeExpression
+		operator token.Token
 		postfix  bool
 	}
 
 	nodeVariableExpression struct {
-		idx         file.Idx
-		name        string
 		initializer nodeExpression
+		name        string
+		idx         file.Idx
 	}
 )
 
@@ -516,8 +514,8 @@ type (
 	}
 
 	nodeBranchStatement struct {
-		branch token.Token
 		label  string
+		branch token.Token
 	}
 
 	nodeCaseStatement struct {
@@ -526,8 +524,8 @@ type (
 	}
 
 	nodeCatchStatement struct {
-		parameter string
 		body      nodeStatement
+		parameter string
 	}
 
 	nodeDebuggerStatement struct{}
@@ -563,8 +561,8 @@ type (
 	}
 
 	nodeLabelledStatement struct {
-		label     string
 		statement nodeStatement
+		label     string
 	}
 
 	nodeReturnStatement struct {
@@ -573,8 +571,8 @@ type (
 
 	nodeSwitchStatement struct {
 		discriminant nodeExpression
-		defaultIdx   int
 		body         []*nodeCaseStatement
+		defaultIdx   int
 	}
 
 	nodeThrowStatement struct {

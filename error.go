@@ -50,13 +50,13 @@ func (e ottoError) formatWithStack() string {
 }
 
 type frame struct {
-	native     bool
-	nativeFile string
-	nativeLine int
-	file       *file.File
-	offset     int
-	callee     string
 	fn         interface{}
+	file       *file.File
+	nativeFile string
+	callee     string
+	nativeLine int
+	offset     int
+	native     bool
 }
 
 var nativeFrame = frame{}
@@ -148,7 +148,7 @@ func newError(rt *runtime, name string, stackFramesToPop int, in ...interface{})
 	if rt != nil && rt.scope != nil {
 		curScope := rt.scope
 
-		for i := 0; i < stackFramesToPop; i++ {
+		for range stackFramesToPop {
 			if curScope.outer != nil {
 				curScope = curScope.outer
 			}

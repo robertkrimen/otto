@@ -18,7 +18,7 @@ func TestNativeStackFrames(t *testing.T) {
 		require.NoError(t, err)
 
 		err = vm.Set("ext1", func(c FunctionCall) Value {
-			if _, err := c.Otto.Eval("B()"); err != nil {
+			if _, err = c.Otto.Eval("B()"); err != nil {
 				panic(err)
 			}
 
@@ -60,7 +60,7 @@ func TestNativeStackFrames(t *testing.T) {
 				is(ctx.Column, 19)
 			}
 
-			if _, err := c.Otto.Eval("ext3()"); err != nil {
+			if _, err = c.Otto.Eval("ext3()"); err != nil {
 				panic(err)
 			}
 

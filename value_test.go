@@ -30,8 +30,8 @@ type intAlias int
 
 func TestToValue(t *testing.T) {
 	tt(t, func() {
-		_, tester := test()
-		vm := tester.vm
+		_, tester2 := test()
+		vm := tester2.vm
 
 		value, _ := vm.ToValue(nil)
 		is(value, "undefined")
@@ -76,6 +76,42 @@ func TestToValue(t *testing.T) {
 
 			value, _ = vm.ToValue(&tmp2)
 			is(value, "undefined")
+		}
+
+		{
+			m := map[int64]string{0: "foo", 1: "bar"}
+			val, err := vm.ToValue(m)
+			is(err, nil)
+			v0, err := val.Object().Get("0")
+			is(err, nil)
+			is(v0, m[0])
+			v1, err := val.Object().Get("1")
+			is(err, nil)
+			is(v1, m[1])
+			missing, err := val.Object().Get("2")
+			is(err, nil)
+			is(missing, UndefinedValue())
+			invalid, err := val.Object().Get("xxx")
+			is(err, nil)
+			is(invalid, UndefinedValue())
+		}
+
+		{
+			m := map[uint64]string{0: "foo", 1: "bar"}
+			val, err := vm.ToValue(m)
+			is(err, nil)
+			v0, err := val.Object().Get("0")
+			is(err, nil)
+			is(v0, m[0])
+			v1, err := val.Object().Get("1")
+			is(err, nil)
+			is(v1, m[1])
+			missing, err := val.Object().Get("2")
+			is(err, nil)
+			is(missing, UndefinedValue())
+			invalid, err := val.Object().Get("xxx")
+			is(err, nil)
+			is(invalid, UndefinedValue())
 		}
 	})
 }
@@ -141,7 +177,7 @@ func Test_toInt32(t *testing.T) {
 			math.Inf(+1), int32(0),
 			math.Inf(-1), int32(0),
 		}
-		for index := 0; index < len(test)/2; index++ {
+		for index := range len(test) / 2 {
 			// FIXME terst, Make strict again?
 			is(
 				toInt32(toValue(test[index*2])),
@@ -163,7 +199,7 @@ func Test_toUint32(t *testing.T) {
 			math.Inf(+1), uint32(0),
 			math.Inf(-1), uint32(0),
 		}
-		for index := 0; index < len(test)/2; index++ {
+		for index := range len(test) / 2 {
 			// FIXME terst, Make strict again?
 			is(
 				toUint32(toValue(test[index*2])),
@@ -185,7 +221,7 @@ func Test_toUint16(t *testing.T) {
 			math.Inf(+1), uint16(0),
 			math.Inf(-1), uint16(0),
 		}
-		for index := 0; index < len(test)/2; index++ {
+		for index := range len(test) / 2 {
 			// FIXME terst, Make strict again?
 			is(
 				toUint16(toValue(test[index*2])),
@@ -286,12 +322,24 @@ func TestExport(t *testing.T) {
 
 		{
 			abc := struct {
-				def int
 				ghi interface{}
+				def int
 				xyz float32
 			}{}
 			abc.def = 3
 			abc.xyz = 3.1459
+			vm.Set("abc", abc)
+			is(test(`abc;`).export(), abc)
+		}
+
+		{
+			abc := map[int64]string{0: "foo", 1: "bar"}
+			vm.Set("abc", abc)
+			is(test(`abc;`).export(), abc)
+		}
+
+		{
+			abc := map[uint64]string{0: "foo", 1: "bar"}
 			vm.Set("abc", abc)
 			is(test(`abc;`).export(), abc)
 		}
@@ -309,7 +357,7 @@ func Test_toReflectValue(t *testing.T) {
 
 func TestJSONMarshaling(t *testing.T) {
 	tt(t, func() {
-		eval, tester := test()
+		eval, tester2 := test()
 		toJSON := func(val interface{}) string {
 			j, err := json.Marshal(val)
 			is(err, nil)
@@ -338,14 +386,14 @@ func TestJSONMarshaling(t *testing.T) {
 		is(toJSON(eval(`({a:1, b:"hi", c:[true,false]})`)), `{"a":1,"b":"hi","c":[true,false]}`)
 
 		goArray := []string{"foo", "bar"}
-		val, _ := tester.vm.ToValue(goArray)
+		val, _ := tester2.vm.ToValue(goArray)
 		is(toJSON(val), `["foo","bar"]`)
 
 		goMap := map[string]interface{}{
 			"bar": []int{1, 2, 3},
 			"foo": 17,
 		}
-		val, _ = tester.vm.ToValue(goMap)
+		val, _ = tester2.vm.ToValue(goMap)
 		is(toJSON(val), `{"bar":[1,2,3],"foo":17}`)
 	})
 }

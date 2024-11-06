@@ -6,13 +6,12 @@ import (
 
 type scope struct {
 	outer           *scope
+	declarationList []ast.Declaration
+	labels          []string
 	allowIn         bool
 	inIteration     bool
 	inSwitch        bool
 	inFunction      bool
-	declarationList []ast.Declaration
-
-	labels []string
 }
 
 func (p *parser) openScope() {

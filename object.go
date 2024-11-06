@@ -1,17 +1,14 @@
 package otto
 
 type object struct {
-	runtime *runtime
-
-	class       string
-	objectClass *objectClass
-	value       interface{}
-
-	prototype  *object
-	extensible bool
-
+	value         interface{}
+	runtime       *runtime
+	objectClass   *objectClass
+	prototype     *object
 	property      map[string]property
+	class         string
 	propertyOrder []string
+	extensible    bool
 }
 
 func newObject(rt *runtime, class string) *object {
@@ -101,7 +98,7 @@ func (o *object) String() string {
 	return o.DefaultValue(defaultValueHintString).string()
 }
 
-func (o *object) defineProperty(name string, value Value, mode propertyMode, throw bool) bool { //nolint: unparam
+func (o *object) defineProperty(name string, value Value, mode propertyMode, throw bool) bool { //nolint:unparam
 	return o.defineOwnProperty(name, property{value, mode}, throw)
 }
 

@@ -13,12 +13,12 @@ import (
 )
 
 type abcStruct struct {
-	Abc bool
-	Def int
-	Ghi string
 	Jkl interface{}
-	Mno _mnoStruct
 	Pqr map[string]int8
+	Ghi string
+	Mno _mnoStruct
+	Def int
+	Abc bool
 }
 
 func (abc abcStruct) String() string {
@@ -763,11 +763,11 @@ func TestPassthrough(t *testing.T) {
 	})
 }
 
-type TestDynamicFunctionReturningInterfaceMyStruct1 struct{} //nolint: errname
+type TestDynamicFunctionReturningInterfaceMyStruct1 struct{} //nolint:errname
 
 func (m *TestDynamicFunctionReturningInterfaceMyStruct1) Error() string { return "MyStruct1" }
 
-type TestDynamicFunctionReturningInterfaceMyStruct2 struct{} //nolint: errname
+type TestDynamicFunctionReturningInterfaceMyStruct2 struct{} //nolint:errname
 
 func (m *TestDynamicFunctionReturningInterfaceMyStruct2) Error() string { return "MyStruct2" }
 

@@ -331,6 +331,7 @@ func TestString_slice_unicode(t *testing.T) {
 		test(`"uñiçode".slice(0,11)`, "uñiçode")
 		test(`"uñiçode".slice(0,-1)`, "uñiçod")
 		test(`"uñiçode".slice(-1,11)`, "e")
+		test(`"发送 213123".slice(0,2)`, "发送")
 	})
 }
 
@@ -468,5 +469,42 @@ func TestString_localeCompare(t *testing.T) {
 		test(`'a'.localeCompare('c');`, -1)
 		test(`'c'.localeCompare('a');`, 1)
 		test(`'a'.localeCompare('a');`, 0)
+	})
+}
+
+func TestString_startsWith(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`'a'.startsWith('c');`, false)
+		test(`'aa'.startsWith('a');`, true)
+	})
+}
+
+func TestString_trimStart(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`"		abc\u000B".trimStart()`, "abc\u000B")
+		test(`"abc ".trimStart()`, "abc ")
+		test(`
+			var a = "\u180Eabc \u000B "
+			var b = a.trimStart()
+			a.length + b.length
+		`, 13)
+	})
+}
+
+func TestString_trimEnd(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`"		abc\u000B".trimEnd()`, "		abc")
+		test(`" abc ".trimEnd()`, " abc")
+		test(`
+			var a = "\u180Eabc \u000B "
+			var b = a.trimEnd()
+			a.length + b.length
+		`, 11)
 	})
 }

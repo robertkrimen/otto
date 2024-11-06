@@ -1,8 +1,8 @@
 package otto
 
 import (
-	"fmt"
 	"math/rand"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -123,8 +123,8 @@ func benchmarkGoSliceSort(b *testing.B, size int, sortFuncCall string, sortCode 
 	b.Helper()
 	// generate arbitrary slice of 'size'
 	testSlice := make([]int, size)
-	for i := 0; i < size; i++ {
-		testSlice[i] = rand.Int() //nolint: gosec
+	for i := range size {
+		testSlice[i] = rand.Int() //nolint:gosec
 	}
 
 	vm := New()
@@ -147,7 +147,7 @@ func benchmarkJsArraySort(b *testing.B, size int, sortFuncCall string, sortCode 
 	// generate arbitrary slice of 'size'
 	testSlice := make([]string, size)
 	for i := range testSlice {
-		testSlice[i] = fmt.Sprintf("%d", rand.Int()) //nolint: gosec
+		testSlice[i] = strconv.Itoa(rand.Int()) //nolint:gosec
 	}
 
 	jsArrayString := "[" + strings.Join(testSlice, ",") + "]"

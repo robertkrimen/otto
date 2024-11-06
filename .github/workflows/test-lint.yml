@@ -8,16 +8,16 @@ jobs:
   go-test-lint:
     strategy:
       matrix:
-        go: [1.19, 1.18]
-        golangcli: [v1.50.1]
+        go: [1.22, 1.23]
+        golangcli: [v1.61.0]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
           cache: true
@@ -30,10 +30,10 @@ jobs:
           git --no-pager diff && [[ 0 -eq $(git status --porcelain | wc -l) ]]
 
       - name: Go Lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v4
         with:
-          version: ${{ matrix.golangci }}
-          args: "--out-${NO_FUTURE}format colored-line-number"
+          version: ${{ matrix.golangcli }}
+          args: --out-format=colored-line-number
           skip-pkg-cache: true
           skip-build-cache: true
 

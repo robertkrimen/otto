@@ -136,8 +136,8 @@ func (p *parser) parseRegExpLiteral() *ast.RegExpLiteral {
 	flags := ""
 	if p.token == token.IDENTIFIER { // gim
 		flags = p.literal
+		endOffset = p.chrOffset
 		p.next()
-		endOffset = p.chrOffset - 1
 	}
 
 	var value string
@@ -268,7 +268,7 @@ func (p *parser) parseObjectProperty() ast.Property {
 	literal, value := p.parseObjectPropertyKey()
 	if literal == "get" && p.token != token.COLON {
 		idx := p.idx
-		_, value := p.parseObjectPropertyKey()
+		_, value = p.parseObjectPropertyKey()
 		parameterList := p.parseFunctionParameterList()
 
 		node := &ast.FunctionLiteral{
@@ -283,7 +283,7 @@ func (p *parser) parseObjectProperty() ast.Property {
 		}
 	} else if literal == "set" && p.token != token.COLON {
 		idx := p.idx
-		_, value := p.parseObjectPropertyKey()
+		_, value = p.parseObjectPropertyKey()
 		parameterList := p.parseFunctionParameterList()
 
 		node := &ast.FunctionLiteral{
@@ -379,26 +379,24 @@ func (p *parser) parseArrayLiteral() ast.Expression {
 	}
 }
 
-func (p *parser) parseArgumentList() (argumentList []ast.Expression, idx0, idx1 file.Idx) { //nolint: nonamedreturns
+func (p *parser) parseArgumentList() (argumentList []ast.Expression, idx0, idx1 file.Idx) { //nolint:nonamedreturns
 	if p.mode&StoreComments != 0 {
 		p.comments.Unset()
 	}
 	idx0 = p.expect(token.LEFT_PARENTHESIS)
-	if p.token != token.RIGHT_PARENTHESIS {
-		for {
-			exp := p.parseAssignmentExpression()
-			if p.mode&StoreComments != 0 {
-				p.comments.SetExpression(exp)
-			}
-			argumentList = append(argumentList, exp)
-			if p.token != token.COMMA {
-				break
-			}
-			if p.mode&StoreComments != 0 {
-				p.comments.Unset()
-			}
-			p.next()
+	for p.token != token.RIGHT_PARENTHESIS {
+		exp := p.parseAssignmentExpression()
+		if p.mode&StoreComments != 0 {
+			p.comments.SetExpression(exp)
 		}
+		argumentList = append(argumentList, exp)
+		if p.token != token.COMMA {
+			break
+		}
+		if p.mode&StoreComments != 0 {
+			p.comments.Unset()
+		}
+		p.next()
 	}
 	if p.mode&StoreComments != 0 {
 		p.comments.Unset()
@@ -884,7 +882,7 @@ func (p *parser) parseLogicalOrExpression() ast.Expression {
 	return left
 }
 
-func (p *parser) parseConditionlExpression() ast.Expression {
+func (p *parser) parseConditionalExpression() ast.Expression {
 	left := p.parseLogicalOrExpression()
 
 	if p.token == token.QUESTION_MARK {
@@ -911,7 +909,7 @@ func (p *parser) parseConditionlExpression() ast.Expression {
 }
 
 func (p *parser) parseAssignmentExpression() ast.Expression {
-	left := p.parseConditionlExpression()
+	left := p.parseConditionalExpression()
 	var operator token.Token
 	switch p.token {
 	case token.ASSIGN:

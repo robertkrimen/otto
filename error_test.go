@@ -1,7 +1,6 @@
 package otto
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -67,7 +66,7 @@ func Test_catchPanic(t *testing.T) {
 func asError(t *testing.T, err error) *Error {
 	t.Helper()
 	var oerr *Error
-	require.True(t, errors.As(err, &oerr))
+	require.ErrorAs(t, err, &oerr)
 	return oerr
 }
 
@@ -239,7 +238,7 @@ func TestErrorContext(t *testing.T) {
 
 		{
 			f, _ := vm.Get("B")
-			_, err := f.Call(UndefinedValue())
+			_, err = f.Call(UndefinedValue())
 			err1 := asError(t, err)
 			is(err1.message, "test")
 			is(len(err1.trace), 2)
@@ -249,7 +248,7 @@ func TestErrorContext(t *testing.T) {
 
 		{
 			f, _ := vm.Get("C")
-			_, err := f.Call(UndefinedValue())
+			_, err = f.Call(UndefinedValue())
 			err1 := asError(t, err)
 			is(err1.message, `Cannot access member "prop" of null`)
 			is(len(err1.trace), 1)
@@ -445,5 +444,22 @@ func TestErrorStackProperty(t *testing.T) {
 		require.NoError(t, err)
 
 		is(v.String(), "TypeError: uh oh\n    at A (test.js:2:29)\n    at B (test.js:3:26)\n    at C (test.js:4:26)\n    at test.js:8:10\n")
+	})
+}
+
+func TestErrorMessageContainingFormatCharacters(t *testing.T) {
+	tt(t, func() {
+		test, tester := test()
+
+		tester.Set("F", func(call FunctionCall) Value {
+			return call.Otto.MakeCustomError(call.ArgumentList[0].String(), call.ArgumentList[1].String())
+		})
+
+		test("Error('literal percent-s: %s')", "Error: literal percent-s: %s")
+		test("new Error('literal percent-s: %s')", "Error: literal percent-s: %s")
+		test("F('TestError', 'literal percent-s: %s')", "TestError: literal percent-s: %s")
+		test("raise: throw Error('literal percent-s: %s')", "Error: literal percent-s: %s")
+		test("raise: throw new Error('literal percent-s: %s')", "Error: literal percent-s: %s")
+		test("raise: throw F('TestError', 'literal percent-s: %s')", "TestError: literal percent-s: %s")
 	})
 }

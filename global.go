@@ -79,7 +79,7 @@ func (o *object) primitiveValue() Value {
 	return Value{}
 }
 
-func (o *object) hasPrimitive() bool { //nolint: unused
+func (o *object) hasPrimitive() bool { //nolint:unused
 	switch o.value.(type) {
 	case Value, stringObjecter:
 		return true

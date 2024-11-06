@@ -6,19 +6,19 @@ import (
 
 // stasher is implemented by types which can stash data.
 type stasher interface {
-	hasBinding(string) bool            //
-	createBinding(string, bool, Value) // CreateMutableBinding
-	setBinding(string, Value, bool)    // SetMutableBinding
-	getBinding(string, bool) Value     // GetBindingValue
-	deleteBinding(string) bool         //
-	setValue(string, Value, bool)      // createBinding + setBinding
+	hasBinding(name string) bool                            //
+	createBinding(name string, deletable bool, value Value) // CreateMutableBinding
+	setBinding(name string, value Value, strict bool)       // SetMutableBinding
+	getBinding(name string, throw bool) Value               // GetBindingValue
+	deleteBinding(name string) bool                         //
+	setValue(name string, value Value, throw bool)          // createBinding + setBinding
 
 	outer() stasher
 	runtime() *runtime
 
-	newReference(string, bool, at) referencer
+	newReference(name string, strict bool, atv at) referencer
 
-	clone(*cloner) stasher
+	clone(cloner *cloner) stasher
 }
 
 type objectStash struct {

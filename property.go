@@ -69,11 +69,11 @@ func (p *property) configureOff() {
 	p.mode &= ^modeConfigureMask
 }
 
-func (p property) configureSet() bool { //nolint: unused
+func (p property) configureSet() bool { //nolint:unused
 	return p.mode&modeConfigureMask&modeSetMask == 0
 }
 
-func (p property) copy() *property { //nolint: unused
+func (p property) copy() *property { //nolint:unused
 	cpy := p
 	return &cpy
 }
@@ -150,12 +150,12 @@ func toPropertyDescriptor(rt *runtime, value Value) property {
 	getterSetter := false
 
 	if objectDescriptor.hasProperty("get") {
-		value := objectDescriptor.get("get")
-		if value.IsDefined() {
-			if !value.isCallable() {
+		val := objectDescriptor.get("get")
+		if val.IsDefined() {
+			if !val.isCallable() {
 				panic(rt.panicTypeError("toPropertyDescriptor get not callable"))
 			}
-			getter = value.object()
+			getter = val.object()
 			getterSetter = true
 		} else {
 			getter = &nilGetSetObject
@@ -164,12 +164,12 @@ func toPropertyDescriptor(rt *runtime, value Value) property {
 	}
 
 	if objectDescriptor.hasProperty("set") {
-		value := objectDescriptor.get("set")
-		if value.IsDefined() {
-			if !value.isCallable() {
+		val := objectDescriptor.get("set")
+		if val.IsDefined() {
+			if !val.isCallable() {
 				panic(rt.panicTypeError("toPropertyDescriptor set not callable"))
 			}
-			setter = value.object()
+			setter = val.object()
 			getterSetter = true
 		} else {
 			setter = &nilGetSetObject

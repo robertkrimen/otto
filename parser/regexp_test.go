@@ -65,7 +65,7 @@ func TestRegExp(t *testing.T) {
 				result, err := TransformRegExp(input)
 				is(err, nil)
 				if is(result, expect) {
-					_, err := regexp.Compile(result)
+					_, err = regexp.Compile(result)
 					if !is(err, nil) {
 						t.Log(result)
 					}

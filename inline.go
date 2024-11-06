@@ -902,6 +902,43 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"values": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "values",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "values",
+							call: builtinObjectValues,
+						},
+					},
+				},
+			},
 			"getOwnPropertyNames": {
 				mode: 0o101,
 				value: Value{
@@ -955,6 +992,7 @@ func (rt *runtime) newContext() {
 			"isFrozen",
 			"freeze",
 			"keys",
+			"values",
 			"getOwnPropertyNames",
 		},
 	}
@@ -2410,6 +2448,43 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"startsWith": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "startsWith",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "startsWith",
+							call: builtinStringStartsWith,
+						},
+					},
+				},
+			},
 			methodToString: {
 				mode: 0o101,
 				value: Value{
@@ -2554,6 +2629,80 @@ func (rt *runtime) newContext() {
 						value: nativeFunctionObject{
 							name: "trimRight",
 							call: builtinStringTrimRight,
+						},
+					},
+				},
+			},
+			"trimStart": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "trimStart",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "trimStart",
+							call: builtinStringTrimStart,
+						},
+					},
+				},
+			},
+			"trimEnd": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 0,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "trimEnd",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "trimEnd",
+							call: builtinStringTrimEnd,
 						},
 					},
 				},
@@ -2760,10 +2909,13 @@ func (rt *runtime) newContext() {
 			"split",
 			"substr",
 			"substring",
+			"startsWith",
 			methodToString,
 			"trim",
 			"trimLeft",
 			"trimRight",
+			"trimStart",
+			"trimEnd",
 			"toLocaleLowerCase",
 			"toLocaleUpperCase",
 			"toLowerCase",

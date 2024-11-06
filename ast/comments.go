@@ -38,8 +38,8 @@ const (
 
 // Comment contains the data of the comment.
 type Comment struct {
-	Begin    file.Idx
 	Text     string
+	Begin    file.Idx
 	Position CommentPosition
 }
 

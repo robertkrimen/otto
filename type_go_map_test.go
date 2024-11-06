@@ -1,8 +1,8 @@
 package otto
 
 import (
-	"fmt"
 	"sort"
+	"strconv"
 	"testing"
 )
 
@@ -25,7 +25,7 @@ func (s GoMapTest) Join() string {
 	sort.Strings(keys)
 
 	for _, key := range keys {
-		joinedStr += key + ": " + fmt.Sprintf("%d", s[key]) + " "
+		joinedStr += key + ": " + strconv.Itoa(s[key]) + " "
 	}
 	return joinedStr
 }

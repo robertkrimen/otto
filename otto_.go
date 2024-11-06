@@ -95,7 +95,7 @@ func valueToRangeIndex(indexValue Value, length int64, negativeIsZero bool) int6
 	return index
 }
 
-func rangeStartEnd(array []Value, size int64, negativeIsZero bool) (start, end int64) { //nolint: nonamedreturns
+func rangeStartEnd(array []Value, size int64, negativeIsZero bool) (start, end int64) { //nolint:nonamedreturns
 	start = valueToRangeIndex(valueOfArrayIndex(array, 0), size, negativeIsZero)
 	if len(array) == 1 {
 		// If there is only the start argument, then end = size
@@ -113,7 +113,7 @@ func rangeStartEnd(array []Value, size int64, negativeIsZero bool) (start, end i
 	return
 }
 
-func rangeStartLength(source []Value, size int64) (start, length int64) { //nolint: nonamedreturns
+func rangeStartLength(source []Value, size int64) (start, length int64) { //nolint:nonamedreturns
 	start = valueToRangeIndex(valueOfArrayIndex(source, 0), size, false)
 
 	// Assume the second argument is missing or undefined
@@ -132,9 +132,9 @@ func rangeStartLength(source []Value, size int64) (start, length int64) { //noli
 }
 
 func hereBeDragons(arguments ...interface{}) string {
-	pc, _, _, _ := goruntime.Caller(1) //nolint: dogsled
+	pc, _, _, _ := goruntime.Caller(1) //nolint:dogsled
 	name := goruntime.FuncForPC(pc).Name()
-	message := fmt.Sprintf("Here be dragons -- %s", name)
+	message := "Here be dragons -- " + name
 	if len(arguments) > 0 {
 		message += ": "
 		argument0 := fmt.Sprintf("%s", arguments[0])

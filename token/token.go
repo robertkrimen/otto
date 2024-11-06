@@ -57,11 +57,11 @@ type keyword struct {
 //	public
 //	static
 func IsKeyword(literal string) (Token, bool) {
-	if keyword, exists := keywordTable[literal]; exists {
-		if keyword.futureKeyword {
-			return KEYWORD, keyword.strict
+	if kw, exists := keywordTable[literal]; exists {
+		if kw.futureKeyword {
+			return KEYWORD, kw.strict
 		}
-		return keyword.token, false
+		return kw.token, false
 	}
 	return 0, false
 }

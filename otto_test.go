@@ -1178,8 +1178,8 @@ func TestOttoCopy(t *testing.T) {
 		is(value, "Xyzzy0[object Object]")
 
 		{
-			vm0 := New()
-			_, err := vm0.Run(`
+			vm01 := New()
+			_, err2 := vm01.Run(`
                 var global = (function () {return this;}())
                 var abc = 0;
                 var vm = "vm0";
@@ -1197,34 +1197,34 @@ func TestOttoCopy(t *testing.T) {
                     };
                 })();
             `)
-			require.NoError(t, err)
+			require.NoError(t, err2)
 
-			value, err := vm0.Run(`
+			value2, err2 := vm01.Run(`
                 def();
             `)
-			require.NoError(t, err)
-			is(value, "vm0,0,0,1")
+			require.NoError(t, err2)
+			is(value2, "vm0,0,0,1")
 
-			vm1 := vm0.Copy()
-			err = vm1.Set("vm", "vm1")
-			require.NoError(t, err)
-			value, err = vm1.Run(`
+			vm11 := vm01.Copy()
+			err2 = vm11.Set("vm", "vm1")
+			require.NoError(t, err2)
+			value2, err2 = vm11.Run(`
                 def();
             `)
-			require.NoError(t, err)
-			is(value, "vm1,1,1,1")
+			require.NoError(t, err2)
+			is(value2, "vm1,1,1,1")
 
-			value, err = vm0.Run(`
+			value2, err2 = vm01.Run(`
                 def();
             `)
-			require.NoError(t, err)
-			is(value, "vm0,1,1,1")
+			require.NoError(t, err2)
+			is(value2, "vm0,1,1,1")
 
-			value, err = vm1.Run(`
+			value2, err2 = vm11.Run(`
                 def();
             `)
-			require.NoError(t, err)
-			is(value, "vm1,2,2,1")
+			require.NoError(t, err2)
+			is(value2, "vm1,2,2,1")
 		}
 	})
 }
@@ -1412,15 +1412,15 @@ func TestOttoRun(t *testing.T) {
 		}
 
 		{
-			script, err := vm.Compile("", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
-			require.NoError(t, err)
+			script, err2 := vm.Compile("", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
+			require.NoError(t, err2)
 
-			value, err = vm.Run(script)
-			require.NoError(t, err)
+			value, err2 = vm.Run(script)
+			require.NoError(t, err2)
 			is(value, 14)
 
-			value, err = vm.Run(script)
-			require.NoError(t, err)
+			value, err2 = vm.Run(script)
+			require.NoError(t, err2)
 			is(value, 16)
 
 			is(script.String(), "// \nvar abc; if (!abc) abc = 0; abc += 2; abc;")
@@ -1778,7 +1778,7 @@ func TestOttoInterrupt(t *testing.T) {
 			go func() {
 				defer func() {
 					if caught := recover(); caught != nil {
-						if caught == halt { //nolint: errorlint
+						if caught == halt { //nolint:errorlint
 							ec <- nil
 							return
 						}

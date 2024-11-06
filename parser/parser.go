@@ -56,36 +56,27 @@ const (
 	StoreComments
 )
 
-type parser struct { //nolint: maligned
-	str    string
-	length int
-	base   int
-
-	chr       rune // The current character
-	chrOffset int  // The offset of current character
-	offset    int  // The offset after current character (may be greater than 1)
-
-	idx     file.Idx    // The index of token
-	token   token.Token // The token
-	literal string      // The literal of the token, if any
-
-	scope             *scope
-	insertSemicolon   bool // If we see a newline, then insert an implicit semicolon
-	implicitSemicolon bool // An implicit semicolon exists
-
-	errors ErrorList
-
-	recover struct {
-		// Scratch when trying to seek to the next statement, etc.
+type parser struct {
+	comments *ast.Comments
+	file     *file.File
+	scope    *scope
+	literal  string
+	str      string
+	errors   ErrorList
+	recover  struct {
 		idx   file.Idx
 		count int
 	}
-
-	mode Mode
-
-	file *file.File
-
-	comments *ast.Comments
+	idx               file.Idx
+	token             token.Token
+	offset            int
+	chrOffset         int
+	mode              Mode
+	base              int
+	length            int
+	chr               rune
+	insertSemicolon   bool
+	implicitSemicolon bool // Scratch when trying to seek to the next statement, etc.
 }
 
 // Parser is implemented by types which can parse JavaScript Code.
@@ -131,13 +122,13 @@ func ReadSource(filename string, src interface{}) ([]byte, error) {
 			return nil, fmt.Errorf("invalid src type %T", src)
 		}
 	}
-	return os.ReadFile(filename) //nolint: gosec
+	return os.ReadFile(filename) //nolint:gosec
 }
 
 // ReadSourceMap reads the source map from src if not nil, otherwise is a noop.
 func ReadSourceMap(filename string, src interface{}) (*sourcemap.Consumer, error) {
 	if src == nil {
-		return nil, nil //nolint: nilnil
+		return nil, nil //nolint:nilnil
 	}
 
 	switch src := src.(type) {
@@ -173,7 +164,7 @@ func ParseFileWithSourceMap(fileSet *file.FileSet, filename string, javascriptSo
 		if bytes.HasPrefix(lastLine, []byte("//# sourceMappingURL=data:application/json")) {
 			bits := bytes.SplitN(lastLine, []byte(","), 2)
 			if len(bits) == 2 {
-				if d, err := base64.StdEncoding.DecodeString(string(bits[1])); err == nil {
+				if d, errDecode := base64.StdEncoding.DecodeString(string(bits[1])); errDecode == nil {
 					sourcemapSource = d
 				}
 			}

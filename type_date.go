@@ -8,9 +8,9 @@ import (
 )
 
 type dateObject struct {
-	time  Time.Time // Time from the "time" package, a cached version of time
-	epoch int64
+	time  Time.Time
 	value Value
+	epoch int64
 	isNaN bool
 }
 
@@ -22,6 +22,7 @@ var invalidDateObject = dateObject{
 }
 
 type ecmaTime struct {
+	location    *Time.Location
 	year        int
 	month       int
 	day         int
@@ -29,19 +30,18 @@ type ecmaTime struct {
 	minute      int
 	second      int
 	millisecond int
-	location    *Time.Location // Basically, either local or UTC
 }
 
 func newEcmaTime(goTime Time.Time) ecmaTime {
 	return ecmaTime{
-		goTime.Year(),
-		dateFromGoMonth(goTime.Month()),
-		goTime.Day(),
-		goTime.Hour(),
-		goTime.Minute(),
-		goTime.Second(),
-		goTime.Nanosecond() / (100 * 100 * 100),
-		goTime.Location(),
+		year:        goTime.Year(),
+		month:       dateFromGoMonth(goTime.Month()),
+		day:         goTime.Day(),
+		hour:        goTime.Hour(),
+		minute:      goTime.Minute(),
+		second:      goTime.Second(),
+		millisecond: goTime.Nanosecond() / (100 * 100 * 100),
+		location:    goTime.Location(),
 	}
 }
 

@@ -273,6 +273,17 @@ func builtinObjectKeys(call FunctionCall) Value {
 	panic(call.runtime.panicTypeError("Object.Keys is nil"))
 }
 
+func builtinObjectValues(call FunctionCall) Value {
+	if obj, values := call.Argument(0).object(), []Value(nil); nil != obj {
+		obj.enumerate(false, func(name string) bool {
+			values = append(values, obj.get(name))
+			return true
+		})
+		return objectValue(call.runtime.newArrayOf(values))
+	}
+	panic(call.runtime.panicTypeError("Object.Values is nil"))
+}
+
 func builtinObjectGetOwnPropertyNames(call FunctionCall) Value {
 	if obj, propertyNames := call.Argument(0).object(), []Value(nil); nil != obj {
 		obj.enumerate(true, func(name string) bool {

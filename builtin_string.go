@@ -163,7 +163,7 @@ func builtinStringMatch(call FunctionCall) Value {
 	}
 	matchCount := len(result)
 	valueArray := make([]Value, matchCount)
-	for index := 0; index < matchCount; index++ {
+	for index := range matchCount {
 		valueArray[index] = stringValue(target[result[index][0]:result[index][1]])
 	}
 	matcher.put("lastIndex", intValue(result[matchCount-1][1]), true)
@@ -246,7 +246,7 @@ func builtinStringReplace(call FunctionCall) Value {
 			}
 			matchCount := len(match) / 2
 			argumentList := make([]Value, matchCount+2)
-			for index := 0; index < matchCount; index++ {
+			for index := range matchCount {
 				offset := 2 * index
 				if match[offset] != -1 {
 					argumentList[index] = stringValue(target[match[offset]:match[offset+1]])
@@ -254,7 +254,9 @@ func builtinStringReplace(call FunctionCall) Value {
 					argumentList[index] = Value{}
 				}
 			}
-			argumentList[matchCount+0] = intValue(match[0])
+			// Replace expects rune offsets not byte offsets.
+			startIndex := utf8.RuneCountInString(target[0:match[0]])
+			argumentList[matchCount+0] = intValue(startIndex)
 			argumentList[matchCount+1] = stringValue(target)
 			replacement := replace.call(Value{}, argumentList, false, nativeFrame).string()
 			result = append(result, []byte(replacement)...)
@@ -394,16 +396,18 @@ func builtinStringSplit(call FunctionCall) Value {
 	}
 }
 
+// builtinStringSlice returns the string sliced by the given values
+// which are rune not byte offsets, as per String.prototype.slice.
 func builtinStringSlice(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
-	target := call.This.string()
+	target := []rune(call.This.string())
 
 	length := int64(len(target))
 	start, end := rangeStartEnd(call.ArgumentList, length, false)
 	if end-start <= 0 {
 		return stringValue("")
 	}
-	return stringValue(target[start:end])
+	return stringValue(string(target[start:end]))
 }
 
 func builtinStringSubstring(call FunctionCall) Value {
@@ -443,6 +447,17 @@ func builtinStringSubstr(call FunctionCall) Value {
 	return stringValue(string(target[start : start+length]))
 }
 
+func builtinStringStartsWith(call FunctionCall) Value {
+	checkObjectCoercible(call.runtime, call.This)
+	target := call.This.string()
+	search := call.Argument(0).string()
+	length := len(search)
+	if length > len(target) {
+		return boolValue(false)
+	}
+	return boolValue(target[:length] == search)
+}
+
 func builtinStringToLowerCase(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
 	return stringValue(strings.ToLower(call.This.string()))
@@ -462,6 +477,14 @@ func builtinStringTrim(call FunctionCall) Value {
 		builtinStringTrimWhitespace))
 }
 
+func builtinStringTrimStart(call FunctionCall) Value {
+	return builtinStringTrimLeft(call)
+}
+
+func builtinStringTrimEnd(call FunctionCall) Value {
+	return builtinStringTrimRight(call)
+}
+
 // Mozilla extension, not ECMAScript 5.
 func builtinStringTrimLeft(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
@@ -478,7 +501,7 @@ func builtinStringTrimRight(call FunctionCall) Value {
 
 func builtinStringLocaleCompare(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
-	this := call.This.string() //nolint: ifshort
+	this := call.This.string() //nolint:ifshort
 	that := call.Argument(0).string()
 	if this < that {
 		return intValue(-1)

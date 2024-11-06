@@ -198,17 +198,15 @@ func objectCanPut(obj *object, name string) bool {
 	return canPut
 }
 
-func objectCanPutDetails(obj *object, name string) (canPut bool, prop *property, setter *object) { //nolint: nonamedreturns
+func objectCanPutDetails(obj *object, name string) (canPut bool, prop *property, setter *object) { //nolint:nonamedreturns
 	prop = obj.getOwnProperty(name)
 	if prop != nil {
 		switch propertyValue := prop.value.(type) {
 		case Value:
-			canPut = prop.writable()
-			return
+			return prop.writable(), prop, nil
 		case propertyGetSet:
 			setter = propertyValue[1]
-			canPut = setter != nil
-			return
+			return setter != nil, prop, setter
 		default:
 			panic(obj.runtime.panicTypeError("unexpected type %T to Object.CanPutDetails", prop.value))
 		}
@@ -231,8 +229,7 @@ func objectCanPutDetails(obj *object, name string) (canPut bool, prop *property,
 		return prop.writable(), nil, nil
 	case propertyGetSet:
 		setter = propertyValue[1]
-		canPut = setter != nil
-		return
+		return setter != nil, prop, setter
 	default:
 		panic(obj.runtime.panicTypeError("unexpected type %T to Object.CanPutDetails", prop.value))
 	}

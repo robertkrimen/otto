@@ -39,7 +39,7 @@ func (p *parser) parseEmptyStatement() ast.Statement {
 	return &ast.EmptyStatement{Semicolon: idx}
 }
 
-func (p *parser) parseStatementList() (list []ast.Statement) { //nolint: nonamedreturns
+func (p *parser) parseStatementList() (list []ast.Statement) { //nolint:nonamedreturns
 	for p.token != token.RIGHT_BRACE && p.token != token.EOF {
 		statement := p.parseStatement()
 		list = append(list, statement)
@@ -356,7 +356,7 @@ func (p *parser) parseThrowStatement() ast.Statement {
 	}
 
 	node := &ast.ThrowStatement{
-		Throw:    p.idx,
+		Throw:    idx,
 		Argument: p.parseExpression(),
 	}
 	if p.mode&StoreComments != 0 {
@@ -373,12 +373,13 @@ func (p *parser) parseSwitchStatement() ast.Statement {
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
 	}
-	p.expect(token.SWITCH)
+	idx := p.expect(token.SWITCH)
 	if p.mode&StoreComments != 0 {
 		comments = append(comments, p.comments.FetchAll()...)
 	}
 	p.expect(token.LEFT_PARENTHESIS)
 	node := &ast.SwitchStatement{
+		Switch:       idx,
 		Discriminant: p.parseExpression(),
 		Default:      -1,
 	}
@@ -397,6 +398,7 @@ func (p *parser) parseSwitchStatement() ast.Statement {
 
 	for index := 0; p.token != token.EOF; index++ {
 		if p.token == token.RIGHT_BRACE {
+			node.RightBrace = p.idx
 			p.next()
 			break
 		}
@@ -423,7 +425,7 @@ func (p *parser) parseWithStatement() ast.Statement {
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
 	}
-	p.expect(token.WITH)
+	idx := p.expect(token.WITH)
 	var withComments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		withComments = p.comments.FetchAll()
@@ -432,6 +434,7 @@ func (p *parser) parseWithStatement() ast.Statement {
 	p.expect(token.LEFT_PARENTHESIS)
 
 	node := &ast.WithStatement{
+		With:   idx,
 		Object: p.parseExpression(),
 	}
 	p.expect(token.RIGHT_PARENTHESIS)
@@ -561,14 +564,14 @@ func (p *parser) parseForOrForInStatement() ast.Statement {
 		allowIn := p.scope.allowIn
 		p.scope.allowIn = false
 		if p.token == token.VAR {
-			idx := p.idx
+			tokenIdx := p.idx
 			var varComments []*ast.Comment
 			if p.mode&StoreComments != 0 {
 				varComments = p.comments.FetchAll()
 				p.comments.Unset()
 			}
 			p.next()
-			list := p.parseVariableDeclarationList(idx)
+			list := p.parseVariableDeclarationList(tokenIdx)
 			if len(list) == 1 && p.token == token.IN {
 				if p.mode&StoreComments != 0 {
 					p.comments.Unset()
@@ -603,6 +606,7 @@ func (p *parser) parseForOrForInStatement() ast.Statement {
 		}
 
 		forin := p.parseForIn(left[0])
+		forin.For = idx
 		if p.mode&StoreComments != 0 {
 			p.comments.CommentMap.AddComments(forin, comments, ast.LEADING)
 			p.comments.CommentMap.AddComments(forin, forComments, ast.FOR)
@@ -616,6 +620,7 @@ func (p *parser) parseForOrForInStatement() ast.Statement {
 	p.expect(token.SEMICOLON)
 	initializer := &ast.SequenceExpression{Sequence: left}
 	forstatement := p.parseFor(initializer)
+	forstatement.For = idx
 	if p.mode&StoreComments != 0 {
 		p.comments.CommentMap.AddComments(forstatement, comments, ast.LEADING)
 		p.comments.CommentMap.AddComments(forstatement, forComments, ast.FOR)
@@ -656,13 +661,13 @@ func (p *parser) parseDoWhileStatement() ast.Statement {
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
 	}
-	p.expect(token.DO)
+	idx := p.expect(token.DO)
 	var doComments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		doComments = p.comments.FetchAll()
 	}
 
-	node := &ast.DoWhileStatement{}
+	node := &ast.DoWhileStatement{Do: idx}
 	if p.token == token.LEFT_BRACE {
 		node.Body = p.parseBlockStatement()
 	} else {
@@ -676,7 +681,7 @@ func (p *parser) parseDoWhileStatement() ast.Statement {
 	}
 	p.expect(token.LEFT_PARENTHESIS)
 	node.Test = p.parseExpression()
-	p.expect(token.RIGHT_PARENTHESIS)
+	node.RightParenthesis = p.expect(token.RIGHT_PARENTHESIS)
 
 	p.implicitSemicolon = true
 	p.optionalSemicolon()
@@ -695,7 +700,7 @@ func (p *parser) parseWhileStatement() ast.Statement {
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
 	}
-	p.expect(token.WHILE)
+	idx := p.expect(token.WHILE)
 
 	var whileComments []*ast.Comment
 	if p.mode&StoreComments != 0 {
@@ -704,7 +709,8 @@ func (p *parser) parseWhileStatement() ast.Statement {
 
 	p.expect(token.LEFT_PARENTHESIS)
 	node := &ast.WhileStatement{
-		Test: p.parseExpression(),
+		While: idx,
+		Test:  p.parseExpression(),
 	}
 	p.expect(token.RIGHT_PARENTHESIS)
 	node.Body = p.parseIterationStatement()
@@ -722,7 +728,7 @@ func (p *parser) parseIfStatement() ast.Statement {
 	if p.mode&StoreComments != 0 {
 		comments = p.comments.FetchAll()
 	}
-	p.expect(token.IF)
+	pos := p.expect(token.IF)
 	var ifComments []*ast.Comment
 	if p.mode&StoreComments != 0 {
 		ifComments = p.comments.FetchAll()
@@ -730,7 +736,7 @@ func (p *parser) parseIfStatement() ast.Statement {
 
 	p.expect(token.LEFT_PARENTHESIS)
 	node := &ast.IfStatement{
-		If:   p.idx,
+		If:   pos,
 		Test: p.parseExpression(),
 	}
 	p.expect(token.RIGHT_PARENTHESIS)

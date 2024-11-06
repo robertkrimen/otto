@@ -15,7 +15,7 @@ import (
 	"github.com/kubeshark/otto/token"
 )
 
-type chr struct { //nolint: unused
+type chr struct { //nolint:unused
 	value rune
 	width int
 }
@@ -38,6 +38,53 @@ func digitValue(chr rune) int {
 	return 16 // Larger than any legal digit value
 }
 
+// See https://www.unicode.org/reports/tr31/ for reference on ID_Start and ID_Continue.
+var includeIDStart = []*unicode.RangeTable{
+	unicode.Lu,
+	unicode.Ll,
+	unicode.Lt,
+	unicode.Lm,
+	unicode.Lo,
+	unicode.Nl,
+	unicode.Other_ID_Start,
+}
+
+var includeIDContinue = []*unicode.RangeTable{
+	unicode.Lu,
+	unicode.Ll,
+	unicode.Lt,
+	unicode.Lm,
+	unicode.Lo,
+	unicode.Nl,
+	unicode.Other_ID_Start,
+	unicode.Mn,
+	unicode.Mc,
+	unicode.Nd,
+	unicode.Pc,
+	unicode.Other_ID_Continue,
+}
+
+var exclude = []*unicode.RangeTable{
+	unicode.Pattern_Syntax,
+	unicode.Pattern_White_Space,
+}
+
+func unicodeIDStart(r rune) bool {
+	if unicode.In(r, exclude...) {
+		return false
+	}
+
+	return unicode.In(r, includeIDStart...)
+}
+
+func unicodeIDContinue(r rune) bool {
+	if unicode.In(r, exclude...) {
+		return false
+	}
+
+	return unicode.In(r, includeIDContinue...)
+}
+
 func isDigit(chr rune, base int) bool {
 	return digitValue(chr) < base
 }
@@ -45,14 +92,14 @@ func isDigit(chr rune, base int) bool {
 func isIdentifierStart(chr rune) bool {
 	return chr == '$' || chr == '_' || chr == '\\' ||
 		'a' <= chr && chr <= 'z' || 'A' <= chr && chr <= 'Z' ||
-		chr >= utf8.RuneSelf && unicode.IsLetter(chr)
+		chr >= utf8.RuneSelf && unicodeIDStart(chr)
 }
 
 func isIdentifierPart(chr rune) bool {
 	return chr == '$' || chr == '_' || chr == '\\' ||
 		'a' <= chr && chr <= 'z' || 'A' <= chr && chr <= 'Z' ||
 		'0' <= chr && chr <= '9' ||
-		chr >= utf8.RuneSelf && (unicode.IsLetter(chr) || unicode.IsDigit(chr))
+		chr >= utf8.RuneSelf && unicodeIDContinue(chr)
 }
 
 func (p *parser) scanIdentifier() (string, error) {
@@ -67,7 +114,7 @@ func (p *parser) scanIdentifier() (string, error) {
 			}
 			parse = true
 			var value rune
-			for j := 0; j < 4; j++ {
+			for range 4 {
 				p.read()
 				decimal, ok := hex2decimal(byte(p.chr))
 				if !ok {
@@ -98,7 +145,7 @@ func (p *parser) scanIdentifier() (string, error) {
 }
 
 // 7.2.
-func isLineWhiteSpace(chr rune) bool { //nolint: unused, deadcode
+func isLineWhiteSpace(chr rune) bool { //nolint:unused, deadcode
 	switch chr {
 	case '\u0009', '\u000b', '\u000c', '\u0020', '\u00a0', '\ufeff':
 		return true
@@ -119,7 +166,7 @@ func isLineTerminator(chr rune) bool {
 	return false
 }
 
-func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //nolint: nonamedreturns
+func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //nolint:nonamedreturns
 	p.implicitSemicolon = false
 
 	for {
@@ -143,23 +190,20 @@ func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //noli
 
 				switch tkn {
 				case 0: // Not a keyword
-					if literal == "true" || literal == "false" {
+					switch literal {
+					case "true", "false":
 						p.insertSemicolon = true
-						tkn = token.BOOLEAN
-						return
-					} else if literal == "null" {
+						return token.BOOLEAN, literal, idx
+					case "null":
 						p.insertSemicolon = true
-						tkn = token.NULL
-						return
+						return token.NULL, literal, idx
 					}
-
 				case token.KEYWORD:
-					tkn = token.KEYWORD
 					if strict {
 						// TODO If strict and in strict mode, then this is not a break
 						break
 					}
-					return
+					return token.KEYWORD, literal, idx
 
 				case
 					token.THIS,
@@ -169,19 +213,18 @@ func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //noli
 					token.CONTINUE,
 					token.DEBUGGER:
 					p.insertSemicolon = true
-					return
+					return tkn, literal, idx
 
 				default:
-					return
+					return tkn, literal, idx
 				}
 			}
 			p.insertSemicolon = true
-			tkn = token.IDENTIFIER
-			return
+			return token.IDENTIFIER, literal, idx
 		case '0' <= chr && chr <= '9':
 			p.insertSemicolon = true
 			tkn, literal = p.scanNumericLiteral(false)
-			return
+			return tkn, literal, idx
 		default:
 			p.read()
 			switch chr {
@@ -240,16 +283,16 @@ func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //noli
 				switch p.chr {
 				case '/':
 					if p.mode&StoreComments != 0 {
-						literal := string(p.readSingleLineComment())
-						p.comments.AddComment(ast.NewComment(literal, p.idx))
+						comment := string(p.readSingleLineComment())
+						p.comments.AddComment(ast.NewComment(comment, idx))
 						continue
 					}
 					p.skipSingleLineComment()
 					continue
 				case '*':
 					if p.mode&StoreComments != 0 {
-						literal = string(p.readMultiLineComment())
-						p.comments.AddComment(ast.NewComment(literal, p.idx))
+						comment := string(p.readMultiLineComment())
+						p.comments.AddComment(ast.NewComment(comment, idx))
 						continue
 					}
 					p.skipMultiLineComment()
@@ -306,7 +349,7 @@ func (p *parser) scan() (tkn token.Token, literal string, idx file.Idx) { //noli
 			}
 		}
 		p.insertSemicolon = insertSemicolon
-		return
+		return tkn, literal, idx
 	}
 }
 
@@ -370,7 +413,7 @@ func (p *parser) switch6(tkn0, tkn1 token.Token, chr2 rune, tkn2, tkn3 token.Tok
 	return tkn0
 }
 
-func (p *parser) chrAt(index int) chr { //nolint: unused
+func (p *parser) chrAt(index int) chr { //nolint:unused
 	value, width := utf8.DecodeRuneInString(p.str[index:])
 	return chr{
 		value: value,
@@ -615,7 +658,7 @@ func hex2decimal(chr byte) (rune, bool) {
 	}
 }
 
-func parseNumberLiteral(literal string) (value interface{}, err error) { //nolint: nonamedreturns
+func parseNumberLiteral(literal string) (value interface{}, err error) { //nolint:nonamedreturns
 	// TODO Is Uint okay? What about -MAX_UINT
 	value, err = strconv.ParseInt(literal, 0, 64)
 	if err == nil {
@@ -721,7 +764,7 @@ func parseStringLiteral(literal string) (string, error) {
 				if len(str) < size {
 					return "", fmt.Errorf("invalid escape: \\%s: len(%q) != %d", string(chr), str, size)
 				}
-				for j := 0; j < size; j++ {
+				for j := range size {
 					decimal, ok := hex2decimal(str[j])
 					if !ok {
 						return "", fmt.Errorf("invalid escape: \\%s: %q", string(chr), str[:size])
@@ -749,8 +792,8 @@ func parseStringLiteral(literal string) (string, error) {
 					if len(str) < j+1 {
 						break
 					}
-					chr := str[j]
-					if '0' > chr || chr > '7' {
+
+					if ch := str[j]; '0' > ch || ch > '7' {
 						break
 					}
 					decimal := rune(str[j]) - '0'
@@ -791,7 +834,7 @@ func (p *parser) scanNumericLiteral(decimalPoint bool) (token.Token, string) {
 	}
 
 	if p.chr == '0' {
-		offset := p.chrOffset
+		chrOffset := p.chrOffset
 		p.read()
 		switch p.chr {
 		case 'x', 'X':
@@ -800,11 +843,11 @@ func (p *parser) scanNumericLiteral(decimalPoint bool) (token.Token, string) {
 			if isDigit(p.chr, 16) {
 				p.read()
 			} else {
-				return token.ILLEGAL, p.str[offset:p.chrOffset]
+				return token.ILLEGAL, p.str[chrOffset:p.chrOffset]
 			}
 			p.scanMantissa(16)
 
-			if p.chrOffset-offset <= 2 {
+			if p.chrOffset-chrOffset <= 2 {
 				// Only "0x" or "0X"
 				p.error(0, "Illegal hexadecimal number")
 			}
@@ -820,7 +863,7 @@ func (p *parser) scanNumericLiteral(decimalPoint bool) (token.Token, string) {
 			}
 			p.scanMantissa(8)
 			if p.chr == '8' || p.chr == '9' {
-				return token.ILLEGAL, p.str[offset:p.chrOffset]
+				return token.ILLEGAL, p.str[chrOffset:p.chrOffset]
 			}
 			goto octal
 		}
