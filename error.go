@@ -243,10 +243,11 @@ func catchPanic(function func()) (err error) {
 				}
 				err = errors.New(caught.string())
 				return
+			default:
+				// Handle any unrecognized panic type by converting it to an error string
+				err = fmt.Errorf("unexpected panic: %v", caught)
+				return
 			}
-			err = &Error{caught}
-			return
-			//panic(caught)
 		}
 	}()
 	function()
