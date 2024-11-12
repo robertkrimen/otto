@@ -244,7 +244,9 @@ func catchPanic(function func()) (err error) {
 				err = errors.New(caught.string())
 				return
 			}
-			panic(caught)
+			err = &Error{caught}
+			return
+			//panic(caught)
 		}
 	}()
 	function()
