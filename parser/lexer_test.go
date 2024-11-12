@@ -3,9 +3,9 @@ package parser
 import (
 	"testing"
 
-	"github.com/robertkrimen/otto/file"
-	"github.com/robertkrimen/otto/terst"
-	"github.com/robertkrimen/otto/token"
+	"github.com/kubeshark/otto/file"
+	"github.com/kubeshark/otto/terst"
+	"github.com/kubeshark/otto/token"
 )
 
 var (
