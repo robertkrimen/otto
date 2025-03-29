@@ -10,7 +10,7 @@ types:
         value: rt.global.ObjectPrototype
       - name: getPrototypeOf
         function: 1
-      - name: values
+      - name: assign
         function: 1
       - name: getOwnPropertyDescriptor
         function: 2
