@@ -310,6 +310,51 @@ func TestObject_defineProperty(t *testing.T) {
 	})
 }
 
+func TestObject_assign(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		// Test 1: Assigning two empty objects should return an empty object.
+		test(`JSON.stringify(Object.assign({}, {}))`, "{}")
+
+		// Test 2: Single source assignment.
+		test(`JSON.stringify(Object.assign({}, {a: 1}))`, "{\"a\":1}")
+
+		// Test 3: Multiple sources with later properties overriding earlier ones.
+		test(`JSON.stringify(Object.assign({a: 1, c: 5}, {a: 2}, {b: 3}))`, "{\"a\":2,\"b\":3,\"c\":5}")
+
+		// Test 4: Merging objects with overlapping keys.
+		test(`JSON.stringify(Object.assign({a: 1, b: 2}, {b: 3, c: 4}))`, "{\"a\":1,\"b\":3,\"c\":4}")
+
+		// Test 5: Sources that are null or undefined should be ignored.
+		test(`JSON.stringify(Object.assign({a: 1}, null, undefined, {b: 2}))`, "{\"a\":1,\"b\":2}")
+
+		// Test 6: When a string is used as a source, its characters are assigned as indexed properties.
+		test(`JSON.stringify(Object.assign({}, "abc"))`, "{\"0\":\"a\",\"1\":\"b\",\"2\":\"c\"}")
+
+		// // Test 7: The return value should be the target object.
+		test(`(function(){ var o = {x:1}; var r = Object.assign(o, {y:2}); return (o === r).toString(); })()`, "true")
+
+		// Test 8: Non-enumerable properties should not be copied.
+		test(`(function(){
+            var target = {};
+            var source = {};
+            Object.defineProperty(source, "hidden", { value: 42, enumerable: false });
+            Object.assign(target, source);
+            return target.hasOwnProperty("hidden").toString();
+		})()`, "false")
+
+		// Test 9: Using a number as a source should not add any properties.
+		test(`JSON.stringify(Object.assign({}, 123))`, "{}")
+
+		// Test 10: Using a boolean as a source should not add any properties.
+		test(`JSON.stringify(Object.assign({}, true))`, "{}")
+
+		// Test 11: Arrays are objects, so their indexed elements are copied.
+		test(`JSON.stringify(Object.assign({}, [1,2,3]))`, "{\"0\":1,\"1\":2,\"2\":3}")
+	})
+}
+
 func TestObject_keys(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()

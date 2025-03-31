@@ -495,6 +495,43 @@ func (rt *runtime) newContext() {
 					},
 				},
 			},
+			"assign": {
+				mode: 0o101,
+				value: Value{
+					kind: valueObject,
+					value: &object{
+						runtime:     rt,
+						class:       classFunctionName,
+						objectClass: classObject,
+						prototype:   rt.global.FunctionPrototype,
+						extensible:  true,
+						property: map[string]property{
+							propertyLength: {
+								mode: 0,
+								value: Value{
+									kind:  valueNumber,
+									value: 1,
+								},
+							},
+							propertyName: {
+								mode: 0,
+								value: Value{
+									kind:  valueString,
+									value: "assign",
+								},
+							},
+						},
+						propertyOrder: []string{
+							propertyLength,
+							propertyName,
+						},
+						value: nativeFunctionObject{
+							name: "assign",
+							call: builtinObjectAssign,
+						},
+					},
+				},
+			},
 			"getOwnPropertyDescriptor": {
 				mode: 0o101,
 				value: Value{
@@ -981,6 +1018,7 @@ func (rt *runtime) newContext() {
 			propertyLength,
 			propertyPrototype,
 			"getPrototypeOf",
+			"assign",
 			"getOwnPropertyDescriptor",
 			"defineProperty",
 			"defineProperties",
