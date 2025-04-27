@@ -20,8 +20,8 @@ func TestFunction_stack(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := []frame{
-			{native: true, nativeFile: "function_stack_test.go", nativeLine: 36, offset: 0, callee: "github.com/robertkrimen/otto.TestFunction_stack.func1.2"},
-			{native: true, nativeFile: "function_stack_test.go", nativeLine: 29, offset: 0, callee: "github.com/robertkrimen/otto.TestFunction_stack.func1.1"},
+			{native: true, nativeFile: "function_stack_test.go", nativeLine: 36, offset: 0, callee: "github.com/kubeshark/otto.TestFunction_stack.func1.2"},
+			{native: true, nativeFile: "function_stack_test.go", nativeLine: 29, offset: 0, callee: "github.com/kubeshark/otto.TestFunction_stack.func1.1"},
 			{native: false, nativeFile: "", nativeLine: 0, offset: 29, callee: "X", file: s.program.file},
 			{native: false, nativeFile: "", nativeLine: 0, offset: 29, callee: "X", file: s.program.file},
 		}
