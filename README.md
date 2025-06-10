@@ -749,7 +749,7 @@ Export will attempt to convert the value to a Go representation and return it
 via an interface{} kind.
 
 Export returns an error, which will always be nil. It is included for backwards
-compatibility
+compatibility.
 
 If a reasonable conversion is not possible, then the original value is returned.
 
