@@ -30,7 +30,11 @@ Get a value out of the VM
 if value, err := vm.Get("abc"); err == nil {
     if value_int, err := value.ToInteger(); err == nil {
         fmt.Println(value_int)
+    } else {
+        fmt.Printf("Error during conversion: %v\n", err)
     }
+} else {
+    fmt.Printf("Error getting value: %v\n", err)
 }
 ```
 
@@ -170,7 +174,7 @@ The following are some limitations with otto:
 
 * `use strict` will parse, but does nothing.
 * The regular expression engine ([re2/regexp](https://pkg.go.dev/regexp)) is not fully compatible with the ECMA5 specification.
-* Otto targets ES5. Some ES6 features, e.g., Typed Arrays, are not supported. Pull requests to add functionality are always welcome.
+* Otto targets ES5. Some ES6 features, e.g. Typed Arrays, are not supported. Pull requests to add functionality are always welcome.
 
 ### Regular Expression Incompatibility
 
@@ -283,7 +287,7 @@ var ErrVersion = errors.New("version mismatch")
 type Error struct {}
 ```
 
-An Error represents a runtime error, e.g., a `TypeError`, a `ReferenceError`, etc.
+An Error represents a runtime error, e.g. a `TypeError`, a `ReferenceError`, etc.
 
 ### func (Error) Error
 
@@ -410,7 +414,7 @@ func (self Object) Set(name string, value interface{}) error
 
 Set the property of the given name to the given value.
 
-An error will result if setting the property triggers an exception (e.g.,
+An error will result if setting the property triggers an exception (e.g.
 read-only) or if there is an error during conversion of the given value.
 
 ### func (Object) Value
