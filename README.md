@@ -29,8 +29,12 @@ Get a value out of the VM
 ```go
 if value, err := vm.Get("abc"); err == nil {
     if value_int, err := value.ToInteger(); err == nil {
-        fmt.Printf("", value_int, err)
+        fmt.Println(value_int)
+    } else {
+        fmt.Printf("Error during conversion: %v\n", err)
     }
+} else {
+    fmt.Printf("Error getting value: %v\n", err)
 }
 ```
 
@@ -66,7 +70,7 @@ value, _ = vm.Run("xyzzy.length")
 An error happens
 
 ```go
-value, err = vm.Run("abcdefghijlmnopqrstuvwxyz.length")
+_, err = vm.Run("abcdefghijlmnopqrstuvwxyz.length")
 if err != nil {
     // err = ReferenceError: abcdefghijlmnopqrstuvwxyz is not defined
     // If there is an error, then value.IsUndefined() is true
@@ -106,8 +110,8 @@ result, _ = vm.Run(`
 
 ## Parser
 
-A separate parser is available in the parser package if you're just interested
-in building an AST.
+A separate parser is available in the parser package if you're interested
+in only building an AST.
 
 [![GoDoc Reference](https://pkg.go.dev/badge/github.com/robertkrimen/otto/parser.svg)](https://pkg.go.dev/github.com/robertkrimen/otto/parser)
 
@@ -159,7 +163,7 @@ import (
     _ "github.com/robertkrimen/otto/underscore"
 )
 
-// Now every otto runtime will come loaded with underscore
+// Now every otto runtime will be initialized with Underscore.
 ```
 
 For more information: [underscore](http://github.com/robertkrimen/otto/tree/master/underscore)
@@ -170,7 +174,7 @@ The following are some limitations with otto:
 
 * `use strict` will parse, but does nothing.
 * The regular expression engine ([re2/regexp](https://pkg.go.dev/regexp)) is not fully compatible with the ECMA5 specification.
-* Otto targets ES5. Some ES6 features e.g. Typed Arrays are not supported, PR's to add functionality are always welcome.
+* Otto targets ES5. Some ES6 features, e.g. Typed Arrays, are not supported. Pull requests to add functionality are always welcome.
 
 ### Regular Expression Incompatibility
 
@@ -228,7 +232,7 @@ func runUnsafe(unsafe string) {
         duration := time.Since(start)
         if caught := recover(); caught != nil {
             if caught == halt {
-                fmt.Fprintf(os.Stderr, "Some code took to long! Stopping after: %v\n", duration)
+                fmt.Fprintf(os.Stderr, "Some code took too long! Stopping after: %v\n", duration)
                 return
             }
             panic(caught) // Something else happened, repanic!
@@ -258,10 +262,10 @@ func runUnsafe(unsafe string) {
 
 Where is `setTimeout` / `setInterval`?
 
-These timing functions are not actually part of the [ECMA-262 specification](https://ecma-international.org/publications-and-standards/standards/ecma-262/).
-Typically, they belong to the `window` object (in the browser). It would not be
-difficult to provide something like these via Go, but you probably want to wrap
-otto in an event loop in that case.
+These timing functions are not part of the [ECMA-262 specification](https://ecma-international.org/publications-and-standards/standards/ecma-262/).
+They typically belong to the window object in a browser environment. While it is
+possible to implement similar functionality in Go, it generally requires wrapping
+Otto in an event loop.
 
 For an example of how this could be done in Go with otto, see [natto](http://github.com/robertkrimen/natto).
 
@@ -291,7 +295,7 @@ An Error represents a runtime error, e.g. a `TypeError`, a `ReferenceError`, etc
 func (err Error) Error() string
 ```
 
-Error returns a description of the error
+Error returns a string representation of the error
 
 ```plaintext
     TypeError: 'def' is not a function
@@ -400,7 +404,7 @@ func (self Object) Keys() []string
 
 Get the keys for the object
 
-Equivalent to calling Object.keys on the object
+This is equivalent to calling Object.keys on the object.
 
 ### func (Object) Set
 
@@ -410,8 +414,8 @@ func (self Object) Set(name string, value interface{}) error
 
 Set the property of the given name to the given value.
 
-An error will result if the setting the property triggers an exception (i.e.
-read-only), or there is an error during conversion of the given value.
+An error will result if setting the property triggers an exception (e.g.
+read-only) or if there is an error during conversion of the given value.
 
 ### func (Object) Value
 
@@ -493,8 +497,7 @@ value, _ := vm.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")
 func (self *Otto) Compile(filename string, src interface{}) (*Script, error)
 ```
 
-Compile will parse the given source and return a Script value or nil and an
-error if there was a problem during compilation.
+Compile will parse the given source and return a Script value. If there is an error during compilation, it will return nil and an error.
 
 ```go
 script, err := vm.Compile("", `var abc; if (!abc) abc = 0; abc += 2; abc;`)
@@ -631,7 +634,7 @@ Value is the representation of a JavaScript value.
 func FalseValue() Value
 ```
 
-FalseValue will return a value representing false.
+FalseValue will return a Value representing the bool value false.
 
 It is equivalent to:
 
@@ -708,7 +711,7 @@ return the result of invocation. It is essentially equivalent to:
     value.apply(thisValue, argumentList)
 ```
 
-An undefined value and an error will result if:
+A value of undefined and an error will result if:
 
 1. There is an error during conversion of the argument list
 2. The value is not actually a function
@@ -745,7 +748,7 @@ func (self Value) Export() (interface{}, error)
 Export will attempt to convert the value to a Go representation and return it
 via an interface{} kind.
 
-Export returns an error, but it will always be nil. It is present for backwards
+Export returns an error, which will always be nil. It is included for backwards
 compatibility.
 
 If a reasonable conversion is not possible, then the original value is returned.
@@ -822,7 +825,7 @@ IsObject will return true if value is an object.
 func (value Value) IsPrimitive() bool
 ```
 
-IsPrimitive will return true if value is a primitive (any kind of primitive).
+IsPrimitive will return true if value is a primitive.
 
 ### func (Value) IsString
 
@@ -859,7 +862,7 @@ func (value Value) String() string
 
 String will return the value as a string.
 
-This method will make return the empty string if there is an error.
+This method will return the empty string if there is an error.
 
 ### func (Value) ToBoolean
 
