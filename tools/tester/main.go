@@ -23,8 +23,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/robertkrimen/otto"
-	"github.com/robertkrimen/otto/parser"
+	"github.com/kubeshark/otto"
+	"github.com/kubeshark/otto/parser"
 )
 
 const (

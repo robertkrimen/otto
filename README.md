@@ -10,7 +10,7 @@ To use import it with the following:
 
 ```go
 import (
-   "github.com/robertkrimen/otto"
+   "github.com/kubeshark/otto"
 )
 ```
 
@@ -159,8 +159,8 @@ import:
 
 ```go
 import (
-    "github.com/robertkrimen/otto"
-    _ "github.com/robertkrimen/otto/underscore"
+    "github.com/kubeshark/otto"
+    _ "github.com/kubeshark/otto/underscore"
 )
 
 // Now every otto runtime will be initialized with Underscore.
@@ -213,7 +213,7 @@ import (
     "os"
     "time"
 
-    "github.com/robertkrimen/otto"
+    "github.com/kubeshark/otto"
 )
 
 var halt = errors.New("Stahp")
