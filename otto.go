@@ -234,7 +234,14 @@ type Otto struct {
 	// Interrupt is a channel for interrupting the runtime. You can use this to halt a long running execution, for example.
 	// See "Halting Problem" for more information.
 	Interrupt chan func()
-	runtime   *runtime
+
+	// DiskStore optionally enables saving/loading large JavaScript values to/from
+	// disk via SaveToDisk and LoadFromDisk. It is opt-in: the zero value (nil,
+	// the state right after New()) leaves the runtime's behavior unchanged and
+	// SaveToDisk/LoadFromDisk return an error until it is set. See disk_store.go.
+	DiskStore *DiskStoreConfig
+
+	runtime *runtime
 }
 
 // New will allocate a new JavaScript runtime.
