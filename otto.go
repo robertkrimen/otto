@@ -381,6 +381,17 @@ func (o Otto) SetStackDepthLimit(limit int) {
 	o.runtime.stackLimit = limit
 }
 
+// SetStringLengthLimit sets an upper limit, in bytes of UTF-8, on the length
+// of strings created by concatenation and by builtins that join or build
+// strings (Array.prototype.join, String.prototype.concat,
+// String.prototype.replace, JSON.stringify, ...). Exceeding the limit throws
+// a RangeError before the string is allocated.
+//
+// A limit of 0 (the default) means no limit.
+func (o Otto) SetStringLengthLimit(limit int) {
+	o.runtime.stringLimit = limit
+}
+
 // SetStackTraceLimit sets an upper limit to the number of stack frames that
 // otto will use when formatting an error's stack trace. By default, the limit
 // is 10. This is consistent with V8 and SpiderMonkey.

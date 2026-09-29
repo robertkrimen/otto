@@ -64,8 +64,15 @@ type runtime struct {
 	random       func() float64
 	labels       []string
 	stackLimit   int
+	stringLimit  int
 	traceLimit   int
 	lck          sync.Mutex
+}
+
+func (rt *runtime) checkStringLength(length int) {
+	if rt.stringLimit > 0 && length > rt.stringLimit {
+		panic(rt.panicRangeError("Invalid string length"))
+	}
 }
 
 func (rt *runtime) enterScope(scop *scope) {

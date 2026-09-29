@@ -1,7 +1,6 @@
 package otto
 
 import (
-	"bytes"
 	"regexp"
 	"strconv"
 	"strings"
@@ -64,10 +63,19 @@ func builtinStringCharCodeAt(call FunctionCall) Value {
 
 func builtinStringConcat(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
-	var value bytes.Buffer
-	value.WriteString(call.This.string())
-	for _, item := range call.ArgumentList {
-		value.WriteString(item.string())
+	this := call.This.string()
+	size := len(this)
+	items := make([]string, len(call.ArgumentList))
+	for index, item := range call.ArgumentList {
+		items[index] = item.string()
+		size += len(items[index])
+	}
+	call.runtime.checkStringLength(size)
+	var value strings.Builder
+	value.Grow(size)
+	value.WriteString(this)
+	for _, item := range items {
+		value.WriteString(item)
 	}
 	return stringValue(value.String())
 }
@@ -259,6 +267,7 @@ func builtinStringReplace(call FunctionCall) Value {
 			argumentList[matchCount+0] = intValue(startIndex)
 			argumentList[matchCount+1] = stringValue(target)
 			replacement := replace.call(Value{}, argumentList, false, nativeFrame).string()
+			call.runtime.checkStringLength(len(result) + len(replacement))
 			result = append(result, []byte(replacement)...)
 			lastIndex = match[1]
 		}
@@ -266,6 +275,7 @@ func builtinStringReplace(call FunctionCall) Value {
 		replace := []byte(replaceValue.string())
 		for _, match := range found {
 			result = builtinStringFindAndReplaceString(result, lastIndex, match, target, replace)
+			call.runtime.checkStringLength(len(result))
 			lastIndex = match[1]
 		}
 	}

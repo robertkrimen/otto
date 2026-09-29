@@ -3,7 +3,6 @@ package otto
 import (
 	"fmt"
 	"math"
-	"strings"
 
 	"github.com/robertkrimen/otto/token"
 )
@@ -60,7 +59,9 @@ func (rt *runtime) calculateBinaryExpression(operator token.Token, left Value, r
 		rightValue = toPrimitiveValue(rightValue)
 
 		if leftValue.IsString() || rightValue.IsString() {
-			return stringValue(strings.Join([]string{leftValue.string(), rightValue.string()}, ""))
+			leftString, rightString := leftValue.string(), rightValue.string()
+			rt.checkStringLength(len(leftString) + len(rightString))
+			return stringValue(leftString + rightString)
 		}
 		return float64Value(leftValue.float64() + rightValue.float64())
 	case token.MINUS:
