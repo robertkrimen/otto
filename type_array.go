@@ -89,6 +89,7 @@ func arrayDefineOwnProperty(obj *object, name string, descriptor property, throw
 			return false
 		}
 		for newLength < length {
+			obj.runtime.checkInterrupt()
 			length--
 			if !obj.delete(strconv.FormatInt(int64(length), 10), false) {
 				descriptor.value = uint32Value(length + 1)
