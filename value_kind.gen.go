@@ -24,8 +24,9 @@ const _valueKind_name = "UndefinedNullNumberStringBooleanObjectEmptyResultRefere
 var _valueKind_index = [...]uint8{0, 9, 13, 19, 25, 32, 38, 43, 49, 58}
 
 func (i valueKind) String() string {
-	if i < 0 || i >= valueKind(len(_valueKind_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_valueKind_index)-1 {
 		return "valueKind(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _valueKind_name[_valueKind_index[i]:_valueKind_index[i+1]]
+	return _valueKind_name[_valueKind_index[idx]:_valueKind_index[idx+1]]
 }
