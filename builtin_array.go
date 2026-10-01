@@ -42,8 +42,9 @@ func builtinArrayToLocaleString(call FunctionCall) Value {
 	if length == 0 {
 		return stringValue("")
 	}
-	stringList := make([]string, 0, length)
+	stringList := make([]string, 0, preallocation(length))
 	for index := range length {
+		call.runtime.checkInterrupt()
 		value := thisObject.get(arrayIndexToString(index))
 		stringValue := ""
 		switch value.kind {
@@ -72,6 +73,7 @@ func builtinArrayConcat(call FunctionCall) Value {
 			if isArray(obj) {
 				length := obj.get(propertyLength).number().int64
 				for index := range length {
+					call.runtime.checkInterrupt()
 					name := strconv.FormatInt(index, 10)
 					if obj.hasProperty(name) {
 						valueArray = append(valueArray, obj.get(name))
@@ -99,6 +101,7 @@ func builtinArrayShift(call FunctionCall) Value {
 	}
 	first := thisObject.get("0")
 	for index := int64(1); index < length; index++ {
+		call.runtime.checkInterrupt()
 		from := arrayIndexToString(index)
 		to := arrayIndexToString(index - 1)
 		if thisObject.hasProperty(from) {
@@ -150,8 +153,9 @@ func builtinArrayJoin(call FunctionCall) Value {
 	if length == 0 {
 		return stringValue("")
 	}
-	stringList := make([]string, 0, length)
+	stringList := make([]string, 0, preallocation(length))
 	for index := range length {
+		call.runtime.checkInterrupt()
 		value := thisObject.get(arrayIndexToString(index))
 		stringValue := ""
 		switch value.kind {
@@ -173,13 +177,16 @@ func builtinArraySplice(call FunctionCall) Value {
 	if arg, ok := call.getArgument(1); ok {
 		deleteCount = valueToRangeIndex(arg, length-start, true)
 	}
-	valueArray := make([]Value, deleteCount)
+	valueArray := make([]Value, 0, preallocation(deleteCount))
 
 	for index := range deleteCount {
+		call.runtime.checkInterrupt()
 		indexString := arrayIndexToString(start + index)
+		var value Value
 		if thisObject.hasProperty(indexString) {
-			valueArray[index] = thisObject.get(indexString)
+			value = thisObject.get(indexString)
 		}
+		valueArray = append(valueArray, value)
 	}
 
 	// 0, <1, 2, 3, 4>, 5, 6, 7
@@ -203,6 +210,7 @@ func builtinArraySplice(call FunctionCall) Value {
 		// Move an item from the after the deleted portion
 		// to a position after the inserted portion
 		for index := start; index < stop; index++ {
+			call.runtime.checkInterrupt()
 			from := arrayIndexToString(index + deleteCount) // Position just after deletion
 			to := arrayIndexToString(index + itemCount)     // Position just after splice (insertion)
 			if thisObject.hasProperty(from) {
@@ -215,6 +223,7 @@ func builtinArraySplice(call FunctionCall) Value {
 		// We don't bother to delete below <stop + itemCount> (if any) since those
 		// will be overwritten anyway
 		for index := length; index > (stop + itemCount); index-- {
+			call.runtime.checkInterrupt()
 			thisObject.delete(arrayIndexToString(index-1), true)
 		}
 	} else if itemCount > deleteCount {
@@ -226,6 +235,7 @@ func builtinArraySplice(call FunctionCall) Value {
 		// Move an item from the after the deleted portion
 		// to a position after the inserted portion
 		for index := length - deleteCount; index > start; index-- {
+			call.runtime.checkInterrupt()
 			from := arrayIndexToString(index + deleteCount - 1)
 			to := arrayIndexToString(index + itemCount - 1)
 			if thisObject.hasProperty(from) {
@@ -255,13 +265,16 @@ func builtinArraySlice(call FunctionCall) Value {
 		return objectValue(call.runtime.newArray(0))
 	}
 	sliceLength := end - start
-	sliceValueArray := make([]Value, sliceLength)
+	sliceValueArray := make([]Value, 0, preallocation(sliceLength))
 
 	for index := range sliceLength {
+		call.runtime.checkInterrupt()
 		from := arrayIndexToString(index + start)
+		var value Value
 		if thisObject.hasProperty(from) {
-			sliceValueArray[index] = thisObject.get(from)
+			value = thisObject.get(from)
 		}
+		sliceValueArray = append(sliceValueArray, value)
 	}
 
 	return objectValue(call.runtime.newArrayOf(sliceValueArray))
@@ -274,6 +287,7 @@ func builtinArrayUnshift(call FunctionCall) Value {
 	itemCount := int64(len(itemList))
 
 	for index := length; index > 0; index-- {
+		call.runtime.checkInterrupt()
 		from := arrayIndexToString(index - 1)
 		to := arrayIndexToString(index + itemCount - 1)
 		if thisObject.hasProperty(from) {
@@ -307,6 +321,7 @@ func builtinArrayReverse(call FunctionCall) Value {
 	middle := length / 2 // Division will floor
 
 	for lower.index != middle {
+		call.runtime.checkInterrupt()
 		lower.name = arrayIndexToString(lower.index)
 		upper.index = length - lower.index - 1
 		upper.name = arrayIndexToString(upper.index)
@@ -422,6 +437,7 @@ func arraySortQuickPartition(thisObject *object, left, right, pivot uint, compar
 	cursor := left
 	cursor2 := left
 	for index := left; index < right; index++ {
+		thisObject.runtime.checkInterrupt()
 		comparison := sortCompare(thisObject, index, right, compare) // Compare to the pivot value
 		if comparison < 0 {
 			arraySortSwap(thisObject, index, cursor)
@@ -484,6 +500,7 @@ func builtinArrayIndexOf(call FunctionCall) Value {
 			index = -1
 		}
 		for ; index >= 0 && index < length; index++ {
+			call.runtime.checkInterrupt()
 			name := arrayIndexToString(index)
 			if !thisObject.hasProperty(name) {
 				continue
@@ -513,6 +530,7 @@ func builtinArrayLastIndexOf(call FunctionCall) Value {
 		return intValue(-1)
 	}
 	for ; index >= 0; index-- {
+		call.runtime.checkInterrupt()
 		name := arrayIndexToString(index)
 		if !thisObject.hasProperty(name) {
 			continue
@@ -532,6 +550,7 @@ func builtinArrayEvery(call FunctionCall) Value {
 		length := int64(toUint32(thisObject.get(propertyLength)))
 		callThis := call.Argument(1)
 		for index := range length {
+			call.runtime.checkInterrupt()
 			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 				if value := thisObject.get(key); iterator.call(call.runtime, callThis, value, int64Value(index), this).bool() {
 					continue
@@ -551,6 +570,7 @@ func builtinArraySome(call FunctionCall) Value {
 		length := int64(toUint32(thisObject.get(propertyLength)))
 		callThis := call.Argument(1)
 		for index := range length {
+			call.runtime.checkInterrupt()
 			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 				if value := thisObject.get(key); iterator.call(call.runtime, callThis, value, int64Value(index), this).bool() {
 					return trueValue
@@ -569,6 +589,7 @@ func builtinArrayForEach(call FunctionCall) Value {
 		length := int64(toUint32(thisObject.get(propertyLength)))
 		callThis := call.Argument(1)
 		for index := range length {
+			call.runtime.checkInterrupt()
 			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 				iterator.call(call.runtime, callThis, thisObject.get(key), int64Value(index), this)
 			}
@@ -584,13 +605,14 @@ func builtinArrayMap(call FunctionCall) Value {
 	if iterator := call.Argument(0); iterator.isCallable() {
 		length := int64(toUint32(thisObject.get(propertyLength)))
 		callThis := call.Argument(1)
-		values := make([]Value, length)
+		values := make([]Value, 0, preallocation(length))
 		for index := range length {
+			call.runtime.checkInterrupt()
+			var value Value
 			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
-				values[index] = iterator.call(call.runtime, callThis, thisObject.get(key), index, this)
-			} else {
-				values[index] = Value{}
+				value = iterator.call(call.runtime, callThis, thisObject.get(key), index, this)
 			}
+			values = append(values, value)
 		}
 		return objectValue(call.runtime.newArrayOf(values))
 	}
@@ -605,6 +627,7 @@ func builtinArrayFilter(call FunctionCall) Value {
 		callThis := call.Argument(1)
 		values := make([]Value, 0)
 		for index := range length {
+			call.runtime.checkInterrupt()
 			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 				value := thisObject.get(key)
 				if iterator.call(call.runtime, callThis, value, index, this).bool() {
@@ -629,6 +652,7 @@ func builtinArrayReduce(call FunctionCall) Value {
 			var accumulator Value
 			if !initial {
 				for ; index < length; index++ {
+					call.runtime.checkInterrupt()
 					if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 						accumulator = thisObject.get(key)
 						index++
@@ -640,6 +664,7 @@ func builtinArrayReduce(call FunctionCall) Value {
 				accumulator = start
 			}
 			for ; index < length; index++ {
+				call.runtime.checkInterrupt()
 				if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 					accumulator = iterator.call(call.runtime, Value{}, accumulator, thisObject.get(key), index, this)
 				}
@@ -662,6 +687,7 @@ func builtinArrayReduceRight(call FunctionCall) Value {
 			var accumulator Value
 			if !initial {
 				for ; index >= 0; index-- {
+					call.runtime.checkInterrupt()
 					if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 						accumulator = thisObject.get(key)
 						index--
@@ -672,6 +698,7 @@ func builtinArrayReduceRight(call FunctionCall) Value {
 				accumulator = start
 			}
 			for ; index >= 0; index-- {
+				call.runtime.checkInterrupt()
 				if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 					accumulator = iterator.call(call.runtime, Value{}, accumulator, thisObject.get(key), key, this)
 				}
