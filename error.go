@@ -224,6 +224,9 @@ func (rt *runtime) panicRangeError(argumentList ...interface{}) *exception {
 func catchPanic(function func()) (err error) {
 	defer func() {
 		if caught := recover(); caught != nil {
+			if halt, ok := caught.(*interruptPanic); ok {
+				panic(halt.value)
+			}
 			if excep, ok := caught.(*exception); ok {
 				caught = excep.eject()
 			}
