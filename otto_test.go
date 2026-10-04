@@ -3,6 +3,7 @@ package otto
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"testing"
 	"time"
@@ -1801,6 +1802,68 @@ func TestOttoInterrupt(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestOttoStringLengthLimit(t *testing.T) {
+	const limit = 1 << 20
+	big := `var big = new Array(1 << 19).join("x");`
+	tests := []struct {
+		name   string
+		script string
+	}{
+		{name: "plus", script: `var s = "x"; for (;;) s = s + s`},
+		{name: "plus-assign", script: `var s = "x"; for (;;) s += s`},
+		{name: "array-join", script: big + `new Array(1 << 20).join(big)`},
+		{name: "array-join-elements", script: big + `[big, big, big].join()`},
+		{name: "array-to-string", script: big + `String([big, big, big])`},
+		{name: "array-to-locale-string", script: big + `[big, big, big].toLocaleString()`},
+		{name: "string-concat", script: big + `big.concat(big, big)`},
+		{name: "string-replace", script: big + `new Array(1 << 10).join("a").replace(/a/g, big)`},
+		{name: "string-replace-function", script: big + `new Array(1 << 10).join("a").replace(/a/g, function() { return big })`},
+		{name: "json-stringify", script: big + `JSON.stringify([big, big, big])`},
+		{name: "json-stringify-keys", script: big + `var o = {}; o[big] = 1; o[big + "y"] = 2; o[big + "z"] = 3; JSON.stringify(o)`},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			vm := New()
+			vm.SetStringLengthLimit(limit)
+			_, err := vm.Run(tc.script)
+			require.EqualError(t, err, "RangeError: Invalid string length")
+		})
+	}
+
+	t.Run("catchable", func(t *testing.T) {
+		vm := New()
+		vm.SetStringLengthLimit(limit)
+		value, err := vm.Run(big + `try { big + big + big } catch (e) { e.name }`)
+		require.NoError(t, err)
+		require.Equal(t, "RangeError", value.String())
+	})
+
+	t.Run("within-limit", func(t *testing.T) {
+		vm := New()
+		vm.SetStringLengthLimit(limit)
+		value, err := vm.Run(big + `[
+			(big + big).length,
+			big.concat(big).length,
+			[big, big].join("").length,
+			big.replace(/x/g, "yy").length,
+			JSON.stringify([big]).length
+		].join()`)
+		require.NoError(t, err)
+		n := (1 << 19) - 1
+		require.Equal(t, fmt.Sprintf("%d,%d,%d,%d,%d", 2*n, 2*n, 2*n, 2*n, n+4), value.String())
+	})
+
+	t.Run("unlimited-by-default", func(t *testing.T) {
+		vm := New()
+		value, err := vm.Run(big + `(big + big + big).length`)
+		require.NoError(t, err)
+		length, err := value.ToInteger()
+		require.NoError(t, err)
+		require.Equal(t, int64(3*((1<<19)-1)), length)
+	})
 }
 
 func BenchmarkNew(b *testing.B) {
