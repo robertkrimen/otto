@@ -64,13 +64,13 @@ type runtime struct {
 	random       func() float64
 	labels       []string
 	stackLimit   int
-	stringLimit  int
+	stringLimit  uint
 	traceLimit   int
 	lck          sync.Mutex
 }
 
 func (rt *runtime) checkStringLength(length int) {
-	if rt.stringLimit > 0 && length > rt.stringLimit {
+	if rt.stringLimit > 0 && uint(length) > rt.stringLimit {
 		panic(rt.panicRangeError("Invalid string length"))
 	}
 }

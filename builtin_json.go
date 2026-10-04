@@ -100,25 +100,24 @@ func builtinJSONParseWalk(ctx builtinJSONParseContext, rawValue interface{}) (Va
 
 type builtinJSONStringifyContext struct {
 	replacerFunction *Value
-	size             *int
 	gap              string
 	stack            []*object
 	propertyList     []string
 	call             FunctionCall
+	size             int
 }
 
 // grow adds an estimate of the encoded size of a value to the running total
 // so that the string length limit is enforced before marshalling.
-func (ctx builtinJSONStringifyContext) grow(size int) {
-	*ctx.size += size
-	ctx.call.runtime.checkStringLength(*ctx.size)
+func (ctx *builtinJSONStringifyContext) grow(size int) {
+	ctx.size += size
+	ctx.call.runtime.checkStringLength(ctx.size)
 }
 
 func builtinJSONStringify(call FunctionCall) Value {
-	ctx := builtinJSONStringifyContext{
+	ctx := &builtinJSONStringifyContext{
 		call:  call,
 		stack: []*object{nil},
-		size:  new(int),
 	}
 	replacer := call.Argument(1).object()
 	if replacer != nil {
@@ -201,7 +200,7 @@ func builtinJSONStringify(call FunctionCall) Value {
 	return stringValue(string(valueJSON))
 }
 
-func builtinJSONStringifyWalk(ctx builtinJSONStringifyContext, key string, holder *object) (interface{}, bool) {
+func builtinJSONStringifyWalk(ctx *builtinJSONStringifyContext, key string, holder *object) (interface{}, bool) {
 	value := holder.get(key)
 
 	if value.IsObject() {

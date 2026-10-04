@@ -388,7 +388,7 @@ func (o Otto) SetStackDepthLimit(limit int) {
 // a RangeError before the string is allocated.
 //
 // A limit of 0 (the default) means no limit.
-func (o Otto) SetStringLengthLimit(limit int) {
+func (o Otto) SetStringLengthLimit(limit uint) {
 	o.runtime.stringLimit = limit
 }
 
