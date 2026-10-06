@@ -716,3 +716,26 @@ func TestProperty(t *testing.T) {
 		is(prop.writeSet(), false)
 	})
 }
+
+func TestObject_getOwnPropertyDescriptorAccessor(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`
+			var o = {};
+			Object.defineProperty(o, "x", {get: function() { return 1 }, configurable: true});
+			var d = Object.getOwnPropertyDescriptor(o, "x");
+			[typeof d.get, d.set, "value" in d, "writable" in d, d.configurable].join(",");
+		`, "function,,false,false,true")
+
+		test(`
+			var d = Object.getOwnPropertyDescriptor(function(){}, "caller");
+			typeof d.get;
+		`, "function")
+
+		test(`
+			var d = Object.getOwnPropertyDescriptor({a: 1}, "a");
+			[d.value, d.writable].join(",");
+		`, "1,true")
+	})
+}
