@@ -132,35 +132,54 @@ func builtinGlobalParseInt(call FunctionCall) Value {
 	return int64Value(value)
 }
 
-var (
-	parseFloatMatchBadSpecial = regexp.MustCompile(`[\+\-]?(?:[Ii]nf$|infinity)`)
-	parseFloatMatchValid      = regexp.MustCompile(`[0-9eE\+\-\.]|Infinity`)
-)
-
 func builtinGlobalParseFloat(call FunctionCall) Value {
-	// Caveat emptor: This implementation does NOT match the specification
-	input := strings.Trim(call.Argument(0).string(), builtinStringTrimWhitespace)
-
-	if parseFloatMatchBadSpecial.MatchString(input) {
+	input := strings.TrimLeft(call.Argument(0).string(), builtinStringTrimWhitespace)
+	prefix := parseFloatPrefix(input)
+	if prefix == "" {
 		return NaNValue()
 	}
-	value, err := strconv.ParseFloat(input, 64)
-	if err != nil {
-		for end := len(input); end > 0; end-- {
-			val := input[0:end]
-			if !parseFloatMatchValid.MatchString(val) {
-				return NaNValue()
-			}
-			value, err = strconv.ParseFloat(val, 64)
-			if err == nil {
-				break
-			}
+	// prefix is a valid decimal literal, so ParseFloat can only fail by
+	// overflowing, in which case it returns the correctly signed infinity.
+	value, _ := strconv.ParseFloat(prefix, 64)
+	return float64Value(value)
+}
+
+// parseFloatPrefix returns the longest prefix of input that is a
+// StrDecimalLiteral, or "" if there is none.
+func parseFloatPrefix(input string) string {
+	pos := 0
+	if pos < len(input) && (input[pos] == '+' || input[pos] == '-') {
+		pos++
+	}
+	if strings.HasPrefix(input[pos:], "Infinity") {
+		return input[:pos+len("Infinity")]
+	}
+	digits := func() int {
+		start := pos
+		for pos < len(input) && '0' <= input[pos] && input[pos] <= '9' {
+			pos++
 		}
-		if err != nil {
-			return NaNValue()
+		return pos - start
+	}
+	mantissa := digits()
+	if pos < len(input) && input[pos] == '.' {
+		pos++
+		mantissa += digits()
+	}
+	if mantissa == 0 {
+		return ""
+	}
+	end := pos
+	if pos < len(input) && (input[pos] == 'e' || input[pos] == 'E') {
+		pos++
+		if pos < len(input) && (input[pos] == '+' || input[pos] == '-') {
+			pos++
+		}
+		if digits() > 0 {
+			end = pos
 		}
 	}
-	return float64Value(value)
+	return input[:end]
 }
 
 // encodeURI/decodeURI
