@@ -17,10 +17,11 @@ func (rt *runtime) clone() *runtime {
 	defer rt.lck.Unlock()
 
 	out := &runtime{
-		debugger:   rt.debugger,
-		random:     rt.random,
-		stackLimit: rt.stackLimit,
-		traceLimit: rt.traceLimit,
+		debugger:    rt.debugger,
+		random:      rt.random,
+		stackLimit:  rt.stackLimit,
+		stringLimit: rt.stringLimit,
+		traceLimit:  rt.traceLimit,
 	}
 
 	c := cloner{
