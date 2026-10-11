@@ -352,6 +352,22 @@ func TestObject_assign(t *testing.T) {
 
 		// Test 11: Arrays are objects, so their indexed elements are copied.
 		test(`JSON.stringify(Object.assign({}, [1,2,3]))`, "{\"0\":1,\"1\":2,\"2\":3}")
+
+		// Test 12: A null or undefined target throws a TypeError rather than panicking.
+		test(`raise: Object.assign(null, {a: 1})`, "TypeError: Object.assign TypeError: Cannot convert undefined or null to object")
+		test(`raise: Object.assign(undefined, {a: 1})`, "TypeError: Object.assign TypeError: Cannot convert undefined or null to object")
+		test(`raise: Object.assign()`, "TypeError: Object.assign TypeError: Cannot convert undefined or null to object")
+		test(`try { Object.assign(null, {}); "no error" } catch (e) { e instanceof TypeError }`, true)
+
+		// Test 13: A primitive target is converted to its wrapper object.
+		test(`typeof Object.assign(1, {a: 1})`, "object")
+		test(`Object.assign(1, {a: 1}).a`, 1)
+
+		// Test 14: String sources are indexed by UTF-16 code unit.
+		test(`JSON.stringify(Object.assign({}, "h\u00e9llo"))`, "{\"0\":\"h\",\"1\":\"\u00e9\",\"2\":\"l\",\"3\":\"l\",\"4\":\"o\"}")
+
+		// Test 15: Assigning to a frozen target throws a TypeError.
+		test(`try { Object.assign(Object.freeze({}), {a: 1}); "no error" } catch (e) { e instanceof TypeError }`, true)
 	})
 }
 
