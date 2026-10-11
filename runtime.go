@@ -123,6 +123,9 @@ func (rt *runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, isExcep
 	// Otherwise, some sort of unknown panic happened, we'll just propagate it.
 	defer func() {
 		if caught := recover(); caught != nil {
+			if halt, ok := caught.(*interruptPanic); ok {
+				panic(halt)
+			}
 			if excep, ok := caught.(*exception); ok {
 				caught = excep.eject()
 			}
@@ -141,6 +144,36 @@ func (rt *runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, isExcep
 	}()
 
 	return inner(), false
+}
+
+// interruptPanic wraps a panic raised by an Interrupt function so that it
+// unwinds through JavaScript try/catch/finally instead of being caught.
+// catchPanic unwraps it, so callers of Run, Call, etc. see the original value.
+type interruptPanic struct {
+	value interface{}
+}
+
+// checkInterrupt runs a pending Interrupt function, if any, without blocking.
+func (rt *runtime) checkInterrupt() {
+	if rt.otto.Interrupt == nil {
+		return
+	}
+	select {
+	case fn := <-rt.otto.Interrupt:
+		if fn != nil {
+			runInterrupt(fn)
+		}
+	default:
+	}
+}
+
+func runInterrupt(fn func()) {
+	defer func() {
+		if caught := recover(); caught != nil {
+			panic(&interruptPanic{value: caught})
+		}
+	}()
+	fn()
 }
 
 func (rt *runtime) toObject(value Value) *object {

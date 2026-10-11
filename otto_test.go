@@ -1767,6 +1767,22 @@ func TestOttoInterrupt(t *testing.T) {
 			name:   "empty-do-while",
 			script: "do{} while(true)",
 		},
+		{
+			name:   "try-catch",
+			script: `try { for(;;) {} } catch (e) {}`,
+		},
+		{
+			name:   "nested-try-catch",
+			script: `try { try { for(;;) {} } catch (e) {} } catch (e) {} for(;;) {}`,
+		},
+		{
+			name:   "try-catch-loop-in-catch",
+			script: `try { for(;;) {} } catch (e) { for(;;) {} }`,
+		},
+		{
+			name:   "try-finally-loop-in-finally",
+			script: `try { for(;;) {} } finally { for(;;) {} }`,
+		},
 	}
 
 	halt := errors.New("interrupt")

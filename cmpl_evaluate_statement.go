@@ -14,11 +14,7 @@ func (rt *runtime) cmplEvaluateNodeStatement(node nodeStatement) Value {
 	// FIXME: Test this
 	if rt.otto.Interrupt != nil {
 		goruntime.Gosched()
-		select {
-		case value := <-rt.otto.Interrupt:
-			value()
-		default:
-		}
+		rt.checkInterrupt()
 	}
 
 	switch node := node.(type) {
@@ -258,11 +254,7 @@ resultBreak:
 		// this is to prevent for cycles with no body from running forever
 		if len(body) == 0 && rt.otto.Interrupt != nil {
 			goruntime.Gosched()
-			select {
-			case value := <-rt.otto.Interrupt:
-				value()
-			default:
-			}
+			rt.checkInterrupt()
 		}
 
 		for _, node := range body {
