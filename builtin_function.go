@@ -84,9 +84,10 @@ func builtinFunctionApply(call FunctionCall) Value {
 	arrayObject := argumentList.object()
 	thisObject := call.thisObject()
 	length := int64(toUint32(arrayObject.get(propertyLength)))
-	valueArray := make([]Value, length)
+	valueArray := make([]Value, 0, preallocation(length))
 	for index := range length {
-		valueArray[index] = arrayObject.get(arrayIndexToString(index))
+		call.runtime.checkInterrupt()
+		valueArray = append(valueArray, arrayObject.get(arrayIndexToString(index)))
 	}
 	return thisObject.call(this, valueArray, false, nativeFrame)
 }

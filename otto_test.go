@@ -1767,6 +1767,110 @@ func TestOttoInterrupt(t *testing.T) {
 			name:   "empty-do-while",
 			script: "do{} while(true)",
 		},
+		{
+			name:   "array-join",
+			script: `new Array(4294967295).join("")`,
+		},
+		{
+			name:   "array-to-locale-string",
+			script: `new Array(4294967295).toLocaleString()`,
+		},
+		{
+			name:   "array-concat",
+			script: `[].concat(new Array(4294967295))`,
+		},
+		{
+			name:   "array-shift",
+			script: `new Array(4294967295).shift()`,
+		},
+		{
+			name:   "array-splice",
+			script: `new Array(4294967295).splice(0)`,
+		},
+		{
+			name:   "array-splice-shrink",
+			script: `new Array(4294967295).splice(0, 1)`,
+		},
+		{
+			name:   "array-splice-grow",
+			script: `new Array(4294967294).splice(0, 0, 1, 2)`,
+		},
+		{
+			name:   "array-slice",
+			script: `new Array(4294967295).slice(0)`,
+		},
+		{
+			name:   "array-unshift",
+			script: `new Array(4294967294).unshift(1)`,
+		},
+		{
+			name:   "array-reverse",
+			script: `new Array(4294967295).reverse()`,
+		},
+		{
+			name:   "array-sort",
+			script: `new Array(4294967295).sort()`,
+		},
+		{
+			name:   "array-index-of",
+			script: `new Array(4294967295).indexOf(1)`,
+		},
+		{
+			name:   "array-last-index-of",
+			script: `new Array(4294967295).lastIndexOf(1)`,
+		},
+		{
+			name:   "array-every",
+			script: `new Array(4294967295).every(function() {})`,
+		},
+		{
+			name:   "array-some",
+			script: `new Array(4294967295).some(function() {})`,
+		},
+		{
+			name:   "array-for-each",
+			script: `new Array(4294967295).forEach(function() {})`,
+		},
+		{
+			name:   "array-map",
+			script: `new Array(4294967295).map(function() {})`,
+		},
+		{
+			name:   "array-filter",
+			script: `new Array(4294967295).filter(function() {})`,
+		},
+		{
+			name:   "array-reduce",
+			script: `new Array(4294967295).reduce(function() {})`,
+		},
+		{
+			name:   "array-reduce-initial",
+			script: `new Array(4294967295).reduce(function() {}, 0)`,
+		},
+		{
+			name:   "array-reduce-right",
+			script: `new Array(4294967295).reduceRight(function() {})`,
+		},
+		{
+			name:   "array-reduce-right-initial",
+			script: `new Array(4294967295).reduceRight(function() {}, 0)`,
+		},
+		{
+			name:   "array-length-truncate",
+			script: `var a = new Array(4294967295); a.length = 0`,
+		},
+		{
+			name:   "function-apply",
+			script: `(function() {}).apply(null, {length: 4294967295})`,
+		},
+		{
+			name:   "json-stringify-array",
+			script: `JSON.stringify(new Array(4294967295))`,
+		},
+		{
+			name:   "json-stringify-replacer",
+			script: `JSON.stringify({}, new Array(4294967295))`,
+		},
 	}
 
 	halt := errors.New("interrupt")
