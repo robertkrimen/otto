@@ -65,6 +65,8 @@ type runtime struct {
 	labels       []string
 	stackLimit   int
 	traceLimit   int
+	boxedString  string
+	boxedValue   stringObjecter
 	lck          sync.Mutex
 }
 
