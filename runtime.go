@@ -678,6 +678,8 @@ func (rt *runtime) toValue(value interface{}) Value {
 			switch reflect.Indirect(val).Kind() {
 			case reflect.Struct:
 				return objectValue(rt.newGoStructObject(val))
+			case reflect.Map:
+				return objectValue(rt.newGoMapObject(reflect.Indirect(val)))
 			case reflect.Array:
 				return objectValue(rt.newGoArray(val))
 			}
