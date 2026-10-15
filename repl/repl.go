@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/robertkrimen/otto"
+	"github.com/kubeshark/otto"
 	"gopkg.in/readline.v1"
 )
 

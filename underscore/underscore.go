@@ -1,7 +1,7 @@
 // Package underscore contains the source for the JavaScript utility-belt library.
 //
 //	import (
-//		_ "github.com/robertkrimen/otto/underscore"
+//		_ "github.com/kubeshark/otto/underscore"
 //	)
 //
 // Every Otto runtime will now include [underscore] for more information see the [underscore docs]
@@ -11,7 +11,7 @@
 // To prevent this behavior, you can do the following:
 //
 //	import (
-//		"github.com/robertkrimen/otto/underscore"
+//		"github.com/kubeshark/otto/underscore"
 //	)
 //
 //	func init() {
@@ -25,7 +25,7 @@ package underscore
 import (
 	_ "embed" // Embed underscore.
 
-	"github.com/robertkrimen/otto/registry"
+	"github.com/kubeshark/otto/registry"
 )
 
 //go:embed underscore-min.js

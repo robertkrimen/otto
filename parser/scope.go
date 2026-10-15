@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/robertkrimen/otto/ast"
+	"github.com/kubeshark/otto/ast"
 )
 
 type scope struct {
