@@ -222,6 +222,7 @@ package otto
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"strings"
 
 	"github.com/robertkrimen/otto/file"
@@ -238,12 +239,15 @@ type Otto struct {
 }
 
 // New will allocate a new JavaScript runtime.
-func New() *Otto {
+func New(opts ...Option) *Otto {
 	o := &Otto{
 		runtime: newContext(),
 	}
 	o.runtime.otto = o
 	o.runtime.traceLimit = 10
+	for _, opt := range opts {
+		opt(o)
+	}
 	if err := o.Set("console", o.runtime.newConsole()); err != nil {
 		panic(err)
 	}
@@ -774,4 +778,12 @@ func (o Object) MarshalJSON() ([]byte, error) {
 		return result, err
 	}
 	return json.Marshal(goValue)
+}
+
+type Option func(*Otto)
+
+func WithStdoutWriter(w io.Writer) Option {
+	return func(o *Otto) {
+		o.runtime.stdoutWriter = w
+	}
 }

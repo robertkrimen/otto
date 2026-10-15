@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"path"
 	"reflect"
@@ -66,6 +67,7 @@ type runtime struct {
 	stackLimit   int
 	traceLimit   int
 	lck          sync.Mutex
+	stdoutWriter io.Writer
 }
 
 func (rt *runtime) enterScope(scop *scope) {

@@ -1803,6 +1803,35 @@ func TestOttoInterrupt(t *testing.T) {
 	}
 }
 
+func TestOtterStdoutWriter(t *testing.T) {
+	tests := []struct {
+		name   string
+		script string
+		expect string
+	}{
+		{
+			name:   "console.log",
+			script: "console.log('hello', 'world')",
+			expect: "hello world\n",
+		},
+		{
+			name:   "console.err",
+			script: "console.error('error', 'world')",
+			expect: "error world\n",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf = &bytes.Buffer{}
+			vm := New(WithStdoutWriter(buf))
+			_, err := vm.Run(tc.script)
+			require.NoError(t, err)
+			require.Equal(t, tc.expect, buf.String())
+		})
+	}
+}
+
 func BenchmarkNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		New()
