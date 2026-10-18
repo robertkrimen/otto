@@ -49,21 +49,23 @@ func builtinNumberValueOf(call FunctionCall) Value {
 }
 
 func builtinNumberToFixed(call FunctionCall) Value {
+	value := call.thisClassObject(classNumberName).primitiveValue()
 	precision := toIntegerFloat(call.Argument(0))
 	if 20 < precision || 0 > precision {
 		panic(call.runtime.panicRangeError("toFixed() precision must be between 0 and 20"))
 	}
-	if call.This.IsNaN() {
+	if value.IsNaN() {
 		return stringValue("NaN")
 	}
-	if value := call.This.float64(); math.Abs(value) >= 1e21 {
+	if value := value.float64(); math.Abs(value) >= 1e21 {
 		return stringValue(floatToString(value, 64))
 	}
-	return stringValue(strconv.FormatFloat(call.This.float64(), 'f', int(precision), 64))
+	return stringValue(strconv.FormatFloat(value.float64(), 'f', int(precision), 64))
 }
 
 func builtinNumberToExponential(call FunctionCall) Value {
-	if call.This.IsNaN() {
+	number := call.thisClassObject(classNumberName).primitiveValue()
+	if number.IsNaN() {
 		return stringValue("NaN")
 	}
 	precision := float64(-1)
@@ -73,22 +75,23 @@ func builtinNumberToExponential(call FunctionCall) Value {
 			panic(call.runtime.panicRangeError("toString() radix must be between 2 and 36"))
 		}
 	}
-	return stringValue(strconv.FormatFloat(call.This.float64(), 'e', int(precision), 64))
+	return stringValue(strconv.FormatFloat(number.float64(), 'e', int(precision), 64))
 }
 
 func builtinNumberToPrecision(call FunctionCall) Value {
-	if call.This.IsNaN() {
+	number := call.thisClassObject(classNumberName).primitiveValue()
+	if number.IsNaN() {
 		return stringValue("NaN")
 	}
 	value := call.Argument(0)
 	if value.IsUndefined() {
-		return stringValue(call.This.string())
+		return stringValue(number.string())
 	}
 	precision := toIntegerFloat(value)
 	if 1 > precision {
 		panic(call.runtime.panicRangeError("toPrecision() precision must be greater than 1"))
 	}
-	return stringValue(strconv.FormatFloat(call.This.float64(), 'g', int(precision), 64))
+	return stringValue(strconv.FormatFloat(number.float64(), 'g', int(precision), 64))
 }
 
 func builtinNumberIsNaN(call FunctionCall) Value {

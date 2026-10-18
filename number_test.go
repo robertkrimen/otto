@@ -1,8 +1,24 @@
 package otto
 
 import (
+	"fmt"
 	"testing"
 )
+
+func TestNumberFormattingReceivers(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+		for _, method := range []string{"toFixed", "toExponential", "toPrecision"} {
+			for _, receiver := range []string{`"3"`, `true`, `({ valueOf: function () { return 3; } })`} {
+				test(fmt.Sprintf(`(function () {
+					try { Number.prototype.%s.call(%s, 2); }
+					catch (e) { return e instanceof TypeError; }
+					return false;
+				}())`, method, receiver), true)
+			}
+		}
+	})
+}
 
 func TestNumber(t *testing.T) {
 	tt(t, func() {
