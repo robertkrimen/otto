@@ -170,7 +170,9 @@ func builtinArraySplice(call FunctionCall) Value {
 
 	start := valueToRangeIndex(call.Argument(0), length, false)
 	deleteCount := length - start
-	if arg, ok := call.getArgument(1); ok {
+	if len(call.ArgumentList) == 0 {
+		deleteCount = 0
+	} else if arg, ok := call.getArgument(1); ok {
 		deleteCount = valueToRangeIndex(arg, length-start, true)
 	}
 	valueArray := make([]Value, deleteCount)
