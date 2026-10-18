@@ -380,6 +380,8 @@ func TestMath_round(t *testing.T) {
 
 		test(`Math.round(3.5)`, 4)
 		test(`Math.round(-3.5)`, -3)
+		test(`Math.round(0.49999999999999994)`, 0)
+		test(`Math.round(4503599627370497)`, 4503599627370497)
 	})
 }
 
