@@ -59,7 +59,11 @@ func builtinNumberToFixed(call FunctionCall) Value {
 	if value := call.This.float64(); math.Abs(value) >= 1e21 {
 		return stringValue(floatToString(value, 64))
 	}
-	return stringValue(strconv.FormatFloat(call.This.float64(), 'f', int(precision), 64))
+	number := call.This.float64()
+	if number == 0 {
+		number = 0
+	}
+	return stringValue(strconv.FormatFloat(number, 'f', int(precision), 64))
 }
 
 func builtinNumberToExponential(call FunctionCall) Value {
@@ -73,7 +77,11 @@ func builtinNumberToExponential(call FunctionCall) Value {
 			panic(call.runtime.panicRangeError("toString() radix must be between 2 and 36"))
 		}
 	}
-	return stringValue(strconv.FormatFloat(call.This.float64(), 'e', int(precision), 64))
+	number := call.This.float64()
+	if number == 0 {
+		number = 0
+	}
+	return stringValue(strconv.FormatFloat(number, 'e', int(precision), 64))
 }
 
 func builtinNumberToPrecision(call FunctionCall) Value {
@@ -88,7 +96,11 @@ func builtinNumberToPrecision(call FunctionCall) Value {
 	if 1 > precision {
 		panic(call.runtime.panicRangeError("toPrecision() precision must be greater than 1"))
 	}
-	return stringValue(strconv.FormatFloat(call.This.float64(), 'g', int(precision), 64))
+	number := call.This.float64()
+	if number == 0 {
+		number = 0
+	}
+	return stringValue(strconv.FormatFloat(number, 'g', int(precision), 64))
 }
 
 func builtinNumberIsNaN(call FunctionCall) Value {
