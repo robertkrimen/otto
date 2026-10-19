@@ -39,11 +39,8 @@ func builtinMathAtan(call FunctionCall) Value {
 
 func builtinMathAtan2(call FunctionCall) Value {
 	y := call.Argument(0).float64()
-	if math.IsNaN(y) {
-		return NaNValue()
-	}
 	x := call.Argument(1).float64()
-	if math.IsNaN(x) {
+	if math.IsNaN(y) || math.IsNaN(x) {
 		return NaNValue()
 	}
 	return float64Value(math.Atan2(y, x))
@@ -117,15 +114,16 @@ func builtinMathMax(call FunctionCall) Value {
 		return float64Value(call.ArgumentList[0].float64())
 	}
 	result := call.ArgumentList[0].float64()
-	if math.IsNaN(result) {
-		return NaNValue()
-	}
+	hasNaN := math.IsNaN(result)
 	for _, value := range call.ArgumentList[1:] {
 		value := value.float64()
 		if math.IsNaN(value) {
-			return NaNValue()
+			hasNaN = true
 		}
 		result = math.Max(result, value)
+	}
+	if hasNaN {
+		return NaNValue()
 	}
 	return float64Value(result)
 }
@@ -138,15 +136,16 @@ func builtinMathMin(call FunctionCall) Value {
 		return float64Value(call.ArgumentList[0].float64())
 	}
 	result := call.ArgumentList[0].float64()
-	if math.IsNaN(result) {
-		return NaNValue()
-	}
+	hasNaN := math.IsNaN(result)
 	for _, value := range call.ArgumentList[1:] {
 		value := value.float64()
 		if math.IsNaN(value) {
-			return NaNValue()
+			hasNaN = true
 		}
 		result = math.Min(result, value)
+	}
+	if hasNaN {
+		return NaNValue()
 	}
 	return float64Value(result)
 }
