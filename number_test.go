@@ -72,6 +72,8 @@ func TestNumber_toFixed(t *testing.T) {
 		test, _ := test()
 
 		test(`new Number(451).toFixed(2)`, "451.00")
+		test(`(-0).toFixed(2)`, "0.00")
+		test(`(-0.001).toFixed(2)`, "-0.00")
 		test(`12345.6789.toFixed()`, "12346")
 		test(`12345.6789.toFixed(1)`, "12345.7")
 		test(`12345.6789.toFixed(6)`, "12345.678900")
@@ -110,6 +112,7 @@ func TestNumber_toExponential(t *testing.T) {
 		test, _ := test()
 
 		test(`new Number(451).toExponential(2)`, "4.51e+02")
+		test(`(-0).toExponential(2)`, "0.00e+00")
 		test(`77.1234.toExponential()`, "7.71234e+01")
 		test(`77.1234.toExponential(4)`, "7.7123e+01")
 		test(`77.1234.toExponential(2)`, "7.71e+01")
@@ -122,6 +125,7 @@ func TestNumber_toPrecision(t *testing.T) {
 		test, _ := test()
 
 		test(`new Number(451).toPrecision()`, "451")
+		test(`(-0).toPrecision(1)`, "0")
 		test(`new Number(451).toPrecision(1)`, "5e+02")
 		test(`5.123456.toPrecision()`, "5.123456")
 		test(`5.123456.toPrecision(5)`, "5.1235")
