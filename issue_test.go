@@ -1142,3 +1142,43 @@ func Test_issue285(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "1,451", exp)
 }
+
+func Test_issue570(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		// ES5.1 §11.8 relational operators associate left-to-right.
+		// (1 < 2) <= 1 → true <= 1 → true. Right-associative parse is false.
+		test(`1 < 2 <= 1`, true)
+		test(`1 < 2 < 3`, true)
+		test(`3 > 2 > 1`, false)
+		test(`1 <= 2 < 3`, true)
+		// (3 >= 2) >= 1 → true >= 1 → true. (3 >= 2) >= 2 → 1 >= 2 → false.
+		test(`3 >= 2 >= 1`, true)
+		test(`3 >= 2 >= 2`, false)
+
+		test(`'a' in {a:1} in {true: 1}`, true)
+		test(`'b' in {a:1} in {true: 1}`, false)
+		test(`({}) instanceof Object instanceof Boolean`, false)
+		test(`1 < 2 in {true: 1}`, true)
+
+		test(`
+			for (var x = 1 < 2; false;) {}
+			x
+		`, true)
+
+		// `in` must not be consumed inside a for-in initializer.
+		test(`
+			var n = 0;
+			for (var k = 1 < 2 in {a: 1}) {
+				n += (k === "a" ? 1 : 0);
+			}
+			n
+		`, 1)
+
+		test(`
+			for (var y = ("a" in {a: 1}); false;) {}
+			y
+		`, true)
+	})
+}
