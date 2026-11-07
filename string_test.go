@@ -164,6 +164,22 @@ func TestString_match(t *testing.T) {
 	})
 }
 
+func TestString_matchNoMatch(t *testing.T) {
+	tt(t, func() {
+		test, _ := test()
+
+		test(`"abc".match(/x/) === null`, true)
+		test(`"abc".match(/x/g) === null`, true)
+		test(`"".match(/x/g) === null`, true)
+		test(`
+			var matcher = /x/g;
+			matcher.lastIndex = 2;
+			"abc".match(matcher) === null;
+		`, true)
+		test(`matcher.lastIndex`, 0)
+	})
+}
+
 func BenchmarkString_match(b *testing.B) {
 	vm := New()
 	s, _ := vm.Compile("test.js", `"abc____abc_abc___".match(/__abc/g)`)
