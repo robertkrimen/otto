@@ -2,7 +2,6 @@ package otto
 
 import (
 	"math"
-	"strconv"
 
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -49,46 +48,49 @@ func builtinNumberValueOf(call FunctionCall) Value {
 }
 
 func builtinNumberToFixed(call FunctionCall) Value {
+	value := call.This.float64()
 	precision := toIntegerFloat(call.Argument(0))
-	if 20 < precision || 0 > precision {
-		panic(call.runtime.panicRangeError("toFixed() precision must be between 0 and 20"))
+	if 100 < precision || 0 > precision {
+		panic(call.runtime.panicRangeError("toFixed() digits must be between 0 and 100"))
 	}
-	if call.This.IsNaN() {
+	if math.IsNaN(value) {
 		return stringValue("NaN")
 	}
-	if value := call.This.float64(); math.Abs(value) >= 1e21 {
+	if math.Abs(value) >= 1e21 {
 		return stringValue(floatToString(value, 64))
 	}
-	return stringValue(strconv.FormatFloat(call.This.float64(), 'f', int(precision), 64))
+	return stringValue(numberToFixed(value, int(precision)))
 }
 
 func builtinNumberToExponential(call FunctionCall) Value {
-	if call.This.IsNaN() {
-		return stringValue("NaN")
+	value := call.This.float64()
+	fractionDigits := call.Argument(0)
+	precision := toIntegerFloat(fractionDigits)
+	if math.IsNaN(value) || math.IsInf(value, 0) {
+		return stringValue(floatToString(value, 64))
 	}
-	precision := float64(-1)
-	if value := call.Argument(0); value.IsDefined() {
-		precision = toIntegerFloat(value)
-		if 0 > precision {
-			panic(call.runtime.panicRangeError("toString() radix must be between 2 and 36"))
-		}
+	if 100 < precision || 0 > precision {
+		panic(call.runtime.panicRangeError("toExponential() argument must be between 0 and 100"))
 	}
-	return stringValue(strconv.FormatFloat(call.This.float64(), 'e', int(precision), 64))
+	if fractionDigits.IsUndefined() {
+		return stringValue(numberToExponential(value, -1))
+	}
+	return stringValue(numberToExponential(value, int(precision)))
 }
 
 func builtinNumberToPrecision(call FunctionCall) Value {
-	if call.This.IsNaN() {
-		return stringValue("NaN")
-	}
-	value := call.Argument(0)
-	if value.IsUndefined() {
+	value := call.This.float64()
+	if call.Argument(0).IsUndefined() {
 		return stringValue(call.This.string())
 	}
-	precision := toIntegerFloat(value)
-	if 1 > precision {
-		panic(call.runtime.panicRangeError("toPrecision() precision must be greater than 1"))
+	precision := toIntegerFloat(call.Argument(0))
+	if math.IsNaN(value) || math.IsInf(value, 0) {
+		return stringValue(floatToString(value, 64))
 	}
-	return stringValue(strconv.FormatFloat(call.This.float64(), 'g', int(precision), 64))
+	if 100 < precision || 1 > precision {
+		panic(call.runtime.panicRangeError("toPrecision() argument must be between 1 and 100"))
+	}
+	return stringValue(numberToPrecision(value, int(precision)))
 }
 
 func builtinNumberIsNaN(call FunctionCall) Value {
