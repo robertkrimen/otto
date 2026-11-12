@@ -82,7 +82,7 @@ func TestNumber_toFixed(t *testing.T) {
 
 		test(`raise:
             new Number("a").toFixed(Number.POSITIVE_INFINITY);
-        `, "RangeError: toFixed() precision must be between 0 and 20")
+        `, "RangeError: toFixed() digits must be between 0 and 100")
 
 		test(`
             [
@@ -101,7 +101,13 @@ func TestNumber_toFixed(t *testing.T) {
 
 		test(`raise:
             new Number(1e21).toFixed(Number.POSITIVE_INFINITY);
-        `, "RangeError: toFixed() precision must be between 0 and 20")
+        `, "RangeError: toFixed() digits must be between 0 and 100")
+
+		// Exact ties round up (away from zero), not to even.
+		test(`[(2.5).toFixed(), (-2.5).toFixed(), (0.5).toFixed(), (1.125).toFixed(2), (1.005).toFixed(2)].join()`, "3,-3,1,1.13,1.00")
+		test(`[(-0).toFixed(2), (-1e-10).toFixed(2), (0).toFixed()].join()`, "0.00,-0.00,0")
+		test(`(1).toFixed(25)`, "1.0000000000000000000000000")
+		test(`(0.1).toFixed(30)`, "0.100000000000000005551115123126")
 	})
 }
 
@@ -109,11 +115,20 @@ func TestNumber_toExponential(t *testing.T) {
 	tt(t, func() {
 		test, _ := test()
 
-		test(`new Number(451).toExponential(2)`, "4.51e+02")
-		test(`77.1234.toExponential()`, "7.71234e+01")
-		test(`77.1234.toExponential(4)`, "7.7123e+01")
-		test(`77.1234.toExponential(2)`, "7.71e+01")
-		test(`77 .toExponential()`, "7.7e+01")
+		test(`new Number(451).toExponential(2)`, "4.51e+2")
+		test(`77.1234.toExponential()`, "7.71234e+1")
+		test(`77.1234.toExponential(4)`, "7.7123e+1")
+		test(`77.1234.toExponential(2)`, "7.71e+1")
+		test(`77 .toExponential()`, "7.7e+1")
+		test(`(3).toExponential(2)`, "3.00e+0")
+		test(`(0.00015).toExponential(1)`, "1.5e-4")
+		test(`[(25).toExponential(0), (-25).toExponential(0), (1.25).toExponential(1)].join()`, "3e+1,-3e+1,1.3e+0")
+		test(`[(0).toExponential(), (-0).toExponential(2), (1e23).toExponential(15)].join()`, "0e+0,0.00e+0,9.999999999999999e+22")
+		test(`[Infinity.toExponential(), (-Infinity).toExponential(-1), NaN.toExponential(200)].join()`, "Infinity,-Infinity,NaN")
+
+		test(`raise:
+            (1).toExponential(101);
+        `, "RangeError: toExponential() argument must be between 0 and 100")
 	})
 }
 
@@ -122,11 +137,20 @@ func TestNumber_toPrecision(t *testing.T) {
 		test, _ := test()
 
 		test(`new Number(451).toPrecision()`, "451")
-		test(`new Number(451).toPrecision(1)`, "5e+02")
+		test(`new Number(451).toPrecision(1)`, "5e+2")
 		test(`5.123456.toPrecision()`, "5.123456")
 		test(`5.123456.toPrecision(5)`, "5.1235")
 		test(`5.123456.toPrecision(2)`, "5.1")
 		test(`5.123456.toPrecision(1)`, "5")
+		test(`(1.5).toPrecision(5)`, "1.5000")
+		test(`(0.0006).toPrecision(13)`, "0.0006000000000000")
+		test(`[(123.456).toPrecision(2), (0.00000123).toPrecision(2), (99.5).toPrecision(2)].join()`, "1.2e+2,0.0000012,1.0e+2")
+		test(`[(0).toPrecision(3), (-0).toPrecision(1), (-1.25).toPrecision(2)].join()`, "0.00,0,-1.3")
+		test(`[Infinity.toPrecision(), (-Infinity).toPrecision(3), NaN.toPrecision(0)].join()`, "Infinity,-Infinity,NaN")
+
+		test(`raise:
+            (1).toPrecision(101);
+        `, "RangeError: toPrecision() argument must be between 1 and 100")
 	})
 }
 
