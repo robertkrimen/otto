@@ -307,6 +307,55 @@ func TestObject_defineProperty(t *testing.T) {
             Object.defineProperty(abc, "def", { writable: false });
             abc.def;
         `, 42)
+
+		// A generic descriptor (no value, writable, get or set) must keep
+		// the existing [[Writable]] of a data property.
+		test(`
+            var abc = { def: 1 };
+            Object.defineProperty(abc, "def", { enumerable: false });
+            var ghi = Object.getOwnPropertyDescriptor(abc, "def");
+            abc.def = 2;
+            [ ghi.value, ghi.writable, ghi.enumerable, ghi.configurable, abc.def ];
+        `, "1,true,false,true,2")
+
+		test(`
+            var abc = { def: 1 };
+            Object.defineProperty(abc, "def", { configurable: false });
+            var ghi = Object.getOwnPropertyDescriptor(abc, "def");
+            abc.def = 2;
+            [ ghi.writable, ghi.enumerable, ghi.configurable, abc.def ];
+        `, "true,true,false,2")
+
+		test(`
+            var abc = {};
+            Object.defineProperty(abc, "def", { value: 1, writable: false, configurable: true });
+            Object.defineProperty(abc, "def", { enumerable: true });
+            var ghi = Object.getOwnPropertyDescriptor(abc, "def");
+            [ ghi.writable, ghi.enumerable, ghi.configurable ];
+        `, "false,true,true")
+
+		test(`
+            var abc = {};
+            Object.defineProperty(abc, "def", { get: function() { return 7; }, configurable: true });
+            Object.defineProperty(abc, "def", { enumerable: true });
+            var ghi = Object.getOwnPropertyDescriptor(abc, "def");
+            [ abc.def, typeof ghi.get, "writable" in ghi, ghi.enumerable ];
+        `, "7,function,false,true")
+
+		test(`
+            var abc = [ 1 ];
+            Object.defineProperty(abc, "0", { enumerable: false });
+            abc[0] = 2;
+            [ abc[0], Object.getOwnPropertyDescriptor(abc, "0").writable ];
+        `, "2,true")
+
+		test(`
+            (function(){
+                Object.defineProperty(arguments, "0", { enumerable: false });
+                arguments[0] = 5;
+                return [ arguments[0], Object.getOwnPropertyDescriptor(arguments, "0").writable ];
+            })(1);
+        `, "5,true")
 	})
 }
 
