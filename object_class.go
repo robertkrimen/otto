@@ -424,7 +424,9 @@ func objectDefineOwnProperty(obj *object, name string, descriptor property, thro
 		// (Maybe put into switch ...)
 		mode0 := prop.mode
 		if mode1&0o200 != 0 {
-			if descriptor.isDataDescriptor() {
+			// A generic descriptor (no value, no writable, no get/set) on a
+			// data property keeps the existing [[Writable]] too (8.12.9.12).
+			if descriptor.isDataDescriptor() || isDataDescriptor && descriptor.isGenericDescriptor() {
 				mode1 &= ^0o200 // Turn off "writable" missing
 				mode1 |= (mode0 & 0o100)
 			}
