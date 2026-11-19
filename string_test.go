@@ -105,6 +105,15 @@ func TestString_indexOf(t *testing.T) {
 		test(`"$$abcdabcd".indexOf("ab", function(){return -Infinity;}())`, 2)
 		test(`"$$abcdabcd".indexOf("ab", function(){return NaN;}())`, 2)
 
+		// Positions count UTF-16 code units, not bytes.
+		test(`"ééa".indexOf("a", 1)`, 2)
+		test(`"ééa".indexOf("é", 1)`, 1)
+		test(`"ééa".indexOf("", 3)`, 3)
+		test(`"ééa".indexOf("", 5)`, 3)
+		test(`"\ud83d\ude00a".indexOf("a", 1)`, 2)
+		test(`"abc".indexOf("", 1e19)`, 3)
+		test(`"abc".indexOf("c", -1e19)`, 2)
+
 		test(`
             var abc = {toString:function(){return "\u0041B";}}
             var def = {valueOf:function(){return true;}}
@@ -140,6 +149,22 @@ func TestString_lastIndexOf(t *testing.T) {
 		test(`"uñiçode".lastIndexOf("ñ")`, 1)
 		test(`"uñiçodeñ".lastIndexOf("ç")`, 3)
 		test(`"uñiçodeñ".lastIndexOf("aç")`, -1)
+
+		// Positions count UTF-16 code units, not bytes.
+		test(`"ééa".lastIndexOf("a", 2)`, 2)
+		test(`"ééaéa".lastIndexOf("a", 3)`, 2)
+		test(`"\ud83d\ude00a\ud83d\ude00a".lastIndexOf("a", 3)`, 2)
+
+		// A NaN position searches the whole string, -Infinity only index 0.
+		test(`"abcabc".lastIndexOf("c", NaN)`, 5)
+		test(`"abcabc".lastIndexOf("c", "x")`, 5)
+		test(`"abcabc".lastIndexOf("a", -Infinity)`, 0)
+		test(`"abcabc".lastIndexOf("c", -Infinity)`, -1)
+
+		// Large positions are clamped to the string length.
+		test(`"abcdef".lastIndexOf("c", 1e19)`, 2)
+		test(`"abcdef".lastIndexOf("c", 9.3e18)`, 2)
+		test(`"abcdef".lastIndexOf("c", -1e19)`, -1)
 
 		test(`
             abc = new Object(true);

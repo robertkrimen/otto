@@ -2,6 +2,7 @@ package otto
 
 import (
 	"bytes"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -90,6 +91,28 @@ func utf16Length(s string) int {
 	return len(utf16.Encode([]rune(s)))
 }
 
+// clampStringPosition converts an integer position to an index in [0, length].
+func clampStringPosition(position float64, length int) int {
+	switch {
+	case position <= 0:
+		return 0
+	case position >= float64(length):
+		return length
+	default:
+		return int(position)
+	}
+}
+
+// hasUTF16At reports whether target occurs in value at index.
+func hasUTF16At(value, target []uint16, index int) bool {
+	for i, unit := range target {
+		if value[index+i] != unit {
+			return false
+		}
+	}
+	return true
+}
+
 func builtinStringIndexOf(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
 	value := call.This.string()
@@ -97,20 +120,16 @@ func builtinStringIndexOf(call FunctionCall) Value {
 	if 2 > len(call.ArgumentList) {
 		return intValue(indexRune(value, target))
 	}
-	start := toIntegerFloat(call.Argument(1))
-	if 0 > start {
-		start = 0
-	} else if start >= float64(len(value)) {
-		if target == "" {
-			return intValue(len(value))
+	// Positions count UTF-16 code units, not bytes.
+	source := utf16.Encode([]rune(value))
+	search := utf16.Encode([]rune(target))
+	start := clampStringPosition(toIntegerFloat(call.Argument(1)), len(source))
+	for index := start; index+len(search) <= len(source); index++ {
+		if hasUTF16At(source, search, index) {
+			return intValue(index)
 		}
-		return intValue(-1)
 	}
-	index := indexRune(value[int(start):], target)
-	if index >= 0 {
-		index += int(start)
-	}
-	return intValue(index)
+	return intValue(-1)
 }
 
 func builtinStringLastIndexOf(call FunctionCall) Value {
@@ -120,23 +139,23 @@ func builtinStringLastIndexOf(call FunctionCall) Value {
 	if 2 > len(call.ArgumentList) || call.ArgumentList[1].IsUndefined() {
 		return intValue(lastIndexRune(value, target))
 	}
-	length := len(value)
-	if length == 0 {
-		return intValue(lastIndexRune(value, target))
+	// Positions count UTF-16 code units, not bytes.
+	source := utf16.Encode([]rune(value))
+	search := utf16.Encode([]rune(target))
+	start := len(source)
+	// A NaN position means +Infinity, so the whole string is searched.
+	if position := call.ArgumentList[1].float64(); !math.IsNaN(position) {
+		start = clampStringPosition(toIntegerFloat(call.ArgumentList[1]), len(source))
 	}
-	start := call.ArgumentList[1].number()
-	if start.kind == numberInfinity { // FIXME
-		// startNumber is infinity, so start is the end of string (start = length)
-		return intValue(lastIndexRune(value, target))
+	if last := len(source) - len(search); start > last {
+		start = last
 	}
-	if 0 > start.int64 {
-		start.int64 = 0
+	for index := start; index >= 0; index-- {
+		if hasUTF16At(source, search, index) {
+			return intValue(index)
+		}
 	}
-	end := int(start.int64) + len(target)
-	if end > length {
-		end = length
-	}
-	return intValue(lastIndexRune(value[:end], target))
+	return intValue(-1)
 }
 
 func builtinStringMatch(call FunctionCall) Value {
@@ -436,7 +455,7 @@ func builtinStringSubstr(call FunctionCall) Value {
 		return stringValue("")
 	}
 
-	if start+length >= size {
+	if length >= size-start {
 		// Cap length to be to the end of the string
 		// start = 3, length = 5, size = 4 [0, 1, 2, 3]
 		// 4 - 3 = 1
