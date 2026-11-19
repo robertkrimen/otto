@@ -108,6 +108,18 @@ func TestNumber_toFixed(t *testing.T) {
 		test(`[(-0).toFixed(2), (-1e-10).toFixed(2), (0).toFixed()].join()`, "0.00,-0.00,0")
 		test(`(1).toFixed(25)`, "1.0000000000000000000000000")
 		test(`(0.1).toFixed(30)`, "0.100000000000000005551115123126")
+
+		// A boxed receiver's own valueOf is not called: the digits are checked first.
+		test(`raise:
+            var n = new Number(1);
+            n.valueOf = function () { throw new Error('called'); };
+            n.toFixed(-1);
+        `, "RangeError: toFixed() digits must be between 0 and 100")
+		test(`
+            var n = new Number(1.25);
+            n.valueOf = function () { return 7; };
+            n.toFixed(1);
+        `, "1.3")
 	})
 }
 
@@ -129,6 +141,12 @@ func TestNumber_toExponential(t *testing.T) {
 		test(`raise:
             (1).toExponential(101);
         `, "RangeError: toExponential() argument must be between 0 and 100")
+
+		test(`
+            var n = new Number(25);
+            n.valueOf = function () { return 7; };
+            n.toExponential(1);
+        `, "2.5e+1")
 	})
 }
 
@@ -151,6 +169,18 @@ func TestNumber_toPrecision(t *testing.T) {
 		test(`raise:
             (1).toPrecision(101);
         `, "RangeError: toPrecision() argument must be between 1 and 100")
+
+		// With no precision, the stored number is stringified, not the receiver object.
+		test(`
+            var n = new Number(NaN);
+            n.toString = function () { return 'custom'; };
+            n.toPrecision();
+        `, "NaN")
+		test(`
+            var n = new Number(1.5);
+            n.valueOf = function () { return 7; };
+            n.toPrecision(2);
+        `, "1.5")
 	})
 }
 

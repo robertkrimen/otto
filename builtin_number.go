@@ -48,7 +48,8 @@ func builtinNumberValueOf(call FunctionCall) Value {
 }
 
 func builtinNumberToFixed(call FunctionCall) Value {
-	value := call.This.float64()
+	// Read the stored number, so a boxed receiver's own valueOf is not called
+	value := call.thisClassObject(classNumberName).primitiveValue().float64()
 	precision := toIntegerFloat(call.Argument(0))
 	if 100 < precision || 0 > precision {
 		panic(call.runtime.panicRangeError("toFixed() digits must be between 0 and 100"))
@@ -63,7 +64,8 @@ func builtinNumberToFixed(call FunctionCall) Value {
 }
 
 func builtinNumberToExponential(call FunctionCall) Value {
-	value := call.This.float64()
+	// Read the stored number, so a boxed receiver's own valueOf is not called
+	value := call.thisClassObject(classNumberName).primitiveValue().float64()
 	fractionDigits := call.Argument(0)
 	precision := toIntegerFloat(fractionDigits)
 	if math.IsNaN(value) || math.IsInf(value, 0) {
@@ -79,9 +81,11 @@ func builtinNumberToExponential(call FunctionCall) Value {
 }
 
 func builtinNumberToPrecision(call FunctionCall) Value {
-	value := call.This.float64()
+	// Read the stored number, so a boxed receiver's own valueOf or toString is not called
+	thisNumber := call.thisClassObject(classNumberName).primitiveValue()
+	value := thisNumber.float64()
 	if call.Argument(0).IsUndefined() {
-		return stringValue(call.This.string())
+		return stringValue(thisNumber.string())
 	}
 	precision := toIntegerFloat(call.Argument(0))
 	if math.IsNaN(value) || math.IsInf(value, 0) {
