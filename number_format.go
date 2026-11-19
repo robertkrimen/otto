@@ -39,14 +39,15 @@ func significantDigits(value float64, precision int) (string, int) {
 	for exact.Cmp(powerOfTen(exponent+1)) >= 0 {
 		exponent++
 	}
-	n := roundHalfUp(exact, precision-1-exponent)
-	if len(n.String()) > precision {
+	digits := roundHalfUp(exact, precision-1-exponent).String()
+	if len(digits) > precision {
 		// Rounded up to 10^precision, e.g. 9.99 with precision 2.
 		return "1" + strings.Repeat("0", precision-1), exponent + 1
 	}
-	return n.String(), exponent
+	return digits, exponent
 }
 
+// powerOfTen returns 10^exp as an exact rational.
 func powerOfTen(exp int) *big.Rat {
 	if exp >= 0 {
 		return new(big.Rat).SetInt(new(big.Int).Exp(bigTen, big.NewInt(int64(exp)), nil))
@@ -54,6 +55,8 @@ func powerOfTen(exp int) *big.Rat {
 	return new(big.Rat).SetFrac(big.NewInt(1), new(big.Int).Exp(bigTen, big.NewInt(int64(-exp)), nil))
 }
 
+// exponentSuffix formats an exponent the way the spec does: "e+" or "e-"
+// followed by the digits, with no leading zeros (e.g. "e+0", "e-7").
 func exponentSuffix(exponent int) string {
 	if exponent < 0 {
 		return "e-" + strconv.Itoa(-exponent)
@@ -88,18 +91,19 @@ func numberToExponential(value float64, fractionDigits int) string {
 		sign = "-"
 		value = -value
 	}
+	if fractionDigits < 0 && value != 0 {
+		// Shortest round-trip digits. FormatFloat already gives the mantissa
+		// in the right shape ("7.71234e+01"); only the exponent needs its
+		// leading zero dropped.
+		mantissa, exp, _ := strings.Cut(strconv.FormatFloat(value, 'e', -1, 64), "e")
+		exponent, _ := strconv.Atoi(exp)
+		return sign + mantissa + exponentSuffix(exponent)
+	}
 	var digits string
 	var exponent int
-	switch {
-	case value == 0:
+	if value == 0 {
 		digits = strings.Repeat("0", max(fractionDigits, 0)+1)
-	case fractionDigits < 0:
-		// Shortest round-trip digits, e.g. "7.71234e+01".
-		formatted := strconv.FormatFloat(value, 'e', -1, 64)
-		mantissa, exp, _ := strings.Cut(formatted, "e")
-		digits = strings.Replace(mantissa, ".", "", 1)
-		exponent, _ = strconv.Atoi(exp)
-	default:
+	} else {
 		digits, exponent = significantDigits(value, fractionDigits+1)
 	}
 	if len(digits) > 1 {
@@ -115,8 +119,11 @@ func numberToPrecision(value float64, precision int) string {
 		sign = "-"
 		value = -value
 	}
-	digits, exponent := strings.Repeat("0", precision), 0
-	if value != 0 {
+	var digits string
+	var exponent int
+	if value == 0 {
+		digits = strings.Repeat("0", precision)
+	} else {
 		digits, exponent = significantDigits(value, precision)
 	}
 	switch {
