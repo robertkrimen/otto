@@ -593,6 +593,13 @@ func TestBinaryShiftOperation(t *testing.T) {
 		test("stu", -1)
 		test("vwx", -1073741824)
 		test("yz", 1073741824)
+
+		// Values of 2^63 and more wrap modulo 2^32 like smaller ones.
+		test(`[
+            1e21 >>> 0, 1e21 | 0, -1e21 >>> 0, -1e21 | 0,
+            1e21 << 1, 1e21 >> 1, 9.3e18 >>> 0, (Math.pow(2, 63) + Math.pow(2, 12)) | 0,
+            String.fromCharCode(1e21).charCodeAt(0)
+        ].join()`, "3735027712,-559939584,559939584,559939584,-1119879168,-279969792,4213309440,4096,0")
 	})
 }
 

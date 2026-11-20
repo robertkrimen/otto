@@ -213,6 +213,17 @@ func (v Value) number() _number {
 	return num
 }
 
+// modUint32 returns the integer part of a finite value modulo 2^32.
+// Converting to int64 first is not enough: Go leaves the result of an
+// out-of-range float to integer conversion to the platform.
+func modUint32(value float64) uint32 {
+	value = math.Mod(math.Trunc(value), 1<<32)
+	if value < 0 {
+		value += 1 << 32
+	}
+	return uint32(value)
+}
+
 // ECMA 262: 9.5.
 func toInt32(value Value) int32 {
 	switch value := value.value.(type) {
@@ -229,8 +240,7 @@ func toInt32(value Value) int32 {
 		return 0
 	}
 
-	// Convert to int64 before int32 to force correct wrapping.
-	return int32(int64(floatValue))
+	return int32(modUint32(floatValue))
 }
 
 func toUint32(value Value) uint32 {
@@ -252,8 +262,7 @@ func toUint32(value Value) uint32 {
 		return 0
 	}
 
-	// Convert to int64 before uint32 to force correct wrapping.
-	return uint32(int64(floatValue))
+	return modUint32(floatValue)
 }
 
 // ECMA 262 - 6.0 - 7.1.8.
@@ -272,8 +281,7 @@ func toUint16(value Value) uint16 {
 		return 0
 	}
 
-	// Convert to int64 before uint16 to force correct wrapping.
-	return uint16(int64(floatValue))
+	return uint16(modUint32(floatValue))
 }
 
 // toIntSign returns sign of a number converted to -1, 0 ,1.
