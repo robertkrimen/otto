@@ -166,6 +166,25 @@ func TestString_lastIndexOf(t *testing.T) {
 		test(`"abcdef".lastIndexOf("c", 9.3e18)`, 2)
 		test(`"abcdef".lastIndexOf("c", -1e19)`, -1)
 
+		// The position is converted once: valueOf returns 2, then 0.
+		test(`
+            var calls = 0;
+            var pos = {valueOf: function() { calls++; return calls === 1 ? 2 : 0; }};
+            [ "ababa".lastIndexOf("a", pos), calls ];
+        `, "2,1")
+
+		// Repeated text with long targets that differ only at the end or start.
+		test(`
+            var text = new Array(2001).join("é");
+            [
+                (text + "x").indexOf(text.slice(1) + "x", 1),
+                (text + "x").indexOf(text + "y", 1),
+                ("x" + text).lastIndexOf("x" + text.slice(1), 5000),
+                ("x" + text).lastIndexOf("y" + text, 5000),
+                (text + "ab").lastIndexOf("éa", 3000),
+            ];
+        `, "1,-1,0,-1,1999")
+
 		test(`
             abc = new Object(true);
             abc.lastIndexOf = String.prototype.lastIndexOf;

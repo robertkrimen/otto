@@ -103,14 +103,53 @@ func clampStringPosition(position float64, length int) int {
 	}
 }
 
-// hasUTF16At reports whether target occurs in value at index.
-func hasUTF16At(value, target []uint16, index int) bool {
-	for i, unit := range target {
-		if value[index+i] != unit {
+// isASCII reports whether s has only ASCII bytes, so byte and UTF-16 offsets agree.
+func isASCII(s string) bool {
+	for i := range len(s) {
+		if s[i] >= utf8.RuneSelf {
 			return false
 		}
 	}
 	return true
+}
+
+// indexUTF16 returns the first index of target in value, or -1, in O(len(value)+len(target)).
+func indexUTF16(value, target []uint16) int {
+	if len(target) == 0 {
+		return 0
+	}
+	// Knuth-Morris-Pratt: fail[i] is the length of the longest proper border of target[:i+1].
+	fail := make([]int, len(target))
+	for i, k := 1, 0; i < len(target); i++ {
+		for k > 0 && target[i] != target[k] {
+			k = fail[k-1]
+		}
+		if target[i] == target[k] {
+			k++
+		}
+		fail[i] = k
+	}
+	for i, k := 0, 0; i < len(value); i++ {
+		for k > 0 && value[i] != target[k] {
+			k = fail[k-1]
+		}
+		if value[i] == target[k] {
+			k++
+		}
+		if k == len(target) {
+			return i - k + 1
+		}
+	}
+	return -1
+}
+
+// reverseUTF16 returns a reversed copy of units.
+func reverseUTF16(units []uint16) []uint16 {
+	reversed := make([]uint16, len(units))
+	for i, unit := range units {
+		reversed[len(units)-1-i] = unit
+	}
+	return reversed
 }
 
 func builtinStringIndexOf(call FunctionCall) Value {
@@ -120,14 +159,19 @@ func builtinStringIndexOf(call FunctionCall) Value {
 	if 2 > len(call.ArgumentList) {
 		return intValue(indexRune(value, target))
 	}
+	position := toIntegerFloat(call.Argument(1))
 	// Positions count UTF-16 code units, not bytes.
-	source := utf16.Encode([]rune(value))
-	search := utf16.Encode([]rune(target))
-	start := clampStringPosition(toIntegerFloat(call.Argument(1)), len(source))
-	for index := start; index+len(search) <= len(source); index++ {
-		if hasUTF16At(source, search, index) {
-			return intValue(index)
+	if isASCII(value) {
+		start := clampStringPosition(position, len(value))
+		if index := strings.Index(value[start:], target); index >= 0 {
+			return intValue(start + index)
 		}
+		return intValue(-1)
+	}
+	source := utf16.Encode([]rune(value))
+	start := clampStringPosition(position, len(source))
+	if index := indexUTF16(source[start:], utf16.Encode([]rune(target))); index >= 0 {
+		return intValue(start + index)
 	}
 	return intValue(-1)
 }
@@ -139,23 +183,27 @@ func builtinStringLastIndexOf(call FunctionCall) Value {
 	if 2 > len(call.ArgumentList) || call.ArgumentList[1].IsUndefined() {
 		return intValue(lastIndexRune(value, target))
 	}
+	// Convert the position once: float64 may call valueOf or toString.
+	position := call.ArgumentList[1].float64()
+	if math.IsNaN(position) {
+		// A NaN position means +Infinity, so the whole string is searched.
+		position = math.Inf(1)
+	}
+	position = math.Trunc(position)
 	// Positions count UTF-16 code units, not bytes.
+	if isASCII(value) {
+		end := min(clampStringPosition(position, len(value))+len(target), len(value))
+		return intValue(strings.LastIndex(value[:end], target))
+	}
 	source := utf16.Encode([]rune(value))
 	search := utf16.Encode([]rune(target))
-	start := len(source)
-	// A NaN position means +Infinity, so the whole string is searched.
-	if position := call.ArgumentList[1].float64(); !math.IsNaN(position) {
-		start = clampStringPosition(toIntegerFloat(call.ArgumentList[1]), len(source))
+	end := min(clampStringPosition(position, len(source))+len(search), len(source))
+	// The last match ending by end is the first match of the reversed target in the reversed prefix.
+	index := indexUTF16(reverseUTF16(source[:end]), reverseUTF16(search))
+	if index < 0 {
+		return intValue(-1)
 	}
-	if last := len(source) - len(search); start > last {
-		start = last
-	}
-	for index := start; index >= 0; index-- {
-		if hasUTF16At(source, search, index) {
-			return intValue(index)
-		}
-	}
-	return intValue(-1)
+	return intValue(end - index - len(search))
 }
 
 func builtinStringMatch(call FunctionCall) Value {
