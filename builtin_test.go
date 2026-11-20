@@ -48,6 +48,15 @@ func TestString_substr(t *testing.T) {
             ];
         `, "c,c,c,c,c")
 
+		// A length that overflows start+length is clamped to the end.
+		test(`
+            [
+                "abcdef".substr(2,1e19),
+                "abcdef".substr(-2,1e19),
+                "abcdef".substr(1,9.3e18),
+            ];
+        `, "cdef,ef,bcdef")
+
 		test(`
             [
                 "abc".substr(3,1), // ""

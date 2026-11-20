@@ -2,6 +2,7 @@ package otto
 
 import (
 	"bytes"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -90,6 +91,67 @@ func utf16Length(s string) int {
 	return len(utf16.Encode([]rune(s)))
 }
 
+// clampStringPosition converts an integer position to an index in [0, length].
+func clampStringPosition(position float64, length int) int {
+	switch {
+	case position <= 0:
+		return 0
+	case position >= float64(length):
+		return length
+	default:
+		return int(position)
+	}
+}
+
+// isASCII reports whether s has only ASCII bytes, so byte and UTF-16 offsets agree.
+func isASCII(s string) bool {
+	for i := range len(s) {
+		if s[i] >= utf8.RuneSelf {
+			return false
+		}
+	}
+	return true
+}
+
+// indexUTF16 returns the first index of target in value, or -1, in O(len(value)+len(target)).
+func indexUTF16(value, target []uint16) int {
+	if len(target) == 0 {
+		return 0
+	}
+	// Knuth-Morris-Pratt: fail[i] is the length of the longest proper border of target[:i+1].
+	fail := make([]int, len(target))
+	for i, k := 1, 0; i < len(target); i++ {
+		for k > 0 && target[i] != target[k] {
+			k = fail[k-1]
+		}
+		if target[i] == target[k] {
+			k++
+		}
+		fail[i] = k
+	}
+	for i, k := 0, 0; i < len(value); i++ {
+		for k > 0 && value[i] != target[k] {
+			k = fail[k-1]
+		}
+		if value[i] == target[k] {
+			k++
+		}
+		if k == len(target) {
+			return i - k + 1
+		}
+	}
+	return -1
+}
+
+// reverseUTF16 returns a reversed copy of units.
+func reverseUTF16(units []uint16) []uint16 {
+	reversed := make([]uint16, len(units))
+	for i, unit := range units {
+		reversed[len(units)-1-i] = unit
+	}
+	return reversed
+}
+
 func builtinStringIndexOf(call FunctionCall) Value {
 	checkObjectCoercible(call.runtime, call.This)
 	value := call.This.string()
@@ -97,20 +159,21 @@ func builtinStringIndexOf(call FunctionCall) Value {
 	if 2 > len(call.ArgumentList) {
 		return intValue(indexRune(value, target))
 	}
-	start := toIntegerFloat(call.Argument(1))
-	if 0 > start {
-		start = 0
-	} else if start >= float64(len(value)) {
-		if target == "" {
-			return intValue(len(value))
+	position := toIntegerFloat(call.Argument(1))
+	// Positions count UTF-16 code units, not bytes.
+	if isASCII(value) {
+		start := clampStringPosition(position, len(value))
+		if index := strings.Index(value[start:], target); index >= 0 {
+			return intValue(start + index)
 		}
 		return intValue(-1)
 	}
-	index := indexRune(value[int(start):], target)
-	if index >= 0 {
-		index += int(start)
+	source := utf16.Encode([]rune(value))
+	start := clampStringPosition(position, len(source))
+	if index := indexUTF16(source[start:], utf16.Encode([]rune(target))); index >= 0 {
+		return intValue(start + index)
 	}
-	return intValue(index)
+	return intValue(-1)
 }
 
 func builtinStringLastIndexOf(call FunctionCall) Value {
@@ -120,23 +183,27 @@ func builtinStringLastIndexOf(call FunctionCall) Value {
 	if 2 > len(call.ArgumentList) || call.ArgumentList[1].IsUndefined() {
 		return intValue(lastIndexRune(value, target))
 	}
-	length := len(value)
-	if length == 0 {
-		return intValue(lastIndexRune(value, target))
+	// Convert the position once: float64 may call valueOf or toString.
+	position := call.ArgumentList[1].float64()
+	if math.IsNaN(position) {
+		// A NaN position means +Infinity, so the whole string is searched.
+		position = math.Inf(1)
 	}
-	start := call.ArgumentList[1].number()
-	if start.kind == numberInfinity { // FIXME
-		// startNumber is infinity, so start is the end of string (start = length)
-		return intValue(lastIndexRune(value, target))
+	position = math.Trunc(position)
+	// Positions count UTF-16 code units, not bytes.
+	if isASCII(value) {
+		end := min(clampStringPosition(position, len(value))+len(target), len(value))
+		return intValue(strings.LastIndex(value[:end], target))
 	}
-	if 0 > start.int64 {
-		start.int64 = 0
+	source := utf16.Encode([]rune(value))
+	search := utf16.Encode([]rune(target))
+	end := min(clampStringPosition(position, len(source))+len(search), len(source))
+	// The last match ending by end is the first match of the reversed target in the reversed prefix.
+	index := indexUTF16(reverseUTF16(source[:end]), reverseUTF16(search))
+	if index < 0 {
+		return intValue(-1)
 	}
-	end := int(start.int64) + len(target)
-	if end > length {
-		end = length
-	}
-	return intValue(lastIndexRune(value[:end], target))
+	return intValue(end - index - len(search))
 }
 
 func builtinStringMatch(call FunctionCall) Value {
@@ -436,7 +503,7 @@ func builtinStringSubstr(call FunctionCall) Value {
 		return stringValue("")
 	}
 
-	if start+length >= size {
+	if length >= size-start {
 		// Cap length to be to the end of the string
 		// start = 3, length = 5, size = 4 [0, 1, 2, 3]
 		// 4 - 3 = 1
