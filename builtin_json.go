@@ -136,8 +136,8 @@ func builtinJSONStringify(call FunctionCall) Value {
 					continue
 				}
 				seen[name] = true
+				propertyList[length] = name
 				length++
-				propertyList[index] = name
 			}
 			ctx.propertyList = propertyList[0:length]
 		} else if replacer.class == classFunctionName {

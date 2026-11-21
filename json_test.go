@@ -187,3 +187,35 @@ func TestJSON_stringify(t *testing.T) {
         `, `{"def":{"ghi":{"pi":3.14159}},"ghi":{"pi":3.14159}}`)
 	})
 }
+
+func TestJSON_stringifyReplacerArrayCompaction(t *testing.T) {
+	cases := []struct {
+		name, script, want string
+	}{
+		{"leading_ignored", `JSON.stringify({keep: 1}, [null, "keep"])`, `{"keep":1}`},
+		{"middle_ignored", `JSON.stringify({a: 1, b: 2}, ["a", false, "b"])`, `{"a":1,"b":2}`},
+		{"duplicate", `JSON.stringify({a: 1, b: 2}, ["a", "a", "b"])`, `{"a":1,"b":2}`},
+		{"sparse", `JSON.stringify({keep: 1}, [,,"keep"])`, `{"keep":1}`},
+		{"boxed_duplicate", `JSON.stringify({1: 1, b: 2}, [new Number(1), "1", new String("b")])`, `{"1":1,"b":2}`},
+		{"ignored_object", `JSON.stringify({keep: 1}, [{toString: function() { throw "unused"; }}, "keep"])`, `{"keep":1}`},
+		{"empty_key_not_selected", `JSON.stringify({"": "private", keep: 1}, [null, "keep"])`, `{"keep":1}`},
+		{"nested", `JSON.stringify({child: {keep: 1, drop: 2}}, [false, "child", "keep"])`, `{"child":{"keep":1}}`},
+		{"getter_visited", `(function() { var calls = 0, obj = {}; Object.defineProperty(obj, "keep", {get: function() { calls++; return 7; }}); return JSON.stringify(obj, [null, "keep"]) + ":" + calls; })()`, `{"keep":7}:1`},
+		{"all_valid_control", `JSON.stringify({a: 1, b: 2, drop: 3}, ["a", "b"])`, `{"a":1,"b":2}`},
+		{"all_ignored_control", `JSON.stringify({a: 1}, [null, false, {}])`, `{}`},
+		{"empty_control", `JSON.stringify({a: 1}, [])`, `{}`},
+		{"empty_key_selected_control", `JSON.stringify({"": 1, a: 2}, [""])`, `{"":1}`},
+		{"array_control", `JSON.stringify([1, {keep: 2}], ["keep"])`, `[1,{"keep":2}]`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			value, err := New().Run(tc.script)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := value.String(); got != tc.want {
+				t.Fatalf("got %s, want %s", got, tc.want)
+			}
+		})
+	}
+}
