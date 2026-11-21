@@ -628,13 +628,18 @@ func builtinArrayReduce(call FunctionCall) Value {
 		if length > 0 || initial {
 			var accumulator Value
 			if !initial {
+				found := false
 				for ; index < length; index++ {
 					if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 						accumulator = thisObject.get(key)
+						found = true
 						index++
 
 						break
 					}
+				}
+				if !found {
+					panic(call.runtime.panicTypeError("Array.reduce of empty array with no initial value"))
 				}
 			} else {
 				accumulator = start
@@ -661,19 +666,24 @@ func builtinArrayReduceRight(call FunctionCall) Value {
 			index := length - 1
 			var accumulator Value
 			if !initial {
+				found := false
 				for ; index >= 0; index-- {
 					if key := arrayIndexToString(index); thisObject.hasProperty(key) {
 						accumulator = thisObject.get(key)
+						found = true
 						index--
 						break
 					}
+				}
+				if !found {
+					panic(call.runtime.panicTypeError("Array.reduceRight of empty array with no initial value"))
 				}
 			} else {
 				accumulator = start
 			}
 			for ; index >= 0; index-- {
 				if key := arrayIndexToString(index); thisObject.hasProperty(key) {
-					accumulator = iterator.call(call.runtime, Value{}, accumulator, thisObject.get(key), key, this)
+					accumulator = iterator.call(call.runtime, Value{}, accumulator, thisObject.get(key), index, this)
 				}
 			}
 			return accumulator
