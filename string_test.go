@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -507,4 +508,38 @@ func TestString_trimEnd(t *testing.T) {
 			a.length + b.length
 		`, 11)
 	})
+}
+
+func benchmarkScript(b *testing.B, setup, src string) {
+	b.Helper()
+	vm := New()
+	if _, err := vm.Run(setup); err != nil {
+		b.Fatal(err)
+	}
+	script, err := vm.Compile("", src)
+	if err != nil {
+		b.Fatal(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if _, err = vm.Run(script); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkStringCharCodeAtASCII(b *testing.B) {
+	benchmarkScript(b, `var s = "`+strings.Repeat("a", 2000)+`";`, `var t = 0; for (var i = 0; i < s.length; i++) t += s.charCodeAt(i);`)
+}
+
+func BenchmarkStringCharCodeAtWide(b *testing.B) {
+	benchmarkScript(b, `var s = "`+strings.Repeat("é", 2000)+`";`, `var t = 0; for (var i = 0; i < s.length; i++) t += s.charCodeAt(i);`)
+}
+
+func BenchmarkStringCharAtWide(b *testing.B) {
+	benchmarkScript(b, `var s = "`+strings.Repeat("é", 2000)+`";`, `var t = ""; for (var i = 0; i < s.length; i++) t = s.charAt(i);`)
+}
+
+func BenchmarkStringMixed(b *testing.B) {
+	benchmarkScript(b, ``, `var a = []; for (var i = 0; i < 200; i++) { var s = "k" + i; a.push(s.toUpperCase().indexOf("1") + s.length + s.slice(1).length); } a.join(",")`)
 }
