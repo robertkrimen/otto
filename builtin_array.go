@@ -500,6 +500,9 @@ func builtinArrayIndexOf(call FunctionCall) Value {
 func builtinArrayLastIndexOf(call FunctionCall) Value {
 	thisObject, matchValue := call.thisObject(), call.Argument(0)
 	length := int64(toUint32(thisObject.get(propertyLength)))
+	if length == 0 {
+		return intValue(-1)
+	}
 	index := length - 1
 	if len(call.ArgumentList) > 1 {
 		index = call.Argument(1).number().int64
@@ -507,7 +510,7 @@ func builtinArrayLastIndexOf(call FunctionCall) Value {
 	if 0 > index {
 		index += length
 	}
-	if index > length {
+	if index >= length {
 		index = length - 1
 	} else if 0 > index {
 		return intValue(-1)
