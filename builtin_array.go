@@ -322,8 +322,8 @@ func builtinArrayReverse(call FunctionCall) Value {
 			thisObject.put(upper.name, lowerValue, true)
 		case !lower.exists && upper.exists:
 			value := thisObject.get(upper.name)
-			thisObject.delete(upper.name, true)
 			thisObject.put(lower.name, value, true)
+			thisObject.delete(upper.name, true)
 		case lower.exists && !upper.exists:
 			value := thisObject.get(lower.name)
 			thisObject.delete(lower.name, true)
