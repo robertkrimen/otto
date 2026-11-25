@@ -178,6 +178,18 @@ func TestArray_splice(t *testing.T) {
 
 		test(`
             abc = [0, 1, 2];
+            def = abc.splice();
+            [abc, def].join(";");
+        `, "0,1,2;")
+
+		test(`
+            abc = {0: "a", 1: "b", length: 2};
+            def = Array.prototype.splice.call(abc);
+            [abc[0], abc[1], abc.length, def.length].join(";");
+        `, "a;b;2;0")
+
+		test(`
+            abc = [0, 1, 2];
             def = abc.splice(1, 2, 3, 4, 5);
             ghi = [].concat(abc);
             jkl = ghi.splice(17, 21, 7, 8, 9);
