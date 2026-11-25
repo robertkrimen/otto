@@ -100,16 +100,10 @@ func (rt *runtime) newBoundFunctionObject(target *object, this Value, argumentLi
 
 // [[Construct]].
 func (fn bindFunctionObject) construct(argumentList []Value) Value {
-	obj := fn.target
-	switch value := obj.value.(type) {
-	case nativeFunctionObject:
-		return value.construct(obj, fn.argumentList)
-	case nodeFunctionObject:
-		argumentList = append(fn.argumentList, argumentList...)
-		return obj.construct(argumentList)
-	default:
-		panic(fn.target.runtime.panicTypeError("construct unknown type %T", obj.value))
-	}
+	arguments := make([]Value, 0, len(fn.argumentList)+len(argumentList))
+	arguments = append(arguments, fn.argumentList...)
+	arguments = append(arguments, argumentList...)
+	return fn.target.construct(arguments)
 }
 
 // nodeFunctionObject.
