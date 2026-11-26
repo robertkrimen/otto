@@ -156,6 +156,8 @@ func TestString_match(t *testing.T) {
 		test(`"abc____abc_abc___".match(/__abc/)`, "__abc")
 		test(`"abc___abc_abc__abc__abc".match(/abc/g)`, "abc,abc,abc,abc,abc")
 		test(`"abc____abc_abc___".match(/__abc/g)`, "__abc")
+		test(`"abc".match(/x/) === null`, true)
+		test(`"abc".match(/x/g) === null`, true)
 		test(`
             abc = /abc/g
             "abc___abc_abc__abc__abc".match(abc)

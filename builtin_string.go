@@ -159,7 +159,7 @@ func builtinStringMatch(call FunctionCall) Value {
 	result := matcher.regExpValue().regularExpression.FindAllStringIndex(target, -1)
 	if result == nil {
 		matcher.put("lastIndex", intValue(0), true)
-		return Value{} // !match
+		return nullValue
 	}
 	matchCount := len(result)
 	valueArray := make([]Value, matchCount)
