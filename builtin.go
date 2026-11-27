@@ -126,6 +126,9 @@ func builtinGlobalParseInt(call FunctionCall) Value {
 		return NaNValue()
 	}
 	if negative {
+		if value == 0 {
+			return float64Value(math.Copysign(0, -1))
+		}
 		value *= -1
 	}
 

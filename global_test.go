@@ -198,6 +198,9 @@ func Test_parseInt(t *testing.T) {
 		test, _ := test()
 
 		test(`parseInt("0")`, 0)
+		test(`1 / parseInt("-0")`, -infinity)
+		test(`1 / parseInt("-000", 10)`, -infinity)
+		test(`1 / parseInt("-0x0", 16)`, -infinity)
 		test(`parseInt("11")`, 11)
 		test(`parseInt(" 11")`, 11)
 		test(`parseInt("11 ")`, 11)
