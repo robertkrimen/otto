@@ -172,8 +172,12 @@ func (o *object) call(this Value, argumentList []Value, eval bool, frm frame) Va
 
 		// Enter a scope, name from the native object...
 		rt := o.runtime
-		if rt.scope != nil && !eval {
-			rt.enterFunctionScope(rt.scope.lexical, this)
+		if !eval {
+			var outer stasher
+			if rt.scope != nil {
+				outer = rt.scope.lexical
+			}
+			rt.enterFunctionScope(outer, this)
 			rt.scope.frame = frame{
 				native:     true,
 				nativeFile: fn.file,
