@@ -173,7 +173,10 @@ func builtinMathRandom(call FunctionCall) Value {
 
 func builtinMathRound(call FunctionCall) Value {
 	number := call.Argument(0).float64()
-	value := math.Floor(number + 0.5)
+	value := math.Floor(number)
+	if number-value >= 0.5 {
+		value++
+	}
 	if value == 0 {
 		value = math.Copysign(0, number)
 	}
