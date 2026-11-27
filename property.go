@@ -196,21 +196,24 @@ func toPropertyDescriptor(rt *runtime, value Value) property {
 
 func (rt *runtime) fromPropertyDescriptor(descriptor property) *object {
 	obj := rt.newObject()
-	if descriptor.isDataDescriptor() {
-		obj.defineProperty("value", descriptor.value.(Value), 0o111, false)
-		obj.defineProperty("writable", boolValue(descriptor.writable()), 0o111, false)
-	} else if descriptor.isAccessorDescriptor() {
-		getSet := descriptor.value.(propertyGetSet)
+	// An accessor property's value holds a propertyGetSet rather than a Value,
+	// so it must be reflected as get/set before falling back to value/writable.
+	// Check the underlying value type directly: a property's write mode bits do
+	// not reliably distinguish an accessor from a data descriptor.
+	if getSet, isAccessor := descriptor.value.(propertyGetSet); isAccessor {
 		get := Value{}
-		if getSet[0] != nil {
+		if getSet[0] != nil && getSet[0] != &nilGetSetObject {
 			get = objectValue(getSet[0])
 		}
 		set := Value{}
-		if getSet[1] != nil {
+		if getSet[1] != nil && getSet[1] != &nilGetSetObject {
 			set = objectValue(getSet[1])
 		}
 		obj.defineProperty("get", get, 0o111, false)
 		obj.defineProperty("set", set, 0o111, false)
+	} else {
+		obj.defineProperty("value", descriptor.value.(Value), 0o111, false)
+		obj.defineProperty("writable", boolValue(descriptor.writable()), 0o111, false)
 	}
 	obj.defineProperty("enumerable", boolValue(descriptor.enumerable()), 0o111, false)
 	obj.defineProperty("configurable", boolValue(descriptor.configurable()), 0o111, false)
