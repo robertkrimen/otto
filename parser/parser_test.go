@@ -8,6 +8,7 @@ import (
 
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/file"
+	"github.com/robertkrimen/otto/token"
 	"github.com/robertkrimen/otto/underscore"
 	"github.com/stretchr/testify/require"
 )
@@ -888,6 +889,78 @@ func TestParser(t *testing.T) {
                 { "dog": "bark" }, // Allow trailing comma after the last argument.
             );
         `, nil)
+	})
+}
+
+func Test_issue570(t *testing.T) {
+	tt(t, func() {
+		_, program, err := testParse("1 < 2 <= 1")
+		is(err, nil)
+		expr := program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.BinaryExpression)
+		is(expr.Operator, token.LESS_OR_EQUAL)
+		is(expr.Comparison, true)
+		left := expr.Left.(*ast.BinaryExpression)
+		is(left.Operator, token.LESS)
+		is(left.Comparison, true)
+		is(left.Left.(*ast.NumberLiteral).Literal, "1")
+		is(left.Right.(*ast.NumberLiteral).Literal, "2")
+		is(expr.Right.(*ast.NumberLiteral).Literal, "1")
+
+		_, program, err = testParse("3 > 2 > 1")
+		is(err, nil)
+		expr = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.BinaryExpression)
+		is(expr.Operator, token.GREATER)
+		is(expr.Left.(*ast.BinaryExpression).Operator, token.GREATER)
+
+		_, program, err = testParse("1 <= 2 < 3")
+		is(err, nil)
+		expr = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.BinaryExpression)
+		is(expr.Operator, token.LESS)
+		is(expr.Comparison, true)
+		is(expr.Left.(*ast.BinaryExpression).Operator, token.LESS_OR_EQUAL)
+
+		_, program, err = testParse("3 >= 2 >= 1")
+		is(err, nil)
+		expr = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.BinaryExpression)
+		is(expr.Operator, token.GREATER_OR_EQUAL)
+		is(expr.Comparison, true)
+		is(expr.Left.(*ast.BinaryExpression).Operator, token.GREATER_OR_EQUAL)
+		is(expr.Left.(*ast.BinaryExpression).Comparison, true)
+
+		_, program, err = testParse("a instanceof b instanceof c")
+		is(err, nil)
+		expr = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.BinaryExpression)
+		is(expr.Operator, token.INSTANCEOF)
+		is(expr.Comparison, false)
+		is(expr.Left.(*ast.BinaryExpression).Operator, token.INSTANCEOF)
+		is(expr.Left.(*ast.BinaryExpression).Comparison, false)
+		is(expr.Right.(*ast.Identifier).Name, "c")
+
+		_, program, err = testParse("'a' in b in c")
+		is(err, nil)
+		expr = program.Body[0].(*ast.ExpressionStatement).Expression.(*ast.BinaryExpression)
+		is(expr.Operator, token.IN)
+		is(expr.Comparison, false)
+		is(expr.Left.(*ast.BinaryExpression).Operator, token.IN)
+		is(expr.Right.(*ast.Identifier).Name, "c")
+
+		_, program, err = testParse("for (var x = 1 < 2; false;) {}")
+		is(err, nil)
+		forStmt, isFor := program.Body[0].(*ast.ForStatement)
+		is(isFor, true)
+		init := forStmt.Initializer.(*ast.SequenceExpression).Sequence[0].(*ast.VariableExpression)
+		initExpr := init.Initializer.(*ast.BinaryExpression)
+		is(initExpr.Operator, token.LESS)
+		is(initExpr.Comparison, true)
+
+		_, program, err = testParse("for (var x = 1 < 2 in {}) {}")
+		is(err, nil)
+		forIn, isForIn := program.Body[0].(*ast.ForInStatement)
+		is(isForIn, true)
+		into := forIn.Into.(*ast.VariableExpression)
+		intoExpr := into.Initializer.(*ast.BinaryExpression)
+		is(intoExpr.Operator, token.LESS)
+		is(intoExpr.Right.(*ast.NumberLiteral).Literal, "2")
 	})
 }
 

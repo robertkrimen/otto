@@ -705,50 +705,26 @@ func (p *parser) parseRelationalExpression() ast.Expression {
 		p.scope.allowIn = allowIn
 	}()
 
-	switch p.token {
-	case token.LESS, token.LESS_OR_EQUAL, token.GREATER, token.GREATER_OR_EQUAL:
+	// ES5.1 §11.8: relational operators are left-associative and the right
+	// operand is a ShiftExpression. Stop before `in` when the saved allowIn
+	// is false, so a for-in initializer does not swallow the `in`.
+	for p.token == token.LESS || p.token == token.LESS_OR_EQUAL ||
+		p.token == token.GREATER || p.token == token.GREATER_OR_EQUAL ||
+		p.token == token.INSTANCEOF || (allowIn && p.token == token.IN) {
 		tkn := p.token
+		comparison := tkn == token.LESS || tkn == token.LESS_OR_EQUAL ||
+			tkn == token.GREATER || tkn == token.GREATER_OR_EQUAL
 		if p.mode&StoreComments != 0 {
 			p.comments.Unset()
 		}
 		p.next()
 
-		exp := &ast.BinaryExpression{
+		left = &ast.BinaryExpression{
 			Operator:   tkn,
 			Left:       left,
-			Right:      p.parseRelationalExpression(),
-			Comparison: true,
+			Right:      next(),
+			Comparison: comparison,
 		}
-		return exp
-	case token.INSTANCEOF:
-		tkn := p.token
-		if p.mode&StoreComments != 0 {
-			p.comments.Unset()
-		}
-		p.next()
-
-		exp := &ast.BinaryExpression{
-			Operator: tkn,
-			Left:     left,
-			Right:    p.parseRelationalExpression(),
-		}
-		return exp
-	case token.IN:
-		if !allowIn {
-			return left
-		}
-		tkn := p.token
-		if p.mode&StoreComments != 0 {
-			p.comments.Unset()
-		}
-		p.next()
-
-		exp := &ast.BinaryExpression{
-			Operator: tkn,
-			Left:     left,
-			Right:    p.parseRelationalExpression(),
-		}
-		return exp
 	}
 
 	return left
