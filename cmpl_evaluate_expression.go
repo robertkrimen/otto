@@ -15,11 +15,7 @@ func (rt *runtime) cmplEvaluateNodeExpression(node nodeExpression) Value {
 	// FIXME: Test this
 	if rt.otto.Interrupt != nil {
 		goruntime.Gosched()
-		select {
-		case value := <-rt.otto.Interrupt:
-			value()
-		default:
-		}
+		rt.checkInterrupt()
 	}
 
 	switch node := node.(type) {
