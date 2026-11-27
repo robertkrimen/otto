@@ -30,19 +30,18 @@ func (o goSliceObject) getValue(index int64) (reflect.Value, bool) {
 	return reflect.Value{}, false
 }
 
-func (o *goSliceObject) setLength(value Value) {
-	want, err := value.ToInteger()
-	if err != nil {
-		panic(err)
+func (o *goSliceObject) setLength(rt *runtime, value Value) {
+	want := value.number()
+	if want.kind != numberInteger || !isUint32(want.int64) {
+		panic(rt.panicRangeError("Invalid array length"))
 	}
 
-	wantInt := int(want)
+	wantInt := int(want.int64)
 	switch {
 	case wantInt == o.value.Len():
 		// No change needed.
-	case wantInt < o.value.Cap():
-		// Fits in current capacity.
-		o.value.SetLen(wantInt)
+	case wantInt < o.value.Len():
+		o.value = o.value.Slice(0, wantInt)
 	default:
 		// Needs expanding.
 		newSlice := reflect.MakeSlice(o.value.Type(), wantInt, wantInt)
@@ -120,7 +119,7 @@ func goSliceEnumerate(obj *object, all bool, each func(string) bool) {
 
 func goSliceDefineOwnProperty(obj *object, name string, descriptor property, throw bool) bool {
 	if name == propertyLength {
-		obj.value.(*goSliceObject).setLength(descriptor.value.(Value))
+		obj.value.(*goSliceObject).setLength(obj.runtime, descriptor.value.(Value))
 		return true
 	} else if index := stringToArrayIndex(name); index >= 0 {
 		if obj.value.(*goSliceObject).setValue(index, descriptor.value.(Value)) {
