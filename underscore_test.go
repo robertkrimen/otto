@@ -4,8 +4,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/robertkrimen/otto/terst"
-	"github.com/robertkrimen/otto/underscore"
+	"github.com/kubeshark/otto/terst"
+	"github.com/kubeshark/otto/underscore"
 )
 
 func init() {
