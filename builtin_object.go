@@ -2,7 +2,6 @@ package otto
 
 import (
 	"fmt"
-	"strconv"
 )
 
 // Object
@@ -185,33 +184,21 @@ func builtinObjectPreventExtensions(call FunctionCall) Value {
 }
 
 func builtinObjectAssign(call FunctionCall) Value {
-	if len(call.ArgumentList) < 1 {
+	target := call.Argument(0)
+	if target.IsUndefined() || target.IsNull() {
 		panic(call.runtime.panicTypeError("Object.assign TypeError: Cannot convert undefined or null to object"))
 	}
-
-	target := call.ArgumentList[0]
-	targetObj := target.object()
-	if !target.IsObject() && target.IsNull() && target.IsUndefined() {
-		panic(call.runtime.panicTypeError("Object.assign TypeError: Cannot convert undefined or null to object"))
-	}
+	targetObj := call.runtime.toObject(target)
 
 	for _, source := range call.ArgumentList[1:] {
-		if source.IsString() {
-			sourceStr := source.string()
-			for i, r := range sourceStr {
-				targetObj.put(strconv.Itoa(i), stringValue(string(r)), true)
-			}
-		} else if source.IsObject() {
-			sourceObj := source.object()
-			sourceObj.enumerate(false, func(name string) bool {
-				descriptor := sourceObj.getOwnProperty(name)
-				ok := targetObj.defineOwnProperty(name, *descriptor, true)
-				if !ok {
-					panic(call.runtime.panicTypeError("Object.assign TypeError: Cannot convert undefined or null to object"))
-				}
-				return true
-			})
+		if source.IsUndefined() || source.IsNull() {
+			continue
 		}
+		sourceObj := call.runtime.toObject(source)
+		sourceObj.enumerate(false, func(name string) bool {
+			targetObj.put(name, sourceObj.get(name), true)
+			return true
+		})
 	}
 
 	return objectValue(targetObj)
