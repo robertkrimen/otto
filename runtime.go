@@ -143,6 +143,29 @@ func (rt *runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, isExcep
 	return inner(), false
 }
 
+// checkInterrupt runs a pending Interrupt function, if any, without blocking.
+// Native builtins that loop over JavaScript-controlled lengths must call it on
+// every iteration so that Interrupt can halt them.
+func (rt *runtime) checkInterrupt() {
+	if rt.otto.Interrupt == nil {
+		return
+	}
+	select {
+	case fn := <-rt.otto.Interrupt:
+		fn()
+	default:
+	}
+}
+
+// maxPreallocation caps slice capacity derived from JavaScript-controlled
+// lengths, so that e.g. {length: 4294967295} cannot trigger a huge allocation
+// before checkInterrupt gets a chance to run.
+const maxPreallocation = 1 << 16
+
+func preallocation(length int64) int64 {
+	return max(min(length, maxPreallocation), 0)
+}
+
 func (rt *runtime) toObject(value Value) *object {
 	switch value.kind {
 	case valueEmpty, valueUndefined, valueNull:

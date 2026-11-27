@@ -45,6 +45,7 @@ func builtinJSONReviveWalk(ctx builtinJSONParseContext, holder *object, name str
 		if isArray(obj) {
 			length := int64(objectLength(obj))
 			for index := range length {
+				ctx.call.runtime.checkInterrupt()
 				idxName := arrayIndexToString(index)
 				idxValue := builtinJSONReviveWalk(ctx, obj, idxName)
 				if idxValue.IsUndefined() {
@@ -116,9 +117,9 @@ func builtinJSONStringify(call FunctionCall) Value {
 		if isArray(replacer) {
 			length := objectLength(replacer)
 			seen := map[string]bool{}
-			propertyList := make([]string, length)
-			length = 0
-			for index := range propertyList {
+			propertyList := make([]string, 0, preallocation(int64(length)))
+			for index := range length {
+				call.runtime.checkInterrupt()
 				value := replacer.get(arrayIndexToString(int64(index)))
 				switch value.kind {
 				case valueObject:
@@ -136,10 +137,9 @@ func builtinJSONStringify(call FunctionCall) Value {
 					continue
 				}
 				seen[name] = true
-				length++
-				propertyList[index] = name
+				propertyList = append(propertyList, name)
 			}
-			ctx.propertyList = propertyList[0:length]
+			ctx.propertyList = propertyList
 		} else if replacer.class == classFunctionName {
 			value := objectValue(replacer)
 			ctx.replacerFunction = &value
@@ -263,11 +263,12 @@ func builtinJSONStringifyWalk(ctx builtinJSONStringifyContext, key string, holde
 			default:
 				panic(ctx.call.runtime.panicTypeError(fmt.Sprintf("JSON.stringify: invalid length: %v (%[1]T)", value)))
 			}
-			array := make([]interface{}, length)
-			for index := range array {
+			array := make([]interface{}, 0, preallocation(int64(length)))
+			for index := range length {
+				ctx.call.runtime.checkInterrupt()
 				name := arrayIndexToString(int64(index))
 				value, _ := builtinJSONStringifyWalk(ctx, name, objHolder)
-				array[index] = value
+				array = append(array, value)
 			}
 			return array, true
 		} else if objHolder.class != classFunctionName {
